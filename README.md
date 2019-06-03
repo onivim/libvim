@@ -2,26 +2,34 @@
 
 [![Build Status](https://dev.azure.com/onivim/oni2/_apis/build/status/onivim.libvim?branchName=master)](https://dev.azure.com/onivim/oni2/_build/latest?definitionId=3&branchName=master)
 
-## What is Vim? ##
+## What is `libvim`?
 
-Vim is a greatly improved version of the good old UNIX editor Vi.  Many new
-features have been added: multi-level undo, syntax highlighting, command line
-history, on-line help, spell checking, filename completion, block operations,
-script language, etc.  There is also a Graphical User Interface (GUI)
-available.  Still, Vi compatibility is maintained, those who have Vi "in the
-fingers" will feel at home.  See `runtime/doc/vi_diff.txt` for differences with
-Vi.
+`libvim` is a minimal C-based abstraction of Vim modal editing (it is an unofficial fork). It does not include any user interface, and is primarily responsible for acting as a fast buffer manipulation engine. 
 
-This editor is very useful for editing programs and other plain text files.
-All commands are given with normal keyboard characters, so those who can type
-with ten fingers can work very fast.  Additionally, function keys can be
-mapped to commands by the user, and the mouse can be used.
+## Why?
 
-Vim runs under MS-Windows (NT, 2000, XP, Vista, 7, 8, 10), Macintosh, VMS and
-almost all flavours of UNIX.  Porting to other systems should not be very
-difficult.  Older versions of Vim run on MS-DOS, MS-Windows 95/98/Me, Amiga
-DOS, Atari MiNT, BeOS, RISC OS and OS/2.  These are no longer maintained.
+`libvim` is an experiment primarily used for [Onivim 2](https://v2.onivim.io). After implementing several iterations of 'UI Vims' between v1, v2, and other projects, the abstraction I wished to have was a sort of a pure functional Vim, completely decoupled from terminal UI - where 'vim' is a function of `(editor state, input) => (new editor state)`.
 
+To that end, `libvim` exposes a simple C API for working with Vim, and supports listening to buffer changes, messages, etc. 
+
+It is responsible for:
+- Managing and manipulating buffers
+- Buffer manipulation in response to input
+- Parsing and sourcing VimL
+- Handling key remaps
+
+It is not responsible for:
+- Any sort of UI rendering (terminal, etc)
+- Mouse support
+- Syntax Highlighting
+- Spell Checking
+- Terminal Support
+
+Support TBD:
+- Folding
+- Line breaking
+
+`libvim` is planned to build cross-platform (since [Onivim 2](https://v2.onivim.io) requires it!), as well as for WebAssembly - we'd like to port our v1 tutorials to a browser-based experience.
 
 ## Distribution ##
 
