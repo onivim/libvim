@@ -12,6 +12,10 @@
  */
 void vimInit(int argc, char **argv);
 
+/***
+ * Buffer Methods
+ ***/
+
 /*
  * vimBufferOpen
  *
@@ -21,12 +25,23 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
 
 char_u *vimBufferGetLine(buf_T* buf, linenr_T lnum);
 
+void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
+
+/***
+ * Window Methods
+ ***/
+linenr_T vimWindowGetCursorLine(void);
+
+/***
+ * User Input
+ ***/
 void vimInput(char_u *input);
 
 void vimExecute(char_u *cmd);
 
-linenr_T vimWindowGetCursorLine(void);
-
+/***
+ * Misc
+ ***/
 int vimGetMode(void);
 
 /* vim: set ft=c : */

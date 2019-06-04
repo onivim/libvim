@@ -767,6 +767,16 @@ changed_lines_buf(
     linenr_T	lnume,	    // line below last changed line
     long	xtra)	    // number of extra lines (negative when deleting)
 {
+
+    if (bufferUpdateCallback != NULL) {
+	    bufferUpdate_T bufferUpdate;
+	    bufferUpdate.buf = buf;
+	    bufferUpdate.lnum = lnum;
+	    bufferUpdate.lnume = lnume;
+	    bufferUpdate.xtra = xtra;
+	    bufferUpdateCallback(bufferUpdate);
+    }
+
     if (buf->b_mod_set)
     {
 	// find the maximum area that must be redisplayed

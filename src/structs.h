@@ -2600,6 +2600,16 @@ struct file_buffer
 #endif
 }; /* file_buffer */
 
+/* buffer updates */
+
+typedef struct {
+    buf_T *buf;
+    linenr_T lnum; // first line with change
+    linenr_T lnume; // line below last changed line
+    long xtra; // number of extra lines (negative when deleting)
+} bufferUpdate_T;
+
+typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 
 #ifdef FEAT_DIFF
 /*
