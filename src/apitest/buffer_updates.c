@@ -7,10 +7,10 @@ static int lastLnume = 0;
 static long lastXtra = 0;
 
 void onBufferUpdate(bufferUpdate_T update) {
-    lastLnum = update.lnum;
-    lastLnume = update.lnume;
-    lastXtra = update.xtra;
-    updateCount++;
+  lastLnum = update.lnum;
+  lastLnume = update.lnume;
+  lastXtra = update.xtra;
+  updateCount++;
 }
 
 void test_setup(void) {
@@ -25,9 +25,7 @@ void test_setup(void) {
   lastXtra = 0;
 }
 
-void test_teardown(void) {
-
-}
+void test_teardown(void) {}
 
 MU_TEST(test_single_line_update) {
   vimInput("x");
@@ -83,13 +81,13 @@ MU_TEST(test_delete_multiple_lines) {
 }
 
 MU_TEST_SUITE(test_suite) {
-    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+  MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    MU_RUN_TEST(test_single_line_update);
-    MU_RUN_TEST(test_add_line);
-    MU_RUN_TEST(test_add_multiple_lines);
-    MU_RUN_TEST(test_delete_line);
-    MU_RUN_TEST(test_delete_multiple_lines);
+  MU_RUN_TEST(test_single_line_update);
+  MU_RUN_TEST(test_add_line);
+  MU_RUN_TEST(test_add_multiple_lines);
+  MU_RUN_TEST(test_delete_line);
+  MU_RUN_TEST(test_delete_multiple_lines);
 }
 
 int main(int argc, char **argv) {
