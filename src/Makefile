@@ -1773,7 +1773,7 @@ PRO_AUTO = \
 RSRC_DIR = os_mac_rsrc
 
 PRO_MANUAL = os_amiga.pro os_win32.pro \
-	os_mswin.pro winclip.pro os_beos.pro os_vms.pro $(PERL_PRO)
+	os_mswin.pro winclip.pro os_beos.pro $(PERL_PRO)
 
 # Default target is making the executable and tools
 all: $(VIMTARGET) $(TOOLS) languages $(GUI_BUNDLE)
@@ -1948,15 +1948,6 @@ os_beos.pro: os_beos.c
 	$(CPROTO) -D__BEOS__ -UHAVE_CONFIG_H $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
 
-os_vms.pro: os_vms.c
-# must use os_vms_conf.h for auto/config.h
-	mv auto/config.h auto/config.h.save
-	cp os_vms_conf.h auto/config.h
-	$(CPROTO) -DVMS -UFEAT_GUI_ATHENA -UFEAT_GUI_NEXTAW -UFEAT_GUI_MOTIF -UFEAT_GUI_GTK $< > proto/$@
-	echo "/* vim: set ft=c : */" >> proto/$@
-	rm auto/config.h
-	mv auto/config.h.save auto/config.h
-
 # if_perl.pro is special: Use the generated if_perl.c for input and remove
 # prototypes for local functions.
 if_perl.pro: auto/if_perl.c
@@ -2119,7 +2110,7 @@ TEST_EXE = $(TEST_SRC:.c=.test.exe)
 copy-apitest-collateral: $(TEST_COLLATERAL)
 	$(INSTALL_PROG) $< $(DEST_BIN)
 
-$(TEST_EXE): $(TEST_SRC) libvim.a
+apitest/%.test.exe: apitest/%.c libvim.a
 	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
