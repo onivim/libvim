@@ -36,6 +36,14 @@ int main(int argc, char **argv) {
   vimInput("x");
   vimInput("i");
   vimInput("a");
+  vimInput("b");
+  vimInput("c");
+  vimInput("d");
+  vimInput("e");
+  vimInput("\010");
+  vimInput("\033");
+  vimInput("d");
+  vimInput("d");
   printf("CURSOR LINE: %d\n", vimWindowGetCursorLine());
   /* assert(vimGetMode() & INSERT == INSERT); */
 

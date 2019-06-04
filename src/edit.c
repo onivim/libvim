@@ -706,6 +706,7 @@ do_intr:
 		/* break; */
 	    /* } */
 doESCkey:
+	    printf("doESCkey\n");
 	    /*
 	     * This is the ONLY return from edit()!
 	     */
@@ -722,9 +723,12 @@ doESCkey:
 		if (context->cmdchar != 'r' && context->cmdchar != 'v' && c != Ctrl_C)
 		    ins_apply_autocmds(EVENT_INSERTLEAVE);
 		did_cursorhold = FALSE;
-		return (c == Ctrl_O);
+		return COMPLETED;
+		/* TODO: Handle Ctrl_O */
+		/* return (c == Ctrl_O); */
 	    }
-	    return HANDLED;
+	    printf("escape key pressed!");
+	    return COMPLETED;
 
 	case Ctrl_Z:	/* suspend when 'insertmode' set */
 	    if (!p_im)
