@@ -1,6 +1,6 @@
 ![Vim Logo](https://github.com/vim/vim/blob/master/runtime/vimlogo.gif)
 
-[![Build Status](https://dev.azure.com/onivim/oni2/_apis/build/status/onivim.libvim?branchName=master)](https://dev.azure.com/onivim/oni2/_build/latest?definitionId=3&branchName=master)
+[![Build Status](https://dev.azure.com/onivim/oni2/_apis/build/status/onivim.libvim?branchName=master)](https://dev.azure.com/onivim/oni2/_build/latest?definitionId=4&branchName=master)
 
 ## What is Vim? ##
 
