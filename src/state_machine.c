@@ -11,9 +11,9 @@
 
 sm_T *sm_get_current() { return state_current; }
 
-char_u *sm_get_current_name() { return state_current->name; }
+int sm_get_current_mode() { return state_current->mode; }
 
-void sm_push(void *context, state_execute executeFn, state_cleanup cleanupFn) {
+void sm_push(int mode, void *context, state_execute executeFn, state_cleanup cleanupFn) {
   sm_T *lastState = state_current;
 
   sm_T *newState = (sm_T *)alloc(sizeof(sm_T));
@@ -22,8 +22,19 @@ void sm_push(void *context, state_execute executeFn, state_cleanup cleanupFn) {
   newState->execute_fn = executeFn;
   newState->cleanup_fn = cleanupFn;
   newState->context = context;
+  newState->mode = mode;
 
   state_current = newState;
+}
+
+void sm_push_normal() {
+    sm_push(NORMAL, state_normal_cmd_initialize(), state_normal_cmd_execute,
+	    state_normal_cmd_cleanup);
+}
+
+void sm_push_insert(int cmdchar, int startln, long count) {
+    sm_push(INSERT, state_edit_initialize(cmdchar, startln, count), state_edit_execute,
+	    state_edit_cleanup);
 }
 
 /*
@@ -35,8 +46,7 @@ void sm_push(void *context, state_execute executeFn, state_cleanup cleanupFn) {
 void sm_execute_normal(char_u *keys) {
 
   if (state_current == NULL) {
-    sm_push(state_normal_cmd_initialize(), state_normal_cmd_execute,
-            state_normal_cmd_cleanup);
+      sm_push_normal();
   }
 
   sm_execute(keys);
@@ -51,8 +61,7 @@ void sm_execute(char_u *keys) {
       char_u c = vgetc();
 
       if (state_current == NULL) {
-        sm_push(state_normal_cmd_initialize(), state_normal_cmd_execute,
-                state_normal_cmd_cleanup);
+	  sm_push_normal();
       }
 
       sm_T *current = state_current;
@@ -69,10 +78,12 @@ void sm_execute(char_u *keys) {
         vungetc(c);
         current->cleanup_fn(state_current->context);
         state_current = current->prev;
+	vim_free(current);
         break;
       case COMPLETED:
         current->cleanup_fn(state_current->context);
         state_current = current->prev;
+	vim_free(current);
         break;
       }
     }

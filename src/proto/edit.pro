@@ -1,4 +1,8 @@
 /* edit.c */
+void *state_edit_initialize(int cmdchar, int startln, long count);
+void state_edit_cleanup(void *ctx);
+executionStatus_T state_edit_execute(void *ctx, int c);
+
 int edit(int cmdchar, int startln, long count);
 int ins_need_undo_get(void);
 void ins_redraw(int ready);

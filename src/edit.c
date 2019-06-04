@@ -122,6 +122,292 @@ static int	did_add_space = FALSE;	// auto_format() added an extra space
 static int	dont_sync_undo = FALSE;	// CTRL-G U prevents syncing undo for
 					// the next left/right cursor key
 
+typedef struct {
+  int cmdchar;
+  int startln;
+  long count;
+  int c;
+  char_u *ptr;
+  int lastc;
+  int mincol;
+  int i;
+  int did_backspace;
+  int line_is_white;
+  linenr_T old_topline;
+  int old_topfill;
+  int inserted_space;
+  int replaceState;
+  int nomove;
+  int cmdchar_todo;
+} editState_T;
+
+static linenr_T o_lnum = 0;
+
+void *state_edit_initialize(int cmdchar, int startln, long count) {
+  printf("state_edit_initialize\n");
+  editState_T *context = (editState_T *)alloc(sizeof(editState_T));
+  context->cmdchar = cmdchar;
+  context->startln = startln;
+  context->count = count;
+  context->c = 0;
+  context->lastc = 0;
+  context->old_topline = 0;
+  context->old_topfill = -1;
+
+    /* Remember whether editing was restarted after CTRL-O. */
+    did_restart_edit = restart_edit;
+
+    /* sleep before redrawing, needed for "CTRL-O :" that results in an
+     * error message */
+    check_for_delay(TRUE);
+
+    /* set Insstart_orig to Insstart */
+    update_Insstart_orig = TRUE;
+
+#ifdef HAVE_SANDBOX
+    /* Don't allow inserting in the sandbox. */
+    if (sandbox != 0)
+    {
+	emsg(_(e_sandbox));
+	return FALSE;
+    }
+#endif
+    /* Don't allow changes in the buffer while editing the cmdline.  The
+     * caller of getcmdline() may get confused. */
+    if (textlock != 0)
+    {
+	emsg(_(e_secure));
+	return FALSE;
+    }
+
+    /*
+     * Trigger InsertEnter autocommands.  Do not do this for "r<CR>" or "grx".
+     */
+    if (context->cmdchar != 'r' && context->cmdchar != 'v')
+    {
+	pos_T   save_cursor = curwin->w_cursor;
+
+#ifdef FEAT_EVAL
+	if (context->cmdchar == 'R')
+	    context->ptr = (char_u *)"r";
+	else if (context->cmdchar == 'V')
+	    context->ptr = (char_u *)"v";
+	else
+	    context->ptr = (char_u *)"i";
+	set_vim_var_string(VV_INSERTMODE, context->ptr, 1);
+	set_vim_var_string(VV_CHAR, NULL, -1);  /* clear v:char */
+#endif
+	ins_apply_autocmds(EVENT_INSERTENTER);
+
+	/* Make sure the cursor didn't move.  Do call check_cursor_col() in
+	 * case the text was modified.  Since Insert mode was not started yet
+	 * a call to check_cursor_col() may move the cursor, especially with
+	 * the "A" command, thus set State to avoid that. Also check that the
+	 * line number is still valid (lines may have been deleted).
+	 * Do not restore if v:char was set to a non-empty string. */
+	if (!EQUAL_POS(curwin->w_cursor, save_cursor)
+#ifdef FEAT_EVAL
+		&& *get_vim_var_str(VV_CHAR) == NUL
+#endif
+		&& save_cursor.lnum <= curbuf->b_ml.ml_line_count)
+	{
+	    int save_state = State;
+
+	    curwin->w_cursor = save_cursor;
+	    State = INSERT;
+	    check_cursor_col();
+	    State = save_state;
+	}
+    }
+
+#ifdef FEAT_CONCEAL
+    /* Check if the cursor line needs redrawing before changing State.  If
+     * 'concealcursor' is "n" it needs to be redrawn without concealing. */
+    conceal_check_cursor_line();
+#endif
+
+    {
+	Insstart = curwin->w_cursor;
+	if (context->startln)
+	    Insstart.col = 0;
+    }
+    Insstart_textlen = (colnr_T)linetabsize(ml_get_curline());
+    Insstart_blank_vcol = MAXCOL;
+    if (!did_ai)
+	ai_col = 0;
+
+    if (context->cmdchar != NUL && restart_edit == 0)
+    {
+	ResetRedobuff();
+	AppendNumberToRedobuff(count);
+	if (context->cmdchar == 'V' || context->cmdchar == 'v')
+	{
+	    /* "gR" or "gr" command */
+	    AppendCharToRedobuff('g');
+	    AppendCharToRedobuff((cmdchar == 'v') ? 'r' : 'R');
+	}
+	else
+	{
+	    if (context->cmdchar == K_PS)
+		AppendCharToRedobuff('a');
+	    else
+		AppendCharToRedobuff(context->cmdchar);
+	    if (context->cmdchar == 'g')		    /* "gI" command */
+		AppendCharToRedobuff('I');
+	    else if (context->cmdchar == 'r')	    /* "r<CR>" command */
+		context->count = 1;		    /* insert only one <CR> */
+	}
+    }
+
+    if (context->cmdchar == 'R')
+    {
+	State = REPLACE;
+    }
+    else if (context->cmdchar == 'V' || context->cmdchar == 'v')
+    {
+	State = VREPLACE;
+	context->replaceState = VREPLACE;
+	orig_line_count = curbuf->b_ml.ml_line_count;
+	vr_lines_changed = 1;
+    }
+    else
+	State = INSERT;
+
+    stop_insert_mode = FALSE;
+
+    /*
+     * Need to recompute the cursor position, it might move when the cursor is
+     * on a TAB or special character.
+     */
+    curs_columns(TRUE);
+
+    /*
+     * Enable langmap or IME, indicated by 'iminsert'.
+     * Note that IME may enabled/disabled without us noticing here, thus the
+     * 'iminsert' value may not reflect what is actually used.  It is updated
+     * when hitting <Esc>.
+     */
+    if (curbuf->b_p_iminsert == B_IMODE_LMAP)
+	State |= LANGMAP;
+#ifdef HAVE_INPUT_METHOD
+    im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
+#endif
+
+#ifdef FEAT_RIGHTLEFT
+    /* there is no reverse replace mode */
+    revins_on = (State == INSERT && p_ri);
+    if (revins_on)
+	undisplay_dollar();
+    revins_chars = 0;
+    revins_legal = 0;
+    revins_scol = -1;
+#endif
+    if (!p_ek)
+	/* Disable bracketed paste mode, we won't recognize the escape
+	 * sequences. */
+	out_str(T_BD);
+
+    /*
+     * Handle restarting Insert mode.
+     * Don't do this for "CTRL-O ." (repeat an insert): In that case we get
+     * here with something in the stuff buffer.
+     */
+    if (restart_edit != 0 && stuff_empty())
+    {
+	    arrow_used = TRUE;
+	restart_edit = 0;
+
+	/*
+	 * If the cursor was after the end-of-line before the CTRL-O and it is
+	 * now at the end-of-line, put it after the end-of-line (this is not
+	 * correct in very rare cases).
+	 * Also do this if curswant is greater than the current virtual
+	 * column.  Eg after "^O$" or "^O80|".
+	 */
+	validate_virtcol();
+	update_curswant();
+	if (((ins_at_eol && curwin->w_cursor.lnum == o_lnum)
+		    || curwin->w_curswant > curwin->w_virtcol)
+		&& *(context->ptr = ml_get_curline() + curwin->w_cursor.col) != NUL)
+	{
+	    if (context->ptr[1] == NUL)
+		++curwin->w_cursor.col;
+	    else if (has_mbyte)
+	    {
+		context->i = (*mb_ptr2len)(context->ptr);
+		if (context->ptr[context->i] == NUL)
+		    curwin->w_cursor.col += context->i;
+	    }
+	}
+	ins_at_eol = FALSE;
+    }
+    else
+	arrow_used = FALSE;
+
+    /* we are in insert mode now, don't need to start it anymore */
+    need_start_insertmode = FALSE;
+
+    /* Need to save the line for undo before inserting the first char. */
+    ins_need_undo = TRUE;
+
+#ifdef FEAT_MOUSE
+    where_paste_started.lnum = 0;
+#endif
+#ifdef FEAT_CINDENT
+    can_cindent = TRUE;
+#endif
+#ifdef FEAT_FOLDING
+    /* The cursor line is not in a closed fold, unless 'insertmode' is set or
+     * restarting. */
+    if (!p_im && did_restart_edit == 0)
+	foldOpenCursor();
+#endif
+
+    /*
+     * If 'showmode' is set, show the current (insert/replace/..) mode.
+     * A warning message for changing a readonly file is given here, before
+     * actually changing anything.  It's put after the mode, if any.
+     */
+    context->i = 0;
+    if (p_smd && msg_silent == 0)
+	context->i = showmode();
+
+    if (!p_im && did_restart_edit == 0)
+	change_warning(context->i == 0 ? 0 : context->i + 1);
+
+#ifdef FEAT_DIGRAPHS
+    do_digraph(-1);		/* clear digraphs */
+#endif
+
+    /*
+     * Get the current length of the redo buffer, those characters have to be
+     * skipped if we want to get to the inserted characters.
+     */
+    context->ptr = get_inserted();
+    if (context->ptr == NULL)
+	new_insert_skip = 0;
+    else
+    {
+	new_insert_skip = (int)STRLEN(context->ptr);
+	vim_free(context->ptr);
+    }
+
+    old_indent = 0;
+  return (void *)context;
+}
+
+void state_edit_cleanup(void *ctx) {
+  printf("state_edit_cleanup\n");
+  editState_T *context = (editState_T *)ctx;
+  vim_free(context);
+}
+
+executionStatus_T state_edit_execute(void *ctx, int c) {
+  editState_T *context = (editState_T *)ctx;
+  printf("edit - got character: %c\n", c);
+  return HANDLED;
+};
+
 /*
  * edit(): Start inserting text.
  *
@@ -151,7 +437,6 @@ edit(
     char_u	*ptr;
     int		lastc = 0;
     int		mincol;
-    static linenr_T o_lnum = 0;
     int		i;
     int		did_backspace = TRUE;	    /* previous char was backspace */
 #ifdef FEAT_CINDENT

@@ -52,7 +52,7 @@ typedef const char* sname;
 typedef struct
 {
    void* context;
-   sname name;
+   int mode;
    state_execute execute_fn;
    state_cleanup cleanup_fn;
    struct sm_T* prev;

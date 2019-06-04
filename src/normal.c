@@ -764,6 +764,12 @@ restart_state:
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
 
+    /* If we are now in insert mode, relinquish control to the insert mode state */
+    if (sm_get_current_mode() == INSERT) {
+	printf("insert mode");
+	return HANDLED;
+    }
+
     if (!finish_op && context->should_finish_op) {
       finish_op = TRUE;
     } else if (!finish_op && oap->op_type != OP_NOP) {
@@ -8248,11 +8254,14 @@ static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
   /* Always reset "restart_edit", this is not a restarted edit. */
   restart_edit = 0;
 
-  if (edit(cmd, startln, cap->count1))
-    cap->retval |= CA_COMMAND_BUSY;
+  printf("pushing edit state\n");
+  sm_push_insert(cmd, startln, cap->count1);
+ 
+  /* if (edit(cmd, startln, cap->count1)) */
+  /*   cap->retval |= CA_COMMAND_BUSY; */
 
-  if (restart_edit == 0)
-    restart_edit = restart_edit_save;
+  /* if (restart_edit == 0) */
+  /*   restart_edit = restart_edit_save; */
 }
 
 #ifdef FEAT_TEXTOBJ
