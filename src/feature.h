@@ -608,12 +608,6 @@
 # define FEAT_LIBCALL
 #endif
 
-/* There are two ways to use XPM. */
-#if (defined(HAVE_XM_XPMP_H) && defined(FEAT_GUI_MOTIF)) \
-		|| defined(HAVE_X11_XPM_H)
-# define HAVE_XPM 1
-#endif
-
 /*
  * GUI tabline
  */
@@ -653,17 +647,7 @@
  *			When none of these defined there is no dialog support.
  */
 #ifdef FEAT_NORMAL
-# if ((defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MOTIF)) \
-		&& defined(HAVE_X11_XPM_H)) \
-	|| defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_GUI_PHOTON) \
-	|| defined(FEAT_GUI_MSWIN) \
-	|| defined(FEAT_GUI_MAC)
 #  define FEAT_CON_DIALOG
-#  define FEAT_GUI_DIALOG
-# else
-#  define FEAT_CON_DIALOG
-# endif
 #endif
 #if !defined(FEAT_GUI_DIALOG) && (defined(FEAT_GUI_MOTIF) \
 	|| defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_GTK) \
@@ -1119,14 +1103,8 @@
  * +signs		Allow signs to be displayed to the left of text lines.
  *			Adds the ":sign" command.
  */
-#if defined(FEAT_BIG) || defined(FEAT_NETBEANS_INTG)
+#if defined(FEAT_BIG)
 # define FEAT_SIGNS
-# if ((defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)) \
-		&& defined(HAVE_X11_XPM_H)) \
-	|| defined(FEAT_GUI_GTK) \
-	|| (defined(MSWIN) && defined(FEAT_GUI))
-#  define FEAT_SIGN_ICONS
-# endif
 #endif
 
 /* both Motif and Athena are X11 and share some code */
@@ -1145,7 +1123,7 @@
 /*
  * +autochdir		'autochdir' option.
  */
-#if defined(FEAT_NETBEANS_INTG) || defined(FEAT_BIG)
+#if defined(FEAT_BIG)
 # define FEAT_AUTOCHDIR
 #endif
 
