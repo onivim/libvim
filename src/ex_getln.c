@@ -2646,12 +2646,157 @@ typedef struct {
     struct cmdline_info save_ccline;
     int		did_save_ccline;
     int		cmdline_type;
+
+    char **result;
 #endif
 } cmdlineState_T;
 
-void *state_cmdline_initialize(int c, void *cookie UNUSED, int indent, char_u **result) {
+void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **result) {
+	cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
+	context->result = result;
+	context->firstc = c;
+	context->count = count;
+	context->gotesc = false;
+	context->lookfor = NULL;
+	context->did_wild_list = FALSE;
+	context->wim_index = 0;
+	context->save_msg_croll = msg_scroll;
+	context->save_State = State;
+	context->some_key_typed = FALSE;
+	context->break_ctrl_c = FALSE;
+	context->b_im_ptr = NULL;
+	context->did_save_ccline = FALSE;
 
+    if (ccline.cmdbuff != NULL)
+    {
+	// Being called recursively.  Since ccline is global, we need to save
+	// the current buffer and restore it when returning.
+	save_cmdline(&context->save_ccline);
+	context->did_save_ccline = TRUE;
+    }
+
+    /* TODO: Where does init_ccline come from? When is it not TRUE? */
+    /* if (init_ccline) */
+	vim_memset(&ccline, 0, sizeof(struct cmdline_info));
+
+#ifdef FEAT_EVAL
+    if (firstc == -1)
+    {
+	firstc = NUL;
+	break_ctrl_c = TRUE;
+    }
+#endif
+#ifdef FEAT_RIGHTLEFT
+    /* start without Hebrew mapping for a command line */
+    if (firstc == ':' || firstc == '=' || firstc == '>')
+	cmd_hkmap = 0;
+#endif
+
+    ccline.overstrike = FALSE;		    /* always start in insert mode */
+
+#ifdef FEAT_SEARCH_EXTRA
+    init_incsearch_state(&is_state);
+#endif
+
+    /*
+     * set some variables for redrawcmd()
+     */
+    ccline.cmdfirstc = (firstc == '@' ? 0 : firstc);
+    ccline.cmdindent = (firstc > 0 ? indent : 0);
+
+    /* alloc initial ccline.cmdbuff */
+    alloc_cmdbuff(exmode_active ? 250 : indent + 1);
+    if (ccline.cmdbuff == NULL)
+	goto theend;	// out of memory
+    ccline.cmdlen = ccline.cmdpos = 0;
+    ccline.cmdbuff[0] = NUL;
+    sb_text_start_cmdline();
+
+    /* autoindent for :insert and :append */
+    if (firstc <= 0)
+    {
+	vim_memset(ccline.cmdbuff, ' ', context->indent);
+	ccline.cmdbuff[context->indent] = NUL;
+	ccline.cmdpos = indent;
+	ccline.cmdspos = indent;
+	ccline.cmdlen = indent;
+    }
+
+    ExpandInit(&context->xpc);
+    ccline.xpc = &context->xpc;
+
+#ifdef FEAT_RIGHTLEFT
+    if (curwin->w_p_rl && *curwin->w_p_rlc == 's'
+					  && (firstc == '/' || firstc == '?'))
+	cmdmsg_rl = TRUE;
+    else
+	cmdmsg_rl = FALSE;
+#endif
+
+    context->xpc.xp_context = EXPAND_NOTHING;
+    context->xpc.xp_backslash = XP_BS_NONE;
+#ifndef BACKSLASH_IN_FILENAME
+    context->xpc.xp_shell = FALSE;
+#endif
+
+#if defined(FEAT_EVAL)
+    if (ccline.input_fn)
+    {
+	context->xpc.xp_context = ccline.xp_context;
+	context->xpc.xp_pattern = ccline.cmdbuff;
+# if defined(FEAT_CMDL_COMPL)
+	context->xpc.xp_arg = ccline.xp_arg;
+# endif
+    }
+#endif
+
+    State = CMDLINE;
+
+    if (context->firstc == '/' || context->firstc == '?' || context->firstc == '@')
+    {
+	/* Use ":lmap" mappings for search pattern and input(). */
+	if (curbuf->b_p_imsearch == B_IMODE_USE_INSERT)
+	    b_im_ptr = &curbuf->b_p_iminsert;
+	else
+	    b_im_ptr = &curbuf->b_p_imsearch;
+	if (*b_im_ptr == B_IMODE_LMAP)
+	    State |= LANGMAP;
+#ifdef HAVE_INPUT_METHOD
+	im_set_active(*b_im_ptr == B_IMODE_IM);
+#endif
+    }
+#ifdef HAVE_INPUT_METHOD
+    else if (p_imcmdline)
+	im_set_active(TRUE);
+#endif
+
+    /* Trigger CmdlineEnter autocommands. */
+    context->cmdline_type = firstc == NUL ? '-' : firstc;
+    trigger_cmd_autocmd(context->cmdline_type, EVENT_CMDLINEENTER);
+
+#ifdef FEAT_CMDHIST
+    init_history();
+    context->hiscnt = hislen;		/* set hiscnt to impossible history value */
+    context->histype = hist_char2type(context->firstc);
+#endif
+
+#ifdef FEAT_DIGRAPHS
+    do_digraph(-1);		/* init digraph typeahead */
+#endif
+
+    context->got_int = FALSE;
+
+	return context;
 };
+
+executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
+    printf("CHAR: %c\n", c);
+    return HANDLED;
+}
+
+void *state_cmdline_cleanup(void *context) {
+    vim_free(context);
+}
 
 /*
  * Get an Ex command line for the ":" command.
