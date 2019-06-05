@@ -488,7 +488,7 @@ may_do_incsearch_highlighting(
     }
 
     // Use the previous pattern for ":s//".
-    next_char = ccline.cmdbuff[skiplen + patlen];
+    next_char = cclin.cmdbuff[skiplen + patlen];
     use_last_pat = patlen == 0 && skiplen > 0
 				   && ccline.cmdbuff[skiplen - 1] == next_char;
 
@@ -2614,6 +2614,44 @@ correct_cmdspos(int idx, int cells)
 		&& ccline.cmdspos % Columns + cells > Columns)
 	ccline.cmdspos++;
 }
+
+typedef struct {
+    int firstc;
+    long count;
+    int indent;
+    int init_ccline;
+    int c;
+    int i;
+    int j;
+    int gotesc;
+    int do_abbr;
+#ifdef FEAT_CMDHIST
+    char_u	*lookfor;	/* string to match */
+    int		hiscnt;			/* current history line in use */
+    int		histype;		/* history type to be used */
+#endif
+#ifdef FEAT_SEARCH_EXTRA
+    incsearch_state_T	is_state;
+#endif
+    int		did_wild_list;	/* did wild_list() recently */
+    int		wim_index;		/* index in wim_flags[] */
+    int		res;
+    int		save_msg_scroll;
+    int		save_State;	/* remember State when called */
+    int		some_key_typed;	/* one of the keys was typed */
+#ifdef FEAT_EVAL
+    int		break_ctrl_c;
+    expand_T	xpc;
+    long	*b_im_ptr;
+    struct cmdline_info save_ccline;
+    int		did_save_ccline;
+    int		cmdline_type;
+#endif
+} cmdlineState_T;
+
+void *state_cmdline_initialize(int c, void *cookie UNUSED, int indent, char_u **result) {
+
+};
 
 /*
  * Get an Ex command line for the ":" command.
