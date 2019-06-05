@@ -2,8 +2,8 @@
 #include "minunit.h"
 
 void test_setup(void) {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimInput("\033");
+  vimInput("\033");
   vimExecute("e!");
 }
 
