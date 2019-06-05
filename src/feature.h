@@ -371,13 +371,6 @@
 #endif
 
 /*
- *			Insert mode completion with 'completefunc'.
- */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_EVAL)
-# define FEAT_COMPL_FUNC
-#endif
-
-/*
  * +user_commands	Allow the user to define his own commands.
  *			Now always enabled.
  */

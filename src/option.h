@@ -988,9 +988,6 @@ enum
     , BV_DICT
     , BV_TSR
 #endif
-#ifdef FEAT_COMPL_FUNC
-    , BV_CFU
-#endif
 #ifdef FEAT_FIND_ID
     , BV_DEF
     , BV_INC
@@ -1037,9 +1034,6 @@ enum
     , BV_MOD
     , BV_MPS
     , BV_NF
-#ifdef FEAT_COMPL_FUNC
-    , BV_OFU
-#endif
     , BV_PATH
     , BV_PI
 #ifdef FEAT_TEXTOBJ

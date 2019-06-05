@@ -1571,8 +1571,7 @@ EXTERN char e_nobufnr[]	INIT(= N_("E86: Buffer %ld does not exist"));
 
 EXTERN char e_invalpat[]	INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[]	INIT(= N_("E139: File is loaded in another buffer"));
-#if defined(FEAT_SYN_HL) || \
-	(defined(FEAT_INS_EXPAND) && defined(FEAT_COMPL_FUNC))
+#if defined(FEAT_SYN_HL)
 EXTERN char e_notset[]	INIT(= N_("E764: Option '%s' is not set"));
 #endif
 #ifndef FEAT_CLIPBOARD

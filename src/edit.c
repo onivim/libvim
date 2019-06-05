@@ -864,10 +864,6 @@ doESCkey:
 	    continue;
 
 	case Ctrl_O:	/* execute one command */
-#ifdef FEAT_COMPL_FUNC
-	    if (ctrl_x_mode_omni())
-		goto docomplete;
-#endif
 	    if (echeck_abbr(Ctrl_O + ABBR_OFF))
 		break;
 	    ins_ctrl_o();
@@ -990,11 +986,6 @@ doESCkey:
 	    break;
 
 	case Ctrl_U:	/* delete all inserted text in current line */
-# ifdef FEAT_COMPL_FUNC
-	    /* CTRL-X CTRL-U completes with 'completefunc'. */
-	    if (ctrl_x_mode_function())
-		goto docomplete;
-# endif
 	    did_backspace = ins_bs(c, BACKSPACE_LINE, &inserted_space);
 	    auto_format(FALSE, TRUE);
 	    inserted_space = FALSE;
@@ -1397,10 +1388,6 @@ normalchar:
 
 	/* If typed something may trigger CursorHoldI again. */
 	if (c != K_CURSORHOLD
-#ifdef FEAT_COMPL_FUNC
-		/* but not in CTRL-X mode, a script can't restore the state */
-		&& ctrl_x_mode_normal()
-#endif
 	       )
 	    did_cursorhold = FALSE;
 
