@@ -353,11 +353,6 @@ static char *(features[]) =
 #else
 	"-lua",
 #endif
-#ifdef FEAT_MENU
-	"+menu",
-#else
-	"-menu",
-#endif
 #ifdef FEAT_SESSION
 	"+mksession",
 #else
@@ -470,15 +465,6 @@ static char *(features[]) =
 #else
 	"-path_extra",
 #endif
-#ifdef FEAT_PERL
-# ifdef DYNAMIC_PERL
-	"+perl/dyn",
-# else
-	"+perl",
-# endif
-#else
-	"-perl",
-#endif
 #ifdef FEAT_PERSISTENT_UNDO
 	"+persistent_undo",
 #else
@@ -579,15 +565,6 @@ static char *(features[]) =
 #endif
 	"-tag_old_static",
 	"-tag_any_white",
-#ifdef FEAT_TCL
-# ifdef DYNAMIC_TCL
-	"+tcl/dyn",
-# else
-	"+tcl",
-# endif
-#else
-	"-tcl",
-#endif
 #ifdef FEAT_TERMGUICOLORS
 	"+termguicolors",
 #else
@@ -699,19 +676,6 @@ static char *(features[]) =
 	"+xim",
 #else
 	"-xim",
-#endif
-#ifdef MSWIN
-# ifdef FEAT_XPM_W32
-	"+xpm_w32",
-# else
-	"-xpm_w32",
-# endif
-#else
-# ifdef HAVE_XPM
-	"+xpm",
-# else
-	"-xpm",
-# endif
 #endif
 #if defined(UNIX) || defined(VMS)
 # ifdef USE_XSMP_INTERACT

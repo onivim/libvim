@@ -141,10 +141,6 @@ main2
     }
 #endif
 
-#ifdef FEAT_TCL
-    vim_tcl_init(params.argv[0]);
-#endif
-
 #ifdef MEM_PROFILE
     atexit(vim_mem_profile_dump);
 #endif
@@ -1529,17 +1525,8 @@ getout(int exitval)
 #ifdef FEAT_PYTHON3
     python3_end();
 #endif
-#ifdef FEAT_PERL
-    perl_end();
-#endif
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
     iconv_end();
-#endif
-#ifdef FEAT_NETBEANS_INTG
-    netbeans_end();
-#endif
-#ifdef FEAT_CSCOPE
-    cs_end();
 #endif
 #ifdef FEAT_EVAL
     if (garbage_collect_at_exit)

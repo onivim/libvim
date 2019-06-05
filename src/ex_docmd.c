@@ -34,11 +34,9 @@ static void	ex_map(exarg_T *eap);
 static void	ex_unmap(exarg_T *eap);
 static void	ex_mapclear(exarg_T *eap);
 static void	ex_abclear(exarg_T *eap);
-#ifndef FEAT_MENU
 # define ex_emenu		ex_ni
 # define ex_menu		ex_ni
 # define ex_menutranslate	ex_ni
-#endif
 static void	ex_autocmd(exarg_T *eap);
 static void	ex_doautocmd(exarg_T *eap);
 static void	ex_bunload(exarg_T *eap);
@@ -76,9 +74,7 @@ static int	getargopt(exarg_T *eap);
 
 static linenr_T get_address(exarg_T *, char_u **, cmd_addr_T addr_type, int skip, int silent, int to_other_file, int address_count);
 static void	get_flags(exarg_T *eap);
-#if !defined(FEAT_PERL) \
-	|| !defined(FEAT_PYTHON) || !defined(FEAT_PYTHON3) \
-	|| !defined(FEAT_TCL) \
+#if !defined(FEAT_PYTHON) || !defined(FEAT_PYTHON3) \
 	|| !defined(FEAT_RUBY) \
 	|| !defined(FEAT_LUA) \
 	|| !defined(FEAT_MZSCHEME)
@@ -136,17 +132,8 @@ static void	ex_edit(exarg_T *eap);
 # define ex_gui			ex_nogui
 static void	ex_nogui(exarg_T *eap);
 #endif
-#if defined(FEAT_GUI_MSWIN) && defined(FEAT_MENU) && defined(FEAT_TEAROFF)
-static void	ex_tearoff(exarg_T *eap);
-#else
 # define ex_tearoff		ex_ni
-#endif
-#if (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_TERM_POPUP_MENU)) && defined(FEAT_MENU)
-static void	ex_popup(exarg_T *eap);
-#else
 # define ex_popup		ex_ni
-#endif
 #ifndef FEAT_GUI_MSWIN
 # define ex_simalt		ex_ni
 #endif
@@ -157,11 +144,9 @@ static void	ex_popup(exarg_T *eap);
 #if !defined(FEAT_GUI_GTK)
 # define ex_helpfind		ex_ni
 #endif
-#ifndef FEAT_CSCOPE
 # define ex_cscope		ex_ni
 # define ex_scscope		ex_ni
 # define ex_cstag		ex_ni
-#endif
 #ifndef FEAT_SYN_HL
 # define ex_syntax		ex_ni
 # define ex_ownsyntax		ex_ni
@@ -191,10 +176,8 @@ static void	ex_popup(exarg_T *eap);
 # define ex_mzscheme		ex_script_ni
 # define ex_mzfile		ex_ni
 #endif
-#ifndef FEAT_PERL
 # define ex_perl		ex_script_ni
 # define ex_perldo		ex_ni
-#endif
 #ifndef FEAT_PYTHON
 # define ex_python		ex_script_ni
 # define ex_pydo		ex_ni
@@ -3969,13 +3952,6 @@ set_one_cmd_context(
 	case CMD_highlight:
 	    set_context_in_highlight_cmd(xp, arg);
 	    break;
-#ifdef FEAT_CSCOPE
-	case CMD_cscope:
-	case CMD_lcscope:
-	case CMD_scscope:
-	    set_context_in_cscope_cmd(xp, arg, ea.cmdidx);
-	    break;
-#endif
 #ifdef FEAT_SIGNS
 	case CMD_sign:
 	    set_context_in_sign_cmd(xp, arg);
@@ -4001,10 +3977,6 @@ set_one_cmd_context(
 		// XFILE: file names are handled above
 		if (!(ea.argt & XFILE))
 		{
-#ifdef FEAT_MENU
-		    if (compl == EXPAND_MENUS)
-			return set_context_in_menu_cmd(xp, cmd, arg, forceit);
-#endif
 		    if (compl == EXPAND_COMMANDS)
 			return arg;
 		    if (compl == EXPAND_MAPPINGS)
@@ -4075,20 +4047,6 @@ set_one_cmd_context(
 	case CMD_iunabbrev:
 	    return set_context_in_map_cmd(xp, cmd, arg, forceit,
 						       TRUE, TRUE, ea.cmdidx);
-#ifdef FEAT_MENU
-	case CMD_menu:	    case CMD_noremenu:	    case CMD_unmenu:
-	case CMD_amenu:	    case CMD_anoremenu:	    case CMD_aunmenu:
-	case CMD_nmenu:	    case CMD_nnoremenu:	    case CMD_nunmenu:
-	case CMD_vmenu:	    case CMD_vnoremenu:	    case CMD_vunmenu:
-	case CMD_omenu:	    case CMD_onoremenu:	    case CMD_ounmenu:
-	case CMD_imenu:	    case CMD_inoremenu:	    case CMD_iunmenu:
-	case CMD_cmenu:	    case CMD_cnoremenu:	    case CMD_cunmenu:
-	case CMD_tlmenu:    case CMD_tlnoremenu:    case CMD_tlunmenu:
-	case CMD_tmenu:				    case CMD_tunmenu:
-	case CMD_popup:	    case CMD_tearoff:	    case CMD_emenu:
-	    return set_context_in_menu_cmd(xp, cmd, arg, forceit);
-#endif
-
 	case CMD_colorscheme:
 	    xp->xp_context = EXPAND_COLORS;
 	    xp->xp_pattern = arg;
@@ -4936,7 +4894,6 @@ expand_filename(
 		&& eap->cmdidx != CMD_bang
 		&& eap->cmdidx != CMD_grep
 		&& eap->cmdidx != CMD_grepadd
-		&& eap->cmdidx != CMD_hardcopy
 		&& eap->cmdidx != CMD_lgrep
 		&& eap->cmdidx != CMD_lgrepadd
 		&& eap->cmdidx != CMD_lmake
@@ -7324,32 +7281,6 @@ ex_nogui(exarg_T *eap)
 }
 #endif
 
-#if defined(FEAT_GUI_MSWIN) && defined(FEAT_MENU) && defined(FEAT_TEAROFF)
-    static void
-ex_tearoff(exarg_T *eap)
-{
-    gui_make_tearoff(eap->arg);
-}
-#endif
-
-#if (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_TERM_POPUP_MENU)) && defined(FEAT_MENU)
-    static void
-ex_popup(exarg_T *eap)
-{
-# if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)
-    if (gui.in_use)
-	gui_make_popup(eap->arg, eap->forceit);
-#  ifdef FEAT_TERM_POPUP_MENU
-    else
-#  endif
-# endif
-# ifdef FEAT_TERM_POPUP_MENU
-	pum_make_popup(eap->arg, eap->forceit);
-# endif
-}
-#endif
-
     static void
 ex_swapname(exarg_T *eap UNUSED)
 {
@@ -9177,13 +9108,6 @@ ex_tag_cmd(exarg_T *eap, char_u *name)
 	case 'l': cmd = DT_LAST;	/* ":tlast" */
 		  break;
 	default:			/* ":tag" */
-#ifdef FEAT_CSCOPE
-		  if (p_cst && *eap->arg != NUL)
-		  {
-		      ex_cstag(eap);
-		      return;
-		  }
-#endif
 		  cmd = DT_TAG;
 		  break;
     }

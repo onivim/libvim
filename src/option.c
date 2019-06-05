@@ -904,57 +904,27 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"cscopepathcomp", "cspc", P_NUM|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_cspc, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopeprg",   "csprg", P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csprg, PV_NONE,
-			    {(char_u *)"cscope", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"cscopequickfix", "csqf", P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#if defined(FEAT_CSCOPE) && defined(FEAT_QUICKFIX)
-			    (char_u *)&p_csqf, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"cscoperelative", "csre", P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csre, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopetag",   "cst",  P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_cst, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopetagorder", "csto", P_NUM|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csto, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopeverbose", "csverb", P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csverbose, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cursorbind",  "crb",  P_BOOL|P_VI_DEF,
 			    (char_u *)VAR_WIN, PV_CRBIND,
@@ -1685,11 +1655,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"langmenu",    "lm",   P_STRING|P_VI_DEF|P_NFNAME,
-#if defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)
-			    (char_u *)&p_lm, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"langnoremap",  "lnr",   P_BOOL|P_VI_DEF,
 #ifdef FEAT_LANGMAP
@@ -1843,11 +1809,7 @@ static struct vimoption options[] =
 			    {(char_u *)DFLT_MAXMEMTOT, (char_u *)0L}
 			    SCTX_INIT},
     {"menuitems",   "mis",  P_NUM|P_VI_DEF,
-#ifdef FEAT_MENU
-			    (char_u *)&p_mis, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)25L, (char_u *)0L} SCTX_INIT},
     {"mesg",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -2056,13 +2018,8 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"printdevice", "pdev", P_STRING|P_VI_DEF|P_SECURE,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_pdev, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"printencoding", "penc", P_STRING|P_VI_DEF,
 #ifdef FEAT_POSTSCRIPT
@@ -2083,30 +2040,12 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"printfont", "pfn",    P_STRING|P_VI_DEF,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_pfn, PV_NONE,
-			    {
-# ifdef MSWIN
-				(char_u *)"Courier_New:h10",
-# else
-				(char_u *)"courier",
-# endif
-				(char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"printheader", "pheader",  P_STRING|P_VI_DEF|P_GETTEXT,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_header, PV_NONE,
-			    /* untranslated to avoid problems when 'encoding'
-			     * is changed */
-			    {(char_u *)"%<%f%h%m%=Page %N", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
    {"printmbcharset", "pmbcs",  P_STRING|P_VI_DEF,
 #if defined(FEAT_POSTSCRIPT)
@@ -2127,13 +2066,8 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"printoptions", "popt", P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_popt, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"prompt",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_prompt, PV_NONE,
@@ -3954,10 +3888,6 @@ set_init_2(void)
 	 * changed again */
 	options[idx].flags &= ~P_WAS_SET;
     }
-#endif
-
-#ifdef FEAT_PRINTER
-    (void)parse_printoptions();	    /* parse 'printoptions' default value */
 #endif
 }
 
@@ -6403,17 +6333,6 @@ did_set_string_option(
 	if (*p_wak == NUL
 		|| check_opt_strings(p_wak, p_wak_values, FALSE) != OK)
 	    errmsg = e_invarg;
-# ifdef FEAT_MENU
-#  ifdef FEAT_GUI_MOTIF
-	else if (gui.in_use)
-	    gui_motif_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#  else
-#   ifdef FEAT_GUI_GTK
-	else if (gui.in_use)
-	    gui_gtk_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#   endif
-#  endif
-# endif
     }
 #endif
 
@@ -6998,15 +6917,6 @@ did_set_string_option(
     }
 #endif
 
-#ifdef FEAT_PRINTER
-    else if (varp == &p_popt)
-	errmsg = parse_printoptions();
-# if defined(FEAT_POSTSCRIPT)
-    else if (varp == &p_pmfn)
-	errmsg = parse_printmbfont();
-# endif
-#endif
-
 #ifdef FEAT_LANGMAP
     /* 'langmap' */
     else if (varp == &p_langmap)
@@ -7117,12 +7027,6 @@ did_set_string_option(
     {
 	if (check_opt_strings(p_mousem, p_mousem_values, FALSE) != OK)
 	    errmsg = e_invarg;
-#if defined(FEAT_GUI_MOTIF) && defined(FEAT_MENU) && (XmVersion <= 1002)
-	else if (*p_mousem != *oldval)
-	    /* Changed from "extend" to "popup" or "popup_setpos" or vv: need
-	     * to create or delete the popup menus. */
-	    gui_motif_update_mousemodel(root_menu);
-#endif
     }
 
     /* 'switchbuf' */
@@ -7489,31 +7393,6 @@ did_set_string_option(
 	    coladvance(curwin->w_virtcol);
 	}
     }
-
-#if defined(FEAT_CSCOPE) && defined(FEAT_QUICKFIX)
-    else if (varp == &p_csqf)
-    {
-	if (p_csqf != NULL)
-	{
-	    p = p_csqf;
-	    while (*p != NUL)
-	    {
-		if (vim_strchr((char_u *)CSQF_CMDS, *p) == NULL
-			|| p[1] == NUL
-			|| vim_strchr((char_u *)CSQF_FLAGS, p[1]) == NULL
-			|| (p[2] != NUL && p[2] != ','))
-		{
-		    errmsg = e_invarg;
-		    break;
-		}
-		else if (p[2] == NUL)
-		    break;
-		else
-		    p += 3;
-	    }
-	}
-    }
-#endif
 
 #ifdef FEAT_CINDENT
     /* 'cinoptions' */
@@ -9584,7 +9463,7 @@ findoption(char_u *arg)
     return opt_idx;
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_TCL) || defined(FEAT_MZSCHEME)
+#if defined(FEAT_EVAL) || defined(FEAT_MZSCHEME)
 /*
  * Get the value for an option.
  *

@@ -803,9 +803,6 @@ buf_freeall(buf_T *buf, int flags)
     }
 #endif
 
-#ifdef FEAT_TCL
-    tcl_buffer_free(buf);
-#endif
     ml_close(buf, TRUE);	    /* close and delete the memline/memfile */
     buf->b_ml.ml_line_count = 0;    /* no lines in buffer */
     if ((flags & BFA_KEEP_UNDO) == 0)
@@ -841,9 +838,6 @@ free_buffer(buf_T *buf)
 #endif
 #ifdef FEAT_MZSCHEME
     mzscheme_buffer_free(buf);
-#endif
-#ifdef FEAT_PERL
-    perl_buf_free(buf);
 #endif
 #ifdef FEAT_PYTHON
     python_buffer_free(buf);

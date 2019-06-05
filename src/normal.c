@@ -514,20 +514,19 @@ typedef struct {
   normalState_T state;
 #endif
 
+  int was_inserting;
 } normalCmd_T;
 
-void *state_normal_cmd_initialize() {
-  normalCmd_T *context = (normalCmd_T *)alloc(sizeof(normalCmd_T));
-  oparg_T *oap = alloc(sizeof(oparg_T));
-  clear_oparg(oap);
-
+void start_normal_mode(normalCmd_T *context) {
   context->state = NORMAL_INITIAL;
+  context->was_inserting = 0;
   context->ctrl_w = FALSE;
   context->old_col = curwin->w_curswant;
-  context->oap = oap;
+  clear_oparg(context->oap);
   cmdarg_T ca;
   vim_memset(&ca, 0, sizeof(ca));
-  ca.oap = oap;
+  ca.oap = context->oap;
+  oparg_T *oap = context->oap;
 
   /* Use a count remembered from before entering an operator.  After typing
    * "3d" we return from normal_cmd() and come back here, the "3" is
@@ -570,6 +569,14 @@ void *state_normal_cmd_initialize() {
   if (readbuf1_empty())
     set_vcount_ca(&ca, &context->set_prevcount);
 #endif
+}
+
+void *state_normal_cmd_initialize() {
+  normalCmd_T *context = (normalCmd_T *)alloc(sizeof(normalCmd_T));
+  oparg_T *oap = alloc(sizeof(oparg_T));
+  context->oap = oap;
+
+  start_normal_mode(context);
 
   return context;
 }
@@ -585,7 +592,14 @@ static int old_mapped_len = 0;
 executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
+
+  if (context->was_inserting == TRUE) {
+    start_normal_mode(context);
+  }
+
   oparg_T *oap = context->oap;
+
+
 
 restart_state:
   switch (context->state) {
@@ -748,6 +762,13 @@ restart_state:
      */
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
+
+    /* If we are now in insert mode, relinquish control to the insert mode state */
+    if (sm_get_current_mode() == INSERT) {
+	printf("insert mode");
+	context->was_inserting = TRUE;
+	return HANDLED;
+    }
 
     if (!finish_op && context->should_finish_op) {
       finish_op = TRUE;
@@ -7957,11 +7978,14 @@ static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
   /* Always reset "restart_edit", this is not a restarted edit. */
   restart_edit = 0;
 
-  if (edit(cmd, startln, cap->count1))
-    cap->retval |= CA_COMMAND_BUSY;
+  printf("pushing edit state\n");
+  sm_push_insert(cmd, startln, cap->count1);
+ 
+  /* if (edit(cmd, startln, cap->count1)) */
+  /*   cap->retval |= CA_COMMAND_BUSY; */
 
-  if (restart_edit == 0)
-    restart_edit = restart_edit_save;
+  /* if (restart_edit == 0) */
+  /*   restart_edit = restart_edit_save; */
 }
 
 #ifdef FEAT_TEXTOBJ

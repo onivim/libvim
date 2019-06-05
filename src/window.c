@@ -4264,22 +4264,6 @@ win_goto(win_T *wp)
 #endif
 }
 
-#if defined(FEAT_PERL) || defined(PROTO)
-/*
- * Find window number "winnr" (counting top to bottom).
- */
-    win_T *
-win_find_nr(int winnr)
-{
-    win_T	*wp;
-
-    FOR_ALL_WINDOWS(wp)
-	if (--winnr == 0)
-	    break;
-    return wp;
-}
-#endif
-
 #if ((defined(FEAT_PYTHON) || defined(FEAT_PYTHON3))) || defined(PROTO)
 /*
  * Find the tabpage for window "win".
@@ -4771,20 +4755,12 @@ win_free(
     mzscheme_window_free(wp);
 #endif
 
-#ifdef FEAT_PERL
-    perl_win_free(wp);
-#endif
-
 #ifdef FEAT_PYTHON
     python_window_free(wp);
 #endif
 
 #ifdef FEAT_PYTHON3
     python3_window_free(wp);
-#endif
-
-#ifdef FEAT_TCL
-    tcl_window_free(wp);
 #endif
 
 #ifdef FEAT_RUBY
@@ -4843,9 +4819,6 @@ win_free(
     }
 #endif /* FEAT_GUI */
 
-#ifdef FEAT_MENU
-    remove_winbar(wp);
-#endif
 #ifdef FEAT_TEXT_PROP
     free_callback(&wp->w_close_cb);
     free_callback(&wp->w_filter_cb);

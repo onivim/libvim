@@ -52,7 +52,7 @@ typedef const char* sname;
 typedef struct
 {
    void* context;
-   sname name;
+   int mode;
    state_execute execute_fn;
    state_cleanup cleanup_fn;
    struct sm_T* prev;
@@ -89,10 +89,6 @@ typedef struct frame_S		frame_T;
 typedef int			scid_T;		/* script ID */
 typedef struct file_buffer	buf_T;  /* forward declaration */
 typedef struct terminal_S	term_T;
-
-#ifdef FEAT_MENU
-typedef struct VimMenu vimmenu_T;
-#endif
 
 /*
  * SCript ConteXt (SCTX): identifies a script script line.
@@ -2353,9 +2349,6 @@ struct file_buffer
     char_u	*b_p_fex;	/* 'formatexpr' */
     long_u	b_p_fex_flags;	/* flags for 'formatexpr' */
 #endif
-#ifdef FEAT_CRYPT
-    char_u	*b_p_key;	/* 'key' */
-#endif
     char_u	*b_p_kp;	/* 'keywordprg' */
 #ifdef FEAT_LISP
     int		b_p_lisp;	/* 'lisp' */
@@ -2499,9 +2492,6 @@ struct file_buffer
     char_u	*b_p_bexpr;	/* 'balloonexpr' local value */
     long_u	b_p_bexpr_flags;/* flags for 'balloonexpr' */
 #endif
-#ifdef FEAT_CRYPT
-    char_u	*b_p_cm;	/* 'cryptmethod' */
-#endif
 
     /* When a buffer is created, it starts without a swap file.  b_may_swap is
      * then set to indicate that a swap file may be opened later.  It is reset
@@ -2518,11 +2508,6 @@ struct file_buffer
      */
     int		b_help;		/* TRUE for help file buffer (when set b_p_bt
 				   is "help") */
-#ifdef FEAT_SPELL
-    int		b_spell;	/* TRUE for a spell file buffer, most fields
-				   are not used!  Use the B_SPELL macro to
-				   access b_spell without #ifdef. */
-#endif
 
     int		b_shortname;	/* this file has an 8.3 file name */
 
@@ -2537,20 +2522,12 @@ struct file_buffer
     void	*b_mzscheme_ref; /* The MzScheme reference to this buffer */
 #endif
 
-#ifdef FEAT_PERL
-    void	*b_perl_private;
-#endif
-
 #ifdef FEAT_PYTHON
     void	*b_python_ref;	/* The Python reference to this buffer */
 #endif
 
 #ifdef FEAT_PYTHON3
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
-#endif
-
-#ifdef FEAT_TCL
-    void	*b_tcl_ref;
 #endif
 
 #ifdef FEAT_RUBY
@@ -2565,26 +2542,13 @@ struct file_buffer
 
 #ifdef FEAT_SIGNS
     signlist_T	*b_signlist;	/* list of signs to draw */
-# ifdef FEAT_NETBEANS_INTG
-    int		b_has_sign_column; /* Flag that is set when a first sign is
-				    * added and remains set until the end of
-				    * the netbeans session. */
-# endif
 #endif
 
-#ifdef FEAT_NETBEANS_INTG
-    int		b_netbeans_file;    /* TRUE when buffer is owned by NetBeans */
-    int		b_was_netbeans_file;/* TRUE if b_netbeans_file was once set */
-#endif
 #ifdef FEAT_JOB_CHANNEL
     int		b_write_to_channel; /* TRUE when appended lines are written to
 				     * a channel. */
 #endif
 
-#ifdef FEAT_CRYPT
-    cryptstate_T *b_cryptstate;	/* Encryption state while reading or writing
-				 * the file. NULL when not using encryption. */
-#endif
     int		b_mapped_ctrl_c; /* modes where CTRL-C is mapped */
 
 #ifdef FEAT_TERMINAL
@@ -2818,14 +2782,6 @@ typedef struct
     pos_T	w_cursor_corr;	// corrected cursor position
 } pos_save_T;
 
-#ifdef FEAT_MENU
-typedef struct {
-    int		wb_startcol;
-    int		wb_endcol;
-    vimmenu_T	*wb_menu;
-} winbar_item_T;
-#endif
-
 /*
  * Structure which contains all information that belongs to a window
  *
@@ -3030,12 +2986,6 @@ struct window_S
 
     char_u	*w_localdir;	    /* absolute path of local directory or
 				       NULL */
-#ifdef FEAT_MENU
-    vimmenu_T	*w_winbar;	    /* The root of the WinBar menu hierarchy. */
-    winbar_item_T *w_winbar_items;  /* list of items in the WinBar */
-    int		w_winbar_height;    /* 1 if there is a window toolbar */
-#endif
-
     /*
      * Options local to a window.
      * They are local because they influence the layout of the window or
@@ -3142,20 +3092,12 @@ struct window_S
     void	*w_mzscheme_ref;	/* The MzScheme value for this window */
 #endif
 
-#ifdef FEAT_PERL
-    void	*w_perl_private;
-#endif
-
 #ifdef FEAT_PYTHON
     void	*w_python_ref;		/* The Python value for this window */
 #endif
 
 #ifdef FEAT_PYTHON3
     void	*w_python3_ref;		/* The Python value for this window */
-#endif
-
-#ifdef FEAT_TCL
-    void	*w_tcl_ref;
 #endif
 
 #ifdef FEAT_RUBY
@@ -3218,111 +3160,8 @@ typedef struct cmdarg_S
 #define CA_COMMAND_BUSY	    1	/* skip restarting edit() once */
 #define CA_NO_ADJ_OP_END    2	/* don't adjust operator end */
 
-#ifdef FEAT_MENU
-
-/* Indices into vimmenu_T->strings[] and vimmenu_T->noremap[] for each mode */
-#define MENU_INDEX_INVALID	-1
-#define MENU_INDEX_NORMAL	0
-#define MENU_INDEX_VISUAL	1
-#define MENU_INDEX_SELECT	2
-#define MENU_INDEX_OP_PENDING	3
-#define MENU_INDEX_INSERT	4
-#define MENU_INDEX_CMDLINE	5
-#define MENU_INDEX_TERMINAL	6
-#define MENU_INDEX_TIP		7
-#define MENU_MODES		8
-
-/* Menu modes */
-#define MENU_NORMAL_MODE	(1 << MENU_INDEX_NORMAL)
-#define MENU_VISUAL_MODE	(1 << MENU_INDEX_VISUAL)
-#define MENU_SELECT_MODE	(1 << MENU_INDEX_SELECT)
-#define MENU_OP_PENDING_MODE	(1 << MENU_INDEX_OP_PENDING)
-#define MENU_INSERT_MODE	(1 << MENU_INDEX_INSERT)
-#define MENU_CMDLINE_MODE	(1 << MENU_INDEX_CMDLINE)
-#define MENU_TERMINAL_MODE	(1 << MENU_INDEX_TERMINAL)
-#define MENU_TIP_MODE		(1 << MENU_INDEX_TIP)
-#define MENU_ALL_MODES		((1 << MENU_INDEX_TIP) - 1)
-/*note MENU_INDEX_TIP is not a 'real' mode*/
-
-/* Start a menu name with this to not include it on the main menu bar */
-#define MNU_HIDDEN_CHAR		']'
-
-struct VimMenu
-{
-    int		modes;		    /* Which modes is this menu visible for? */
-    int		enabled;	    /* for which modes the menu is enabled */
-    char_u	*name;		    /* Name of menu, possibly translated */
-    char_u	*dname;		    /* Displayed Name ("name" without '&') */
-#ifdef FEAT_MULTI_LANG
-    char_u	*en_name;	    /* "name" untranslated, NULL when "name"
-				     * was not translated */
-    char_u	*en_dname;	    /* "dname" untranslated, NULL when "dname"
-				     * was not translated */
-#endif
-    int		mnemonic;	    /* mnemonic key (after '&') */
-    char_u	*actext;	    /* accelerator text (after TAB) */
-    int		priority;	    /* Menu order priority */
-#ifdef FEAT_GUI
-    void	(*cb)(vimmenu_T *);	    /* Call-back routine */
-#endif
-#ifdef FEAT_TOOLBAR
-    char_u	*iconfile;	    /* name of file for icon or NULL */
-    int		iconidx;	    /* icon index (-1 if not set) */
-    int		icon_builtin;	    /* icon names is BuiltIn{nr} */
-#endif
-    char_u	*strings[MENU_MODES]; /* Mapped string for each mode */
-    int		noremap[MENU_MODES]; /* A REMAP_ flag for each mode */
-    char	silent[MENU_MODES]; /* A silent flag for each mode */
-    vimmenu_T	*children;	    /* Children of sub-menu */
-    vimmenu_T	*parent;	    /* Parent of menu */
-    vimmenu_T	*next;		    /* Next item in menu */
-#ifdef FEAT_GUI_X11
-    Widget	id;		    /* Manage this to enable item */
-    Widget	submenu_id;	    /* If this is submenu, add children here */
-#endif
-#ifdef FEAT_GUI_GTK
-    GtkWidget	*id;		    /* Manage this to enable item */
-    GtkWidget	*submenu_id;	    /* If this is submenu, add children here */
-# if defined(GTK_CHECK_VERSION) && !GTK_CHECK_VERSION(3,4,0)
-    GtkWidget	*tearoff_handle;
-# endif
-    GtkWidget   *label;		    /* Used by "set wak=" code. */
-#endif
-#ifdef FEAT_GUI_MOTIF
-    int		sensitive;	    /* turn button on/off */
-    char	**xpm;		    /* pixmap data */
-    char	*xpm_fname;	    /* file with pixmap data */
-#endif
-#ifdef FEAT_GUI_ATHENA
-    Pixmap	image;		    /* Toolbar image */
-#endif
-#ifdef FEAT_BEVAL_TIP
-    BalloonEval *tip;		    /* tooltip for this menu item */
-#endif
-#ifdef FEAT_GUI_MSWIN
-    UINT	id;		    /* Id of menu item */
-    HMENU	submenu_id;	    /* If this is submenu, add children here */
-    HWND	tearoff_handle;	    /* hWnd of tearoff if created */
-#endif
-#ifdef FEAT_GUI_MAC
-/*  MenuHandle	id; */
-/*  short	index;	*/	    /* the item index within the father menu */
-    short	menu_id;	    /* the menu id to which this item belong */
-    short	submenu_id;	    /* the menu id of the children (could be
-				       get through some tricks) */
-    MenuHandle	menu_handle;
-    MenuHandle	submenu_handle;
-#endif
-#ifdef FEAT_GUI_PHOTON
-    PtWidget_t	*id;
-    PtWidget_t	*submenu_id;
-#endif
-};
-#else
 /* For generating prototypes when FEAT_MENU isn't defined. */
 typedef int vimmenu_T;
-
-#endif /* FEAT_MENU */
 
 /*
  * Struct to save values in before executing autocommands for a buffer that is

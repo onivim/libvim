@@ -293,9 +293,6 @@ static void f_nextnonblank(typval_T *argvars, typval_T *rettv);
 static void f_nr2char(typval_T *argvars, typval_T *rettv);
 static void f_or(typval_T *argvars, typval_T *rettv);
 static void f_pathshorten(typval_T *argvars, typval_T *rettv);
-#ifdef FEAT_PERL
-static void f_perleval(typval_T *argvars, typval_T *rettv);
-#endif
 #ifdef FEAT_FLOAT
 static void f_pow(typval_T *argvars, typval_T *rettv);
 #endif
@@ -791,9 +788,6 @@ static struct fst
     {"nr2char",		1, 2, f_nr2char},
     {"or",		2, 2, f_or},
     {"pathshorten",	1, 1, f_pathshorten},
-#ifdef FEAT_PERL
-    {"perleval",	1, 1, f_perleval},
-#endif
 #ifdef FEAT_TEXT_PROP
     {"popup_atcursor",	2, 2, f_popup_atcursor},
     {"popup_close",	1, 2, f_popup_close},
@@ -2884,23 +2878,6 @@ f_count(typval_T *argvars, typval_T *rettv)
     static void
 f_cscope_connection(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_CSCOPE
-    int		num = 0;
-    char_u	*dbpath = NULL;
-    char_u	*prepend = NULL;
-    char_u	buf[NUMBUFLEN];
-
-    if (argvars[0].v_type != VAR_UNKNOWN
-	    && argvars[1].v_type != VAR_UNKNOWN)
-    {
-	num = (int)tv_get_number(&argvars[0]);
-	dbpath = tv_get_string(&argvars[1]);
-	if (argvars[2].v_type != VAR_UNKNOWN)
-	    prepend = tv_get_string_buf(&argvars[2], buf);
-    }
-
-    rettv->vval.v_number = cs_connection(num, dbpath, prepend);
-#endif
 }
 
 /*
@@ -5160,20 +5137,6 @@ f_getcompletion(typval_T *argvars, typval_T *rettv)
 	return;
     }
 
-# if defined(FEAT_MENU)
-    if (xpc.xp_context == EXPAND_MENUS)
-    {
-	set_context_in_menu_cmd(&xpc, (char_u *)"menu", xpc.xp_pattern, FALSE);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-# endif
-#ifdef FEAT_CSCOPE
-    if (xpc.xp_context == EXPAND_CSCOPE)
-    {
-	set_context_in_cscope_cmd(&xpc, xpc.xp_pattern, CMD_cscope);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-#endif
 #ifdef FEAT_SIGNS
     if (xpc.xp_context == EXPAND_SIGN)
     {
@@ -5959,9 +5922,6 @@ get_win_info(win_T *wp, short tpnr, short winnr)
     dict_add_number(dict, "winrow", wp->w_winrow + 1);
     dict_add_number(dict, "topline", wp->w_topline);
     dict_add_number(dict, "botline", wp->w_botline - 1);
-#ifdef FEAT_MENU
-    dict_add_number(dict, "winbar", wp->w_winbar_height);
-#endif
     dict_add_number(dict, "width", wp->w_width);
     dict_add_number(dict, "wincol", wp->w_wincol + 1);
     dict_add_number(dict, "bufnr", wp->w_buffer->b_fnum);
@@ -6417,9 +6377,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"crypt-blowfish",
 	"crypt-blowfish2",
 #endif
-#ifdef FEAT_CSCOPE
-	"cscope",
-#endif
 	"cursorbind",
 #ifdef DEBUG
 	"debug",
@@ -6544,9 +6501,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"lua",
 # endif
 #endif
-#ifdef FEAT_MENU
-	"menu",
-#endif
 #ifdef FEAT_SESSION
 	"mksession",
 #endif
@@ -6611,11 +6565,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_PATH_EXTRA
 	"path_extra",
-#endif
-#ifdef FEAT_PERL
-#ifndef DYNAMIC_PERL
-	"perl",
-#endif
 #endif
 #ifdef FEAT_PERSISTENT_UNDO
 	"persistent_undo",
@@ -6683,11 +6632,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
-#endif
-#ifdef FEAT_TCL
-# ifndef DYNAMIC_TCL
-	"tcl",
-# endif
 #endif
 #ifdef FEAT_TERMGUICOLORS
 	"termguicolors",
@@ -6759,14 +6703,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_XFONTSET
 	"xfontset",
-#endif
-#ifdef FEAT_XPM_W32
-	"xpm",
-	"xpm_w32",	/* for backward compatibility */
-#else
-# if defined(HAVE_XPM)
-	"xpm",
-# endif
 #endif
 #ifdef USE_XSMP
 	"xsmp",
@@ -8989,21 +8925,6 @@ f_pathshorten(typval_T *argvars, typval_T *rettv)
 	    shorten_dir(p);
     }
 }
-
-#ifdef FEAT_PERL
-/*
- * "perleval()" function
- */
-    static void
-f_perleval(typval_T *argvars, typval_T *rettv)
-{
-    char_u	*str;
-    char_u	buf[NUMBUFLEN];
-
-    str = tv_get_string_buf(&argvars[0], buf);
-    do_perleval(str, rettv);
-}
-#endif
 
 #ifdef FEAT_FLOAT
 /*

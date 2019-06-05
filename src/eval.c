@@ -3376,31 +3376,6 @@ item_lock(typval_T *tv, int deep, int lock)
     --recurse;
 }
 
-#if (defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)) || defined(PROTO)
-/*
- * Delete all "menutrans_" variables.
- */
-    void
-del_menutrans_vars(void)
-{
-    hashitem_T	*hi;
-    int		todo;
-
-    hash_lock(&globvarht);
-    todo = (int)globvarht.ht_used;
-    for (hi = globvarht.ht_array; todo > 0 && !got_int; ++hi)
-    {
-	if (!HASHITEM_EMPTY(hi))
-	{
-	    --todo;
-	    if (STRNCMP(HI2DI(hi)->di_key, "menutrans_", 10) == 0)
-		delete_var(&globvarht, hi);
-	}
-    }
-    hash_unlock(&globvarht);
-}
-#endif
-
 #if defined(FEAT_CMDL_COMPL) || defined(PROTO)
 
 /*

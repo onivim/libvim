@@ -157,9 +157,6 @@ static void msg_pos_mode(void);
 static void recording_mode(int attr);
 static int fillchar_status(int *attr, win_T *wp);
 static int fillchar_vsep(int *attr);
-#ifdef FEAT_MENU
-static void redraw_win_toolbar(win_T *wp);
-#endif
 #ifdef FEAT_STL_OPT
 static void win_redr_custom(win_T *wp, int draw_ruler);
 #endif
@@ -1334,11 +1331,6 @@ win_update(win_T *wp)
     if (term_do_update_window(wp))
     {
 	term_update_window(wp);
-# ifdef FEAT_MENU
-	/* Draw the window toolbar, if there is one. */
-	if (winbar_height(wp) > 0)
-	    redraw_win_toolbar(wp);
-# endif
 	wp->w_redr_type = 0;
 	return;
     }
@@ -1973,15 +1965,6 @@ win_update(win_T *wp)
 #endif
 #ifdef FEAT_FOLDING
     win_foldinfo.fi_level = 0;
-#endif
-
-#ifdef FEAT_MENU
-    /*
-     * Draw the window toolbar, if there is one.
-     * TODO: only when needed.
-     */
-    if (winbar_height(wp) > 0)
-	redraw_win_toolbar(wp);
 #endif
 
     /*
@@ -2644,136 +2627,6 @@ advance_color_col(int vcol, int **color_cols)
 }
 #endif
 
-#if defined(FEAT_MENU) || defined(FEAT_FOLDING)
-/*
- * Copy "text" to ScreenLines using "attr".
- * Returns the next screen column.
- */
-    static int
-text_to_screenline(win_T *wp, char_u *text, int col)
-{
-    int		off = (int)(current_ScreenLine - ScreenLines);
-
-    if (has_mbyte)
-    {
-	int	cells;
-	int	u8c, u8cc[MAX_MCO];
-	int	i;
-	int	idx;
-	int	c_len;
-	char_u	*p;
-# ifdef FEAT_ARABIC
-	int	prev_c = 0;		/* previous Arabic character */
-	int	prev_c1 = 0;		/* first composing char for prev_c */
-# endif
-
-# ifdef FEAT_RIGHTLEFT
-	if (wp->w_p_rl)
-	    idx = off;
-	else
-# endif
-	    idx = off + col;
-
-	/* Store multibyte characters in ScreenLines[] et al. correctly. */
-	for (p = text; *p != NUL; )
-	{
-	    cells = (*mb_ptr2cells)(p);
-	    c_len = (*mb_ptr2len)(p);
-	    if (col + cells > wp->w_width
-# ifdef FEAT_RIGHTLEFT
-		    - (wp->w_p_rl ? col : 0)
-# endif
-		    )
-		break;
-	    ScreenLines[idx] = *p;
-	    if (enc_utf8)
-	    {
-		u8c = utfc_ptr2char(p, u8cc);
-		if (*p < 0x80 && u8cc[0] == 0)
-		{
-		    ScreenLinesUC[idx] = 0;
-#ifdef FEAT_ARABIC
-		    prev_c = u8c;
-#endif
-		}
-		else
-		{
-#ifdef FEAT_ARABIC
-		    if (p_arshape && !p_tbidi && ARABIC_CHAR(u8c))
-		    {
-			/* Do Arabic shaping. */
-			int	pc, pc1, nc;
-			int	pcc[MAX_MCO];
-			int	firstbyte = *p;
-
-			/* The idea of what is the previous and next
-			 * character depends on 'rightleft'. */
-			if (wp->w_p_rl)
-			{
-			    pc = prev_c;
-			    pc1 = prev_c1;
-			    nc = utf_ptr2char(p + c_len);
-			    prev_c1 = u8cc[0];
-			}
-			else
-			{
-			    pc = utfc_ptr2char(p + c_len, pcc);
-			    nc = prev_c;
-			    pc1 = pcc[0];
-			}
-			prev_c = u8c;
-
-			u8c = arabic_shape(u8c, &firstbyte, &u8cc[0],
-								 pc, pc1, nc);
-			ScreenLines[idx] = firstbyte;
-		    }
-		    else
-			prev_c = u8c;
-#endif
-		    /* Non-BMP character: display as ? or fullwidth ?. */
-		    ScreenLinesUC[idx] = u8c;
-		    for (i = 0; i < Screen_mco; ++i)
-		    {
-			ScreenLinesC[i][idx] = u8cc[i];
-			if (u8cc[i] == 0)
-			    break;
-		    }
-		}
-		if (cells > 1)
-		    ScreenLines[idx + 1] = 0;
-	    }
-	    else if (enc_dbcs == DBCS_JPNU && *p == 0x8e)
-		/* double-byte single width character */
-		ScreenLines2[idx] = p[1];
-	    else if (cells > 1)
-		/* double-width character */
-		ScreenLines[idx + 1] = p[1];
-	    col += cells;
-	    idx += cells;
-	    p += c_len;
-	}
-    }
-    else
-    {
-	int len = (int)STRLEN(text);
-
-	if (len > wp->w_width - col)
-	    len = wp->w_width - col;
-	if (len > 0)
-	{
-#ifdef FEAT_RIGHTLEFT
-	    if (wp->w_p_rl)
-		mch_memmove(current_ScreenLine, text, len);
-	    else
-#endif
-		mch_memmove(current_ScreenLine + col, text, len);
-	    col += len;
-	}
-    }
-    return col;
-}
-#endif
-
 #ifdef FEAT_FOLDING
 /*
  * Compute the width of the foldcolumn.  Based on 'foldcolumn' and how much
@@ -2791,6 +2644,135 @@ compute_foldcolumn(win_T *wp, int col)
     return fdc;
 }
 
+#if defined(FEAT_FOLDING)	
+/*	
+ * Copy "text" to ScreenLines using "attr".	
+ * Returns the next screen column.	
+ */	
+    static int	
+text_to_screenline(win_T *wp, char_u *text, int col)	
+{	
+    int		off = (int)(current_ScreenLine - ScreenLines);	
+
+     if (has_mbyte)	
+    {	
+	int	cells;	
+	int	u8c, u8cc[MAX_MCO];	
+	int	i;	
+	int	idx;	
+	int	c_len;	
+	char_u	*p;	
+# ifdef FEAT_ARABIC	
+	int	prev_c = 0;		/* previous Arabic character */	
+	int	prev_c1 = 0;		/* first composing char for prev_c */	
+# endif	
+
+ # ifdef FEAT_RIGHTLEFT	
+	if (wp->w_p_rl)	
+	    idx = off;	
+	else	
+# endif	
+	    idx = off + col;	
+
+ 	/* Store multibyte characters in ScreenLines[] et al. correctly. */	
+	for (p = text; *p != NUL; )	
+	{	
+	    cells = (*mb_ptr2cells)(p);	
+	    c_len = (*mb_ptr2len)(p);	
+	    if (col + cells > wp->w_width	
+# ifdef FEAT_RIGHTLEFT	
+		    - (wp->w_p_rl ? col : 0)	
+# endif	
+		    )	
+		break;	
+	    ScreenLines[idx] = *p;	
+	    if (enc_utf8)	
+	    {	
+		u8c = utfc_ptr2char(p, u8cc);	
+		if (*p < 0x80 && u8cc[0] == 0)	
+		{	
+		    ScreenLinesUC[idx] = 0;	
+#ifdef FEAT_ARABIC	
+		    prev_c = u8c;	
+#endif	
+		}	
+		else	
+		{	
+#ifdef FEAT_ARABIC	
+		    if (p_arshape && !p_tbidi && ARABIC_CHAR(u8c))	
+		    {	
+			/* Do Arabic shaping. */	
+			int	pc, pc1, nc;	
+			int	pcc[MAX_MCO];	
+			int	firstbyte = *p;	
+
+ 			/* The idea of what is the previous and next	
+			 * character depends on 'rightleft'. */	
+			if (wp->w_p_rl)	
+			{	
+			    pc = prev_c;	
+			    pc1 = prev_c1;	
+			    nc = utf_ptr2char(p + c_len);	
+			    prev_c1 = u8cc[0];	
+			}	
+			else	
+			{	
+			    pc = utfc_ptr2char(p + c_len, pcc);	
+			    nc = prev_c;	
+			    pc1 = pcc[0];	
+			}	
+			prev_c = u8c;	
+
+ 			u8c = arabic_shape(u8c, &firstbyte, &u8cc[0],	
+								 pc, pc1, nc);	
+			ScreenLines[idx] = firstbyte;	
+		    }	
+		    else	
+			prev_c = u8c;	
+#endif	
+		    /* Non-BMP character: display as ? or fullwidth ?. */	
+		    ScreenLinesUC[idx] = u8c;	
+		    for (i = 0; i < Screen_mco; ++i)	
+		    {	
+			ScreenLinesC[i][idx] = u8cc[i];	
+			if (u8cc[i] == 0)	
+			    break;	
+		    }	
+		}	
+		if (cells > 1)	
+		    ScreenLines[idx + 1] = 0;	
+	    }	
+	    else if (enc_dbcs == DBCS_JPNU && *p == 0x8e)	
+		/* double-byte single width character */	
+		ScreenLines2[idx] = p[1];	
+	    else if (cells > 1)	
+		/* double-width character */	
+		ScreenLines[idx + 1] = p[1];	
+	    col += cells;	
+	    idx += cells;	
+	    p += c_len;	
+	}	
+    }	
+    else	
+    {	
+	int len = (int)STRLEN(text);	
+
+ 	if (len > wp->w_width - col)	
+	    len = wp->w_width - col;	
+	if (len > 0)	
+	{	
+#ifdef FEAT_RIGHTLEFT	
+	    if (wp->w_p_rl)	
+		mch_memmove(current_ScreenLine, text, len);	
+	    else	
+#endif	
+		mch_memmove(current_ScreenLine + col, text, len);	
+	    col += len;	
+	}	
+    }	
+    return col;	
+}	
+#endif
 /*
  * Display one folded line.
  */
@@ -6867,15 +6849,6 @@ status_match_len(expand_T *xp, char_u *s)
 {
     int	len = 0;
 
-#ifdef FEAT_MENU
-    int emenu = (xp->xp_context == EXPAND_MENUS
-	    || xp->xp_context == EXPAND_MENUNAMES);
-
-    /* Check for menu separators - replace with '|'. */
-    if (emenu && menu_is_separator(s))
-	return 1;
-#endif
-
     while (*s != NUL)
     {
 	s += skip_status_match_char(xp, s);
@@ -6894,11 +6867,6 @@ status_match_len(expand_T *xp, char_u *s)
 skip_status_match_char(expand_T *xp, char_u *s)
 {
     if ((rem_backslash(s) && xp->xp_context != EXPAND_HELP)
-#ifdef FEAT_MENU
-	    || ((xp->xp_context == EXPAND_MENUS
-		    || xp->xp_context == EXPAND_MENUNAMES)
-			  && (s[0] == '\t' || (s[0] == '\\' && s[1] != NUL)))
-#endif
 	   )
     {
 #ifndef BACKSLASH_IN_FILENAME
@@ -6940,9 +6908,6 @@ win_redr_status_matches(
     static int	first_match = 0;
     int		add_left = FALSE;
     char_u	*s;
-#ifdef FEAT_MENU
-    int		emenu;
-#endif
     int		l;
 
     if (matches == NULL)	/* interrupted completion? */
@@ -7027,18 +6992,6 @@ win_redr_status_matches(
 
 	s = L_MATCH(i);
 	/* Check for menu separators - replace with '|' */
-#ifdef FEAT_MENU
-	emenu = (xp->xp_context == EXPAND_MENUS
-		|| xp->xp_context == EXPAND_MENUNAMES);
-	if (emenu && menu_is_separator(s))
-	{
-	    STRCPY(buf + len, transchar('|'));
-	    l = (int)STRLEN(buf + len);
-	    len += l;
-	    clen += l;
-	}
-	else
-#endif
 	    for ( ; *s != NUL; ++s)
 	{
 	    s += skip_status_match_char(xp, s);
@@ -10998,73 +10951,6 @@ messaging(void)
 {
     return (!(p_lz && char_avail() && !KeyTyped));
 }
-
-#ifdef FEAT_MENU
-/*
- * Draw the window toolbar.
- */
-    static void
-redraw_win_toolbar(win_T *wp)
-{
-    vimmenu_T	*menu;
-    int		item_idx = 0;
-    int		item_count = 0;
-    int		col = 0;
-    int		next_col;
-    int		off = (int)(current_ScreenLine - ScreenLines);
-    int		fill_attr = syn_name2attr((char_u *)"ToolbarLine");
-    int		button_attr = syn_name2attr((char_u *)"ToolbarButton");
-
-    vim_free(wp->w_winbar_items);
-    for (menu = wp->w_winbar->children; menu != NULL; menu = menu->next)
-	++item_count;
-    wp->w_winbar_items = ALLOC_CLEAR_MULT(winbar_item_T, item_count + 1);
-
-    /* TODO: use fewer spaces if there is not enough room */
-    for (menu = wp->w_winbar->children;
-			  menu != NULL && col < wp->w_width; menu = menu->next)
-    {
-	space_to_screenline(off + col, fill_attr);
-	if (++col >= wp->w_width)
-	    break;
-	if (col > 1)
-	{
-	    space_to_screenline(off + col, fill_attr);
-	    if (++col >= wp->w_width)
-		break;
-	}
-
-	wp->w_winbar_items[item_idx].wb_startcol = col;
-	space_to_screenline(off + col, button_attr);
-	if (++col >= wp->w_width)
-	    break;
-
-	next_col = text_to_screenline(wp, menu->name, col);
-	while (col < next_col)
-	{
-	    ScreenAttrs[off + col] = button_attr;
-	    ++col;
-	}
-	wp->w_winbar_items[item_idx].wb_endcol = col;
-	wp->w_winbar_items[item_idx].wb_menu = menu;
-	++item_idx;
-
-	if (col >= wp->w_width)
-	    break;
-	space_to_screenline(off + col, button_attr);
-	++col;
-    }
-    while (col < wp->w_width)
-    {
-	space_to_screenline(off + col, fill_attr);
-	++col;
-    }
-    wp->w_winbar_items[item_idx].wb_menu = NULL; /* end marker */
-
-    screen_line(wp->w_winrow, wp->w_wincol, (int)wp->w_width,
-							  (int)wp->w_width, 0);
-}
-#endif
 
 /*
  * Show current status info in ruler and various other places

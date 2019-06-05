@@ -86,9 +86,6 @@ ifndef WINVER
 WINVER = 0x0600
 endif
 
-# Set to yes to enable Cscope support.
-CSCOPE=yes
-
 # Set to yes to enable inter process communication.
 ifeq (HUGE, $(FEATURES))
 CHANNEL=yes
@@ -212,39 +209,6 @@ WINDRES_CC = $(CC)
 # Get the default ARCH.
 ifndef ARCH
 ARCH := $(shell $(CC) -dumpmachine | sed -e 's/-.*//' -e 's/_/-/' -e 's/^mingw32$$/i686/')
-endif
-
-
-#	Perl interface:
-#	  PERL=[Path to Perl directory] (Set inside Make_cyg.mak or Make_ming.mak)
-#	  DYNAMIC_PERL=yes (to load the Perl DLL dynamically)
-#	  PERL_VER=[Perl version, eg 56, 58, 510] (default is 524)
-ifdef PERL
- ifndef PERL_VER
-PERL_VER=524
- endif
- ifndef DYNAMIC_PERL
-DYNAMIC_PERL=yes
- endif
-# on Linux, for cross-compile, it's here:
-#PERLLIB=/home/ron/ActivePerl/lib
-# on NT, it's here:
-PERLEXE=$(PERL)/bin/perl
-PERLLIB=$(PERL)/lib
-PERLLIBS=$(PERLLIB)/Core
- ifeq ($(UNDER_CYGWIN),yes)
-PERLTYPEMAP:=$(shell cygpath -m $(PERLLIB)/ExtUtils/typemap)
-XSUBPPTRY:=$(shell cygpath -m $(PERLLIB)/ExtUtils/xsubpp)
- else
-PERLTYPEMAP=$(PERLLIB)/ExtUtils/typemap
-XSUBPPTRY=$(PERLLIB)/ExtUtils/xsubpp
- endif
-XSUBPP_EXISTS=$(shell $(PERLEXE) -e "print 1 unless -e '$(XSUBPPTRY)'")
- ifeq "$(XSUBPP_EXISTS)" ""
-XSUBPP=$(PERLEXE) $(XSUBPPTRY)
- else
-XSUBPP=xsubpp
- endif
 endif
 
 #	Lua interface:
@@ -392,30 +356,6 @@ PYTHON3INC=-I $(PYTHON3)/win32inc
  endif
 endif
 
-#	TCL interface:
-#	  TCL=[Path to TCL directory] (Set inside Make_cyg.mak or Make_ming.mak)
-#	  DYNAMIC_TCL=yes (to load the TCL DLL dynamically)
-#	  TCL_VER=[TCL version, eg 83, 84] (default is 86)
-#	  TCL_VER_LONG=[Tcl version, eg 8.3] (default is 8.6)
-#	    You must set TCL_VER_LONG when you set TCL_VER.
-#	  TCL_DLL=[TCL dll name, eg tcl86.dll] (default is tcl86.dll)
-ifdef TCL
- ifndef DYNAMIC_TCL
-DYNAMIC_TCL=yes
- endif
- ifndef TCL_VER
-TCL_VER = 86
- endif
- ifndef TCL_VER_LONG
-TCL_VER_LONG = 8.6
- endif
- ifndef TCL_DLL
-TCL_DLL = tcl$(TCL_VER).dll
- endif
-TCLINC += -I$(TCL)/include
-endif
-
-
 #	Ruby interface:
 #	  RUBY=[Path to Ruby directory] (Set inside Make_cyg.mak or Make_ming.mak)
 #	  DYNAMIC_RUBY=yes (to load the Ruby DLL dynamically, "no" for static)
@@ -518,14 +458,6 @@ DEFINES += -DGETTEXT_DYNAMIC -DGETTEXT_DLL=\"$(GETTEXT_DYNAMIC)\"
  endif
 endif
 
-ifdef PERL
-CFLAGS += -I$(PERLLIBS) -DFEAT_PERL -DPERL_IMPLICIT_CONTEXT -DPERL_IMPLICIT_SYS
- ifeq (yes, $(DYNAMIC_PERL))
-CFLAGS += -DDYNAMIC_PERL -DDYNAMIC_PERL_DLL=\"perl$(PERL_VER).dll\"
-EXTRA_LIBS += -L$(PERLLIBS) -lperl$(PERL_VER)
- endif
-endif
-
 ifdef LUA
 LUA_INCDIR = $(LUA)/include
 CFLAGS += -I$(LUA_INCDIR) -I$(LUA) -DFEAT_LUA
@@ -584,23 +516,12 @@ CFLAGS += -DDYNAMIC_PYTHON3 -DDYNAMIC_PYTHON3_DLL=\"$(DYNAMIC_PYTHON3_DLL)\"
  endif
 endif
 
-ifdef TCL
-CFLAGS += -DFEAT_TCL $(TCLINC)
- ifeq (yes, $(DYNAMIC_TCL))
-CFLAGS += -DDYNAMIC_TCL -DDYNAMIC_TCL_DLL=\"$(TCL_DLL)\" -DDYNAMIC_TCL_VER=\"$(TCL_VER_LONG)\"
- endif
-endif
-
 ifeq ($(POSTSCRIPT),yes)
 DEFINES += -DMSWINPS
 endif
 
 ifeq (yes, $(OLE))
 DEFINES += -DFEAT_OLE
-endif
-
-ifeq ($(CSCOPE),yes)
-DEFINES += -DFEAT_CSCOPE
 endif
 
 ifeq ($(CHANNEL),yes)
@@ -626,34 +547,6 @@ DEFINES += -DFEAT_DIRECTX -DDYNAMIC_DIRECTX
 DEFINES += -DFEAT_DIRECTX_COLOR_EMOJI
   endif
  endif
-endif
-
-# Only allow XPM for a GUI build.
-ifeq (yes, $(GUI))
-
- ifndef XPM
-  ifeq ($(ARCH),i386)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i486)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i586)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i686)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),x86-64)
-XPM = xpm/x64
-  endif
- endif
- ifdef XPM
-  ifneq ($(XPM),no)
-CFLAGS += -DFEAT_XPM_W32 -I $(XPM)/include -I $(XPM)/../include
-  endif
- endif
-
 endif
 
 ifeq ($(DEBUG),yes)
@@ -697,7 +590,6 @@ OBJ = \
 	$(OUTDIR)/findfile.o \
 	$(OUTDIR)/fold.o \
 	$(OUTDIR)/getchar.o \
-	$(OUTDIR)/hardcopy.o \
 	$(OUTDIR)/hashtab.o \
 	$(OUTDIR)/indent.o \
 	$(OUTDIR)/insexpand.o \
@@ -708,7 +600,6 @@ OBJ = \
 	$(OUTDIR)/mark.o \
 	$(OUTDIR)/memfile.o \
 	$(OUTDIR)/memline.o \
-	$(OUTDIR)/menu.o \
 	$(OUTDIR)/message.o \
 	$(OUTDIR)/misc1.o \
 	$(OUTDIR)/misc2.o \
@@ -751,9 +642,6 @@ else
 # OBJ += $(OUTDIR)/os_w32exe.o $(OUTDIR)/vimrc.o
 endif
 
-ifdef PERL
-OBJ += $(OUTDIR)/if_perl.o
-endif
 ifdef LUA
 OBJ += $(OUTDIR)/if_lua.o
 endif
@@ -777,12 +665,6 @@ endif
 ifdef RUBY
 OBJ += $(OUTDIR)/if_ruby.o
 endif
-ifdef TCL
-OBJ += $(OUTDIR)/if_tcl.o
-endif
-ifeq ($(CSCOPE),yes)
-OBJ += $(OUTDIR)/if_cscope.o
-endif
 
 ifeq ($(CHANNEL),yes)
 OBJ += $(OUTDIR)/channel.o
@@ -795,14 +677,6 @@ ifeq ($(DIRECTX),yes)
 OBJ += $(OUTDIR)/gui_dwrite.o
 LIB += -ld2d1 -ldwrite
 USE_STDCPLUS = yes
- endif
-endif
-ifneq ($(XPM),no)
-# Only allow XPM for a GUI build.
- ifeq (yes, $(GUI))
-OBJ += $(OUTDIR)/xpm_w32.o
-# You'll need libXpm.a from http://gnuwin32.sf.net
-LIB += -L$(XPM)/lib -lXpm
  endif
 endif
 
@@ -889,21 +763,6 @@ LIB += -L$(GETTEXTLIB) -lintl
  endif
 endif
 
-ifdef PERL
- ifeq (no, $(DYNAMIC_PERL))
-LIB += -L$(PERLLIBS) -lperl$(PERL_VER)
- endif
-endif
-
-ifdef TCL
-LIB += -L$(TCL)/lib
- ifeq (yes, $(DYNAMIC_TCL))
-LIB += -ltclstub$(TCL_VER)
- else
-LIB += -ltcl$(TCL_VER)
- endif
-endif
-
 ifeq (yes, $(OLE))
 LIB += -loleaut32
 OBJ += $(OUTDIR)/if_ole.o
@@ -950,6 +809,7 @@ endif
 
 DEST_BIN = $(DESTDIR)/bin
 DEST_LIB = $(DESTDIR)/lib
+DEST_INCLUDE = $(DESTDIR)/include
 INSTALL_PROG = cp
 
 all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe GvimExt/gvimext.dll
@@ -975,6 +835,10 @@ libvim.a: $(OUTDIR) $(OBJ)
 	$(AR) rcs libvim.a $(OBJ)
 
 installlibvim: libvim.a
+	mkdir -p $(DEST_INCLUDE)
+	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
+	mkdir -p $(DEST_INCLUDE)/proto
+	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 TEST_SRC = $(wildcard apitest/*.c)
@@ -1021,10 +885,6 @@ clean:
 	-rmdir $(OUTDIR)
 	-$(DEL) $(MAIN_TARGET) vimrun.exe
 	-$(DEL) pathdef.c
-ifdef PERL
-	-$(DEL) if_perl.c
-	-$(DEL) auto$(DIRSLASH)if_perl.c
-endif
 ifdef MZSCHEME
 	-$(DEL) mzscheme_base.c
 endif
@@ -1091,9 +951,6 @@ $(OUTDIR)/gui_beval.o:	gui_beval.c $(INCL) $(GUI_INCL)
 $(OUTDIR)/gui_w32.o:	gui_w32.c $(INCL) $(GUI_INCL)
 	$(CC) -c $(CFLAGS) gui_w32.c -o $@
 
-$(OUTDIR)/if_cscope.o:	if_cscope.c $(INCL) if_cscope.h
-	$(CC) -c $(CFLAGS) if_cscope.c -o $@
-
 $(OUTDIR)/if_mzsch.o:	if_mzsch.c $(INCL) $(MZSCHEME_INCL) $(MZ_EXTRA_DEP)
 	$(CC) -c $(CFLAGS) if_mzsch.c -o $@
 
@@ -1103,14 +960,6 @@ mzscheme_base.c:
 # Remove -D__IID_DEFINED__ for newer versions of the w32api
 $(OUTDIR)/if_ole.o:	if_ole.cpp $(INCL) if_ole.h
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) if_ole.cpp -o $@
-
-auto/if_perl.c:		if_perl.xs typemap
-	$(XSUBPP) -prototypes -typemap \
-	     $(PERLTYPEMAP) if_perl.xs -output $@
-
-$(OUTDIR)/if_perl.o:	auto/if_perl.c $(INCL)
-	$(CC) -c $(CFLAGS) auto/if_perl.c -o $@
-
 
 $(OUTDIR)/if_ruby.o:	if_ruby.c $(INCL)
 ifeq (16, $(RUBY))

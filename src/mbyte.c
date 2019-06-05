@@ -6374,10 +6374,6 @@ xim_set_status_area(void)
 	status_area.y = gui.char_height * Rows + gui.border_offset;
 	if (gui.which_scrollbars[SBAR_BOTTOM])
 	    status_area.y += gui.scrollbar_height;
-#ifdef FEAT_MENU
-	if (gui.menu_is_active)
-	    status_area.y += gui.menu_height;
-#endif
 	status_area.height = gui.char_height;
 	status_list = XVaCreateNestedList(0, XNArea, &status_area, NULL);
     }
@@ -6387,10 +6383,6 @@ xim_set_status_area(void)
 	status_area.y = gui.char_height * Rows + gui.border_offset;
 	if (gui.which_scrollbars[SBAR_BOTTOM])
 	    status_area.y += gui.scrollbar_height;
-#ifdef FEAT_MENU
-	if (gui.menu_is_active)
-	    status_area.y += gui.menu_height;
-#endif
 	status_area.width = 0;
 	status_area.height = gui.char_height;
     }
@@ -6402,10 +6394,6 @@ xim_set_status_area(void)
 	pre_area.width = gui.char_width * Columns - pre_area.x;
 	if (gui.which_scrollbars[SBAR_BOTTOM])
 	    pre_area.y += gui.scrollbar_height;
-#ifdef FEAT_MENU
-	if (gui.menu_is_active)
-	    pre_area.y += gui.menu_height;
-#endif
 	pre_area.height = gui.char_height;
 	preedit_list = XVaCreateNestedList(0, XNArea, &pre_area, NULL);
     }

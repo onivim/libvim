@@ -45,7 +45,6 @@
 #		--enable-pythoninterp	for Python interpreter
 #		--enable-rubyinterp	for Ruby interpreter
 #		--enable-tclinterp	for Tcl interpreter
-#		--enable-cscope		for Cscope interface
 #	- Uncomment one of the lines with --with-features= to enable a set of
 #	  features (but not the interfaces just mentioned).
 #	- Uncomment the line with --disable-acl to disable ACL support even
@@ -467,10 +466,6 @@ CClink = $(CC)
 #CONF_OPT_TCL = --enable-tclinterp
 #CONF_OPT_TCL = --enable-tclinterp=dynamic
 #CONF_OPT_TCL = --enable-tclinterp --with-tclsh=tclsh8.4
-
-# CSCOPE
-# Uncomment this when you want to include the Cscope interface.
-#CONF_OPT_CSCOPE = --enable-cscope
 
 # CHANNEL - inter process communication. Same conditions as NetBeans.
 # Uncomment this when you do not want inter process communication.
@@ -1376,8 +1371,9 @@ ALL_LIBS = \
 	   $(LEAK_LIBS)
 
 # abbreviations
-DEST_LIB = $(DESTDIR)/lib
 DEST_BIN = $(DESTDIR)/bin
+DEST_INCLUDE = $(DESTDIR)/include
+DEST_LIB = $(DESTDIR)/lib
 DEST_VIM = $(DESTDIR)$(VIMLOC)
 DEST_RT = $(DESTDIR)$(VIMRTLOC)
 DEST_HELP = $(DESTDIR)$(HELPSUBLOC)
@@ -1459,9 +1455,7 @@ BASIC_SRC = \
 	findfile.c \
 	fold.c \
 	getchar.c \
-	hardcopy.c \
 	hashtab.c \
-	if_cscope.c \
 	if_xcmdsrv.c \
 	indent.c \
 	insexpand.c \
@@ -1472,7 +1466,6 @@ BASIC_SRC = \
 	mark.c \
 	memfile.c \
 	memline.c \
-	menu.c \
 	message.c \
 	misc1.c \
 	misc2.c \
@@ -1518,8 +1511,8 @@ SRC =	$(BASIC_SRC) \
 	$(TCL_SRC) \
 	$(RUBY_SRC)
 
-EXTRA_SRC = hangulin.c if_lua.c if_mzsch.c auto/if_perl.c if_perlsfio.c \
-	    if_python.c if_python3.c if_tcl.c if_ruby.c \
+EXTRA_SRC = hangulin.c if_lua.c if_mzsch.c \
+	    if_python.c if_python3.c if_ruby.c \
 	    channel.c \
 	    $(GRESOURCE_SRC)
 
@@ -1573,10 +1566,8 @@ OBJ_COMMON = \
 	objects/findfile.o \
 	objects/fold.o \
 	objects/getchar.o \
-	objects/hardcopy.o \
 	objects/hashtab.o \
 	$(HANGULIN_OBJ) \
-	objects/if_cscope.o \
 	objects/if_xcmdsrv.o \
 	objects/indent.o \
 	objects/insexpand.o \
@@ -1584,7 +1575,6 @@ OBJ_COMMON = \
 	objects/list.o \
 	objects/mark.o \
 	objects/memline.o \
-	objects/menu.o \
 	objects/misc1.o \
 	objects/misc2.o \
 	objects/move.o \
@@ -1700,10 +1690,8 @@ PRO_AUTO = \
 	findfile.pro \
 	fold.pro \
 	getchar.pro \
-	hardcopy.pro \
 	hashtab.pro \
 	hangulin.pro \
-	if_cscope.pro \
 	if_lua.pro \
 	if_mzsch.pro \
 	if_python.pro \
@@ -1719,7 +1707,6 @@ PRO_AUTO = \
 	mbyte.pro \
 	memfile.pro \
 	memline.pro \
-	menu.pro \
 	message.pro \
 	misc1.pro \
 	misc2.pro \
@@ -1790,7 +1777,7 @@ config auto/config.mk: auto/configure config.mk.in config.h.in
 		$(CONF_OPT_AUTOSERVE) $(CONF_OPT_DARWIN) $(CONF_OPT_FAIL) \
 		$(CONF_OPT_PERL) $(CONF_OPT_PYTHON) $(CONF_OPT_PYTHON3) \
 		$(CONF_OPT_TCL) $(CONF_OPT_RUBY) $(CONF_OPT_NLS) \
-		$(CONF_OPT_CSCOPE) $(CONF_OPT_MULTIBYTE) $(CONF_OPT_INPUT) \
+		$(CONF_OPT_MULTIBYTE) $(CONF_OPT_INPUT) \
 		$(CONF_OPT_OUTPUT) $(CONF_OPT_GPM) \
 		$(CONF_OPT_FEAT) $(CONF_TERM_LIB) \
 		$(CONF_OPT_COMPBY) $(CONF_OPT_ACL) \
@@ -1932,11 +1919,6 @@ winclip.pro: winclip.c
 os_beos.pro: os_beos.c
 	$(CPROTO) -D__BEOS__ -UHAVE_CONFIG_H $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
-
-# if_perl.pro is special: Use the generated if_perl.c for input and remove
-# prototypes for local functions.
-if_perl.pro: auto/if_perl.c
-	$(CPROTO) -DFEAT_GUI auto/if_perl.c | sed "/_VI/d" > proto/$@
 
 gui_gtk_gresources.pro: auto/gui_gtk_gresources.c
 	$(CPROTO) -DFEAT_GUI $< > proto/$@
@@ -2104,6 +2086,12 @@ installapitest:  copy-apitest-collateral $(TEST_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
+	mkdir -p $(DEST_INCLUDE)
+	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
+	mkdir -p $(DEST_INCLUDE)/proto
+	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
+	mkdir -p $(DEST_INCLUDE)/auto
+	$(INSTALL_PROG) auto/*.h $(DEST_INCLUDE)/auto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 #
@@ -2633,7 +2621,7 @@ uninstall_runtime:
 clean celan: testclean
 	-rm -f *.o core $(VIMTARGET).core $(VIMTARGET) vim xxd/*.o
 	-rm -rf objects
-	-rm -f $(TOOLS) auto/osdef.h auto/pathdef.c auto/if_perl.c auto/gui_gtk_gresources.c auto/gui_gtk_gresources.h
+	-rm -f $(TOOLS) auto/osdef.h auto/pathdef.c 
 	-rm -f conftest* *~ auto/link.sed
 	-rm -f testdir/opt_test.vim
 	-rm -f $(UNITTEST_TARGETS)
@@ -2745,11 +2733,6 @@ lint:
 .c.o:
 	$(CCC) $<
 
-auto/if_perl.c: if_perl.xs
-	$(PERL) -e 'unless ( $$] >= 5.005 ) { for (qw(na defgv errgv)) { print "#define PL_$$_ $$_\n" }}' > $@
-	$(PERL) $(PERL_XSUBPP) -prototypes -typemap \
-	    $(PERLLIB)/ExtUtils/typemap if_perl.xs >> $@
-
 auto/osdef.h: auto/config.h osdef.sh osdef1.h.in osdef2.h.in
 	CC="$(CC) $(OSDEF_CFLAGS)" srcdir=$(srcdir) sh $(srcdir)/osdef.sh
 
@@ -2854,17 +2837,11 @@ objects/fold.o: fold.c
 objects/getchar.o: getchar.c
 	$(CCC) -o $@ getchar.c
 
-objects/hardcopy.o: hardcopy.c
-	$(CCC) -o $@ hardcopy.c
-
 objects/hashtab.o: hashtab.c
 	$(CCC) -o $@ hashtab.c
 
 objects/hangulin.o: hangulin.c
 	$(CCC) -o $@ hangulin.c
-
-objects/if_cscope.o: if_cscope.c
-	$(CCC) -o $@ if_cscope.c
 
 objects/if_xcmdsrv.o: if_xcmdsrv.c
 	$(CCC) -o $@ if_xcmdsrv.c
@@ -2878,12 +2855,6 @@ objects/if_mzsch.o: if_mzsch.c $(MZSCHEME_EXTRA)
 mzscheme_base.c:
 	$(MZSCHEME_MZC) --c-mods mzscheme_base.c ++lib scheme/base
 
-objects/if_perl.o: auto/if_perl.c
-	$(CCC_NF) $(PERL_CFLAGS) $(ALL_CFLAGS) -o $@ auto/if_perl.c
-
-objects/if_perlsfio.o: if_perlsfio.c
-	$(CCC_NF) $(PERL_CFLAGS) $(ALL_CFLAGS) -o $@ if_perlsfio.c
-
 objects/if_python.o: if_python.c if_py_both.h
 	$(CCC_NF) $(PYTHON_CFLAGS) $(PYTHON_CFLAGS_EXTRA) $(ALL_CFLAGS) -o $@ if_python.c
 
@@ -2892,9 +2863,6 @@ objects/if_python3.o: if_python3.c if_py_both.h
 
 objects/if_ruby.o: if_ruby.c
 	$(CCC_NF) $(RUBY_CFLAGS) $(ALL_CFLAGS) -o $@ if_ruby.c
-
-objects/if_tcl.o: if_tcl.c
-	$(CCC_NF) $(TCL_CFLAGS) $(ALL_CFLAGS) -o $@ if_tcl.c
 
 objects/indent.o: indent.c
 	$(CCC) -o $@ indent.c
@@ -2931,9 +2899,6 @@ objects/memfile_test.o: memfile_test.c
 
 objects/memline.o: memline.c
 	$(CCC) -o $@ memline.c
-
-objects/menu.o: menu.c
-	$(CCC) -o $@ menu.c
 
 objects/message.o: message.c
 	$(CCC) -o $@ message.c
@@ -3282,18 +3247,10 @@ objects/getchar.o: getchar.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/hardcopy.o: hardcopy.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h version.h
 objects/hashtab.o: hashtab.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/if_cscope.o: if_cscope.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h if_cscope.h
 objects/if_xcmdsrv.o: if_xcmdsrv.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3327,10 +3284,6 @@ objects/memfile.o: memfile.c vim.h protodef.h auto/config.h feature.h os_unix.h 
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/memline.o: memline.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
-objects/menu.o: menu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
@@ -3484,14 +3437,6 @@ objects/if_mzsch.o: if_mzsch.c vim.h protodef.h auto/config.h feature.h os_unix.
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_mzsch.h
-objects/if_perl.o: auto/if_perl.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
-objects/if_perlsfio.o: if_perlsfio.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/if_python.o: if_python.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3500,10 +3445,6 @@ objects/if_python3.o: if_python3.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_py_both.h
-objects/if_tcl.o: if_tcl.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/if_ruby.o: if_ruby.c protodef.h auto/config.h vim.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3512,7 +3453,6 @@ objects/channel.o: channel.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/gui_gtk_gresources.o: auto/gui_gtk_gresources.c
 objects/encoding.o: libvterm/src/encoding.c libvterm/src/vterm_internal.h \
  libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
  libvterm/src/encoding/DECdrawing.inc libvterm/src/encoding/uk.inc
