@@ -2106,6 +2106,8 @@ installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
 	mkdir -p $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
+	mkdir -p $(DEST_INCLUDE)/auto
+	$(INSTALL_PROG) auto/*.h $(DEST_INCLUDE)/auto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 #
