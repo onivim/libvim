@@ -3287,13 +3287,6 @@ mch_exit(int r)
     mac_conv_cleanup();
 #endif
 
-#ifdef __QNX__
-    /* A core dump won't be created if the signal handler
-     * doesn't return, so we can't call exit() */
-    if (deadly_signal != 0)
-	return;
-#endif
-
 #ifdef FEAT_NETBEANS_INTG
     netbeans_send_disconnect();
 #endif

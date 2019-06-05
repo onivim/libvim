@@ -75,9 +75,6 @@ static void ins_up(int startcol);
 static void ins_pageup(void);
 static void ins_down(int startcol);
 static void ins_pagedown(void);
-#ifdef FEAT_DND
-static void ins_drop(void);
-#endif
 static int ins_tab(void);
 #ifdef FEAT_DIGRAPHS
 static int ins_digraph(void);
@@ -1336,9 +1333,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #ifdef FEAT_MOUSE
   setmouse();
 #endif
-#ifdef FEAT_CMDL_INFO
-  clear_showcmd();
-#endif
+
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
   revins_on = (State == INSERT && p_ri);
@@ -1803,6 +1798,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
 #ifdef UNIX
+<<<<<<< HEAD
     do_intr:
 #endif
       /* when 'insertmode' set, and not halfway a mapping, don't leave
@@ -1873,6 +1869,79 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       if (p_im)
         need_start_insertmode = TRUE;
       goto doESCkey;
+=======
+do_intr:
+#endif
+	    /* when 'insertmode' set, and not halfway a mapping, don't leave
+	     * Insert mode */
+	    if (goto_im())
+	    {
+		if (got_int)
+		{
+		    (void)vgetc();		/* flush all buffers */
+		    got_int = FALSE;
+		}
+		else
+		    vim_beep(BO_IM);
+		break;
+	    }
+doESCkey:
+	    /*
+	     * This is the ONLY return from edit()!
+	     */
+	    /* Always update o_lnum, so that a "CTRL-O ." that adds a line
+	     * still puts the cursor back after the inserted text. */
+	    if (ins_at_eol && gchar_cursor() == NUL)
+		o_lnum = curwin->w_cursor.lnum;
+
+	    if (ins_esc(&count, cmdchar, nomove))
+	    {
+		// When CTRL-C was typed got_int will be set, with the result
+		// that the autocommands won't be executed. When mapped got_int
+		// is not set, but let's keep the behavior the same.
+		if (cmdchar != 'r' && cmdchar != 'v' && c != Ctrl_C)
+		    ins_apply_autocmds(EVENT_INSERTLEAVE);
+		did_cursorhold = FALSE;
+		return (c == Ctrl_O);
+	    }
+	    continue;
+
+	case Ctrl_Z:	/* suspend when 'insertmode' set */
+	    if (!p_im)
+		goto normalchar;	/* insert CTRL-Z as normal char */
+	    do_cmdline_cmd((char_u *)"stop");
+	    continue;
+
+	case Ctrl_O:	/* execute one command */
+	    if (echeck_abbr(Ctrl_O + ABBR_OFF))
+		break;
+	    ins_ctrl_o();
+
+	    /* don't move the cursor left when 'virtualedit' has "onemore". */
+	    if (ve_flags & VE_ONEMORE)
+	    {
+		ins_at_eol = FALSE;
+		nomove = TRUE;
+	    }
+	    count = 0;
+	    goto doESCkey;
+
+	case K_INS:	/* toggle insert/replace mode */
+	case K_KINS:
+	    ins_insert(replaceState);
+	    break;
+
+	case K_SELECT:	/* end of Select mode mapping - ignore */
+	    break;
+
+	case K_HELP:	/* Help key works like <ESC> <Help> */
+	case K_F1:
+	case K_XF1:
+	    stuffcharReadbuff(K_HELP);
+	    if (p_im)
+		need_start_insertmode = TRUE;
+	    goto doESCkey;
+>>>>>>> master
 
 #ifdef FEAT_NETBEANS_INTG
     case K_F21:     /* NetBeans command */
@@ -1950,6 +2019,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 
     case Ctrl_W: /* delete word before the cursor */
 #ifdef FEAT_JOB_CHANNEL
+<<<<<<< HEAD
       if (bt_prompt(curbuf) && (mod_mask & MOD_MASK_SHIFT) == 0) {
         // In a prompt window CTRL-W is used for window commands.
         // Use Shift-CTRL-W to delete a word.
@@ -1974,6 +2044,28 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       auto_format(FALSE, TRUE);
       inserted_space = FALSE;
       break;
+=======
+	    if (bt_prompt(curbuf) && (mod_mask & MOD_MASK_SHIFT) == 0)
+	    {
+		// In a prompt window CTRL-W is used for window commands.
+		// Use Shift-CTRL-W to delete a word.
+		stuffcharReadbuff(Ctrl_W);
+		restart_edit = 'A';
+		nomove = TRUE;
+		count = 0;
+		goto doESCkey;
+	    }
+#endif
+	    did_backspace = ins_bs(c, BACKSPACE_WORD, &inserted_space);
+	    auto_format(FALSE, TRUE);
+	    break;
+
+	case Ctrl_U:	/* delete all inserted text in current line */
+	    did_backspace = ins_bs(c, BACKSPACE_LINE, &inserted_space);
+	    auto_format(FALSE, TRUE);
+	    inserted_space = FALSE;
+	    break;
+>>>>>>> master
 
 #ifdef FEAT_MOUSE
     case K_LEFTMOUSE: /* mouse keys */
@@ -2137,6 +2229,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       ins_pagedown();
       break;
 
+<<<<<<< HEAD
 #ifdef FEAT_DND
     case K_DROP: /* drag-n-drop event */
       ins_drop();
@@ -2146,6 +2239,11 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_S_TAB: /* When not mapped, use like a normal TAB */
       c = TAB;
       /* FALLTHROUGH */
+=======
+	case K_S_TAB:	/* When not mapped, use like a normal TAB */
+	    c = TAB;
+	    /* FALLTHROUGH */
+>>>>>>> master
 
     case TAB: /* TAB or Complete patterns along path */
 #if defined(FEAT_INS_EXPAND) && defined(FEAT_FIND_ID)
@@ -2360,6 +2458,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       break;
     } /* end of switch (c) */
 
+<<<<<<< HEAD
     /* If typed something may trigger CursorHoldI again. */
     if (c != K_CURSORHOLD
 #ifdef FEAT_COMPL_FUNC
@@ -2368,6 +2467,12 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
     )
       did_cursorhold = FALSE;
+=======
+	/* If typed something may trigger CursorHoldI again. */
+	if (c != K_CURSORHOLD
+	       )
+	    did_cursorhold = FALSE;
+>>>>>>> master
 
     /* If the cursor was moved we didn't just insert a space */
     if (arrow_used)
@@ -2536,6 +2641,7 @@ static void ins_ctrl_v(void) {
   }
   AppendToRedobuff((char_u *)CTRL_V_STR); /* CTRL-V */
 
+<<<<<<< HEAD
 #ifdef FEAT_CMDL_INFO
   add_to_showcmd_c(Ctrl_V);
 #endif
@@ -2549,6 +2655,14 @@ static void ins_ctrl_v(void) {
   clear_showcmd();
 #endif
   insert_special(c, FALSE, TRUE);
+=======
+    c = get_literal();
+    if (did_putchar)
+	/* when the line fits in 'columns' the '^' is at the start of the next
+	 * line and will not removed by the redraw */
+	edit_unputchar();
+    insert_special(c, FALSE, TRUE);
+>>>>>>> master
 #ifdef FEAT_RIGHTLEFT
   revins_chars++;
   revins_legal++;
@@ -3033,6 +3147,7 @@ int get_literal(void) {
   if (gui.in_use)
     ++allow_keys;
 #endif
+<<<<<<< HEAD
   ++no_mapping; /* don't map the next key hits */
   cc = 0;
   i = 0;
@@ -3100,6 +3215,82 @@ int get_literal(void) {
                  second byte will cause trouble! */
 
   --no_mapping;
+=======
+    ++no_mapping;		/* don't map the next key hits */
+    cc = 0;
+    i = 0;
+    for (;;)
+    {
+	nc = plain_vgetc();
+	if (nc == 'x' || nc == 'X')
+	    hex = TRUE;
+	else if (nc == 'o' || nc == 'O')
+	    octal = TRUE;
+	else if (nc == 'u' || nc == 'U')
+	    unicode = nc;
+	else
+	{
+	    if (hex || unicode != 0)
+	    {
+		if (!vim_isxdigit(nc))
+		    break;
+		cc = cc * 16 + hex2nr(nc);
+	    }
+	    else if (octal)
+	    {
+		if (nc < '0' || nc > '7')
+		    break;
+		cc = cc * 8 + nc - '0';
+	    }
+	    else
+	    {
+		if (!VIM_ISDIGIT(nc))
+		    break;
+		cc = cc * 10 + nc - '0';
+	    }
+
+	    ++i;
+	}
+
+	if (cc > 255 && unicode == 0)
+	    cc = 255;		/* limit range to 0-255 */
+	nc = 0;
+
+	if (hex)		/* hex: up to two chars */
+	{
+	    if (i >= 2)
+		break;
+	}
+	else if (unicode)	/* Unicode: up to four or eight chars */
+	{
+	    if ((unicode == 'u' && i >= 4) || (unicode == 'U' && i >= 8))
+		break;
+	}
+	else if (i >= 3)	/* decimal or octal: up to three chars */
+	    break;
+    }
+    if (i == 0)	    /* no number entered */
+    {
+	if (nc == K_ZERO)   /* NUL is stored as NL */
+	{
+	    cc = '\n';
+	    nc = 0;
+	}
+	else
+	{
+	    cc = nc;
+	    nc = 0;
+	}
+    }
+
+    if (cc == 0)	/* NUL is stored as NL */
+	cc = '\n';
+    if (enc_dbcs && (cc & 0xff) == 0)
+	cc = '?';	/* don't accept an illegal DBCS char, the NUL in the
+			   second byte will cause trouble! */
+
+    --no_mapping;
+>>>>>>> master
 #ifdef FEAT_GUI
   if (gui.in_use)
     --allow_keys;
@@ -4908,6 +5099,7 @@ static void ins_reg(void) {
     /* may need to redraw when no more chars available now */
     ins_redraw(FALSE);
 
+<<<<<<< HEAD
     edit_putchar('"', TRUE);
 #ifdef FEAT_CMDL_INFO
     add_to_showcmd_c(Ctrl_R);
@@ -4931,6 +5123,26 @@ static void ins_reg(void) {
     LANGMAP_ADJUST(regname, TRUE);
   }
   --no_mapping;
+=======
+	edit_putchar('"', TRUE);
+    }
+
+    /*
+     * Don't map the register name. This also prevents the mode message to be
+     * deleted when ESC is hit.
+     */
+    ++no_mapping;
+    regname = plain_vgetc();
+    LANGMAP_ADJUST(regname, TRUE);
+    if (regname == Ctrl_R || regname == Ctrl_O || regname == Ctrl_P)
+    {
+	/* Get a third key for literal register insertion */
+	literally = regname;
+	regname = plain_vgetc();
+	LANGMAP_ADJUST(regname, TRUE);
+    }
+    --no_mapping;
+>>>>>>> master
 
 #ifdef FEAT_EVAL
   /* Don't call u_sync() while typing the expression or giving an error
@@ -4985,9 +5197,12 @@ static void ins_reg(void) {
     ins_need_undo = TRUE;
   u_sync_once = 0;
 #endif
+<<<<<<< HEAD
 #ifdef FEAT_CMDL_INFO
   clear_showcmd();
 #endif
+=======
+>>>>>>> master
 
   /* If the inserted register is empty, we need to remove the '"' */
   if (need_redraw || stuff_empty())
@@ -6300,10 +6515,13 @@ static void ins_pagedown(void) {
     vim_beep(BO_CRSR);
 }
 
+<<<<<<< HEAD
 #ifdef FEAT_DND
 static void ins_drop(void) { do_put('~', BACKWARD, 1L, PUT_CURSEND); }
 #endif
 
+=======
+>>>>>>> master
 /*
  * Handle TAB in Insert or Replace mode.
  * Return TRUE when the TAB needs to be inserted like a normal character.
@@ -6605,6 +6823,7 @@ static int ins_digraph(void) {
     /* may need to redraw when no more chars available now */
     ins_redraw(FALSE);
 
+<<<<<<< HEAD
     edit_putchar('?', TRUE);
     did_putchar = TRUE;
 #ifdef FEAT_CMDL_INFO
@@ -6646,6 +6865,10 @@ static int ins_digraph(void) {
 #ifdef FEAT_CMDL_INFO
       add_to_showcmd_c(c);
 #endif
+=======
+	edit_putchar('?', TRUE);
+	did_putchar = TRUE;
+>>>>>>> master
     }
     ++no_mapping;
     ++allow_keys;
@@ -6653,6 +6876,7 @@ static int ins_digraph(void) {
     --no_mapping;
     --allow_keys;
     if (did_putchar)
+<<<<<<< HEAD
       /* when the line fits in 'columns' the '?' is at the start of the
        * next line and will not be removed by a redraw */
       edit_unputchar();
@@ -6669,6 +6893,49 @@ static int ins_digraph(void) {
   clear_showcmd();
 #endif
   return NUL;
+=======
+	/* when the line fits in 'columns' the '?' is at the start of the next
+	 * line and will not be removed by the redraw */
+	edit_unputchar();
+
+    if (IS_SPECIAL(c) || mod_mask)	    /* special key */
+    {
+	insert_special(c, TRUE, FALSE);
+	return NUL;
+    }
+    if (c != ESC)
+    {
+	did_putchar = FALSE;
+	if (redrawing() && !char_avail())
+	{
+	    /* may need to redraw when no more chars available now */
+	    ins_redraw(FALSE);
+
+	    if (char2cells(c) == 1)
+	    {
+		ins_redraw(FALSE);
+		edit_putchar(c, TRUE);
+		did_putchar = TRUE;
+	    }
+	}
+	++no_mapping;
+	++allow_keys;
+	cc = plain_vgetc();
+	--no_mapping;
+	--allow_keys;
+	if (did_putchar)
+	    /* when the line fits in 'columns' the '?' is at the start of the
+	     * next line and will not be removed by a redraw */
+	    edit_unputchar();
+	if (cc != ESC)
+	{
+	    AppendToRedobuff((char_u *)CTRL_V_STR);
+	    c = getdigraph(c, cc, TRUE);
+	    return c;
+	}
+    }
+    return NUL;
+>>>>>>> master
 }
 #endif
 

@@ -1,6 +1,6 @@
+#include "libvim.h"
 #include <assert.h>
 #include <stdio.h>
-#include "libvim.h"
 
 int main(int argc, char **argv) {
   vimInit(argc, argv);
@@ -16,35 +16,23 @@ int main(int argc, char **argv) {
   int comp = strcmp(line, "This is the first line of a test file");
   assert(comp == 0);
 
+  size_t len = vimBufferGetLineCount(buf);
+  assert(len == 3);
+
   printf("cursor line: %d\n", vimWindowGetCursorLine());
 
   assert(vimWindowGetCursorLine() == 1);
 
   vimInput("G");
+  printf("cursor line: %d\n", vimWindowGetCursorLine());
 
   assert(vimWindowGetCursorLine() > 1);
-
-  /* vimExecute("help tutor"); */
-  /* assert(vimWindowGetCursorLine() == 32); */
-
-  vimInput("g");
-  vimInput("g");
 
   vimInput("v");
   assert(vimGetMode() & VISUAL == VISUAL);
   vimInput("l");
   vimInput("l");
   vimInput("x");
-  /* vimInput("i"); */
-  /* vimInput("a"); */
-  /* vimInput("b"); */
-  /* vimInput("c"); */
-  /* vimInput("d"); */
-  /* vimInput("e"); */
-  /* vimInput("\010"); */
-  /* vimInput("\033"); */
-  /* vimInput("d"); */
-  /* vimInput("d"); */
 
   printf("CURSOR LINE: %d\n", vimWindowGetCursorLine());
   /* assert(vimGetMode() & INSERT == INSERT); */

@@ -3798,9 +3798,6 @@ do_ecmd(
     int		solcol = -1;
     pos_T	*pos;
     char_u	*command = NULL;
-#ifdef FEAT_SPELL
-    int		did_get_winopts = FALSE;
-#endif
     int		readfile_flags = 0;
     int		did_inc_redrawing_disabled = FALSE;
     long        *so_ptr = curwin->w_p_so >= 0 ? &curwin->w_p_so : &p_so;

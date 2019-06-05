@@ -547,9 +547,6 @@ wingotofile:
 		LANGMAP_ADJUST(xchar, TRUE);
 		--no_mapping;
 		--allow_keys;
-#ifdef FEAT_CMDL_INFO
-		(void)add_to_showcmd(xchar);
-#endif
 		switch (xchar)
 		{
 #if defined(FEAT_QUICKFIX)
@@ -4786,10 +4783,6 @@ win_free(
     python3_window_free(wp);
 #endif
 
-#ifdef FEAT_TCL
-    tcl_window_free(wp);
-#endif
-
 #ifdef FEAT_RUBY
     ruby_window_free(wp);
 #endif
@@ -4846,9 +4839,6 @@ win_free(
     }
 #endif /* FEAT_GUI */
 
-#ifdef FEAT_MENU
-    remove_winbar(wp);
-#endif
 #ifdef FEAT_TEXT_PROP
     free_callback(&wp->w_close_cb);
     free_callback(&wp->w_filter_cb);

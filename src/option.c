@@ -88,9 +88,6 @@
 # define PV_DICT	OPT_BOTH(OPT_BUF(BV_DICT))
 # define PV_TSR		OPT_BOTH(OPT_BUF(BV_TSR))
 #endif
-#ifdef FEAT_COMPL_FUNC
-# define PV_CFU		OPT_BUF(BV_CFU)
-#endif
 #ifdef FEAT_FIND_ID
 # define PV_DEF		OPT_BOTH(OPT_BUF(BV_DEF))
 # define PV_INC		OPT_BOTH(OPT_BUF(BV_INC))
@@ -139,9 +136,6 @@
 #define PV_MOD		OPT_BUF(BV_MOD)
 #define PV_MPS		OPT_BUF(BV_MPS)
 #define PV_NF		OPT_BUF(BV_NF)
-#ifdef FEAT_COMPL_FUNC
-# define PV_OFU		OPT_BUF(BV_OFU)
-#endif
 #define PV_PATH		OPT_BOTH(OPT_BUF(BV_PATH))
 #define PV_PI		OPT_BUF(BV_PI)
 #ifdef FEAT_TEXTOBJ
@@ -302,10 +296,6 @@ static char_u	*p_cms;
 #endif
 #ifdef FEAT_INS_EXPAND
 static char_u	*p_cpt;
-#endif
-#ifdef FEAT_COMPL_FUNC
-static char_u	*p_cfu;
-static char_u	*p_ofu;
 #endif
 #ifdef FEAT_EVAL
 static char_u	*p_tfu;
@@ -875,13 +865,8 @@ static struct vimoption options[] =
 			    {(char_u *)0L, (char_u *)0L}
 			    SCTX_INIT},
     {"completefunc", "cfu", P_STRING|P_ALLOCED|P_VI_DEF|P_SECURE,
-#ifdef FEAT_COMPL_FUNC
-			    (char_u *)&p_cfu, PV_CFU,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"completeopt",   "cot",  P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
 #ifdef FEAT_INS_EXPAND
@@ -1700,11 +1685,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"langmenu",    "lm",   P_STRING|P_VI_DEF|P_NFNAME,
-#if defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)
-			    (char_u *)&p_lm, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"langnoremap",  "lnr",   P_BOOL|P_VI_DEF,
 #ifdef FEAT_LANGMAP
@@ -1858,11 +1839,7 @@ static struct vimoption options[] =
 			    {(char_u *)DFLT_MAXMEMTOT, (char_u *)0L}
 			    SCTX_INIT},
     {"menuitems",   "mis",  P_NUM|P_VI_DEF,
-#ifdef FEAT_MENU
-			    (char_u *)&p_mis, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)25L, (char_u *)0L} SCTX_INIT},
     {"mesg",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -1985,13 +1962,8 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)8L, (char_u *)4L} SCTX_INIT},
     {"omnifunc",    "ofu",  P_STRING|P_ALLOCED|P_VI_DEF|P_SECURE,
-#ifdef FEAT_COMPL_FUNC
-			    (char_u *)&p_ofu, PV_OFU,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"open",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -2299,11 +2271,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"ruler",	    "ru",   P_BOOL|P_VI_DEF|P_VIM|P_RSTAT,
-#ifdef FEAT_CMDL_INFO
-			    (char_u *)&p_ru, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"rulerformat", "ruf",  P_STRING|P_VI_DEF|P_ALLOCED|P_RSTAT|P_MLE,
 #ifdef FEAT_STL_OPT
@@ -2456,11 +2424,7 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"showcmd",	    "sc",   P_BOOL|P_VIM,
-#ifdef FEAT_CMDL_INFO
-			    (char_u *)&p_sc, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE,
 #ifdef UNIX
 				(char_u *)FALSE
@@ -5729,10 +5693,6 @@ check_buf_options(buf_T *buf)
 #ifdef FEAT_INS_EXPAND
     check_string_option(&buf->b_p_cpt);
 #endif
-#ifdef FEAT_COMPL_FUNC
-    check_string_option(&buf->b_p_cfu);
-    check_string_option(&buf->b_p_ofu);
-#endif
 #ifdef FEAT_EVAL
     check_string_option(&buf->b_p_tfu);
 #endif
@@ -6435,17 +6395,6 @@ did_set_string_option(
 	if (*p_wak == NUL
 		|| check_opt_strings(p_wak, p_wak_values, FALSE) != OK)
 	    errmsg = e_invarg;
-# ifdef FEAT_MENU
-#  ifdef FEAT_GUI_MOTIF
-	else if (gui.in_use)
-	    gui_motif_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#  else
-#   ifdef FEAT_GUI_GTK
-	else if (gui.in_use)
-	    gui_gtk_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#   endif
-#  endif
-# endif
     }
 #endif
 
@@ -7149,12 +7098,6 @@ did_set_string_option(
     {
 	if (check_opt_strings(p_mousem, p_mousem_values, FALSE) != OK)
 	    errmsg = e_invarg;
-#if defined(FEAT_GUI_MOTIF) && defined(FEAT_MENU) && (XmVersion <= 1002)
-	else if (*p_mousem != *oldval)
-	    /* Changed from "extend" to "popup" or "popup_setpos" or vv: need
-	     * to create or delete the popup menus. */
-	    gui_motif_update_mousemodel(root_menu);
-#endif
     }
 
     /* 'switchbuf' */
@@ -9616,7 +9559,7 @@ findoption(char_u *arg)
     return opt_idx;
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_TCL) || defined(FEAT_MZSCHEME)
+#if defined(FEAT_EVAL) || defined(FEAT_MZSCHEME)
 /*
  * Get the value for an option.
  *
@@ -10663,38 +10606,8 @@ istermoption(struct vimoption *p)
     void
 comp_col(void)
 {
-#if defined(FEAT_CMDL_INFO)
-    int last_has_status = (p_ls == 2 || (p_ls == 1 && !ONE_WINDOW));
-
-    sc_col = 0;
-    ru_col = 0;
-    if (p_ru)
-    {
-# ifdef FEAT_STL_OPT
-	ru_col = (ru_wid ? ru_wid : COL_RULER) + 1;
-# else
-	ru_col = COL_RULER + 1;
-# endif
-	/* no last status line, adjust sc_col */
-	if (!last_has_status)
-	    sc_col = ru_col;
-    }
-    if (p_sc)
-    {
-	sc_col += SHOWCMD_COLS;
-	if (!p_ru || last_has_status)	    /* no need for separating space */
-	    ++sc_col;
-    }
-    sc_col = Columns - sc_col;
-    ru_col = Columns - ru_col;
-    if (sc_col <= 0)		/* screen too narrow, will become a mess */
-	sc_col = 1;
-    if (ru_col <= 0)
-	ru_col = 1;
-#else
     sc_col = Columns;
     ru_col = Columns;
-#endif
 }
 
 #if defined(FEAT_PYTHON) || defined(FEAT_PYTHON3) || defined(PROTO)
@@ -11026,10 +10939,6 @@ get_varp(struct vimoption *p)
 #endif
 #ifdef FEAT_INS_EXPAND
 	case PV_CPT:	return (char_u *)&(curbuf->b_p_cpt);
-#endif
-#ifdef FEAT_COMPL_FUNC
-	case PV_CFU:	return (char_u *)&(curbuf->b_p_cfu);
-	case PV_OFU:	return (char_u *)&(curbuf->b_p_ofu);
 #endif
 #ifdef FEAT_EVAL
 	case PV_TFU:	return (char_u *)&(curbuf->b_p_tfu);
@@ -11420,10 +11329,6 @@ buf_copy_options(buf_T *buf, int flags)
 	    buf->b_p_swf = cmdmod.noswapfile ? FALSE : p_swf;
 #ifdef FEAT_INS_EXPAND
 	    buf->b_p_cpt = vim_strsave(p_cpt);
-#endif
-#ifdef FEAT_COMPL_FUNC
-	    buf->b_p_cfu = vim_strsave(p_cfu);
-	    buf->b_p_ofu = vim_strsave(p_ofu);
 #endif
 #ifdef FEAT_EVAL
 	    buf->b_p_tfu = vim_strsave(p_tfu);

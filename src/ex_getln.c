@@ -585,9 +585,6 @@ may_do_incsearch_highlighting(
     }
 
     validate_cursor();
-    // May redraw the status line to show the cursor position.
-    if (p_ru && curwin->w_status_height > 0)
-	curwin->w_redr_status = TRUE;
 
     update_screen(SOME_VALID);
     restore_last_search_pattern();
@@ -1907,13 +1904,6 @@ getcmdline_int(
 		    cmdline_paste(0, TRUE, TRUE);
 		redrawcmd();
 		goto cmdline_changed;
-
-# ifdef FEAT_DND
-	case K_DROP:
-		cmdline_paste('~', TRUE, FALSE);
-		redrawcmd();
-		goto cmdline_changed;
-# endif
 
 	case K_LEFTDRAG:
 	case K_LEFTRELEASE:
@@ -5129,10 +5119,6 @@ ExpandFromContext(
 	    {EXPAND_USER_FUNC, get_user_func_name, FALSE, TRUE},
 	    {EXPAND_EXPRESSION, get_expr_name, FALSE, TRUE},
 #endif
-#ifdef FEAT_MENU
-	    {EXPAND_MENUS, get_menu_name, FALSE, TRUE},
-	    {EXPAND_MENUNAMES, get_menu_names, FALSE, TRUE},
-#endif
 #ifdef FEAT_SYN_HL
 	    {EXPAND_SYNTAX, get_syntax_name, TRUE, TRUE},
 #endif
@@ -5231,15 +5217,6 @@ ExpandGeneric(
 		    else
 			str = vim_strsave(str);
 		    (*file)[count] = str;
-#ifdef FEAT_MENU
-		    if (func == get_menu_names && str != NULL)
-		    {
-			/* test for separator added by get_menu_names() */
-			str += STRLEN(str) - 1;
-			if (*str == '\001')
-			    *str = '.';
-		    }
-#endif
 		}
 		++count;
 	    }
