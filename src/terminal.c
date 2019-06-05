@@ -1985,15 +1985,7 @@ term_paste_register(int prev_c UNUSED)
     long	reglen = 0;
     int		type;
 
-#ifdef FEAT_CMDL_INFO
-    if (add_to_showcmd(prev_c))
-    if (add_to_showcmd('"'))
-	out_flush();
-#endif
     c = term_vgetc();
-#ifdef FEAT_CMDL_INFO
-    clear_showcmd();
-#endif
     if (!term_use_loop())
 	/* job finished while waiting for a character */
 	return;
@@ -2250,14 +2242,7 @@ terminal_loop(int blocking)
 	{
 	    int	    prev_c = c;
 
-#ifdef FEAT_CMDL_INFO
-	    if (add_to_showcmd(c))
-		out_flush();
-#endif
 	    c = term_vgetc();
-#ifdef FEAT_CMDL_INFO
-	    clear_showcmd();
-#endif
 	    if (!term_use_loop_check(TRUE)
 					 || in_terminal_loop != curbuf->b_term)
 		/* job finished while waiting for a character */

@@ -6663,10 +6663,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"ruby",
 #endif
 	"scrollbind",
-#ifdef FEAT_CMDL_INFO
-	"showcmd",
-	"cmdline_info",
-#endif
 #ifdef FEAT_SIGNS
 	"signs",
 #endif

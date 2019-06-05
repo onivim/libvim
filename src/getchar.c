@@ -1975,9 +1975,6 @@ vgetorpeek(int advance)
     int		mlen;
     int		max_mlen;
     int		i;
-#ifdef FEAT_CMDL_INFO
-    int		new_wcol, new_wrow;
-#endif
 #ifdef FEAT_GUI
 # ifdef FEAT_MENU
     int		idx;
@@ -2612,10 +2609,6 @@ vgetorpeek(int advance)
 		 * place does not matter.
 		 */
 		c = 0;
-#ifdef FEAT_CMDL_INFO
-		new_wcol = curwin->w_wcol;
-		new_wrow = curwin->w_wrow;
-#endif
 		if (	   advance
 			&& typebuf.tb_len == 1
 			&& typebuf.tb_buf[typebuf.tb_off] == ESC
@@ -2708,10 +2701,6 @@ vgetorpeek(int advance)
 		    }
 		    setcursor();
 		    out_flush();
-#ifdef FEAT_CMDL_INFO
-		    new_wcol = curwin->w_wcol;
-		    new_wrow = curwin->w_wrow;
-#endif
 		    curwin->w_wcol = old_wcol;
 		    curwin->w_wrow = old_wrow;
 		}
@@ -2793,9 +2782,6 @@ vgetorpeek(int advance)
 		 * input from the user), show the partially matched characters
 		 * to the user with showcmd.
 		 */
-#ifdef FEAT_CMDL_INFO
-		i = 0;
-#endif
 		c1 = 0;
 		if (typebuf.tb_len > 0 && advance && !exmode_active)
 		{
@@ -2812,21 +2798,6 @@ vgetorpeek(int advance)
 			    setcursor(); /* put cursor back where it belongs */
 			    c1 = 1;
 			}
-#ifdef FEAT_CMDL_INFO
-			/* need to use the col and row from above here */
-			old_wcol = curwin->w_wcol;
-			old_wrow = curwin->w_wrow;
-			curwin->w_wcol = new_wcol;
-			curwin->w_wrow = new_wrow;
-			push_showcmd();
-			if (typebuf.tb_len > SHOWCMD_COLS)
-			    i = typebuf.tb_len - SHOWCMD_COLS;
-			while (i < typebuf.tb_len)
-			    (void)add_to_showcmd(typebuf.tb_buf[typebuf.tb_off
-								      + i++]);
-			curwin->w_wcol = old_wcol;
-			curwin->w_wrow = old_wrow;
-#endif
 		    }
 
 		    /* this looks nice when typing a dead character map */
@@ -2871,10 +2842,6 @@ vgetorpeek(int advance)
 			typebuf.tb_buflen - typebuf.tb_off - typebuf.tb_len - 1,
 			wait_time);
 
-#ifdef FEAT_CMDL_INFO
-		if (i != 0)
-		    pop_showcmd();
-#endif
 		if (c1 == 1)
 		{
 		    if (State & INSERT)

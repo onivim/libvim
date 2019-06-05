@@ -585,9 +585,6 @@ may_do_incsearch_highlighting(
     }
 
     validate_cursor();
-    // May redraw the status line to show the cursor position.
-    if (p_ru && curwin->w_status_height > 0)
-	curwin->w_redr_status = TRUE;
 
     update_screen(SOME_VALID);
     restore_last_search_pattern();
