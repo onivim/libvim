@@ -2744,11 +2744,6 @@ lint:
 	$(LINT) $(LINT_OPTIONS) $(LINT_CFLAGS) $(LINT_EXTRA) $(LINT_SRC)
 	-rm -f *.ln
 
-# Check dosinst.c with lint.
-lintinstall:
-	$(LINT) $(LINT_OPTIONS) -DWIN32 -DUNIX_LINT dosinst.c
-	-rm -f dosinst.ln
-
 ###########################################################################
 
 .c.o:

@@ -952,16 +952,10 @@ DEST_BIN = $(DESTDIR)/bin
 DEST_LIB = $(DESTDIR)/lib
 INSTALL_PROG = cp
 
-all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe install.exe uninstal.exe GvimExt/gvimext.dll
+all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe GvimExt/gvimext.dll
 
 vimrun.exe: vimrun.c
 	$(CC) $(CFLAGS) -o vimrun.exe vimrun.c $(LIB)
-
-install.exe: dosinst.c
-	$(CC) $(CFLAGS) -o install.exe dosinst.c $(LIB) -lole32 -luuid
-
-uninstal.exe: uninstal.c
-	$(CC) $(CFLAGS) -o uninstal.exe uninstal.c $(LIB)
 
 ifeq ($(VIMDLL),yes)
 $(TARGET): $(OUTDIR) $(OBJ)
@@ -1025,7 +1019,7 @@ clean:
 	-$(DEL) $(OUTDIR)$(DIRSLASH)*.o
 	-$(DEL) $(OUTDIR)$(DIRSLASH)*.res
 	-rmdir $(OUTDIR)
-	-$(DEL) $(MAIN_TARGET) vimrun.exe install.exe uninstal.exe
+	-$(DEL) $(MAIN_TARGET) vimrun.exe
 	-$(DEL) pathdef.c
 ifdef PERL
 	-$(DEL) if_perl.c

@@ -203,13 +203,6 @@
  */
 
 /*
- * +cmdline_info	'showcmd' and 'ruler' options.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_CMDL_INFO
-#endif
-
-/*
  * +linebreak		'showbreak', 'breakat'  and 'linebreak' options.
  *			Also 'numberwidth'.
  */
@@ -413,13 +406,6 @@
  */
 #if defined(FEAT_NORMAL)
 # define FEAT_TITLE
-#endif
-
-#ifdef FEAT_NORMAL
-# define FEAT_STL_OPT
-# ifndef FEAT_CMDL_INFO
-#  define FEAT_CMDL_INFO	/* 'ruler' is required for 'statusline' */
-# endif
 #endif
 
 #ifdef FEAT_NORMAL
