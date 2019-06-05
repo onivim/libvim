@@ -38,6 +38,10 @@ char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum) {
    return result;
 }
 
+size_t vimBufferGetLineCount(buf_T *buf) {
+    return buf->b_ml.ml_line_count;
+}
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
     bufferUpdateCallback = f;
 }

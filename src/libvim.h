@@ -25,6 +25,8 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
 
 char_u *vimBufferGetLine(buf_T* buf, linenr_T lnum);
 
+size_t vimBufferGetLineCount(buf_T *buf);
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
 /***

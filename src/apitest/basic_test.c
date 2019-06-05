@@ -16,19 +16,17 @@ int main(int argc, char **argv) {
   int comp = strcmp(line, "This is the first line of a test file");
   assert(comp == 0);
 
+  size_t len = vimBufferGetLineCount(buf);
+  assert(len == 3);
+
   printf("cursor line: %d\n", vimWindowGetCursorLine());
 
   assert(vimWindowGetCursorLine() == 1);
 
   vimInput("G");
+  printf("cursor line: %d\n", vimWindowGetCursorLine());
 
   assert(vimWindowGetCursorLine() > 1);
-
-  /* vimExecute("help tutor"); */
-  /* assert(vimWindowGetCursorLine() == 32); */
-
-  vimInput("g");
-  vimInput("g");
 
   vimInput("v");
   assert(vimGetMode() & VISUAL == VISUAL);
