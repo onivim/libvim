@@ -6715,10 +6715,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_XFONTSET
 	"xfontset",
 #endif
-# if defined(HAVE_XPM)
-	"xpm",
-# endif
-#endif
 #ifdef USE_XSMP
 	"xsmp",
 #endif
