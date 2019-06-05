@@ -400,19 +400,6 @@ EXTERN long	p_ph;		/* 'pumheight' */
 EXTERN long	p_pw;		/* 'pumwidth' */
 #endif
 EXTERN char_u	*p_cpo;		/* 'cpoptions' */
-#ifdef FEAT_CSCOPE
-EXTERN char_u	*p_csprg;	/* 'cscopeprg' */
-EXTERN int	p_csre;		/* 'cscoperelative' */
-# ifdef FEAT_QUICKFIX
-EXTERN char_u	*p_csqf;	/* 'cscopequickfix' */
-#  define	CSQF_CMDS   "sgdctefia"
-#  define	CSQF_FLAGS  "+-0"
-# endif
-EXTERN int	p_cst;		/* 'cscopetag' */
-EXTERN long	p_csto;		/* 'cscopetagorder' */
-EXTERN long	p_cspc;		/* 'cscopepathcomp' */
-EXTERN int	p_csverbose;	/* 'cscopeverbose' */
-#endif
 EXTERN char_u	*p_debug;	/* 'debug' */
 #ifdef FEAT_FIND_ID
 EXTERN char_u	*p_def;		/* 'define' */

@@ -45,7 +45,6 @@
 #		--enable-pythoninterp	for Python interpreter
 #		--enable-rubyinterp	for Ruby interpreter
 #		--enable-tclinterp	for Tcl interpreter
-#		--enable-cscope		for Cscope interface
 #	- Uncomment one of the lines with --with-features= to enable a set of
 #	  features (but not the interfaces just mentioned).
 #	- Uncomment the line with --disable-acl to disable ACL support even
@@ -467,10 +466,6 @@ CClink = $(CC)
 #CONF_OPT_TCL = --enable-tclinterp
 #CONF_OPT_TCL = --enable-tclinterp=dynamic
 #CONF_OPT_TCL = --enable-tclinterp --with-tclsh=tclsh8.4
-
-# CSCOPE
-# Uncomment this when you want to include the Cscope interface.
-#CONF_OPT_CSCOPE = --enable-cscope
 
 # CHANNEL - inter process communication. Same conditions as NetBeans.
 # Uncomment this when you do not want inter process communication.
@@ -1462,7 +1457,6 @@ BASIC_SRC = \
 	getchar.c \
 	hardcopy.c \
 	hashtab.c \
-	if_cscope.c \
 	if_xcmdsrv.c \
 	indent.c \
 	insexpand.c \
@@ -1576,7 +1570,6 @@ OBJ_COMMON = \
 	objects/hardcopy.o \
 	objects/hashtab.o \
 	$(HANGULIN_OBJ) \
-	objects/if_cscope.o \
 	objects/if_xcmdsrv.o \
 	objects/indent.o \
 	objects/insexpand.o \
@@ -1702,7 +1695,6 @@ PRO_AUTO = \
 	hardcopy.pro \
 	hashtab.pro \
 	hangulin.pro \
-	if_cscope.pro \
 	if_lua.pro \
 	if_mzsch.pro \
 	if_python.pro \
@@ -1788,7 +1780,7 @@ config auto/config.mk: auto/configure config.mk.in config.h.in
 		$(CONF_OPT_AUTOSERVE) $(CONF_OPT_DARWIN) $(CONF_OPT_FAIL) \
 		$(CONF_OPT_PERL) $(CONF_OPT_PYTHON) $(CONF_OPT_PYTHON3) \
 		$(CONF_OPT_TCL) $(CONF_OPT_RUBY) $(CONF_OPT_NLS) \
-		$(CONF_OPT_CSCOPE) $(CONF_OPT_MULTIBYTE) $(CONF_OPT_INPUT) \
+		$(CONF_OPT_MULTIBYTE) $(CONF_OPT_INPUT) \
 		$(CONF_OPT_OUTPUT) $(CONF_OPT_GPM) \
 		$(CONF_OPT_FEAT) $(CONF_TERM_LIB) \
 		$(CONF_OPT_COMPBY) $(CONF_OPT_ACL) \
@@ -2867,9 +2859,6 @@ objects/hashtab.o: hashtab.c
 objects/hangulin.o: hangulin.c
 	$(CCC) -o $@ hangulin.c
 
-objects/if_cscope.o: if_cscope.c
-	$(CCC) -o $@ if_cscope.c
-
 objects/if_xcmdsrv.o: if_xcmdsrv.c
 	$(CCC) -o $@ if_xcmdsrv.c
 
@@ -3288,10 +3277,6 @@ objects/hashtab.o: hashtab.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/if_cscope.o: if_cscope.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h if_cscope.h
 objects/if_xcmdsrv.o: if_xcmdsrv.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

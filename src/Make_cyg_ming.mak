@@ -86,9 +86,6 @@ ifndef WINVER
 WINVER = 0x0600
 endif
 
-# Set to yes to enable Cscope support.
-CSCOPE=yes
-
 # Set to yes to enable inter process communication.
 ifeq (HUGE, $(FEATURES))
 CHANNEL=yes
@@ -568,10 +565,6 @@ ifeq (yes, $(OLE))
 DEFINES += -DFEAT_OLE
 endif
 
-ifeq ($(CSCOPE),yes)
-DEFINES += -DFEAT_CSCOPE
-endif
-
 ifeq ($(CHANNEL),yes)
 DEFINES += -DFEAT_JOB_CHANNEL
 endif
@@ -744,9 +737,6 @@ OBJ += $(OUTDIR)/if_python3.o
 endif
 ifdef RUBY
 OBJ += $(OUTDIR)/if_ruby.o
-endif
-ifeq ($(CSCOPE),yes)
-OBJ += $(OUTDIR)/if_cscope.o
 endif
 
 ifeq ($(CHANNEL),yes)
@@ -1051,9 +1041,6 @@ $(OUTDIR)/gui_beval.o:	gui_beval.c $(INCL) $(GUI_INCL)
 
 $(OUTDIR)/gui_w32.o:	gui_w32.c $(INCL) $(GUI_INCL)
 	$(CC) -c $(CFLAGS) gui_w32.c -o $@
-
-$(OUTDIR)/if_cscope.o:	if_cscope.c $(INCL) if_cscope.h
-	$(CC) -c $(CFLAGS) if_cscope.c -o $@
 
 $(OUTDIR)/if_mzsch.o:	if_mzsch.c $(INCL) $(MZSCHEME_INCL) $(MZ_EXTRA_DEP)
 	$(CC) -c $(CFLAGS) if_mzsch.c -o $@

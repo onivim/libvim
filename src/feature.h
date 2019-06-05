@@ -303,13 +303,6 @@
  */
 
 /*
- * +cscope		Unix only: Cscope support.
- */
-#if defined(UNIX) && defined(FEAT_BIG) && !defined(FEAT_CSCOPE) && !defined(MACOS_X)
-# define FEAT_CSCOPE
-#endif
-
-/*
  * +eval		Built-in script language and expression evaluation,
  *			":let", ":if", etc.
  * +float		Floating point variables.

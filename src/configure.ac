@@ -1847,15 +1847,6 @@ AC_SUBST(RUBY_PRO)
 AC_SUBST(RUBY_CFLAGS)
 AC_SUBST(RUBY_LIBS)
 
-AC_MSG_CHECKING(--enable-cscope argument)
-AC_ARG_ENABLE(cscope,
-	[  --enable-cscope         Include cscope interface.], ,
-	[enable_cscope="no"])
-AC_MSG_RESULT($enable_cscope)
-if test "$enable_cscope" = "yes"; then
-  AC_DEFINE(FEAT_CSCOPE)
-fi
-
 AC_MSG_CHECKING(--disable-netbeans argument)
 AC_ARG_ENABLE(netbeans,
 	[  --disable-netbeans      Disable NetBeans integration support.],

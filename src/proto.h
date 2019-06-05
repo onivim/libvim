@@ -57,9 +57,6 @@ extern int _stricoll(char *a, char *b);
 # include "buffer.pro"
 # include "change.pro"
 # include "charset.pro"
-# ifdef FEAT_CSCOPE
-#  include "if_cscope.pro"
-# endif
 # include "debugger.pro"
 # include "dict.pro"
 # include "diff.pro"

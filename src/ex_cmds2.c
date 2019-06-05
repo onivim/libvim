@@ -3289,37 +3289,6 @@ source_level(void *cookie)
 
 static char_u *get_one_sourceline(struct source_cookie *sp);
 
-#if (defined(MSWIN) && defined(FEAT_CSCOPE)) || defined(HAVE_FD_CLOEXEC)
-# define USE_FOPEN_NOINH
-/*
- * Special function to open a file without handle inheritance.
- * When possible the handle is closed on exec().
- */
-    static FILE *
-fopen_noinh_readbin(char *filename)
-{
-# ifdef MSWIN
-    int	fd_tmp = mch_open(filename, O_RDONLY | O_BINARY | O_NOINHERIT, 0);
-# else
-    int	fd_tmp = mch_open(filename, O_RDONLY, 0);
-# endif
-
-    if (fd_tmp == -1)
-	return NULL;
-
-# ifdef HAVE_FD_CLOEXEC
-    {
-	int fdflags = fcntl(fd_tmp, F_GETFD);
-	if (fdflags >= 0 && (fdflags & FD_CLOEXEC) == 0)
-	    (void)fcntl(fd_tmp, F_SETFD, fdflags | FD_CLOEXEC);
-    }
-# endif
-
-    return fdopen(fd_tmp, READBIN);
-}
-#endif
-
-
 /*
  * do_source: Read the file "fname" and execute its lines as EX commands.
  *
