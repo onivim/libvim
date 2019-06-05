@@ -54,7 +54,6 @@ void fix_help_buffer(void);
 void ex_exusage(exarg_T *eap);
 void ex_viusage(exarg_T *eap);
 void ex_helptags(exarg_T *eap);
-void ex_smile(exarg_T *eap);
 void ex_drop(exarg_T *eap);
 char_u *skip_vimgrep_pat(char_u *p, char_u **s, int *flags);
 void ex_oldfiles(exarg_T *eap);
