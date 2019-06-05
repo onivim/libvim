@@ -1376,8 +1376,9 @@ ALL_LIBS = \
 	   $(LEAK_LIBS)
 
 # abbreviations
-DEST_LIB = $(DESTDIR)/lib
 DEST_BIN = $(DESTDIR)/bin
+DEST_INCLUDE = $(DESTDIR)/include
+DEST_LIB = $(DESTDIR)/lib
 DEST_VIM = $(DESTDIR)$(VIMLOC)
 DEST_RT = $(DESTDIR)$(VIMRTLOC)
 DEST_HELP = $(DESTDIR)$(HELPSUBLOC)
@@ -2101,6 +2102,10 @@ installapitest:  copy-apitest-collateral $(TEST_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
+	mkdir -p $(DEST_INCLUDE)
+	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
+	mkdir -p $(DEST_INCLUDE)/proto
+	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 #
