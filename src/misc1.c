@@ -1998,7 +1998,7 @@ expand_env_esc(
 		/* if var[] ends in a path separator and tail[] starts
 		 * with it, skip a character */
 		if (*var != NUL && after_pathsep(dst, dst + c)
-#if defined(BACKSLASH_IN_FILENAME) || defined(AMIGA)
+#if defined(BACKSLASH_IN_FILENAME)
 			&& dst[-1] != ':'
 #endif
 			&& vim_ispathsep(*tail))
@@ -2368,12 +2368,6 @@ get_env_name(
     expand_T	*xp UNUSED,
     int		idx)
 {
-# if defined(AMIGA)
-    /*
-     * No environ[] on the Amiga.
-     */
-    return NULL;
-# else
 # ifndef __WIN32__
     /* Borland C++ 5.2 has this in a header file. */
     extern char		**environ;
@@ -2839,14 +2833,7 @@ get_past_head(char_u *path)
     else
 	retval = path;
 #else
-# if defined(AMIGA)
-    /* may skip "label:" */
-    retval = vim_strchr(path, ':');
-    if (retval == NULL)
-	retval = path;
-# else	/* Unix */
     retval = path;
-# endif
 #endif
 
     while (vim_ispathsep(*retval))
