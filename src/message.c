@@ -2702,24 +2702,6 @@ do_more_prompt(int typed_char)
 	else
 	    c = get_keystroke();
 
-#if defined(FEAT_MENU) && defined(FEAT_GUI)
-	if (c == K_MENU)
-	{
-	    int idx = get_menu_index(current_menu, ASKMORE);
-
-	    /* Used a menu.  If it starts with CTRL-Y, it must
-	     * be a "Copy" for the clipboard.  Otherwise
-	     * assume that we end */
-	    if (idx == MENU_INDEX_INVALID)
-		continue;
-	    c = *current_menu->strings[idx];
-	    if (c != NUL && current_menu->strings[idx][1] != NUL)
-		ins_typebuf(current_menu->strings[idx] + 1,
-				current_menu->noremap[idx], 0, TRUE,
-						   current_menu->silent[idx]);
-	}
-#endif
-
 	toscroll = 0;
 	switch (c)
 	{

@@ -5119,10 +5119,6 @@ ExpandFromContext(
 	    {EXPAND_USER_FUNC, get_user_func_name, FALSE, TRUE},
 	    {EXPAND_EXPRESSION, get_expr_name, FALSE, TRUE},
 #endif
-#ifdef FEAT_MENU
-	    {EXPAND_MENUS, get_menu_name, FALSE, TRUE},
-	    {EXPAND_MENUNAMES, get_menu_names, FALSE, TRUE},
-#endif
 #ifdef FEAT_SYN_HL
 	    {EXPAND_SYNTAX, get_syntax_name, TRUE, TRUE},
 #endif
@@ -5221,15 +5217,6 @@ ExpandGeneric(
 		    else
 			str = vim_strsave(str);
 		    (*file)[count] = str;
-#ifdef FEAT_MENU
-		    if (func == get_menu_names && str != NULL)
-		    {
-			/* test for separator added by get_menu_names() */
-			str += STRLEN(str) - 1;
-			if (*str == '\001')
-			    *str = '.';
-		    }
-#endif
 		}
 		++count;
 	    }

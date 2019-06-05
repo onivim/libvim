@@ -1628,41 +1628,6 @@ vgetc(void)
 		}
 		c = TO_SPECIAL(c2, c);
 
-#if defined(FEAT_GUI_MSWIN) && defined(FEAT_MENU) && defined(FEAT_TEAROFF)
-		// Handle K_TEAROFF here, the caller of vgetc() doesn't need to
-		// know that a menu was torn off
-		if (
-# ifdef VIMDLL
-		    gui.in_use &&
-# endif
-		    c == K_TEAROFF)
-		{
-		    char_u	name[200];
-		    int		i;
-
-		    // get menu path, it ends with a <CR>
-		    for (i = 0; (c = vgetorpeek(TRUE)) != '\r'; )
-		    {
-			name[i] = c;
-			if (i < 199)
-			    ++i;
-		    }
-		    name[i] = NUL;
-		    gui_make_tearoff(name);
-		    continue;
-		}
-#endif
-#if defined(FEAT_GUI) && defined(FEAT_GUI_GTK) && defined(FEAT_MENU)
-		// GTK: <F10> normally selects the menu, but it's passed until
-		// here to allow mapping it.  Intercept and invoke the GTK
-		// behavior if it's not mapped.
-		if (c == K_F10 && gui.menubar != NULL)
-		{
-		    gtk_menu_shell_select_first(
-					   GTK_MENU_SHELL(gui.menubar), FALSE);
-		    continue;
-		}
-#endif
 #ifdef FEAT_GUI
 		if (gui.in_use)
 		{
