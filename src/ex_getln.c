@@ -5128,9 +5128,6 @@ ExpandFromContext(
 	    {EXPAND_HIGHLIGHT, get_highlight_name, TRUE, TRUE},
 	    {EXPAND_EVENTS, get_event_name, TRUE, TRUE},
 	    {EXPAND_AUGROUP, get_augroup_name, TRUE, TRUE},
-#ifdef FEAT_CSCOPE
-	    {EXPAND_CSCOPE, get_cscope_name, TRUE, TRUE},
-#endif
 #ifdef FEAT_SIGNS
 	    {EXPAND_SIGN, get_sign_name, TRUE, TRUE},
 #endif

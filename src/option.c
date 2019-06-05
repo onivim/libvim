@@ -904,57 +904,27 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"cscopepathcomp", "cspc", P_NUM|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_cspc, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopeprg",   "csprg", P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csprg, PV_NONE,
-			    {(char_u *)"cscope", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"cscopequickfix", "csqf", P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#if defined(FEAT_CSCOPE) && defined(FEAT_QUICKFIX)
-			    (char_u *)&p_csqf, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"cscoperelative", "csre", P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csre, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopetag",   "cst",  P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_cst, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopetagorder", "csto", P_NUM|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csto, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cscopeverbose", "csverb", P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CSCOPE
-			    (char_u *)&p_csverbose, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"cursorbind",  "crb",  P_BOOL|P_VI_DEF,
 			    (char_u *)VAR_WIN, PV_CRBIND,
@@ -7464,31 +7434,6 @@ did_set_string_option(
 	    coladvance(curwin->w_virtcol);
 	}
     }
-
-#if defined(FEAT_CSCOPE) && defined(FEAT_QUICKFIX)
-    else if (varp == &p_csqf)
-    {
-	if (p_csqf != NULL)
-	{
-	    p = p_csqf;
-	    while (*p != NUL)
-	    {
-		if (vim_strchr((char_u *)CSQF_CMDS, *p) == NULL
-			|| p[1] == NUL
-			|| vim_strchr((char_u *)CSQF_FLAGS, p[1]) == NULL
-			|| (p[2] != NUL && p[2] != ','))
-		{
-		    errmsg = e_invarg;
-		    break;
-		}
-		else if (p[2] == NUL)
-		    break;
-		else
-		    p += 3;
-	    }
-	}
-    }
-#endif
 
 #ifdef FEAT_CINDENT
     /* 'cinoptions' */

@@ -1531,12 +1531,6 @@ getout(int exitval)
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
     iconv_end();
 #endif
-#ifdef FEAT_NETBEANS_INTG
-    netbeans_end();
-#endif
-#ifdef FEAT_CSCOPE
-    cs_end();
-#endif
 #ifdef FEAT_EVAL
     if (garbage_collect_at_exit)
 	garbage_collect(FALSE);

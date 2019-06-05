@@ -2884,23 +2884,6 @@ f_count(typval_T *argvars, typval_T *rettv)
     static void
 f_cscope_connection(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_CSCOPE
-    int		num = 0;
-    char_u	*dbpath = NULL;
-    char_u	*prepend = NULL;
-    char_u	buf[NUMBUFLEN];
-
-    if (argvars[0].v_type != VAR_UNKNOWN
-	    && argvars[1].v_type != VAR_UNKNOWN)
-    {
-	num = (int)tv_get_number(&argvars[0]);
-	dbpath = tv_get_string(&argvars[1]);
-	if (argvars[2].v_type != VAR_UNKNOWN)
-	    prepend = tv_get_string_buf(&argvars[2], buf);
-    }
-
-    rettv->vval.v_number = cs_connection(num, dbpath, prepend);
-#endif
 }
 
 /*
@@ -5160,13 +5143,6 @@ f_getcompletion(typval_T *argvars, typval_T *rettv)
 	return;
     }
 
-#ifdef FEAT_CSCOPE
-    if (xpc.xp_context == EXPAND_CSCOPE)
-    {
-	set_context_in_cscope_cmd(&xpc, xpc.xp_pattern, CMD_cscope);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-#endif
 #ifdef FEAT_SIGNS
     if (xpc.xp_context == EXPAND_SIGN)
     {
@@ -6406,9 +6382,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"cryptv",
 	"crypt-blowfish",
 	"crypt-blowfish2",
-#endif
-#ifdef FEAT_CSCOPE
-	"cscope",
 #endif
 	"cursorbind",
 #ifdef DEBUG

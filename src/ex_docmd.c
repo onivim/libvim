@@ -145,11 +145,9 @@ static void	ex_nogui(exarg_T *eap);
 #if !defined(FEAT_GUI_GTK)
 # define ex_helpfind		ex_ni
 #endif
-#ifndef FEAT_CSCOPE
 # define ex_cscope		ex_ni
 # define ex_scscope		ex_ni
 # define ex_cstag		ex_ni
-#endif
 #ifndef FEAT_SYN_HL
 # define ex_syntax		ex_ni
 # define ex_ownsyntax		ex_ni
@@ -3957,13 +3955,6 @@ set_one_cmd_context(
 	case CMD_highlight:
 	    set_context_in_highlight_cmd(xp, arg);
 	    break;
-#ifdef FEAT_CSCOPE
-	case CMD_cscope:
-	case CMD_lcscope:
-	case CMD_scscope:
-	    set_context_in_cscope_cmd(xp, arg, ea.cmdidx);
-	    break;
-#endif
 #ifdef FEAT_SIGNS
 	case CMD_sign:
 	    set_context_in_sign_cmd(xp, arg);
@@ -9121,13 +9112,6 @@ ex_tag_cmd(exarg_T *eap, char_u *name)
 	case 'l': cmd = DT_LAST;	/* ":tlast" */
 		  break;
 	default:			/* ":tag" */
-#ifdef FEAT_CSCOPE
-		  if (p_cst && *eap->arg != NUL)
-		  {
-		      ex_cstag(eap);
-		      return;
-		  }
-#endif
 		  cmd = DT_TAG;
 		  break;
     }

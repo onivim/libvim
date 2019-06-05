@@ -384,9 +384,6 @@
 /* Define if you want to add support of sysmouse (*BSD console mouse) */
 #undef HAVE_SYSMOUSE
 
-/* Define if you want to include the Cscope interface. */
-#undef FEAT_CSCOPE
-
 /* Define if you don't want to include right-left support. */
 #undef DISABLE_RIGHTLEFT
 
