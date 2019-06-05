@@ -1583,7 +1583,6 @@ OBJ_COMMON = \
 	objects/list.o \
 	objects/mark.o \
 	objects/memline.o \
-	objects/menu.o \
 	objects/misc1.o \
 	objects/misc2.o \
 	objects/move.o \
