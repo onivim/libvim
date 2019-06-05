@@ -58,7 +58,27 @@ linenr_T vimWindowGetCursorLine(void) { return curwin->w_cursor.lnum; };
 colnr_T vimWindowGetCursorColumn(void) { return curwin->w_cursor.col; };
 pos_T vimWindowGetCursorPosition(void) { return curwin->w_cursor; };
 
-void vimInput(char_u *input) { sm_execute_normal(input); }
+void vimInput(char_u *input) { 
+    char_u      *ptr = NULL;
+    char_u      *cpo_save = p_cpo;
+
+    /* Set 'cpoptions' the way we want it.
+     *    B set - backslashes are *not* treated specially
+     *    k set - keycodes are *not* reverse-engineered
+     *    < unset - <Key> sequences *are* interpreted
+     *  The last but one parameter of replace_termcodes() is TRUE so that the
+     *  <lt> sequence is recognised - needed for a real backslash.
+     */
+    p_cpo = (char_u *)"Bk";
+    input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
+    p_cpo = cpo_save;
+
+    if (*ptr != NUL)	/* trailing CTRL-V results in nothing */
+    {
+	      sm_execute_normal(input); 
+    }
+    vim_free((char_u *)ptr);
+}
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
