@@ -1440,12 +1440,9 @@ BASIC_SRC = \
 	arabic.c \
 	autocmd.c \
 	blob.c \
-	blowfish.c \
 	buffer.c \
 	change.c \
 	charset.c \
-	crypt.c \
-	crypt_zip.c \
 	debugger.c \
 	dict.c \
 	diff.c \
@@ -1562,9 +1559,6 @@ OBJ_COMMON = \
 	objects/buffer.o \
 	objects/change.o \
 	objects/blob.o \
-	objects/blowfish.o \
-	objects/crypt.o \
-	objects/crypt_zip.o \
 	objects/debugger.o \
 	objects/dict.o \
 	objects/diff.o \
@@ -1691,12 +1685,9 @@ ALL_OBJ = $(OBJ_COMMON) \
 PRO_AUTO = \
 	arabic.pro \
 	autocmd.pro \
-	blowfish.pro \
 	buffer.pro \
 	change.pro \
 	charset.pro \
-	crypt.pro \
-	crypt_zip.pro \
 	debugger.pro \
 	dict.pro \
 	diff.pro \
@@ -2817,9 +2808,6 @@ objects/autocmd.o: autocmd.c
 objects/blob.o: blob.c
 	$(CCC) -o $@ blob.c
 
-objects/blowfish.o: blowfish.c
-	$(CCC) -o $@ blowfish.c
-
 objects/buffer.o: buffer.c
 	$(CCC) -o $@ buffer.c
 
@@ -2828,12 +2816,6 @@ objects/change.o: change.c
 
 objects/charset.o: charset.c
 	$(CCC) -o $@ charset.c
-
-objects/crypt.o: crypt.c
-	$(CCC) -o $@ crypt.c
-
-objects/crypt_zip.o: crypt_zip.c
-	$(CCC) -o $@ crypt_zip.c
 
 objects/debugger.o: debugger.c
 	$(CCC) -o $@ debugger.c
@@ -3241,10 +3223,6 @@ objects/blob.o: blob.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h spell.h \
  proto.h globals.h
-objects/blowfish.o: blowfish.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
 objects/buffer.o: buffer.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h spell.h \
@@ -3255,14 +3233,6 @@ objects/change.o: change.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  proto.h globals.h version.h
 objects/charset.o: charset.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
-objects/crypt.o: crypt.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
-objects/crypt_zip.o: crypt_zip.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h spell.h \
  proto.h globals.h
 objects/debugger.o: debugger.c vim.h protodef.h auto/config.h feature.h os_unix.h \
