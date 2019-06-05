@@ -2349,9 +2349,6 @@ struct file_buffer
     char_u	*b_p_fex;	/* 'formatexpr' */
     long_u	b_p_fex_flags;	/* flags for 'formatexpr' */
 #endif
-#ifdef FEAT_CRYPT
-    char_u	*b_p_key;	/* 'key' */
-#endif
     char_u	*b_p_kp;	/* 'keywordprg' */
 #ifdef FEAT_LISP
     int		b_p_lisp;	/* 'lisp' */
@@ -2495,9 +2492,6 @@ struct file_buffer
     char_u	*b_p_bexpr;	/* 'balloonexpr' local value */
     long_u	b_p_bexpr_flags;/* flags for 'balloonexpr' */
 #endif
-#ifdef FEAT_CRYPT
-    char_u	*b_p_cm;	/* 'cryptmethod' */
-#endif
 
     /* When a buffer is created, it starts without a swap file.  b_may_swap is
      * then set to indicate that a swap file may be opened later.  It is reset
@@ -2514,11 +2508,6 @@ struct file_buffer
      */
     int		b_help;		/* TRUE for help file buffer (when set b_p_bt
 				   is "help") */
-#ifdef FEAT_SPELL
-    int		b_spell;	/* TRUE for a spell file buffer, most fields
-				   are not used!  Use the B_SPELL macro to
-				   access b_spell without #ifdef. */
-#endif
 
     int		b_shortname;	/* this file has an 8.3 file name */
 
@@ -2557,26 +2546,13 @@ struct file_buffer
 
 #ifdef FEAT_SIGNS
     signlist_T	*b_signlist;	/* list of signs to draw */
-# ifdef FEAT_NETBEANS_INTG
-    int		b_has_sign_column; /* Flag that is set when a first sign is
-				    * added and remains set until the end of
-				    * the netbeans session. */
-# endif
 #endif
 
-#ifdef FEAT_NETBEANS_INTG
-    int		b_netbeans_file;    /* TRUE when buffer is owned by NetBeans */
-    int		b_was_netbeans_file;/* TRUE if b_netbeans_file was once set */
-#endif
 #ifdef FEAT_JOB_CHANNEL
     int		b_write_to_channel; /* TRUE when appended lines are written to
 				     * a channel. */
 #endif
 
-#ifdef FEAT_CRYPT
-    cryptstate_T *b_cryptstate;	/* Encryption state while reading or writing
-				 * the file. NULL when not using encryption. */
-#endif
     int		b_mapped_ctrl_c; /* modes where CTRL-C is mapped */
 
 #ifdef FEAT_TERMINAL

@@ -33,6 +33,16 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags) {
   return buffer;
 }
 
+buf_T *vimBufferGetCurrent(void) { return curbuf; }
+
+char_u *vimBufferGetFilename(buf_T *buf) { return buf->b_ffname; }
+
+int vimBufferGetId(buf_T *buf) { return buf->b_fnum; }
+
+long vimBufferGetLastChangedTick(buf_T *buf) { return CHANGEDTICK(buf); }
+
+int vimBufferGetModified(buf_T *buf) { return buf->b_changed; }
+
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum) {
   char_u *result = ml_get_buf(buf, lnum, FALSE);
   return result;
@@ -45,6 +55,8 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
 }
 
 linenr_T vimWindowGetCursorLine(void) { return curwin->w_cursor.lnum; };
+colnr_T vimWindowGetCursorColumn(void) { return curwin->w_cursor.col; };
+pos_T vimWindowGetCursorPosition(void) { return curwin->w_cursor; };
 
 void vimInput(char_u *input) { sm_execute_normal(input); }
 
