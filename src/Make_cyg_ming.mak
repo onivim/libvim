@@ -906,6 +906,7 @@ endif
 
 DEST_BIN = $(DESTDIR)/bin
 DEST_LIB = $(DESTDIR)/lib
+DEST_INCLUDE = $(DESTDIR)/include
 INSTALL_PROG = cp
 
 all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe GvimExt/gvimext.dll
@@ -931,6 +932,10 @@ libvim.a: $(OUTDIR) $(OBJ)
 	$(AR) rcs libvim.a $(OBJ)
 
 installlibvim: libvim.a
+	mkdir -p $(DEST_INCLUDE)
+	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
+	mkdir -p $(DEST_INCLUDE)/proto
+	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 TEST_SRC = $(wildcard apitest/*.c)
