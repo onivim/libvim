@@ -392,14 +392,6 @@ static char *(features[]) =
 # endif
 #endif
 
-#ifdef __QNX__
-# ifdef FEAT_MOUSE_PTERM
-	"+mouse_pterm",
-# else
-	"-mouse_pterm",
-# endif
-#endif
-
 #if defined(UNIX) || defined(VMS)
 # ifdef FEAT_MOUSE_XTERM
 	"+mouse_sgr",

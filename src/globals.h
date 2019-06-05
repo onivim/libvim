@@ -1335,12 +1335,6 @@ EXTERN int	virtual_op INIT(= MAYBE);
 EXTERN disptick_T	display_tick INIT(= 0);
 #endif
 
-#ifdef FEAT_SPELL
-/* Line in which spell checking wasn't highlighted because it touched the
- * cursor position in Insert mode. */
-EXTERN linenr_T		spell_redraw_lnum INIT(= 0);
-#endif
-
 #ifdef FEAT_CONCEAL
 /* Set when the cursor line needs to be redrawn. */
 EXTERN int		need_cursor_line_redraw INIT(= FALSE);
