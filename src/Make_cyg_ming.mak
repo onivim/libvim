@@ -678,12 +678,9 @@ OBJ = \
 	$(OUTDIR)/arabic.o \
 	$(OUTDIR)/autocmd.o \
 	$(OUTDIR)/blob.o \
-	$(OUTDIR)/blowfish.o \
 	$(OUTDIR)/buffer.o \
 	$(OUTDIR)/change.o \
 	$(OUTDIR)/charset.o \
-	$(OUTDIR)/crypt.o \
-	$(OUTDIR)/crypt_zip.o \
 	$(OUTDIR)/debugger.o \
 	$(OUTDIR)/dict.o \
 	$(OUTDIR)/diff.o \

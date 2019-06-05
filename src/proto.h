@@ -56,11 +56,6 @@ extern int _stricoll(char *a, char *b);
 #  include "os_qnx.pro"
 # endif
 
-# ifdef FEAT_CRYPT
-#  include "blowfish.pro"
-#  include "crypt.pro"
-#  include "crypt_zip.pro"
-# endif
 # include "autocmd.pro"
 # include "buffer.pro"
 # include "change.pro"
@@ -176,7 +171,7 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # endif
 # include "regexp.pro"
 # include "screen.pro"
-# if defined(FEAT_CRYPT) || defined(FEAT_PERSISTENT_UNDO)
+# if defined(FEAT_PERSISTENT_UNDO)
 #  include "sha256.pro"
 # endif
 # include "search.pro"
