@@ -2519,7 +2519,6 @@ match_user(char_u *name)
     }
     return result;
 }
-#endif
 
 /*
  * Replace home directory by "~" in each space or comma separated file name in
