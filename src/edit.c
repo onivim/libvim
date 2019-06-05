@@ -144,7 +144,7 @@ typedef struct {
 static linenr_T o_lnum = 0;
 
 void *state_edit_initialize(int cmdchar, int startln, long count) {
-  printf("state_edit_initialize\n");
+  printf("state_edit_initialize - count: %d\n", count);
   editState_T *context = (editState_T *)alloc(sizeof(editState_T));
   context->cmdchar = cmdchar;
   context->startln = startln;
@@ -434,8 +434,8 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 
 #ifdef FEAT_JOB_CHANNEL
   if (bt_prompt(curbuf)) {
-    init_prompt(cmdchar_todo);
-    cmdchar_todo = NUL;
+    init_prompt(context->cmdchar_todo);
+    context->cmdchar_todo = NUL;
   }
 #endif
 
@@ -687,7 +687,7 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     /* break; */
     /* } */
   doESCkey:
-    printf("doESCkey\n");
+    printf("doESCkey - count: %ld\n", context->count);
     /*
      * This is the ONLY return from edit()!
      */
@@ -695,6 +695,7 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
      * still puts the cursor back after the inserted text. */
     if (ins_at_eol && gchar_cursor() == NUL)
       o_lnum = curwin->w_cursor.lnum;
+    
 
     if (ins_esc(&context->count, context->cmdchar, context->nomove)) {
       // When CTRL-C was typed got_int will be set, with the result
@@ -806,8 +807,8 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
       // Use Shift-CTRL-W to delete a word.
       stuffcharReadbuff(Ctrl_W);
       restart_edit = 'A';
-      nomove = TRUE;
-      count = 0;
+      context->nomove = TRUE;
+      context->count = 0;
       goto doESCkey;
     }
 #endif
