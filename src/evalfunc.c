@@ -6715,14 +6715,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_XFONTSET
 	"xfontset",
 #endif
-#ifdef FEAT_XPM_W32
-	"xpm",
-	"xpm_w32",	/* for backward compatibility */
-#else
-# if defined(HAVE_XPM)
-	"xpm",
-# endif
-#endif
 #ifdef USE_XSMP
 	"xsmp",
 #endif

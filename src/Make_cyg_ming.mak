@@ -590,34 +590,6 @@ DEFINES += -DFEAT_DIRECTX_COLOR_EMOJI
  endif
 endif
 
-# Only allow XPM for a GUI build.
-ifeq (yes, $(GUI))
-
- ifndef XPM
-  ifeq ($(ARCH),i386)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i486)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i586)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),i686)
-XPM = xpm/x86
-  endif
-  ifeq ($(ARCH),x86-64)
-XPM = xpm/x64
-  endif
- endif
- ifdef XPM
-  ifneq ($(XPM),no)
-CFLAGS += -DFEAT_XPM_W32 -I $(XPM)/include -I $(XPM)/../include
-  endif
- endif
-
-endif
-
 ifeq ($(DEBUG),yes)
 CFLAGS += -g -fstack-check
 DEBUG_SUFFIX=d
@@ -750,14 +722,6 @@ ifeq ($(DIRECTX),yes)
 OBJ += $(OUTDIR)/gui_dwrite.o
 LIB += -ld2d1 -ldwrite
 USE_STDCPLUS = yes
- endif
-endif
-ifneq ($(XPM),no)
-# Only allow XPM for a GUI build.
- ifeq (yes, $(GUI))
-OBJ += $(OUTDIR)/xpm_w32.o
-# You'll need libXpm.a from http://gnuwin32.sf.net
-LIB += -L$(XPM)/lib -lXpm
  endif
 endif
 

@@ -686,19 +686,6 @@ static char *(features[]) =
 #else
 	"-xim",
 #endif
-#ifdef MSWIN
-# ifdef FEAT_XPM_W32
-	"+xpm_w32",
-# else
-	"-xpm_w32",
-# endif
-#else
-# ifdef HAVE_XPM
-	"+xpm",
-# else
-	"-xpm",
-# endif
-#endif
 #if defined(UNIX) || defined(VMS)
 # ifdef USE_XSMP_INTERACT
 	"+xsmp_interact",
