@@ -76,7 +76,6 @@ static linenr_T get_address(exarg_T *, char_u **, cmd_addr_T addr_type, int skip
 static void	get_flags(exarg_T *eap);
 #if !defined(FEAT_PERL) \
 	|| !defined(FEAT_PYTHON) || !defined(FEAT_PYTHON3) \
-	|| !defined(FEAT_TCL) \
 	|| !defined(FEAT_RUBY) \
 	|| !defined(FEAT_LUA) \
 	|| !defined(FEAT_MZSCHEME)

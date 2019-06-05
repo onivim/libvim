@@ -6671,11 +6671,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
 #endif
-#ifdef FEAT_TCL
-# ifndef DYNAMIC_TCL
-	"tcl",
-# endif
-#endif
 #ifdef FEAT_TERMGUICOLORS
 	"termguicolors",
 #endif

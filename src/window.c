@@ -4783,10 +4783,6 @@ win_free(
     python3_window_free(wp);
 #endif
 
-#ifdef FEAT_TCL
-    tcl_window_free(wp);
-#endif
-
 #ifdef FEAT_RUBY
     ruby_window_free(wp);
 #endif
