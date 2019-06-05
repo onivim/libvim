@@ -195,6 +195,10 @@ static int  ins_compl_len(void);
 static void ins_compl_restart(void);
 static void ins_compl_set_original_text(char_u *str);
 static void ins_compl_fixRedoBufForLeader(char_u *ptr_arg);
+# if defined(FEAT_EVAL) 
+static void ins_compl_add_list(list_T *list);
+static void ins_compl_add_dict(dict_T *dict);
+# endif
 static dict_T *ins_compl_dict_alloc(compl_T *match);
 static int  ins_compl_key2dir(int c);
 static int  ins_compl_pum_key(int c);
