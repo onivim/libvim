@@ -463,15 +463,6 @@
 #endif
 
 /*
- * +spell		spell checking
- *
- * Disabled for EBCDIC: * Doesn't work (SIGSEGV).
- */
-#if (defined(FEAT_NORMAL) || defined(PROTO)) && !defined(EBCDIC)
-# define FEAT_SPELL
-#endif
-
-/*
  * +builtin_terms	Choose one out of the following four:
  *
  * NO_BUILTIN_TCAPS	Do not include any builtin termcap entries (used only

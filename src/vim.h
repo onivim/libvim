@@ -2072,7 +2072,6 @@ typedef enum {
 } flush_buffers_T;
 
 #include "ex_cmds.h"	    /* Ex command defines */
-#include "spell.h"	    /* spell checking stuff */
 
 #include "proto.h"	    /* function prototypes */
 
