@@ -476,14 +476,7 @@
 # define FEAT_TEXT_PROP
 #endif
 
-/*
- * +spell		spell checking
- *
- * Disabled for EBCDIC: * Doesn't work (SIGSEGV).
- */
-#if (defined(FEAT_NORMAL) || defined(PROTO)) && !defined(EBCDIC)
-# define FEAT_SPELL
-#endif
+#undef FEAT_SPELL
 
 /*
  * +builtin_terms	Choose one out of the following four:

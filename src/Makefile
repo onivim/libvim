@@ -1492,8 +1492,6 @@ BASIC_SRC = \
 	search.c \
 	sha256.c \
 	sign.c \
-	spell.c \
-	spellfile.c \
 	state_machine.c \
 	syntax.c \
 	tag.c \
@@ -3024,12 +3022,6 @@ objects/sha256.o: sha256.c
 objects/sign.o: sign.c
 	$(CCC) -o $@ sign.c
 
-objects/spell.o: spell.c
-	$(CCC) -o $@ spell.c
-
-objects/spellfile.o: spellfile.c
-	$(CCC) -o $@ spellfile.c
-
 objects/state_machine.o: state_machine.c
 	$(CCC) -o $@ state_machine.c
 
@@ -3209,333 +3201,325 @@ $(APPDIR)/Contents:
 ### Dependencies:
 objects/arabic.o: arabic.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
- structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+ structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/autocmd.o: autocmd.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/beval.o: beval.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/blob.o: blob.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/buffer.o: buffer.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/change.o: change.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/charset.o: charset.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/debugger.o: debugger.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/dict.o: dict.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/diff.o: diff.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h xdiff/xdiff.h vim.h
 objects/digraph.o: digraph.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/edit.o: edit.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/eval.o: eval.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/evalfunc.o: evalfunc.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/ex_cmds.o: ex_cmds.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/ex_cmds2.o: ex_cmds2.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/ex_docmd.o: ex_docmd.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h ex_cmdidxs.h
 objects/ex_eval.o: ex_eval.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/ex_getln.o: ex_getln.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/fileio.o: fileio.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/findfile.o: findfile.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/fold.o: fold.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/getchar.o: getchar.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/hardcopy.o: hardcopy.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/hashtab.o: hashtab.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_cscope.o: if_cscope.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_cscope.h
 objects/if_xcmdsrv.o: if_xcmdsrv.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/indent.o: indent.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/insexpand.o: insexpand.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/json.o: json.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/list.o: list.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/main.o: main.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/mark.o: mark.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/memfile.o: memfile.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/memline.o: memline.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/menu.o: menu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/message.o: message.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/misc1.o: misc1.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/misc2.o: misc2.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/move.o: move.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/mbyte.o: mbyte.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/normal.o: normal.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/ops.o: ops.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/option.o: option.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/os_unix.o: os_unix.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h os_unixx.h
 objects/pathdef.o: auto/pathdef.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/popupmnu.o: popupmnu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/popupwin.o: popupwin.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/pty.o: pty.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/quickfix.o: quickfix.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/regexp.o: regexp.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h regexp_nfa.c
 objects/screen.o: screen.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/search.o: search.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/sha256.o: sha256.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/sign.o: sign.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
-objects/spell.o: spell.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
-objects/spellfile.o: spellfile.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/syntax.o: syntax.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/tag.o: tag.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/term.o: term.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h libvterm/include/vterm.h \
  libvterm/include/vterm_keycodes.h
 objects/terminal.o: terminal.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h libvterm/include/vterm.h \
  libvterm/include/vterm_keycodes.h
 objects/textprop.o: textprop.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/ui.o: ui.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/undo.o: undo.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/usercmd.o: usercmd.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/userfunc.o: userfunc.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/version.o: version.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/window.o: window.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/json_test.o: json_test.c main.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h json.c
 objects/kword_test.o: kword_test.c main.c vim.h protodef.h auto/config.h \
  feature.h os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h \
  option.h  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h charset.c
+ ex_cmds.h proto.h globals.h charset.c
 objects/memfile_test.o: memfile_test.c main.c vim.h protodef.h auto/config.h \
  feature.h os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h \
  option.h  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h memfile.c
+ ex_cmds.h proto.h globals.h memfile.c
 objects/message_test.o: message_test.c main.c vim.h protodef.h auto/config.h \
  feature.h os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h \
  option.h  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h message.c
+ ex_cmds.h proto.h globals.h message.c
 objects/hangulin.o: hangulin.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_lua.o: if_lua.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_mzsch.o: if_mzsch.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_mzsch.h
 objects/if_perl.o: auto/if_perl.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_perlsfio.o: if_perlsfio.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_python.o: if_python.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_py_both.h
 objects/if_python3.o: if_python3.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_py_both.h
 objects/if_tcl.o: if_tcl.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/if_ruby.o: if_ruby.c protodef.h auto/config.h vim.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h version.h
 objects/channel.o: channel.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/gui_gtk_gresources.o: auto/gui_gtk_gresources.c
 objects/encoding.o: libvterm/src/encoding.c libvterm/src/vterm_internal.h \
@@ -3567,7 +3551,7 @@ objects/xdiffi.o: xdiff/xdiffi.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
 objects/xemit.o: xdiff/xemit.c xdiff/xinclude.h auto/config.h \
@@ -3576,7 +3560,7 @@ objects/xemit.o: xdiff/xemit.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
 objects/xprepare.o: xdiff/xprepare.c xdiff/xinclude.h auto/config.h \
@@ -3585,7 +3569,7 @@ objects/xprepare.o: xdiff/xprepare.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
 objects/xutils.o: xdiff/xutils.c xdiff/xinclude.h auto/config.h \
@@ -3594,7 +3578,7 @@ objects/xutils.o: xdiff/xutils.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
 objects/xhistogram.o: xdiff/xhistogram.c xdiff/xinclude.h auto/config.h \
@@ -3603,7 +3587,7 @@ objects/xhistogram.o: xdiff/xhistogram.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
 objects/xpatience.o: xdiff/xpatience.c xdiff/xinclude.h auto/config.h \
@@ -3612,6 +3596,6 @@ objects/xpatience.o: xdiff/xpatience.c xdiff/xinclude.h auto/config.h \
  auto/osdef.h ascii.h keymap.h term.h \
  macros.h option.h  \
  structs.h regexp.h  alloc.h \
- ex_cmds.h spell.h proto.h globals.h \
+ ex_cmds.h proto.h globals.h \
  xdiff/xtypes.h xdiff/xutils.h xdiff/xprepare.h xdiff/xdiffi.h \
  xdiff/xemit.h
