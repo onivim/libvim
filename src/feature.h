@@ -1000,9 +1000,6 @@
 # if defined(FEAT_NORMAL) && defined(MSWIN)
 #  define DOS_MOUSE
 # endif
-# if defined(FEAT_NORMAL) && defined(__QNX__)
-#  define FEAT_MOUSE_PTERM
-# endif
 #endif
 
 /*

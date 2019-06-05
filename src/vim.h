@@ -268,10 +268,6 @@
 # include "os_mac.h"
 #endif
 
-#ifdef __QNX__
-# include "os_qnx.h"
-#endif
-
 #ifdef X_LOCALE
 # include <X11/Xlocale.h>
 #else

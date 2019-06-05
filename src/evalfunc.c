@@ -6335,9 +6335,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"osxdarwin",	/* synonym for macunix */
 # endif
 #endif
-#ifdef __QNX__
-	"qnx",
-#endif
 #ifdef SUN_SYSTEM
 	"sun",
 #else
