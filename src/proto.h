@@ -52,9 +52,6 @@ extern int _stricoll(char *a, char *b);
 # ifdef __BEOS__
 #  include "os_beos.pro"
 # endif
-# ifdef __QNX__
-#  include "os_qnx.pro"
-# endif
 
 # include "autocmd.pro"
 # include "buffer.pro"
@@ -178,8 +175,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # ifdef FEAT_SIGNS
 #  include "sign.pro"
 # endif
-# include "spell.pro"
-# include "spellfile.pro"
 # include "state_machine.pro"
 # include "syntax.pro"
 # include "tag.pro"

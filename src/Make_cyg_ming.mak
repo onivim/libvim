@@ -728,8 +728,6 @@ OBJ = \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
 	$(OUTDIR)/sign.o \
-	$(OUTDIR)/spell.o \
-	$(OUTDIR)/spellfile.o \
 	$(OUTDIR)/state_machine.o \
 	$(OUTDIR)/syntax.o \
 	$(OUTDIR)/tag.o \
@@ -1037,7 +1035,7 @@ endif
 ###########################################################################
 INCL =	vim.h alloc.h ascii.h ex_cmds.h feature.h globals.h \
 	keymap.h macros.h option.h os_dos.h os_win32.h proto.h regexp.h \
-	spell.h structs.h term.h $(NBDEBUG_INCL)
+	structs.h term.h $(NBDEBUG_INCL)
 GUI_INCL = gui.h
 ifeq ($(DIRECTX),yes)
 GUI_INCL += gui_dwrite.h

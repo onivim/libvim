@@ -207,11 +207,6 @@ static void show_pum(int prev_w_wrow, int prev_w_leftcol);
 static unsigned  quote_meta(char_u *dest, char_u *str, int len);
 #endif // FEAT_INS_EXPAND
 
-#ifdef FEAT_SPELL
-static void spell_back_to_badword(void);
-static int  spell_bad_len = 0;	// length of located bad word
-#endif
-
 #if defined(FEAT_INS_EXPAND) || defined(PROTO)
 /*
  * CTRL-X pressed in Insert mode.
@@ -284,9 +279,6 @@ ctrl_x_mode_not_defined_yet(void)
 has_compl_option(int dict_opt)
 {
     if (dict_opt ? (*curbuf->b_p_dict == NUL && *p_dict == NUL
-# ifdef FEAT_SPELL
-							&& !curwin->w_p_spell
-# endif
 							)
 		 : (*curbuf->b_p_tsr == NUL && *p_tsr == NUL))
     {
@@ -1187,13 +1179,6 @@ ins_compl_dictionaries(
 
     if (*dict == NUL)
     {
-#ifdef FEAT_SPELL
-	// When 'dictionary' is empty and spell checking is enabled use
-	// "spell".
-	if (!thesaurus && curwin->w_p_spell)
-	    dict = (char_u *)"spell";
-	else
-#endif
 	    return;
     }
 
@@ -1252,30 +1237,12 @@ ins_compl_dictionaries(
 	    // backticks (for security, the 'dict' option may have been set in
 	    // a modeline).
 	    copy_option_part(&dict, buf, LSIZE, ",");
-# ifdef FEAT_SPELL
-	    if (!thesaurus && STRCMP(buf, "spell") == 0)
-		count = -1;
-	    else
-# endif
 		if (vim_strchr(buf, '`') != NULL
 		    || expand_wildcards(1, &buf, &count, &files,
 						     EW_FILE|EW_SILENT) != OK)
 		count = 0;
 	}
 
-# ifdef FEAT_SPELL
-	if (count == -1)
-	{
-	    // Complete from active spelling.  Skip "\<" in the pattern, we
-	    // don't use it as a RE.
-	    if (pat[0] == '\\' && pat[1] == '<')
-		ptr = pat + 2;
-	    else
-		ptr = pat;
-	    spell_dump_compl(ptr, regmatch.rm_ic, &dir, 0);
-	}
-	else
-# endif
 	    if (count > 0)	// avoid warning for using "files" uninit
 	{
 	    ins_compl_files(count, files, thesaurus, flags,
@@ -1733,9 +1700,6 @@ ins_compl_new_leader(void)
 	ins_compl_set_original_text(compl_leader);
     else
     {
-#ifdef FEAT_SPELL
-	spell_bad_len = 0;	// need to redetect bad word
-#endif
 	// Matches were cleared, need to search for them now.  Befor drawing
 	// the popup menu display the changed text before the cursor.  Set
 	// "compl_restarting" to avoid that the first match is inserted.
@@ -1976,11 +1940,6 @@ ins_compl_prep(int c)
 	    case 's':
 	    case Ctrl_S:
 		ctrl_x_mode = CTRL_X_SPELL;
-#ifdef FEAT_SPELL
-		++emsg_off;	// Avoid getting the E756 error twice.
-		spell_back_to_badword();
-		--emsg_off;
-#endif
 		break;
 	    case Ctrl_RSB:
 		ctrl_x_mode = CTRL_X_TAGS;
@@ -2577,12 +2536,6 @@ ins_compl_get_exp(pos_T *ini)
 	    break;
 
 	case CTRL_X_SPELL:
-#ifdef FEAT_SPELL
-	    num_matches = expand_spelling(first_match_pos.lnum,
-						     compl_pattern, &matches);
-	    if (num_matches > 0)
-		ins_compl_add_matches(num_matches, matches, p_ic);
-#endif
 	    break;
 
 	default:	// normal ^P/^N and ^X^L
@@ -3496,26 +3449,6 @@ ins_complete(int c, int enable_pum)
 	}
 	else if (ctrl_x_mode == CTRL_X_SPELL)
 	{
-#ifdef FEAT_SPELL
-	    if (spell_bad_len > 0)
-		compl_col = curs_col - spell_bad_len;
-	    else
-		compl_col = spell_word_start(startcol);
-	    if (compl_col >= (colnr_T)startcol)
-	    {
-		compl_length = 0;
-		compl_col = curs_col;
-	    }
-	    else
-	    {
-		spell_expand_check_cap(compl_col);
-		compl_length = (int)curs_col - compl_col;
-	    }
-	    // Need to obtain "line" again, it may have become invalid.
-	    line = ml_get(curwin->w_cursor.lnum);
-	    compl_pattern = vim_strnsave(line + compl_col, compl_length);
-	    if (compl_pattern == NULL)
-#endif
 		return FAIL;
 	}
 	else
@@ -3840,22 +3773,6 @@ quote_meta(char_u *dest, char_u *src, int len)
 free_insexpand_stuff(void)
 {
     VIM_CLEAR(compl_orig_text);
-}
-# endif
-
-# ifdef FEAT_SPELL
-/*
- * Called when starting CTRL_X_SPELL mode: Move backwards to a previous badly
- * spelled word, if there is one.
- */
-    static void
-spell_back_to_badword(void)
-{
-    pos_T	tpos = curwin->w_cursor;
-
-    spell_bad_len = spell_move_to(curwin, BACKWARD, TRUE, TRUE, NULL);
-    if (curwin->w_cursor.col != tpos.col)
-	start_arrow(&tpos);
 }
 # endif
 
