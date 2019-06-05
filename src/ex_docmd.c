@@ -74,8 +74,7 @@ static int	getargopt(exarg_T *eap);
 
 static linenr_T get_address(exarg_T *, char_u **, cmd_addr_T addr_type, int skip, int silent, int to_other_file, int address_count);
 static void	get_flags(exarg_T *eap);
-#if !defined(FEAT_PERL) \
-	|| !defined(FEAT_PYTHON) || !defined(FEAT_PYTHON3) \
+#if !defined(FEAT_PYTHON) || !defined(FEAT_PYTHON3) \
 	|| !defined(FEAT_RUBY) \
 	|| !defined(FEAT_LUA) \
 	|| !defined(FEAT_MZSCHEME)
@@ -177,10 +176,8 @@ static void	ex_nogui(exarg_T *eap);
 # define ex_mzscheme		ex_script_ni
 # define ex_mzfile		ex_ni
 #endif
-#ifndef FEAT_PERL
 # define ex_perl		ex_script_ni
 # define ex_perldo		ex_ni
-#endif
 #ifndef FEAT_PYTHON
 # define ex_python		ex_script_ni
 # define ex_pydo		ex_ni

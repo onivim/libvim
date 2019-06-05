@@ -211,39 +211,6 @@ ifndef ARCH
 ARCH := $(shell $(CC) -dumpmachine | sed -e 's/-.*//' -e 's/_/-/' -e 's/^mingw32$$/i686/')
 endif
 
-
-#	Perl interface:
-#	  PERL=[Path to Perl directory] (Set inside Make_cyg.mak or Make_ming.mak)
-#	  DYNAMIC_PERL=yes (to load the Perl DLL dynamically)
-#	  PERL_VER=[Perl version, eg 56, 58, 510] (default is 524)
-ifdef PERL
- ifndef PERL_VER
-PERL_VER=524
- endif
- ifndef DYNAMIC_PERL
-DYNAMIC_PERL=yes
- endif
-# on Linux, for cross-compile, it's here:
-#PERLLIB=/home/ron/ActivePerl/lib
-# on NT, it's here:
-PERLEXE=$(PERL)/bin/perl
-PERLLIB=$(PERL)/lib
-PERLLIBS=$(PERLLIB)/Core
- ifeq ($(UNDER_CYGWIN),yes)
-PERLTYPEMAP:=$(shell cygpath -m $(PERLLIB)/ExtUtils/typemap)
-XSUBPPTRY:=$(shell cygpath -m $(PERLLIB)/ExtUtils/xsubpp)
- else
-PERLTYPEMAP=$(PERLLIB)/ExtUtils/typemap
-XSUBPPTRY=$(PERLLIB)/ExtUtils/xsubpp
- endif
-XSUBPP_EXISTS=$(shell $(PERLEXE) -e "print 1 unless -e '$(XSUBPPTRY)'")
- ifeq "$(XSUBPP_EXISTS)" ""
-XSUBPP=$(PERLEXE) $(XSUBPPTRY)
- else
-XSUBPP=xsubpp
- endif
-endif
-
 #	Lua interface:
 #	  LUA=[Path to Lua directory] (Set inside Make_cyg.mak or Make_ming.mak)
 #	  LUA_LIBDIR=[Path to Lua library directory] (default: $LUA/lib)
@@ -491,14 +458,6 @@ DEFINES += -DGETTEXT_DYNAMIC -DGETTEXT_DLL=\"$(GETTEXT_DYNAMIC)\"
  endif
 endif
 
-ifdef PERL
-CFLAGS += -I$(PERLLIBS) -DFEAT_PERL -DPERL_IMPLICIT_CONTEXT -DPERL_IMPLICIT_SYS
- ifeq (yes, $(DYNAMIC_PERL))
-CFLAGS += -DDYNAMIC_PERL -DDYNAMIC_PERL_DLL=\"perl$(PERL_VER).dll\"
-EXTRA_LIBS += -L$(PERLLIBS) -lperl$(PERL_VER)
- endif
-endif
-
 ifdef LUA
 LUA_INCDIR = $(LUA)/include
 CFLAGS += -I$(LUA_INCDIR) -I$(LUA) -DFEAT_LUA
@@ -683,9 +642,6 @@ else
 # OBJ += $(OUTDIR)/os_w32exe.o $(OUTDIR)/vimrc.o
 endif
 
-ifdef PERL
-OBJ += $(OUTDIR)/if_perl.o
-endif
 ifdef LUA
 OBJ += $(OUTDIR)/if_lua.o
 endif
@@ -804,12 +760,6 @@ OBJ+=$(SAFE_GETTEXT_DLL_OBJ)
   else
 LIB += -L$(GETTEXTLIB) -lintl
   endif
- endif
-endif
-
-ifdef PERL
- ifeq (no, $(DYNAMIC_PERL))
-LIB += -L$(PERLLIBS) -lperl$(PERL_VER)
  endif
 endif
 
@@ -935,10 +885,6 @@ clean:
 	-rmdir $(OUTDIR)
 	-$(DEL) $(MAIN_TARGET) vimrun.exe
 	-$(DEL) pathdef.c
-ifdef PERL
-	-$(DEL) if_perl.c
-	-$(DEL) auto$(DIRSLASH)if_perl.c
-endif
 ifdef MZSCHEME
 	-$(DEL) mzscheme_base.c
 endif
@@ -1014,14 +960,6 @@ mzscheme_base.c:
 # Remove -D__IID_DEFINED__ for newer versions of the w32api
 $(OUTDIR)/if_ole.o:	if_ole.cpp $(INCL) if_ole.h
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) if_ole.cpp -o $@
-
-auto/if_perl.c:		if_perl.xs typemap
-	$(XSUBPP) -prototypes -typemap \
-	     $(PERLTYPEMAP) if_perl.xs -output $@
-
-$(OUTDIR)/if_perl.o:	auto/if_perl.c $(INCL)
-	$(CC) -c $(CFLAGS) auto/if_perl.c -o $@
-
 
 $(OUTDIR)/if_ruby.o:	if_ruby.c $(INCL)
 ifeq (16, $(RUBY))

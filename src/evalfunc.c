@@ -293,9 +293,6 @@ static void f_nextnonblank(typval_T *argvars, typval_T *rettv);
 static void f_nr2char(typval_T *argvars, typval_T *rettv);
 static void f_or(typval_T *argvars, typval_T *rettv);
 static void f_pathshorten(typval_T *argvars, typval_T *rettv);
-#ifdef FEAT_PERL
-static void f_perleval(typval_T *argvars, typval_T *rettv);
-#endif
 #ifdef FEAT_FLOAT
 static void f_pow(typval_T *argvars, typval_T *rettv);
 #endif
@@ -791,9 +788,6 @@ static struct fst
     {"nr2char",		1, 2, f_nr2char},
     {"or",		2, 2, f_or},
     {"pathshorten",	1, 1, f_pathshorten},
-#ifdef FEAT_PERL
-    {"perleval",	1, 1, f_perleval},
-#endif
 #ifdef FEAT_TEXT_PROP
     {"popup_atcursor",	2, 2, f_popup_atcursor},
     {"popup_close",	1, 2, f_popup_close},
@@ -6572,11 +6566,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_PATH_EXTRA
 	"path_extra",
 #endif
-#ifdef FEAT_PERL
-#ifndef DYNAMIC_PERL
-	"perl",
-#endif
-#endif
 #ifdef FEAT_PERSISTENT_UNDO
 	"persistent_undo",
 #endif
@@ -8936,21 +8925,6 @@ f_pathshorten(typval_T *argvars, typval_T *rettv)
 	    shorten_dir(p);
     }
 }
-
-#ifdef FEAT_PERL
-/*
- * "perleval()" function
- */
-    static void
-f_perleval(typval_T *argvars, typval_T *rettv)
-{
-    char_u	*str;
-    char_u	buf[NUMBUFLEN];
-
-    str = tv_get_string_buf(&argvars[0], buf);
-    do_perleval(str, rettv);
-}
-#endif
 
 #ifdef FEAT_FLOAT
 /*

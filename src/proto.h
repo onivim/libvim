@@ -231,61 +231,12 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 #  endif
 # endif
 
-# ifdef FEAT_GUI
-#  include "gui.pro"
-#  if !defined(HAVE_SETENV) && !defined(HAVE_PUTENV) && !defined(VMS)
-extern int putenv(const char *string);			/* in misc2.c */
-#   ifdef USE_VIMPTY_GETENV
-extern char_u *vimpty_getenv(const char_u *string);	/* in misc2.c */
-#   endif
-#  endif
-#  ifdef FEAT_GUI_MSWIN
-#   include "gui_w32.pro"
-#  endif
-#  ifdef FEAT_GUI_GTK
-#   include "gui_gtk.pro"
-#   include "gui_gtk_x11.pro"
-#  endif
-#  ifdef FEAT_GUI_MOTIF
-#   include "gui_motif.pro"
-#   include "gui_xmdlg.pro"
-#  endif
-#  ifdef FEAT_GUI_ATHENA
-#   include "gui_athena.pro"
-#   ifdef FEAT_BROWSE
-extern char *vim_SelFile(Widget toplevel, char *prompt, char *init_path, int (*show_entry)(), int x, int y, guicolor_T fg, guicolor_T bg, guicolor_T scroll_fg, guicolor_T scroll_bg);
-#   endif
-#  endif
-#  ifdef FEAT_GUI_MAC
-#   include "gui_mac.pro"
-#  endif
-#  ifdef FEAT_GUI_X11
-#   include "gui_x11.pro"
-#  endif
-#  ifdef FEAT_GUI_PHOTON
-#   include "gui_photon.pro"
-#  endif
-# endif	/* FEAT_GUI */
-
 # ifdef FEAT_OLE
 #  include "if_ole.pro"
 # endif
 # if defined(FEAT_CLIENTSERVER) && defined(FEAT_X11)
 #  include "if_xcmdsrv.pro"
 # endif
-
-/*
- * The perl include files pollute the namespace, therefore proto.h must be
- * included before the perl include files.  But then CV is not defined, which
- * is used in if_perl.pro.  To get around this, the perl prototype files are
- * not included here for the perl files.  Use a dummy define for CV for the
- * other files.
- */
-#if defined(FEAT_PERL) && !defined(IN_PERL_FILE)
-# define CV void
-# include "if_perl.pro"
-# include "if_perlsfio.pro"
-#endif
 
 #ifdef MACOS_CONVERT
 # include "os_mac_conv.pro"
