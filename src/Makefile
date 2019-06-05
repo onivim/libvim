@@ -1726,7 +1726,6 @@ PRO_AUTO = \
 	indent.pro \
 	insexpand.pro \
 	json.pro \
-	libvim.pro \
 	list.pro \
 	main.pro \
 	mark.pro \
@@ -1774,7 +1773,7 @@ PRO_AUTO = \
 RSRC_DIR = os_mac_rsrc
 
 PRO_MANUAL = os_amiga.pro os_win32.pro \
-	os_mswin.pro winclip.pro os_beos.pro os_vms.pro $(PERL_PRO)
+	os_mswin.pro winclip.pro os_beos.pro $(PERL_PRO)
 
 # Default target is making the executable and tools
 all: $(VIMTARGET) $(TOOLS) languages $(GUI_BUNDLE)
@@ -1881,12 +1880,6 @@ libvim.a: $(OBJ) libvim.c
 	$(CCC) version.c -o objects/version.o
 	$(AR) rcs libvim.a $(OBJ)
 
-libvim_test: libvim.a libvim_test.c
-	$(CC) $(ALL_CFLAGS) libvim_test.c -o $@ libvim.a $(ALL_LIBS)
-
-apitest: libvim_test
-	./libvim_test || exit 1
-
 xxd/xxd$(EXEEXT): xxd/xxd.c
 	cd xxd; CC="$(CC)" CFLAGS="$(CPPFLAGS) $(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 		$(MAKE) -f Makefile
@@ -1954,15 +1947,6 @@ winclip.pro: winclip.c
 os_beos.pro: os_beos.c
 	$(CPROTO) -D__BEOS__ -UHAVE_CONFIG_H $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
-
-os_vms.pro: os_vms.c
-# must use os_vms_conf.h for auto/config.h
-	mv auto/config.h auto/config.h.save
-	cp os_vms_conf.h auto/config.h
-	$(CPROTO) -DVMS -UFEAT_GUI_ATHENA -UFEAT_GUI_NEXTAW -UFEAT_GUI_MOTIF -UFEAT_GUI_GTK $< > proto/$@
-	echo "/* vim: set ft=c : */" >> proto/$@
-	rm auto/config.h
-	mv auto/config.h.save auto/config.h
 
 # if_perl.pro is special: Use the generated if_perl.c for input and remove
 # prototypes for local functions.
@@ -2119,9 +2103,23 @@ install_normal: installvim installtools $(INSTALL_LANGS) install-icons
 installvim: installvimbin installtutorbin \
 		installruntime installlinks installmanlinks
 
-installlibvim: libvim.a libvim_test $(DEST_BIN) $(DEST_LIB)
+TEST_SRC = $(wildcard apitest/*.c)
+TEST_COLLATERAL = $(wildcard apitest/*.txt)
+TEST_EXE = $(TEST_SRC:.c=.test.exe)
+
+copy-apitest-collateral: $(TEST_COLLATERAL)
+	$(INSTALL_PROG) $< $(DEST_BIN)
+
+apitest/%.test.exe: apitest/%.c libvim.a
+	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
+	echo "Copying $@ to $(DEST_BIN)"
+	$(INSTALL_PROG) $@ $(DEST_BIN)
+
+installapitest:  copy-apitest-collateral $(TEST_EXE)
+	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
+
+installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
-	$(INSTALL_PROG) libvim_test $(DEST_BIN)
 
 #
 # Avoid overwriting an existing executable, somebody might be running it and

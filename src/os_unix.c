@@ -149,11 +149,7 @@ typedef int waitstatus;
 #endif
 static int  WaitForChar(long msec, int *interrupted, int ignore_input);
 static int  WaitForCharOrMouse(long msec, int *interrupted, int ignore_input);
-#if defined(__BEOS__) || defined(VMS)
-int  RealWaitForChar(int, long, int *, int *interrupted);
-#else
 static int  RealWaitForChar(int, long, int *, int *interrupted);
-#endif
 
 #ifdef FEAT_XCLIPBOARD
 static int do_xterm_trace(void);
@@ -330,11 +326,7 @@ mch_chdir(char *path)
 	smsg("chdir(%s)", path);
 	verbose_leave();
     }
-# ifdef VMS
-    return chdir(vms_fixfilename(path));
-# else
     return chdir(path);
-# endif
 }
 
 /* Why is NeXT excluded here (and not in os_unixx.h)? */
@@ -1605,9 +1597,7 @@ x_IOerror_check(Display *dpy UNUSED)
 {
     /* This function should not return, it causes exit().  Longjump instead. */
     LONGJMP(lc_jump_env, 1);
-#  if defined(VMS) || defined(__CYGWIN__)
     return 0;  /* avoid the compiler complains about missing return value */
-#  endif
 }
 # endif
 
@@ -1627,9 +1617,7 @@ x_IOerror_handler(Display *dpy UNUSED)
 
     /* This function should not return, it causes exit().  Longjump instead. */
     LONGJMP(x_jump_env, 1);
-# if defined(VMS) || defined(__CYGWIN__)
     return 0;  /* avoid the compiler complains about missing return value */
-# endif
 }
 
 /*
@@ -2350,12 +2338,7 @@ vim_is_fastterm(char_u *name)
     int
 mch_get_user_name(char_u *s, int len)
 {
-#ifdef VMS
-    vim_strncpy(s, (char_u *)cuserid(NULL), len - 1);
-    return OK;
-#else
     return mch_get_uname(getuid(), s, len);
-#endif
 }
 
 /*
@@ -2491,10 +2474,6 @@ mch_FullName(
 					   it's not always defined */
 #endif
 
-#ifdef VMS
-    fname = vms_fixfilename(fname);
-#endif
-
 #ifdef __CYGWIN__
     /*
      * This helps for when "/etc/hosts" is a symlink to "c:/something/hosts".
@@ -2599,11 +2578,9 @@ mch_FullName(
 	l = STRLEN(buf);
 	if (l >= len - 1)
 	    retval = FAIL; /* no space for trailing "/" */
-#ifndef VMS
 	else if (l > 0 && buf[l - 1] != '/' && *fname != NUL
 						   && STRCMP(fname, ".") != 0)
 	    STRCAT(buf, "/");
-#endif
     }
 
     /* Catch file names which are too long. */
@@ -2623,14 +2600,7 @@ mch_FullName(
     int
 mch_isFullName(char_u *fname)
 {
-#ifdef VMS
-    return ( fname[0] == '/'	       || fname[0] == '.'	    ||
-	     strchr((char *)fname,':') || strchr((char *)fname,'"') ||
-	    (strchr((char *)fname,'[') && strchr((char *)fname,']'))||
-	    (strchr((char *)fname,'<') && strchr((char *)fname,'>'))   );
-#else
     return (*fname == '/' || *fname == '~');
-#endif
 }
 
 #if defined(USE_FNAME_CASE) || defined(PROTO)
@@ -2708,11 +2678,7 @@ mch_getperm(char_u *name)
     struct stat statb;
 
     /* Keep the #ifdef outside of stat(), it may be a macro. */
-#ifdef VMS
-    if (stat((char *)vms_fixfilename(name), &statb))
-#else
     if (stat((char *)name, &statb))
-#endif
 	return -1;
 #ifdef __INTERIX
     /* The top bit makes the value negative, which means the file doesn't
@@ -2731,11 +2697,7 @@ mch_getperm(char_u *name)
 mch_setperm(char_u *name, long perm)
 {
     return (chmod((char *)
-#ifdef VMS
-		    vms_fixfilename(name),
-#else
 		    name,
-#endif
 		    (mode_t)perm) == 0 ? OK : FAIL);
 }
 
@@ -3067,26 +3029,7 @@ executable_file(char_u *name)
 
     if (stat((char *)name, &st))
 	return 0;
-#ifdef VMS
-    /* Like on Unix system file can have executable rights but not necessarily
-     * be an executable, but on Unix is not a default for an ordianry file to
-     * have an executable flag - on VMS it is in most cases.
-     * Therefore, this check does not have any sense - let keep us to the
-     * conventions instead:
-     * *.COM and *.EXE files are the executables - the rest are not. This is
-     * not ideal but better then it was.
-     */
-    int vms_executable = 0;
-    if (S_ISREG(st.st_mode) && mch_access((char *)name, X_OK) == 0)
-    {
-	if (strstr(vms_tolower((char*)name),".exe") != NULL
-		|| strstr(vms_tolower((char*)name),".com")!= NULL)
-	    vms_executable = 1;
-    }
-    return vms_executable;
-#else
     return S_ISREG(st.st_mode) && mch_access((char *)name, X_OK) == 0;
-#endif
 }
 
 /*
@@ -3372,8 +3315,6 @@ may_core_dump(void)
     }
 }
 
-#ifndef VMS
-
 /*
  * Get the file descriptor to use for tty operations.
  */
@@ -3590,8 +3531,6 @@ get_tty_info(int fd, ttyinfo_T *info)
 #endif
     return FAIL;
 }
-
-#endif /* VMS  */
 
 #if defined(FEAT_MOUSE_TTY) || defined(PROTO)
 static int	mouse_ison = FALSE;
