@@ -148,9 +148,6 @@ static void nv_open(cmdarg_T *cap);
 #ifdef FEAT_NETBEANS_INTG
 static void nv_nbcmd(cmdarg_T *cap);
 #endif
-#ifdef FEAT_DND
-static void nv_drop(cmdarg_T *cap);
-#endif
 static void nv_cursorhold(cmdarg_T *cap);
 static void get_op_vcol(oparg_T *oap, colnr_T col, int initial);
 
@@ -395,9 +392,6 @@ static const struct nv_cmd {
 #endif
 #ifdef FEAT_NETBEANS_INTG
     {K_F21, nv_nbcmd, NV_NCH_ALW, 0},
-#endif
-#ifdef FEAT_DND
-    {K_DROP, nv_drop, NV_STS, 0},
 #endif
     {K_CURSORHOLD, nv_cursorhold, NV_KEEPREG, 0},
     {K_PS, nv_edit, 0, 0},
@@ -8576,16 +8570,6 @@ static void nv_open(cmdarg_T *cap) {
   else
     n_opencmd(cap);
 }
-
-#ifdef FEAT_NETBEANS_INTG
-static void nv_nbcmd(cmdarg_T *cap) { netbeans_keycommand(cap->nchar); }
-#endif
-
-#ifdef FEAT_DND
-static void nv_drop(cmdarg_T *cap UNUSED) {
-  do_put('~', BACKWARD, 1L, PUT_CURSEND);
-}
-#endif
 
 /*
  * Trigger CursorHold event.

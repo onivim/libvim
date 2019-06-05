@@ -6099,7 +6099,7 @@ shorten_fnames(int force)
     redraw_tabline = TRUE;
 }
 
-#if (defined(FEAT_DND) && defined(FEAT_GUI_GTK)) \
+#if defined(FEAT_GUI_GTK) \
 	|| defined(FEAT_GUI_MSWIN) \
 	|| defined(FEAT_GUI_MAC) \
 	|| defined(PROTO)

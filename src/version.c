@@ -224,11 +224,6 @@ static char *(features[]) =
 	"-directx",
 # endif
 #endif
-#ifdef FEAT_DND
-	"+dnd",
-#else
-	"-dnd",
-#endif
 #ifdef EBCDIC
 	"+ebcdic",
 #else

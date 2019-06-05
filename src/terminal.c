@@ -1327,9 +1327,6 @@ term_convert_key(term_T *term, int c, char *buf)
 #ifdef FEAT_NETBEANS_INTG
 	case K_F21:		key = VTERM_KEY_FUNCTION(21); break;
 #endif
-#ifdef FEAT_DND
-	case K_DROP:		return 0;
-#endif
 	case K_CURSORHOLD:	return 0;
 	case K_PS:		vterm_keyboard_start_paste(vterm);
 				other = TRUE;

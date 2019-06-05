@@ -6442,9 +6442,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_DIRECTX
 	"directx",
 #endif
-#ifdef FEAT_DND
-	"dnd",
-#endif
 #ifdef FEAT_EMACS_TAGS
 	"emacs_tags",
 #endif
