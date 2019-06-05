@@ -560,9 +560,6 @@ EXTERN char_u	*p_langmap;	/* 'langmap'*/
 EXTERN int	p_lnr;		/* 'langnoremap' */
 EXTERN int	p_lrm;		/* 'langremap' */
 #endif
-#if defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)
-EXTERN char_u	*p_lm;		/* 'langmenu' */
-#endif
 #ifdef FEAT_GUI
 EXTERN long	p_linespace;	/* 'linespace' */
 #endif
@@ -603,9 +600,6 @@ EXTERN long	p_mmd;		/* 'maxmapdepth' */
 EXTERN long	p_mm;		/* 'maxmem' */
 EXTERN long	p_mmp;		/* 'maxmempattern' */
 EXTERN long	p_mmt;		/* 'maxmemtot' */
-#ifdef FEAT_MENU
-EXTERN long	p_mis;		/* 'menuitems' */
-#endif
 #ifdef FEAT_SPELL
 EXTERN char_u	*p_msm;		/* 'mkspellmem' */
 #endif

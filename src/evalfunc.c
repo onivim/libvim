@@ -5160,13 +5160,6 @@ f_getcompletion(typval_T *argvars, typval_T *rettv)
 	return;
     }
 
-# if defined(FEAT_MENU)
-    if (xpc.xp_context == EXPAND_MENUS)
-    {
-	set_context_in_menu_cmd(&xpc, (char_u *)"menu", xpc.xp_pattern, FALSE);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-# endif
 #ifdef FEAT_CSCOPE
     if (xpc.xp_context == EXPAND_CSCOPE)
     {
@@ -5959,9 +5952,6 @@ get_win_info(win_T *wp, short tpnr, short winnr)
     dict_add_number(dict, "winrow", wp->w_winrow + 1);
     dict_add_number(dict, "topline", wp->w_topline);
     dict_add_number(dict, "botline", wp->w_botline - 1);
-#ifdef FEAT_MENU
-    dict_add_number(dict, "winbar", wp->w_winbar_height);
-#endif
     dict_add_number(dict, "width", wp->w_width);
     dict_add_number(dict, "wincol", wp->w_wincol + 1);
     dict_add_number(dict, "bufnr", wp->w_buffer->b_fnum);
@@ -6543,9 +6533,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 # ifndef DYNAMIC_LUA
 	"lua",
 # endif
-#endif
-#ifdef FEAT_MENU
-	"menu",
 #endif
 #ifdef FEAT_SESSION
 	"mksession",

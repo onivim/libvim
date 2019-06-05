@@ -4843,9 +4843,6 @@ win_free(
     }
 #endif /* FEAT_GUI */
 
-#ifdef FEAT_MENU
-    remove_winbar(wp);
-#endif
 #ifdef FEAT_TEXT_PROP
     free_callback(&wp->w_close_cb);
     free_callback(&wp->w_filter_cb);

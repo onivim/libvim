@@ -466,28 +466,11 @@ EXTERN int	diff_foldcolumn INIT(= 2);	/* 'foldcolumn' for diff mode */
 EXTERN int	diff_need_scrollbind INIT(= FALSE);
 #endif
 
-#ifdef FEAT_MENU
-/* The root of the menu hierarchy. */
-EXTERN vimmenu_T	*root_menu INIT(= NULL);
-/*
- * While defining the system menu, sys_menu is TRUE.  This avoids
- * overruling of menus that the user already defined.
- */
-EXTERN int	sys_menu INIT(= FALSE);
-#endif
-
 /* While redrawing the screen this flag is set.  It means the screen size
  * ('lines' and 'rows') must not be changed. */
 EXTERN int	updating_screen INIT(= FALSE);
 
 #ifdef FEAT_GUI
-# ifdef FEAT_MENU
-/* Menu item just selected, set by check_termcode() */
-EXTERN vimmenu_T	*current_menu;
-
-/* Set to TRUE after adding/removing menus to ensure they are updated */
-EXTERN int force_menu_update INIT(= FALSE);
-# endif
 # ifdef FEAT_GUI_TABLINE
 /* Tab in tab pages line just selected, set by check_termcode() */
 EXTERN int	    current_tab;
@@ -1573,9 +1556,6 @@ EXTERN char e_invalidreg[]    INIT(= N_("E850: Invalid register name"));
 #endif
 EXTERN char e_dirnotf[]	INIT(= N_("E919: Directory not found in '%s': \"%s\""));
 EXTERN char e_au_recursive[]	INIT(= N_("E952: Autocommand caused recursive behavior"));
-#ifdef FEAT_MENU
-EXTERN char e_menuothermode[] INIT(= N_("E328: Menu only exists in another mode"));
-#endif
 
 #ifdef FEAT_GUI_MAC
 EXTERN short disallow_gui	INIT(= FALSE);

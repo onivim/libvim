@@ -1628,41 +1628,6 @@ vgetc(void)
 		}
 		c = TO_SPECIAL(c2, c);
 
-#if defined(FEAT_GUI_MSWIN) && defined(FEAT_MENU) && defined(FEAT_TEAROFF)
-		// Handle K_TEAROFF here, the caller of vgetc() doesn't need to
-		// know that a menu was torn off
-		if (
-# ifdef VIMDLL
-		    gui.in_use &&
-# endif
-		    c == K_TEAROFF)
-		{
-		    char_u	name[200];
-		    int		i;
-
-		    // get menu path, it ends with a <CR>
-		    for (i = 0; (c = vgetorpeek(TRUE)) != '\r'; )
-		    {
-			name[i] = c;
-			if (i < 199)
-			    ++i;
-		    }
-		    name[i] = NUL;
-		    gui_make_tearoff(name);
-		    continue;
-		}
-#endif
-#if defined(FEAT_GUI) && defined(FEAT_GUI_GTK) && defined(FEAT_MENU)
-		// GTK: <F10> normally selects the menu, but it's passed until
-		// here to allow mapping it.  Intercept and invoke the GTK
-		// behavior if it's not mapped.
-		if (c == K_F10 && gui.menubar != NULL)
-		{
-		    gtk_menu_shell_select_first(
-					   GTK_MENU_SHELL(gui.menubar), FALSE);
-		    continue;
-		}
-#endif
 #ifdef FEAT_GUI
 		if (gui.in_use)
 		{
@@ -1976,9 +1941,6 @@ vgetorpeek(int advance)
     int		max_mlen;
     int		i;
 #ifdef FEAT_GUI
-# ifdef FEAT_MENU
-    int		idx;
-# endif
     int		shape_changed = FALSE;  /* adjusted cursor shape */
 #endif
     int		n;
@@ -2419,42 +2381,6 @@ vgetorpeek(int advance)
 			}
 			if (keylen > 0)	    /* full matching terminal code */
 			{
-#if defined(FEAT_GUI) && defined(FEAT_MENU)
-			    if (typebuf.tb_len >= 2
-				&& typebuf.tb_buf[typebuf.tb_off] == K_SPECIAL
-					 && typebuf.tb_buf[typebuf.tb_off + 1]
-								   == KS_MENU)
-			    {
-				/*
-				 * Using a menu may cause a break in undo!
-				 * It's like using gotchars(), but without
-				 * recording or writing to a script file.
-				 */
-				may_sync_undo();
-				del_typebuf(3, 0);
-				idx = get_menu_index(current_menu, local_State);
-				if (idx != MENU_INDEX_INVALID)
-				{
-				    /*
-				     * In Select mode and a Visual mode menu
-				     * is used:  Switch to Visual mode
-				     * temporarily.  Append K_SELECT to switch
-				     * back to Select mode.
-				     */
-				    if (VIsual_active && VIsual_select
-					    && (current_menu->modes & VISUAL))
-				    {
-					VIsual_select = FALSE;
-					(void)ins_typebuf(K_SELECT_STRING,
-						  REMAP_NONE, 0, TRUE, FALSE);
-				    }
-				    ins_typebuf(current_menu->strings[idx],
-						current_menu->noremap[idx],
-						0, TRUE,
-						   current_menu->silent[idx]);
-				}
-			    }
-#endif /* FEAT_GUI && FEAT_MENU */
 			    continue;	/* try mapping again */
 			}
 

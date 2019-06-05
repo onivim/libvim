@@ -1071,13 +1071,6 @@ free_all_mem(void)
     // and not much else.
     if (curbuf != NULL)
     {
-# ifdef FEAT_MENU
-	// Clear menus.
-	do_cmdline_cmd((char_u *)"aunmenu *");
-#  ifdef FEAT_MULTI_LANG
-	do_cmdline_cmd((char_u *)"menutranslate clear");
-#  endif
-# endif
 	// Clear mappings, abbreviations, breakpoints.
 	do_cmdline_cmd((char_u *)"lmapclear");
 	do_cmdline_cmd((char_u *)"xmapclear");

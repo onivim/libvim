@@ -1685,11 +1685,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"langmenu",    "lm",   P_STRING|P_VI_DEF|P_NFNAME,
-#if defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)
-			    (char_u *)&p_lm, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"langnoremap",  "lnr",   P_BOOL|P_VI_DEF,
 #ifdef FEAT_LANGMAP
@@ -1843,11 +1839,7 @@ static struct vimoption options[] =
 			    {(char_u *)DFLT_MAXMEMTOT, (char_u *)0L}
 			    SCTX_INIT},
     {"menuitems",   "mis",  P_NUM|P_VI_DEF,
-#ifdef FEAT_MENU
-			    (char_u *)&p_mis, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)25L, (char_u *)0L} SCTX_INIT},
     {"mesg",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -6403,17 +6395,6 @@ did_set_string_option(
 	if (*p_wak == NUL
 		|| check_opt_strings(p_wak, p_wak_values, FALSE) != OK)
 	    errmsg = e_invarg;
-# ifdef FEAT_MENU
-#  ifdef FEAT_GUI_MOTIF
-	else if (gui.in_use)
-	    gui_motif_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#  else
-#   ifdef FEAT_GUI_GTK
-	else if (gui.in_use)
-	    gui_gtk_set_mnemonics(p_wak[0] == 'y' || p_wak[0] == 'm');
-#   endif
-#  endif
-# endif
     }
 #endif
 
@@ -7117,12 +7098,6 @@ did_set_string_option(
     {
 	if (check_opt_strings(p_mousem, p_mousem_values, FALSE) != OK)
 	    errmsg = e_invarg;
-#if defined(FEAT_GUI_MOTIF) && defined(FEAT_MENU) && (XmVersion <= 1002)
-	else if (*p_mousem != *oldval)
-	    /* Changed from "extend" to "popup" or "popup_setpos" or vv: need
-	     * to create or delete the popup menus. */
-	    gui_motif_update_mousemodel(root_menu);
-#endif
     }
 
     /* 'switchbuf' */

@@ -92,9 +92,6 @@ extern int _stricoll(char *a, char *b);
 # include "mark.pro"
 # include "memfile.pro"
 # include "memline.pro"
-# ifdef FEAT_MENU
-#  include "menu.pro"
-# endif
 # ifdef FEAT_ARABIC
 #  include "arabic.pro"
 # endif
