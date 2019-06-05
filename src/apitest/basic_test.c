@@ -1,6 +1,6 @@
+#include "libvim.h"
 #include <assert.h>
 #include <stdio.h>
-#include "libvim.h"
 
 int main(int argc, char **argv) {
   vimInit(argc, argv);
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   vimInput("l");
   vimInput("l");
   vimInput("x");
-  
+
   printf("CURSOR LINE: %d\n", vimWindowGetCursorLine());
   assert(vimGetMode() & NORMAL == NORMAL);
 
