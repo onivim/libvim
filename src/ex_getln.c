@@ -488,7 +488,7 @@ may_do_incsearch_highlighting(
     }
 
     // Use the previous pattern for ":s//".
-    next_char = cclin.cmdbuff[skiplen + patlen];
+    next_char = ccline.cmdbuff[skiplen + patlen];
     use_last_pat = patlen == 0 && skiplen > 0
 				   && ccline.cmdbuff[skiplen - 1] == next_char;
 
@@ -2625,6 +2625,7 @@ typedef struct {
     int j;
     int gotesc;
     int do_abbr;
+    int bail_immediately;
 #ifdef FEAT_CMDHIST
     char_u	*lookfor;	/* string to match */
     int		hiscnt;			/* current history line in use */
@@ -2647,7 +2648,7 @@ typedef struct {
     int		did_save_ccline;
     int		cmdline_type;
 
-    char **result;
+    char_u **result;
 #endif
 } cmdlineState_T;
 
@@ -2656,11 +2657,11 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
 	context->result = result;
 	context->firstc = c;
 	context->count = count;
-	context->gotesc = false;
+	context->gotesc = FALSE;
 	context->lookfor = NULL;
 	context->did_wild_list = FALSE;
 	context->wim_index = 0;
-	context->save_msg_croll = msg_scroll;
+	context->save_msg_scroll = msg_scroll;
 	context->save_State = State;
 	context->some_key_typed = FALSE;
 	context->break_ctrl_c = FALSE;
@@ -2680,10 +2681,10 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
 	vim_memset(&ccline, 0, sizeof(struct cmdline_info));
 
 #ifdef FEAT_EVAL
-    if (firstc == -1)
+    if (context->firstc == -1)
     {
-	firstc = NUL;
-	break_ctrl_c = TRUE;
+	context->firstc = NUL;
+	context->break_ctrl_c = TRUE;
     }
 #endif
 #ifdef FEAT_RIGHTLEFT
@@ -2695,39 +2696,43 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
     ccline.overstrike = FALSE;		    /* always start in insert mode */
 
 #ifdef FEAT_SEARCH_EXTRA
-    init_incsearch_state(&is_state);
+    init_incsearch_state(&context->is_state);
 #endif
 
     /*
      * set some variables for redrawcmd()
      */
-    ccline.cmdfirstc = (firstc == '@' ? 0 : firstc);
-    ccline.cmdindent = (firstc > 0 ? indent : 0);
+    ccline.cmdfirstc = (context->firstc == '@' ? 0 : context->firstc);
+    ccline.cmdindent = (context->firstc > 0 ? context->indent : 0);
 
     /* alloc initial ccline.cmdbuff */
-    alloc_cmdbuff(exmode_active ? 250 : indent + 1);
-    if (ccline.cmdbuff == NULL)
-	goto theend;	// out of memory
+    alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
+    if (ccline.cmdbuff == NULL) {
+	    // out of memory
+	    context->bail_immediately = TRUE;
+	    return context;
+    }
     ccline.cmdlen = ccline.cmdpos = 0;
     ccline.cmdbuff[0] = NUL;
     sb_text_start_cmdline();
 
     /* autoindent for :insert and :append */
-    if (firstc <= 0)
+    if (context->firstc <= 0)
     {
 	vim_memset(ccline.cmdbuff, ' ', context->indent);
 	ccline.cmdbuff[context->indent] = NUL;
-	ccline.cmdpos = indent;
-	ccline.cmdspos = indent;
-	ccline.cmdlen = indent;
+	ccline.cmdpos = context->indent;
+	ccline.cmdspos = context->indent;
+	ccline.cmdlen = context->indent;
     }
 
     ExpandInit(&context->xpc);
     ccline.xpc = &context->xpc;
 
 #ifdef FEAT_RIGHTLEFT
+	goto theend;	// out of memory
     if (curwin->w_p_rl && *curwin->w_p_rlc == 's'
-					  && (firstc == '/' || firstc == '?'))
+					  && (context->firstc == '/' || context->firstc == '?'))
 	cmdmsg_rl = TRUE;
     else
 	cmdmsg_rl = FALSE;
@@ -2756,13 +2761,13 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
     {
 	/* Use ":lmap" mappings for search pattern and input(). */
 	if (curbuf->b_p_imsearch == B_IMODE_USE_INSERT)
-	    b_im_ptr = &curbuf->b_p_iminsert;
+	    context->b_im_ptr = &curbuf->b_p_iminsert;
 	else
-	    b_im_ptr = &curbuf->b_p_imsearch;
-	if (*b_im_ptr == B_IMODE_LMAP)
+	    context->b_im_ptr = &curbuf->b_p_imsearch;
+	if (*context->b_im_ptr == B_IMODE_LMAP)
 	    State |= LANGMAP;
 #ifdef HAVE_INPUT_METHOD
-	im_set_active(*b_im_ptr == B_IMODE_IM);
+	im_set_active(*context->b_im_ptr == B_IMODE_IM);
 #endif
     }
 #ifdef HAVE_INPUT_METHOD
@@ -2771,7 +2776,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
 #endif
 
     /* Trigger CmdlineEnter autocommands. */
-    context->cmdline_type = firstc == NUL ? '-' : firstc;
+    context->cmdline_type = context->firstc == NUL ? '-' : context->firstc;
     trigger_cmd_autocmd(context->cmdline_type, EVENT_CMDLINEENTER);
 
 #ifdef FEAT_CMDHIST
@@ -2784,13 +2789,19 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
     do_digraph(-1);		/* init digraph typeahead */
 #endif
 
-    context->got_int = FALSE;
+    got_int = FALSE;
 
 	return context;
 };
 
-executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
-    printf("CHAR: %c\n", c);
+executionStatus_T state_cmdline_execute(void *ctx, int c) {
+    cmdlineState_T *context = (cmdlineState_T *)ctx;
+    
+    if (context->bail_immediately == TRUE) {
+	    return COMPLETED_UNHANDLED;
+    }
+
+    printf("CMDLINE CHAR: %c\n", c);
     return HANDLED;
 }
 
