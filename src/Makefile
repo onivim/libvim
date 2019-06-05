@@ -2094,6 +2094,10 @@ copy-apitest-collateral: $(TEST_COLLATERAL)
 	$(INSTALL_PROG) $< $(DEST_BIN)
 
 apitest/%.test.exe: apitest/%.c libvim.a
+	echo "--- Flags: "
+	echo $(ALL_CFLAGS)
+	echo "--- Libs: "
+	echo $(ALL_LIBS)
 	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
@@ -2106,6 +2110,8 @@ installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
 	mkdir -p $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
+	mkdir -p $(DEST_INCLUDE)/auto
+	$(INSTALL_PROG) auto/*.h $(DEST_INCLUDE)/auto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 #
