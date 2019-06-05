@@ -465,15 +465,6 @@ static char *(features[]) =
 #else
 	"-path_extra",
 #endif
-#ifdef FEAT_PERL
-# ifdef DYNAMIC_PERL
-	"+perl/dyn",
-# else
-	"+perl",
-# endif
-#else
-	"-perl",
-#endif
 #ifdef FEAT_PERSISTENT_UNDO
 	"+persistent_undo",
 #else

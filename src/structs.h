@@ -2522,10 +2522,6 @@ struct file_buffer
     void	*b_mzscheme_ref; /* The MzScheme reference to this buffer */
 #endif
 
-#ifdef FEAT_PERL
-    void	*b_perl_private;
-#endif
-
 #ifdef FEAT_PYTHON
     void	*b_python_ref;	/* The Python reference to this buffer */
 #endif
@@ -3094,10 +3090,6 @@ struct window_S
 
 #ifdef FEAT_MZSCHEME
     void	*w_mzscheme_ref;	/* The MzScheme value for this window */
-#endif
-
-#ifdef FEAT_PERL
-    void	*w_perl_private;
 #endif
 
 #ifdef FEAT_PYTHON

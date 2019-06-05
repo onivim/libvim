@@ -1525,9 +1525,6 @@ getout(int exitval)
 #ifdef FEAT_PYTHON3
     python3_end();
 #endif
-#ifdef FEAT_PERL
-    perl_end();
-#endif
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
     iconv_end();
 #endif
