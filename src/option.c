@@ -88,9 +88,6 @@
 # define PV_DICT	OPT_BOTH(OPT_BUF(BV_DICT))
 # define PV_TSR		OPT_BOTH(OPT_BUF(BV_TSR))
 #endif
-#ifdef FEAT_COMPL_FUNC
-# define PV_CFU		OPT_BUF(BV_CFU)
-#endif
 #ifdef FEAT_FIND_ID
 # define PV_DEF		OPT_BOTH(OPT_BUF(BV_DEF))
 # define PV_INC		OPT_BOTH(OPT_BUF(BV_INC))
@@ -139,9 +136,6 @@
 #define PV_MOD		OPT_BUF(BV_MOD)
 #define PV_MPS		OPT_BUF(BV_MPS)
 #define PV_NF		OPT_BUF(BV_NF)
-#ifdef FEAT_COMPL_FUNC
-# define PV_OFU		OPT_BUF(BV_OFU)
-#endif
 #define PV_PATH		OPT_BOTH(OPT_BUF(BV_PATH))
 #define PV_PI		OPT_BUF(BV_PI)
 #ifdef FEAT_TEXTOBJ
@@ -302,10 +296,6 @@ static char_u	*p_cms;
 #endif
 #ifdef FEAT_INS_EXPAND
 static char_u	*p_cpt;
-#endif
-#ifdef FEAT_COMPL_FUNC
-static char_u	*p_cfu;
-static char_u	*p_ofu;
 #endif
 #ifdef FEAT_EVAL
 static char_u	*p_tfu;
@@ -875,13 +865,8 @@ static struct vimoption options[] =
 			    {(char_u *)0L, (char_u *)0L}
 			    SCTX_INIT},
     {"completefunc", "cfu", P_STRING|P_ALLOCED|P_VI_DEF|P_SECURE,
-#ifdef FEAT_COMPL_FUNC
-			    (char_u *)&p_cfu, PV_CFU,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"completeopt",   "cot",  P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
 #ifdef FEAT_INS_EXPAND
@@ -1985,13 +1970,8 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)8L, (char_u *)4L} SCTX_INIT},
     {"omnifunc",    "ofu",  P_STRING|P_ALLOCED|P_VI_DEF|P_SECURE,
-#ifdef FEAT_COMPL_FUNC
-			    (char_u *)&p_ofu, PV_OFU,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"open",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -5728,10 +5708,6 @@ check_buf_options(buf_T *buf)
 #endif
 #ifdef FEAT_INS_EXPAND
     check_string_option(&buf->b_p_cpt);
-#endif
-#ifdef FEAT_COMPL_FUNC
-    check_string_option(&buf->b_p_cfu);
-    check_string_option(&buf->b_p_ofu);
 #endif
 #ifdef FEAT_EVAL
     check_string_option(&buf->b_p_tfu);
@@ -11027,10 +11003,6 @@ get_varp(struct vimoption *p)
 #ifdef FEAT_INS_EXPAND
 	case PV_CPT:	return (char_u *)&(curbuf->b_p_cpt);
 #endif
-#ifdef FEAT_COMPL_FUNC
-	case PV_CFU:	return (char_u *)&(curbuf->b_p_cfu);
-	case PV_OFU:	return (char_u *)&(curbuf->b_p_ofu);
-#endif
 #ifdef FEAT_EVAL
 	case PV_TFU:	return (char_u *)&(curbuf->b_p_tfu);
 #endif
@@ -11420,10 +11392,6 @@ buf_copy_options(buf_T *buf, int flags)
 	    buf->b_p_swf = cmdmod.noswapfile ? FALSE : p_swf;
 #ifdef FEAT_INS_EXPAND
 	    buf->b_p_cpt = vim_strsave(p_cpt);
-#endif
-#ifdef FEAT_COMPL_FUNC
-	    buf->b_p_cfu = vim_strsave(p_cfu);
-	    buf->b_p_ofu = vim_strsave(p_ofu);
 #endif
 #ifdef FEAT_EVAL
 	    buf->b_p_tfu = vim_strsave(p_tfu);
