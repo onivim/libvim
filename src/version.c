@@ -574,15 +574,6 @@ static char *(features[]) =
 #endif
 	"-tag_old_static",
 	"-tag_any_white",
-#ifdef FEAT_TCL
-# ifdef DYNAMIC_TCL
-	"+tcl/dyn",
-# else
-	"+tcl",
-# endif
-#else
-	"-tcl",
-#endif
 #ifdef FEAT_TERMGUICOLORS
 	"+termguicolors",
 #else

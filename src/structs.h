@@ -2545,10 +2545,6 @@ struct file_buffer
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
 #endif
 
-#ifdef FEAT_TCL
-    void	*b_tcl_ref;
-#endif
-
 #ifdef FEAT_RUBY
     void	*b_ruby_ref;
 #endif
@@ -3134,10 +3130,6 @@ struct window_S
 
 #ifdef FEAT_PYTHON3
     void	*w_python3_ref;		/* The Python value for this window */
-#endif
-
-#ifdef FEAT_TCL
-    void	*w_tcl_ref;
 #endif
 
 #ifdef FEAT_RUBY

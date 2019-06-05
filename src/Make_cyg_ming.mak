@@ -392,30 +392,6 @@ PYTHON3INC=-I $(PYTHON3)/win32inc
  endif
 endif
 
-#	TCL interface:
-#	  TCL=[Path to TCL directory] (Set inside Make_cyg.mak or Make_ming.mak)
-#	  DYNAMIC_TCL=yes (to load the TCL DLL dynamically)
-#	  TCL_VER=[TCL version, eg 83, 84] (default is 86)
-#	  TCL_VER_LONG=[Tcl version, eg 8.3] (default is 8.6)
-#	    You must set TCL_VER_LONG when you set TCL_VER.
-#	  TCL_DLL=[TCL dll name, eg tcl86.dll] (default is tcl86.dll)
-ifdef TCL
- ifndef DYNAMIC_TCL
-DYNAMIC_TCL=yes
- endif
- ifndef TCL_VER
-TCL_VER = 86
- endif
- ifndef TCL_VER_LONG
-TCL_VER_LONG = 8.6
- endif
- ifndef TCL_DLL
-TCL_DLL = tcl$(TCL_VER).dll
- endif
-TCLINC += -I$(TCL)/include
-endif
-
-
 #	Ruby interface:
 #	  RUBY=[Path to Ruby directory] (Set inside Make_cyg.mak or Make_ming.mak)
 #	  DYNAMIC_RUBY=yes (to load the Ruby DLL dynamically, "no" for static)
@@ -581,13 +557,6 @@ ifdef PYTHON3
 CFLAGS += -DFEAT_PYTHON3
  ifeq (yes, $(DYNAMIC_PYTHON3))
 CFLAGS += -DDYNAMIC_PYTHON3 -DDYNAMIC_PYTHON3_DLL=\"$(DYNAMIC_PYTHON3_DLL)\"
- endif
-endif
-
-ifdef TCL
-CFLAGS += -DFEAT_TCL $(TCLINC)
- ifeq (yes, $(DYNAMIC_TCL))
-CFLAGS += -DDYNAMIC_TCL -DDYNAMIC_TCL_DLL=\"$(TCL_DLL)\" -DDYNAMIC_TCL_VER=\"$(TCL_VER_LONG)\"
  endif
 endif
 
@@ -776,9 +745,6 @@ endif
 ifdef RUBY
 OBJ += $(OUTDIR)/if_ruby.o
 endif
-ifdef TCL
-OBJ += $(OUTDIR)/if_tcl.o
-endif
 ifeq ($(CSCOPE),yes)
 OBJ += $(OUTDIR)/if_cscope.o
 endif
@@ -891,15 +857,6 @@ endif
 ifdef PERL
  ifeq (no, $(DYNAMIC_PERL))
 LIB += -L$(PERLLIBS) -lperl$(PERL_VER)
- endif
-endif
-
-ifdef TCL
-LIB += -L$(TCL)/lib
- ifeq (yes, $(DYNAMIC_TCL))
-LIB += -ltclstub$(TCL_VER)
- else
-LIB += -ltcl$(TCL_VER)
  endif
 endif
 

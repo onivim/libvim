@@ -209,10 +209,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #  include "if_python3.pro"
 # endif
 
-# ifdef FEAT_TCL
-#  include "if_tcl.pro"
-# endif
-
 # ifdef FEAT_RUBY
 #  include "if_ruby.pro"
 # endif

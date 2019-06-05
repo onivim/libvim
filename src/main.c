@@ -141,10 +141,6 @@ main2
     }
 #endif
 
-#ifdef FEAT_TCL
-    vim_tcl_init(params.argv[0]);
-#endif
-
 #ifdef MEM_PROFILE
     atexit(vim_mem_profile_dump);
 #endif
