@@ -1603,8 +1603,6 @@ OBJ_COMMON = \
 	objects/search.o \
 	objects/sha256.o \
 	objects/sign.o \
-	objects/spell.o \
-	objects/spellfile.o \
 	objects/state_machine.o \
 	objects/syntax.o \
 	objects/tag.o \
@@ -1740,8 +1738,6 @@ PRO_AUTO = \
 	search.pro \
 	sha256.pro \
 	sign.pro \
-	spell.pro \
-	spellfile.pro \
 	syntax.pro \
 	tag.pro \
 	term.pro \
@@ -2136,7 +2132,7 @@ INSTALLMANARGS = $(VIMLOC) $(SCRIPTLOC) $(VIMRCLOC) $(HELPSOURCE) $(MANMOD) \
 		$(VIMNAME) $(VIMDIFFNAME) $(EVIMNAME)
 
 # Install most of the runtime files
-installruntime: installrtbase installmacros installpack installtutor installspell
+installruntime: installrtbase installmacros installpack installtutor
 
 # install the help files; first adjust the contents for the final location
 installrtbase: $(HELPSOURCE)/vim.1 $(DEST_VIM) $(DEST_RT) \
