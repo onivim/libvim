@@ -2018,13 +2018,8 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"printdevice", "pdev", P_STRING|P_VI_DEF|P_SECURE,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_pdev, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"printencoding", "penc", P_STRING|P_VI_DEF,
 #ifdef FEAT_POSTSCRIPT
@@ -2045,30 +2040,12 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"printfont", "pfn",    P_STRING|P_VI_DEF,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_pfn, PV_NONE,
-			    {
-# ifdef MSWIN
-				(char_u *)"Courier_New:h10",
-# else
-				(char_u *)"courier",
-# endif
-				(char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"printheader", "pheader",  P_STRING|P_VI_DEF|P_GETTEXT,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_header, PV_NONE,
-			    /* untranslated to avoid problems when 'encoding'
-			     * is changed */
-			    {(char_u *)"%<%f%h%m%=Page %N", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
    {"printmbcharset", "pmbcs",  P_STRING|P_VI_DEF,
 #if defined(FEAT_POSTSCRIPT)
@@ -2089,13 +2066,8 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"printoptions", "popt", P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_PRINTER
-			    (char_u *)&p_popt, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"prompt",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_prompt, PV_NONE,
@@ -3916,10 +3888,6 @@ set_init_2(void)
 	 * changed again */
 	options[idx].flags &= ~P_WAS_SET;
     }
-#endif
-
-#ifdef FEAT_PRINTER
-    (void)parse_printoptions();	    /* parse 'printoptions' default value */
 #endif
 }
 
@@ -6947,15 +6915,6 @@ did_set_string_option(
 	    errmsg = N_("E534: Invalid wide font");
 	redraw_gui_only = TRUE;
     }
-#endif
-
-#ifdef FEAT_PRINTER
-    else if (varp == &p_popt)
-	errmsg = parse_printoptions();
-# if defined(FEAT_POSTSCRIPT)
-    else if (varp == &p_pmfn)
-	errmsg = parse_printmbfont();
-# endif
 #endif
 
 #ifdef FEAT_LANGMAP

@@ -631,7 +631,6 @@ OBJ = \
 	$(OUTDIR)/findfile.o \
 	$(OUTDIR)/fold.o \
 	$(OUTDIR)/getchar.o \
-	$(OUTDIR)/hardcopy.o \
 	$(OUTDIR)/hashtab.o \
 	$(OUTDIR)/indent.o \
 	$(OUTDIR)/insexpand.o \

@@ -1455,7 +1455,6 @@ BASIC_SRC = \
 	findfile.c \
 	fold.c \
 	getchar.c \
-	hardcopy.c \
 	hashtab.c \
 	if_xcmdsrv.c \
 	indent.c \
@@ -1567,7 +1566,6 @@ OBJ_COMMON = \
 	objects/findfile.o \
 	objects/fold.o \
 	objects/getchar.o \
-	objects/hardcopy.o \
 	objects/hashtab.o \
 	$(HANGULIN_OBJ) \
 	objects/if_xcmdsrv.o \
@@ -1692,7 +1690,6 @@ PRO_AUTO = \
 	findfile.pro \
 	fold.pro \
 	getchar.pro \
-	hardcopy.pro \
 	hashtab.pro \
 	hangulin.pro \
 	if_lua.pro \
@@ -2850,9 +2847,6 @@ objects/fold.o: fold.c
 objects/getchar.o: getchar.c
 	$(CCC) -o $@ getchar.c
 
-objects/hardcopy.o: hardcopy.c
-	$(CCC) -o $@ hardcopy.c
-
 objects/hashtab.o: hashtab.c
 	$(CCC) -o $@ hashtab.c
 
@@ -3269,10 +3263,6 @@ objects/getchar.o: getchar.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/hardcopy.o: hardcopy.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h version.h
 objects/hashtab.o: hashtab.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

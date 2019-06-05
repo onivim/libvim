@@ -4897,7 +4897,6 @@ expand_filename(
 		&& eap->cmdidx != CMD_bang
 		&& eap->cmdidx != CMD_grep
 		&& eap->cmdidx != CMD_grepadd
-		&& eap->cmdidx != CMD_hardcopy
 		&& eap->cmdidx != CMD_lgrep
 		&& eap->cmdidx != CMD_lgrepadd
 		&& eap->cmdidx != CMD_lmake
