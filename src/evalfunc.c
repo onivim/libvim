@@ -6682,9 +6682,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_NETBEANS_INTG
 	"netbeans_intg",
 #endif
-#ifdef FEAT_SPELL
-	"spell",
-#endif
 #ifdef FEAT_SYN_HL
 	"syntax",
 #endif
@@ -12709,11 +12706,7 @@ f_soundfold(typval_T *argvars, typval_T *rettv)
 
     rettv->v_type = VAR_STRING;
     s = tv_get_string(&argvars[0]);
-#ifdef FEAT_SPELL
-    rettv->vval.v_string = eval_soundfold(s);
-#else
     rettv->vval.v_string = vim_strsave(s);
-#endif
 }
 
 /*
@@ -12728,40 +12721,6 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-
-#ifdef FEAT_SPELL
-    if (argvars[0].v_type == VAR_UNKNOWN)
-    {
-	/* Find the start and length of the badly spelled word. */
-	len = spell_move_to(curwin, FORWARD, TRUE, TRUE, &attr);
-	if (len != 0)
-	{
-	    word = ml_get_cursor();
-	    curwin->w_set_curswant = TRUE;
-	}
-    }
-    else if (curwin->w_p_spell && *curbuf->b_s.b_p_spl != NUL)
-    {
-	char_u	*str = tv_get_string_chk(&argvars[0]);
-	int	capcol = -1;
-
-	if (str != NULL)
-	{
-	    /* Check the argument for spelling. */
-	    while (*str != NUL)
-	    {
-		len = spell_check(curwin, str, &attr, &capcol, FALSE);
-		if (attr != HLF_COUNT)
-		{
-		    word = str;
-		    break;
-		}
-		str += len;
-		capcol -= len;
-	    }
-	}
-    }
-#endif
 
     list_append_string(rettv->vval.v_list, word, len);
     list_append_string(rettv->vval.v_list, (char_u *)(
@@ -12778,58 +12737,9 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_spellsuggest(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_SPELL
-    char_u	*str;
-    int		typeerr = FALSE;
-    int		maxcount;
-    garray_T	ga;
-    int		i;
-    listitem_T	*li;
-    int		need_capital = FALSE;
-#endif
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-
-#ifdef FEAT_SPELL
-    if (curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
-    {
-	str = tv_get_string(&argvars[0]);
-	if (argvars[1].v_type != VAR_UNKNOWN)
-	{
-	    maxcount = (int)tv_get_number_chk(&argvars[1], &typeerr);
-	    if (maxcount <= 0)
-		return;
-	    if (argvars[2].v_type != VAR_UNKNOWN)
-	    {
-		need_capital = (int)tv_get_number_chk(&argvars[2], &typeerr);
-		if (typeerr)
-		    return;
-	    }
-	}
-	else
-	    maxcount = 25;
-
-	spell_suggest_list(&ga, str, maxcount, need_capital, FALSE);
-
-	for (i = 0; i < ga.ga_len; ++i)
-	{
-	    str = ((char_u **)ga.ga_data)[i];
-
-	    li = listitem_alloc();
-	    if (li == NULL)
-		vim_free(str);
-	    else
-	    {
-		li->li_tv.v_type = VAR_STRING;
-		li->li_tv.v_lock = 0;
-		li->li_tv.vval.v_string = str;
-		list_append(rettv->vval.v_list, li);
-	    }
-	}
-	ga_clear(&ga);
-    }
-#endif
 }
 
     static void

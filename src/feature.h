@@ -476,8 +476,6 @@
 # define FEAT_TEXT_PROP
 #endif
 
-#undef FEAT_SPELL
-
 /*
  * +builtin_terms	Choose one out of the following four:
  *
