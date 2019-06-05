@@ -1,4 +1,9 @@
 /* ex_getln.c */
+
+void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **result);
+executionStatus_T state_normal_cmd_execute(void *ctx, int c);
+void *state_cmdline_cleanup(void *context);
+
 void cmdline_init(void);
 char_u *getcmdline(int firstc, long count, int indent);
 char_u *getcmdline_prompt(int firstc, char_u *prompt, int attr, int xp_context, char_u *xp_arg);
