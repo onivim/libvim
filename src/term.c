@@ -2591,15 +2591,7 @@ static int		out_pos = 0;	// number of chars in out_buf
     void
 out_flush(void)
 {
-    int	    len;
-
-    if (out_pos != 0)
-    {
-	/* set out_pos to 0 before ui_write, to avoid recursiveness */
-	len = out_pos;
-	out_pos = 0;
-	ui_write(out_buf, len);
-    }
+    /* No-op */
 }
 
 /*
@@ -2611,16 +2603,7 @@ out_flush_cursor(
     int	    force UNUSED,   /* when TRUE, update cursor even when not moved */
     int	    clear_selection UNUSED) /* clear selection under cursor */
 {
-    mch_disable_flush();
-    out_flush();
-    mch_enable_flush();
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-	gui_update_cursor(force, clear_selection);
-	gui_may_flush();
-    }
-#endif
+    /* No-op */
 }
 
 
@@ -2631,20 +2614,8 @@ out_flush_cursor(
     void
 out_flush_check(void)
 {
-    if (enc_dbcs != 0 && out_pos >= OUT_SIZE - MB_MAXBYTES)
-	out_flush();
+    /* No-op */
 }
-
-#ifdef FEAT_GUI
-/*
- * out_trash(): Throw away the contents of the output buffer
- */
-    void
-out_trash(void)
-{
-    out_pos = 0;
-}
-#endif
 
 /*
  * out_char(c): put a byte into the output buffer.
@@ -2655,16 +2626,7 @@ out_trash(void)
     void
 out_char(unsigned c)
 {
-#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X)
-    if (c == '\n')	/* turn LF into CR-LF (CRMOD doesn't seem to do this) */
-	out_char('\r');
-#endif
-
-    out_buf[out_pos++] = c;
-
-    /* For testing we flush each time. */
-    if (out_pos >= OUT_SIZE || p_wd)
-	out_flush();
+    /* No-op */
 }
 
 static void out_char_nf(unsigned);
@@ -2675,15 +2637,7 @@ static void out_char_nf(unsigned);
     static void
 out_char_nf(unsigned c)
 {
-#if defined(UNIX) || defined(VMS) || defined(AMIGA) || defined(MACOS_X)
-    if (c == '\n')	/* turn LF into CR-LF (CRMOD doesn't seem to do this) */
-	out_char_nf('\r');
-#endif
-
-    out_buf[out_pos++] = c;
-
-    if (out_pos >= OUT_SIZE)
-	out_flush();
+    /* No-op */
 }
 
 #if defined(FEAT_TITLE) || defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
@@ -2700,16 +2654,7 @@ out_char_nf(unsigned c)
     void
 out_str_nf(char_u *s)
 {
-    // avoid terminal strings being split up
-    if (out_pos > OUT_SIZE - MAX_ESC_SEQ_LEN)
-	out_flush();
-
-    while (*s)
-	out_char_nf(*s++);
-
-    // For testing we write one string at a time.
-    if (p_wd)
-	out_flush();
+    /* No-op */
 }
 #endif
 
@@ -2722,68 +2667,8 @@ out_str_nf(char_u *s)
     void
 out_str_cf(char_u *s)
 {
-    if (s != NULL && *s)
-    {
-#ifdef HAVE_TGETENT
-	char_u *p;
-#endif
-
-#ifdef FEAT_GUI
-	/* Don't use tputs() when GUI is used, ncurses crashes. */
-	if (gui.in_use)
-	{
-	    out_str_nf(s);
-	    return;
-	}
-#endif
-	if (out_pos > OUT_SIZE - MAX_ESC_SEQ_LEN)
-	    out_flush();
-#ifdef HAVE_TGETENT
-	for (p = s; *s; ++s)
-	{
-	    /* flush just before delay command */
-	    if (*s == '$' && *(s + 1) == '<')
-	    {
-		char_u save_c = *s;
-		int duration = atoi((char *)s + 2);
-
-		*s = NUL;
-		tputs((char *)p, 1, TPUTSFUNCAST out_char_nf);
-		*s = save_c;
-		out_flush();
-# ifdef ELAPSED_FUNC
-		/* Only sleep here if we can limit this happening in
-		 * vim_beep(). */
-		p = vim_strchr(s, '>');
-		if (p == NULL || duration <= 0)
-		{
-		    /* can't parse the time, don't sleep here */
-		    p = s;
-		}
-		else
-		{
-		    ++p;
-		    do_sleep(duration);
-		}
-# else
-		/* Rely on the terminal library to sleep. */
-		p = s;
-# endif
-		break;
-	    }
-	}
-	tputs((char *)p, 1, TPUTSFUNCAST out_char_nf);
-#else
-	while (*s)
-	    out_char_nf(*s++);
-#endif
-
-	/* For testing we write one string at a time. */
-	if (p_wd)
-	    out_flush();
-    }
+    /* No-op */
 }
-
 /*
  * out_str(s): Put a character string a byte at a time into the output buffer.
  * If HAVE_TGETENT is defined use the termcap parser. (jw)
@@ -2793,30 +2678,7 @@ out_str_cf(char_u *s)
     void
 out_str(char_u *s)
 {
-    if (s != NULL && *s)
-    {
-#ifdef FEAT_GUI
-	/* Don't use tputs() when GUI is used, ncurses crashes. */
-	if (gui.in_use)
-	{
-	    out_str_nf(s);
-	    return;
-	}
-#endif
-	/* avoid terminal strings being split up */
-	if (out_pos > OUT_SIZE - MAX_ESC_SEQ_LEN)
-	    out_flush();
-#ifdef HAVE_TGETENT
-	tputs((char *)s, 1, TPUTSFUNCAST out_char_nf);
-#else
-	while (*s)
-	    out_char_nf(*s++);
-#endif
-
-	/* For testing we write one string at a time. */
-	if (p_wd)
-	    out_flush();
-    }
+    /* No-op */
 }
 
 /*

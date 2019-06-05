@@ -769,14 +769,6 @@ readfile(
 # endif
 		    mch_msg(_("Vim: Reading from stdin...\n"));
 #endif
-#ifdef FEAT_GUI
-		/* Also write a message in the GUI window, if there is one. */
-		if (gui.in_use && !gui.dying && !gui.starting)
-		{
-		    p = (char_u *)_("Reading from stdin...");
-		    gui_write(p, (int)STRLEN(p));
-		}
-#endif
 	    }
 	}
 	else if (!read_buffer)
