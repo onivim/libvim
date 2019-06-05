@@ -1081,13 +1081,6 @@
 # endif
 #endif
 
-/*
- * +dnd		Drag'n'drop support.  Always used for the GTK+ GUI.
- */
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_GUI_GTK)
-# define FEAT_DND
-#endif
-
 #if defined(FEAT_GUI_MSWIN) && defined(FEAT_SMALL)
 # define MSWIN_FIND_REPLACE	/* include code for find/replace dialog */
 # define MSWIN_FR_BUFSIZE 256

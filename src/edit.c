@@ -75,9 +75,6 @@ static void ins_up(int startcol);
 static void ins_pageup(void);
 static void ins_down(int startcol);
 static void ins_pagedown(void);
-#ifdef FEAT_DND
-static void ins_drop(void);
-#endif
 static int  ins_tab(void);
 #ifdef FEAT_DIGRAPHS
 static int  ins_digraph(void);
@@ -1152,12 +1149,6 @@ doESCkey:
 #endif
 	    ins_pagedown();
 	    break;
-
-#ifdef FEAT_DND
-	case K_DROP:	/* drag-n-drop event */
-	    ins_drop();
-	    break;
-#endif
 
 	case K_S_TAB:	/* When not mapped, use like a normal TAB */
 	    c = TAB;
@@ -5755,14 +5746,6 @@ ins_pagedown(void)
     else
 	vim_beep(BO_CRSR);
 }
-
-#ifdef FEAT_DND
-    static void
-ins_drop(void)
-{
-    do_put('~', BACKWARD, 1L, PUT_CURSEND);
-}
-#endif
 
 /*
  * Handle TAB in Insert or Replace mode.

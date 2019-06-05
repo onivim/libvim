@@ -1908,13 +1908,6 @@ getcmdline_int(
 		redrawcmd();
 		goto cmdline_changed;
 
-# ifdef FEAT_DND
-	case K_DROP:
-		cmdline_paste('~', TRUE, FALSE);
-		redrawcmd();
-		goto cmdline_changed;
-# endif
-
 	case K_LEFTDRAG:
 	case K_LEFTRELEASE:
 	case K_RIGHTDRAG:
