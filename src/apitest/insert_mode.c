@@ -2,8 +2,8 @@
 #include "minunit.h"
 
 void test_setup(void) {
-  vimInput("\033");
-  vimInput("\033");
+  vimInput("<Esc>");
+  vimInput("<Esc>");
   vimExecute("e!");
 }
 
@@ -31,6 +31,17 @@ MU_TEST(insert_beginning) {
 
   char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
   mu_check(strcmp(line, "abcThis is the first line of a test file") == 0);
+}
+
+MU_TEST(insert_cr) {
+  vimInput("I");
+  vimInput("a");
+  vimInput("b");
+  vimInput("c");
+  vimInput("<CR>");
+
+  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
+  mu_check(strcmp(line, "abc") == 0);
 }
 
 MU_TEST(insert_prev_line) {
@@ -80,6 +91,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(insert_prev_line);
     MU_RUN_TEST(insert_next_line);
     MU_RUN_TEST(insert_beginning);
+    MU_RUN_TEST(insert_cr);
     MU_RUN_TEST(insert_end);
 }
 
