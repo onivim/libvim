@@ -82,7 +82,6 @@ extern int _stricoll(char *a, char *b);
 # ifdef FEAT_HANGULIN
 #  include "hangulin.pro"
 # endif
-# include "hardcopy.pro"
 # include "hashtab.pro"
 # include "indent.pro"
 # ifdef FEAT_INS_EXPAND
