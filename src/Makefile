@@ -1847,7 +1847,7 @@ cmdidxs: ex_cmds.h
 # The normal command to compile a .c file to its .o file.
 # Without or with ALL_CFLAGS.
 CCC_NF = $(CC) -c -I$(srcdir)
-CCC = $(CCC_NF) $(ALL_CFLAGS) -fPIC
+CCC = $(CCC_NF) $(ALL_CFLAGS)
 
 
 # Link the target for normal use or debugging.
