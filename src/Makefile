@@ -1472,7 +1472,6 @@ BASIC_SRC = \
 	mark.c \
 	memfile.c \
 	memline.c \
-	menu.c \
 	message.c \
 	misc1.c \
 	misc2.c \
@@ -1723,7 +1722,6 @@ PRO_AUTO = \
 	mbyte.pro \
 	memfile.pro \
 	memline.pro \
-	menu.pro \
 	message.pro \
 	misc1.pro \
 	misc2.pro \
@@ -2938,9 +2936,6 @@ objects/memfile_test.o: memfile_test.c
 objects/memline.o: memline.c
 	$(CCC) -o $@ memline.c
 
-objects/menu.o: menu.c
-	$(CCC) -o $@ menu.c
-
 objects/message.o: message.c
 	$(CCC) -o $@ message.c
 
@@ -3339,10 +3334,6 @@ objects/memfile.o: memfile.c vim.h protodef.h auto/config.h feature.h os_unix.h 
   structs.h regexp.h  alloc.h ex_cmds.h spell.h \
  proto.h globals.h
 objects/memline.o: memline.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h spell.h \
- proto.h globals.h
-objects/menu.o: menu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h spell.h \
  proto.h globals.h

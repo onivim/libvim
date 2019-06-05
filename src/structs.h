@@ -90,10 +90,6 @@ typedef int			scid_T;		/* script ID */
 typedef struct file_buffer	buf_T;  /* forward declaration */
 typedef struct terminal_S	term_T;
 
-#ifdef FEAT_MENU
-typedef struct VimMenu vimmenu_T;
-#endif
-
 /*
  * SCript ConteXt (SCTX): identifies a script script line.
  * When sourcing a script "sc_lnum" is zero, "sourcing_lnum" is the current
@@ -2818,14 +2814,6 @@ typedef struct
     pos_T	w_cursor_corr;	// corrected cursor position
 } pos_save_T;
 
-#ifdef FEAT_MENU
-typedef struct {
-    int		wb_startcol;
-    int		wb_endcol;
-    vimmenu_T	*wb_menu;
-} winbar_item_T;
-#endif
-
 /*
  * Structure which contains all information that belongs to a window
  *
@@ -3030,12 +3018,6 @@ struct window_S
 
     char_u	*w_localdir;	    /* absolute path of local directory or
 				       NULL */
-#ifdef FEAT_MENU
-    vimmenu_T	*w_winbar;	    /* The root of the WinBar menu hierarchy. */
-    winbar_item_T *w_winbar_items;  /* list of items in the WinBar */
-    int		w_winbar_height;    /* 1 if there is a window toolbar */
-#endif
-
     /*
      * Options local to a window.
      * They are local because they influence the layout of the window or
@@ -3218,111 +3200,8 @@ typedef struct cmdarg_S
 #define CA_COMMAND_BUSY	    1	/* skip restarting edit() once */
 #define CA_NO_ADJ_OP_END    2	/* don't adjust operator end */
 
-#ifdef FEAT_MENU
-
-/* Indices into vimmenu_T->strings[] and vimmenu_T->noremap[] for each mode */
-#define MENU_INDEX_INVALID	-1
-#define MENU_INDEX_NORMAL	0
-#define MENU_INDEX_VISUAL	1
-#define MENU_INDEX_SELECT	2
-#define MENU_INDEX_OP_PENDING	3
-#define MENU_INDEX_INSERT	4
-#define MENU_INDEX_CMDLINE	5
-#define MENU_INDEX_TERMINAL	6
-#define MENU_INDEX_TIP		7
-#define MENU_MODES		8
-
-/* Menu modes */
-#define MENU_NORMAL_MODE	(1 << MENU_INDEX_NORMAL)
-#define MENU_VISUAL_MODE	(1 << MENU_INDEX_VISUAL)
-#define MENU_SELECT_MODE	(1 << MENU_INDEX_SELECT)
-#define MENU_OP_PENDING_MODE	(1 << MENU_INDEX_OP_PENDING)
-#define MENU_INSERT_MODE	(1 << MENU_INDEX_INSERT)
-#define MENU_CMDLINE_MODE	(1 << MENU_INDEX_CMDLINE)
-#define MENU_TERMINAL_MODE	(1 << MENU_INDEX_TERMINAL)
-#define MENU_TIP_MODE		(1 << MENU_INDEX_TIP)
-#define MENU_ALL_MODES		((1 << MENU_INDEX_TIP) - 1)
-/*note MENU_INDEX_TIP is not a 'real' mode*/
-
-/* Start a menu name with this to not include it on the main menu bar */
-#define MNU_HIDDEN_CHAR		']'
-
-struct VimMenu
-{
-    int		modes;		    /* Which modes is this menu visible for? */
-    int		enabled;	    /* for which modes the menu is enabled */
-    char_u	*name;		    /* Name of menu, possibly translated */
-    char_u	*dname;		    /* Displayed Name ("name" without '&') */
-#ifdef FEAT_MULTI_LANG
-    char_u	*en_name;	    /* "name" untranslated, NULL when "name"
-				     * was not translated */
-    char_u	*en_dname;	    /* "dname" untranslated, NULL when "dname"
-				     * was not translated */
-#endif
-    int		mnemonic;	    /* mnemonic key (after '&') */
-    char_u	*actext;	    /* accelerator text (after TAB) */
-    int		priority;	    /* Menu order priority */
-#ifdef FEAT_GUI
-    void	(*cb)(vimmenu_T *);	    /* Call-back routine */
-#endif
-#ifdef FEAT_TOOLBAR
-    char_u	*iconfile;	    /* name of file for icon or NULL */
-    int		iconidx;	    /* icon index (-1 if not set) */
-    int		icon_builtin;	    /* icon names is BuiltIn{nr} */
-#endif
-    char_u	*strings[MENU_MODES]; /* Mapped string for each mode */
-    int		noremap[MENU_MODES]; /* A REMAP_ flag for each mode */
-    char	silent[MENU_MODES]; /* A silent flag for each mode */
-    vimmenu_T	*children;	    /* Children of sub-menu */
-    vimmenu_T	*parent;	    /* Parent of menu */
-    vimmenu_T	*next;		    /* Next item in menu */
-#ifdef FEAT_GUI_X11
-    Widget	id;		    /* Manage this to enable item */
-    Widget	submenu_id;	    /* If this is submenu, add children here */
-#endif
-#ifdef FEAT_GUI_GTK
-    GtkWidget	*id;		    /* Manage this to enable item */
-    GtkWidget	*submenu_id;	    /* If this is submenu, add children here */
-# if defined(GTK_CHECK_VERSION) && !GTK_CHECK_VERSION(3,4,0)
-    GtkWidget	*tearoff_handle;
-# endif
-    GtkWidget   *label;		    /* Used by "set wak=" code. */
-#endif
-#ifdef FEAT_GUI_MOTIF
-    int		sensitive;	    /* turn button on/off */
-    char	**xpm;		    /* pixmap data */
-    char	*xpm_fname;	    /* file with pixmap data */
-#endif
-#ifdef FEAT_GUI_ATHENA
-    Pixmap	image;		    /* Toolbar image */
-#endif
-#ifdef FEAT_BEVAL_TIP
-    BalloonEval *tip;		    /* tooltip for this menu item */
-#endif
-#ifdef FEAT_GUI_MSWIN
-    UINT	id;		    /* Id of menu item */
-    HMENU	submenu_id;	    /* If this is submenu, add children here */
-    HWND	tearoff_handle;	    /* hWnd of tearoff if created */
-#endif
-#ifdef FEAT_GUI_MAC
-/*  MenuHandle	id; */
-/*  short	index;	*/	    /* the item index within the father menu */
-    short	menu_id;	    /* the menu id to which this item belong */
-    short	submenu_id;	    /* the menu id of the children (could be
-				       get through some tricks) */
-    MenuHandle	menu_handle;
-    MenuHandle	submenu_handle;
-#endif
-#ifdef FEAT_GUI_PHOTON
-    PtWidget_t	*id;
-    PtWidget_t	*submenu_id;
-#endif
-};
-#else
 /* For generating prototypes when FEAT_MENU isn't defined. */
 typedef int vimmenu_T;
-
-#endif /* FEAT_MENU */
 
 /*
  * Struct to save values in before executing autocommands for a buffer that is

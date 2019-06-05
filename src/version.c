@@ -353,11 +353,6 @@ static char *(features[]) =
 #else
 	"-lua",
 #endif
-#ifdef FEAT_MENU
-	"+menu",
-#else
-	"-menu",
-#endif
 #ifdef FEAT_SESSION
 	"+mksession",
 #else

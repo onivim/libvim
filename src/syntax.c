@@ -6953,12 +6953,6 @@ static char *(highlight_init_light[]) = {
     CENT("StatusLineTermNC term=reverse ctermfg=White ctermbg=DarkGreen",
 	 "StatusLineTermNC term=reverse ctermfg=White ctermbg=DarkGreen guifg=bg guibg=DarkGreen"),
 #endif
-#ifdef FEAT_MENU
-    CENT("ToolbarLine term=underline ctermbg=LightGrey",
-	 "ToolbarLine term=underline ctermbg=LightGrey guibg=LightGrey"),
-    CENT("ToolbarButton cterm=bold ctermfg=White ctermbg=DarkGrey",
-	 "ToolbarButton cterm=bold ctermfg=White ctermbg=DarkGrey gui=bold guifg=White guibg=Grey40"),
-#endif
     NULL
 };
 
@@ -7045,12 +7039,6 @@ static char *(highlight_init_dark[]) = {
 	 "StatusLineTerm term=reverse,bold cterm=bold ctermfg=Black ctermbg=LightGreen gui=bold guifg=bg guibg=LightGreen"),
     CENT("StatusLineTermNC term=reverse ctermfg=Black ctermbg=LightGreen",
 	 "StatusLineTermNC term=reverse ctermfg=Black ctermbg=LightGreen guifg=bg guibg=LightGreen"),
-#endif
-#ifdef FEAT_MENU
-    CENT("ToolbarLine term=underline ctermbg=DarkGrey",
-	 "ToolbarLine term=underline ctermbg=DarkGrey guibg=Grey50"),
-    CENT("ToolbarButton cterm=bold ctermfg=Black ctermbg=LightGrey",
-	 "ToolbarButton cterm=bold ctermfg=Black ctermbg=LightGrey gui=bold guifg=Black guibg=LightGrey"),
 #endif
     NULL
 };
@@ -7485,29 +7473,16 @@ do_highlight(
 # ifdef FEAT_BEVAL_TIP
 		gui_init_tooltip_font();
 # endif
-# if defined(FEAT_MENU) && (defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MOTIF))
-		gui_init_menu_font();
-# endif
 	    }
 # if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_X11)
 	    gui_mch_def_colors();
 # endif
 # ifdef FEAT_GUI_X11
-#  ifdef FEAT_MENU
-
-	    /* This only needs to be done when there is no Menu highlight
-	     * group defined by default, which IS currently the case.
-	     */
-	    gui_mch_new_menu_colors();
-#  endif
 	    if (gui.in_use)
 	    {
 		gui_new_scrollbar_colors();
 #  ifdef FEAT_BEVAL_GUI
 		gui_mch_new_tooltip_colors();
-#  endif
-#  ifdef FEAT_MENU
-		gui_mch_new_menu_font();
 #  endif
 	    }
 # endif
@@ -8191,13 +8166,6 @@ do_highlight(
 		    HL_TABLE()[idx].sg_cterm_fg, HL_TABLE()[idx].sg_cterm_bg);
 #endif
 #ifdef FEAT_GUI_X11
-# ifdef FEAT_MENU
-	else if (is_menu_group)
-	{
-	    if (gui.in_use && do_colors)
-		gui_mch_new_menu_colors();
-	}
-# endif
 	else if (is_scrollbar_group)
 	{
 	    if (gui.in_use && do_colors)
@@ -8382,9 +8350,6 @@ set_normal_colors(void)
 			     &gui.menu_fg_pixel, &gui.menu_bg_pixel,
 			     TRUE, FALSE, FALSE))
 	{
-#   ifdef FEAT_MENU
-	    gui_mch_new_menu_colors();
-#   endif
 	    must_redraw = CLEAR;
 	}
 #   ifdef FEAT_BEVAL_GUI
@@ -8619,31 +8584,6 @@ hl_do_font(
 	 * fontset.  Same for the Menu group. */
 	if (do_normal)
 	    gui_init_font(arg, TRUE);
-#   if (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)) && defined(FEAT_MENU)
-	if (do_menu)
-	{
-#    ifdef FONTSET_ALWAYS
-	    gui.menu_fontset = HL_TABLE()[idx].sg_fontset;
-#    else
-	    /* YIKES!  This is a bug waiting to crash the program */
-	    gui.menu_font = HL_TABLE()[idx].sg_fontset;
-#    endif
-	    gui_mch_new_menu_font();
-	}
-#    ifdef FEAT_BEVAL_GUI
-	if (do_tooltip)
-	{
-	    /* The Athena widget set cannot currently handle switching between
-	     * displaying a single font and a fontset.
-	     * If the XtNinternational resource is set to True at widget
-	     * creation, then a fontset is always used, otherwise an
-	     * XFontStruct is used.
-	     */
-	    gui.tooltip_fontset = (XFontSet)HL_TABLE()[idx].sg_fontset;
-	    gui_mch_new_tooltip_font();
-	}
-#    endif
-#   endif
     }
     else
 # endif
@@ -8657,15 +8597,6 @@ hl_do_font(
 	{
 	    if (do_normal)
 		gui_init_font(arg, FALSE);
-#ifndef FONTSET_ALWAYS
-# if (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)) && defined(FEAT_MENU)
-	    if (do_menu)
-	    {
-		gui.menu_font = HL_TABLE()[idx].sg_font;
-		gui_mch_new_menu_font();
-	    }
-# endif
-#endif
 	}
     }
 }

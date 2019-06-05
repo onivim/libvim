@@ -1941,9 +1941,6 @@ vgetorpeek(int advance)
     int		max_mlen;
     int		i;
 #ifdef FEAT_GUI
-# ifdef FEAT_MENU
-    int		idx;
-# endif
     int		shape_changed = FALSE;  /* adjusted cursor shape */
 #endif
     int		n;
@@ -2384,42 +2381,6 @@ vgetorpeek(int advance)
 			}
 			if (keylen > 0)	    /* full matching terminal code */
 			{
-#if defined(FEAT_GUI) && defined(FEAT_MENU)
-			    if (typebuf.tb_len >= 2
-				&& typebuf.tb_buf[typebuf.tb_off] == K_SPECIAL
-					 && typebuf.tb_buf[typebuf.tb_off + 1]
-								   == KS_MENU)
-			    {
-				/*
-				 * Using a menu may cause a break in undo!
-				 * It's like using gotchars(), but without
-				 * recording or writing to a script file.
-				 */
-				may_sync_undo();
-				del_typebuf(3, 0);
-				idx = get_menu_index(current_menu, local_State);
-				if (idx != MENU_INDEX_INVALID)
-				{
-				    /*
-				     * In Select mode and a Visual mode menu
-				     * is used:  Switch to Visual mode
-				     * temporarily.  Append K_SELECT to switch
-				     * back to Select mode.
-				     */
-				    if (VIsual_active && VIsual_select
-					    && (current_menu->modes & VISUAL))
-				    {
-					VIsual_select = FALSE;
-					(void)ins_typebuf(K_SELECT_STRING,
-						  REMAP_NONE, 0, TRUE, FALSE);
-				    }
-				    ins_typebuf(current_menu->strings[idx],
-						current_menu->noremap[idx],
-						0, TRUE,
-						   current_menu->silent[idx]);
-				}
-			    }
-#endif /* FEAT_GUI && FEAT_MENU */
 			    continue;	/* try mapping again */
 			}
 
