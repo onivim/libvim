@@ -44,6 +44,9 @@ EXTERN sattr_T	*ScreenAttrs INIT(= NULL);
 EXTERN unsigned	*LineOffset INIT(= NULL);
 EXTERN char_u	*LineWraps INIT(= NULL);	/* line wraps to next line */
 
+/* libvim API callbacks */
+EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
+
 /*
  * Globals for managing the state machine
  */

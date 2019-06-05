@@ -38,6 +38,10 @@ char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum) {
    return result;
 }
 
+void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
+    bufferUpdateCallback = f;
+}
+
 linenr_T vimWindowGetCursorLine(void) {
     return curwin->w_cursor.lnum;
 };

@@ -454,6 +454,16 @@ changed_common(
     int		add;
 #endif
 
+    if (bufferUpdateCallback != NULL) {
+	    bufferUpdate_T bufferUpdate;
+	    bufferUpdate.buf = curbuf;
+	    bufferUpdate.lnum = lnum;
+	    bufferUpdate.lnume = lnume;
+	    bufferUpdate.xtra = xtra;
+	    bufferUpdateCallback(bufferUpdate);
+    }
+
+
     // mark the buffer as modified
     changed();
 
@@ -767,6 +777,7 @@ changed_lines_buf(
     linenr_T	lnume,	    // line below last changed line
     long	xtra)	    // number of extra lines (negative when deleting)
 {
+
     if (buf->b_mod_set)
     {
 	// find the maximum area that must be redisplayed

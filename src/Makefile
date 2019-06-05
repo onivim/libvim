@@ -1726,7 +1726,6 @@ PRO_AUTO = \
 	indent.pro \
 	insexpand.pro \
 	json.pro \
-	libvim.pro \
 	list.pro \
 	main.pro \
 	mark.pro \

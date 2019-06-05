@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include "vim.h"
+#include "libvim.h"
 
 int main(int argc, char **argv) {
   vimInit(argc, argv);

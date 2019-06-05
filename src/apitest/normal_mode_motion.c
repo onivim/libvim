@@ -1,4 +1,4 @@
-#include "vim.h"
+#include "libvim.h"
 #include "minunit.h"
 
 void test_setup(void) {
