@@ -10225,11 +10225,9 @@ screen_del_lines(
 					&& (line_count == 1 || *T_CDL == NUL))
 #else
     else if (row == 0 && (
-#ifndef AMIGA
 	/* On the Amiga, somehow '\n' on the last line doesn't always scroll
 	 * up, so use delete-line command */
 			    line_count == 1 ||
-#endif
 						*T_CDL == NUL))
 #endif
 	type = USE_NL;

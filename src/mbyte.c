@@ -6607,7 +6607,7 @@ convert_setup_ext(
     return OK;
 }
 
-#if defined(FEAT_GUI) || defined(AMIGA) || defined(MSWIN) \
+#if defined(FEAT_GUI) || defined(MSWIN) \
 	|| defined(PROTO)
 /*
  * Do conversion on typed input characters in-place.

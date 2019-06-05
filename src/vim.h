@@ -123,16 +123,6 @@
 # define VIM_SIZEOF_INT 4
 #endif
 
-#ifdef AMIGA
-  /* Be conservative about sizeof(int). It could be 4 too. */
-# ifndef FEAT_GUI_GTK	/* avoid problems when generating prototypes */
-#  ifdef __GNUC__
-#   define VIM_SIZEOF_INT	4
-#  else
-#   define VIM_SIZEOF_INT	2
-#  endif
-# endif
-#endif
 #if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
 #  define VIM_SIZEOF_INT __SIZEOF_INT__
 #endif
@@ -250,10 +240,6 @@
 #if !defined(__cplusplus) && defined(UNIX) \
 	&& !defined(MACOS_X) /* MACOS_X doesn't yet support osdef.h */
 # include "auto/osdef.h"	/* bring missing declarations in */
-#endif
-
-#ifdef AMIGA
-# include "os_amiga.h"
 #endif
 
 #ifdef MSWIN

@@ -973,7 +973,7 @@ set_b0_fname(ZERO_BL *b0p, buf_T *buf)
 	b0p->b0_fname[0] = NUL;
     else
     {
-#if defined(MSWIN) || defined(AMIGA)
+#if defined(MSWIN)
 	/* Systems that cannot translate "~user" back into a path: copy the
 	 * file name unmodified.  Do use slashes instead of backslashes for
 	 * portability. */
@@ -4557,9 +4557,6 @@ findswapname(
     char_u	*fname;
     int		n;
     char_u	*dir_name;
-#ifdef AMIGA
-    BPTR	fh;
-#endif
     int		r;
     char_u	*buf_fname = buf->b_fname;
 
@@ -4730,22 +4727,6 @@ findswapname(
 	     */
 	    if (mch_lstat((char *)fname, &sb) < 0)
 #else
-# ifdef AMIGA
-	    fh = Open((UBYTE *)fname, (long)MODE_NEWFILE);
-	    /*
-	     * on the Amiga mch_getperm() will return -1 when the file exists
-	     * but is being used by another program. This happens if you edit
-	     * a file twice.
-	     */
-	    if (fh != (BPTR)NULL)	/* can open file, OK */
-	    {
-		Close(fh);
-		mch_remove(fname);
-		break;
-	    }
-	    if (IoErr() != ERROR_OBJECT_IN_USE
-					    && IoErr() != ERROR_OBJECT_EXISTS)
-# endif
 #endif
 		break;
 	}

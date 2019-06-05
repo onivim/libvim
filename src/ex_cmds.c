@@ -1649,11 +1649,7 @@ do_shell(
 		save_nwr = no_wait_return;
 		if (swapping_screen())
 		    no_wait_return = FALSE;
-# ifdef AMIGA
-		wait_return(term_console ? -1 : msg_silent == 0); // see below
-# else
 		wait_return(msg_silent == 0);
-# endif
 		no_wait_return = save_nwr;
 	    }
 	}
@@ -1663,29 +1659,6 @@ do_shell(
 	if (!keep_termcap)	// if keep_termcap is TRUE didn't stop termcap
 #endif
 	    starttermcap();	// start termcap if not done by wait_return()
-
-	/*
-	 * In an Amiga window redrawing is caused by asking the window size.
-	 * If we got an interrupt this will not work. The chance that the
-	 * window size is wrong is very small, but we need to redraw the
-	 * screen.  Don't do this if ':' hit in wait_return().	THIS IS UGLY
-	 * but it saves an extra redraw.
-	 */
-#ifdef AMIGA
-	if (skip_redraw)		/* ':' hit in wait_return() */
-	{
-	    if (msg_silent == 0)
-		redraw_later_clear();
-	}
-	else if (term_console)
-	{
-	    OUT_STR(IF_EB("\033[0 q", ESC_STR "[0 q"));	/* get window size */
-	    if (got_int && msg_silent == 0)
-		redraw_later_clear();	/* if got_int is TRUE, redraw needed */
-	    else
-		must_redraw = 0;	/* no extra redraw needed */
-	}
-#endif
     }
 
     /* display any error messages now */

@@ -1539,9 +1539,6 @@ static struct vimoption options[] =
 				 * ( and ) are used in text separating fnames */
 			    (char_u *)"@,48-57,/,\\,.,-,_,+,,,#,$,%,{,},[,],:,@-@,!,~,=",
 #else
-# ifdef AMIGA
-			    (char_u *)"@,48-57,/,.,-,_,+,,,$,:",
-# else
 #  ifdef VMS
 			    (char_u *)"@,48-57,/,.,-,_,+,,,#,$,%,<,>,[,],:,;,~",
 #  else /* UNIX et al. */
@@ -1551,7 +1548,6 @@ static struct vimoption options[] =
 			    (char_u *)"@,48-57,/,.,-,_,+,,,#,$,%,~,=",
 #   endif
 #  endif
-# endif
 #endif
 				(char_u *)0L} SCTX_INIT},
     {"isident",	    "isi",  P_STRING|P_VI_DEF|P_COMMA|P_NODUP,
@@ -1985,7 +1981,7 @@ static struct vimoption options[] =
     {"path",	    "pa",   P_STRING|P_EXPAND|P_VI_DEF|P_COMMA|P_NODUP,
 			    (char_u *)&p_path, PV_PATH,
 			    {
-#if defined(AMIGA) || defined(MSWIN)
+#if defined(MSWIN)
 			    (char_u *)".,,",
 #else
 			    (char_u *)".,/usr/include,,",
@@ -2349,11 +2345,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_stmp, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)TRUE} SCTX_INIT},
     {"shelltype",   "st",   P_NUM|P_VI_DEF,
-#ifdef AMIGA
-			    (char_u *)&p_st, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"shellxquote", "sxq",  P_STRING|P_VI_DEF|P_SECURE,
 			    (char_u *)&p_sxq, PV_NONE,
@@ -2864,12 +2856,7 @@ static struct vimoption options[] =
 #if defined(MSWIN)
 			    {(char_u *)"", (char_u *)"'100,<50,s10,h,rA:,rB:"}
 #else
-# ifdef AMIGA
-			    {(char_u *)"",
-				 (char_u *)"'100,<50,s10,h,rdf0:,rdf1:,rdf2:"}
-# else
 			    {(char_u *)"", (char_u *)"'100,<50,s10,h"}
-# endif
 #endif
 #else
 			    (char_u *)NULL, PV_NONE,

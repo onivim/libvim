@@ -1718,13 +1718,6 @@ find_file_in_path_option(
     char_u		*file_name = NULL;
     char_u		*buf = NULL;
     int			rel_to_curdir;
-# ifdef AMIGA
-    struct Process	*proc = (struct Process *)FindTask(0L);
-    APTR		save_winptr = proc->pr_WindowPtr;
-
-    // Avoid a requester here for a volume that doesn't exist.
-    proc->pr_WindowPtr = (APTR)-1L;
-# endif
 
     if (first == TRUE)
     {
@@ -1764,10 +1757,6 @@ find_file_in_path_option(
 	    || vim_ispathsep(ff_file_to_find[0])
 	    // handle "c:name" as absolute path
 	    || (ff_file_to_find[0] != NUL && ff_file_to_find[1] == ':')
-# endif
-# ifdef AMIGA
-	    // handle ":tmp" as absolute path
-	    || ff_file_to_find[0] == ':'
 # endif
        )
     {
@@ -1911,9 +1900,6 @@ find_file_in_path_option(
     }
 
 theend:
-# ifdef AMIGA
-    proc->pr_WindowPtr = save_winptr;
-# endif
     return file_name;
 }
 
@@ -2612,7 +2598,6 @@ expand_in_path(
     void
 simplify_filename(char_u *filename)
 {
-#ifndef AMIGA	    // Amiga doesn't have "..", it uses "/"
     int		components = 0;
     char_u	*p, *tail, *start;
     int		stripping_disabled = FALSE;
@@ -2812,5 +2797,4 @@ simplify_filename(char_u *filename)
 	    p = getnextcomp(p);
 	}
     } while (*p != NUL);
-#endif // !AMIGA
 }

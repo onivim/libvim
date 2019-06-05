@@ -177,11 +177,7 @@ char osver[] = "";
 # define OPEN(name, mode, umask) open(name, mode, umask)
 #endif
 
-#ifdef AMIGA
-# define STRNCMP(s1, s2, l) strncmp(s1, s2, (size_t)l)
-#else
 # define STRNCMP(s1, s2, l) strncmp(s1, s2, l)
-#endif
 
 #ifndef __P
 # if defined(__STDC__) || defined(WIN32)
@@ -467,12 +463,6 @@ main(int argc, char *argv[])
   static char l[LLEN+1];  /* static because it may be too big for stack */
   char *pp;
   int addrlen = 9;
-
-#ifdef AMIGA
-  /* This program doesn't work when started from the Workbench */
-  if (argc == 0)
-    exit(1);
-#endif
 
   pname = argv[0];
   for (pp = pname; *pp; )
