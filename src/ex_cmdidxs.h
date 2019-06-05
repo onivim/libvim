@@ -24,13 +24,13 @@ static const unsigned short cmdidxs1[26] =
   /* q */ 357,
   /* r */ 360,
   /* s */ 380,
-  /* t */ 448,
-  /* u */ 493,
-  /* v */ 504,
-  /* w */ 522,
-  /* x */ 536,
-  /* y */ 546,
-  /* z */ 547
+  /* t */ 447,
+  /* u */ 492,
+  /* v */ 503,
+  /* w */ 521,
+  /* x */ 535,
+  /* y */ 545,
+  /* z */ 546
 };
 
 /*
@@ -69,4 +69,4 @@ static const unsigned char cmdidxs2[26][26] =
   /* z */ {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }
 };
 
-static const int command_count = 560;
+static const int command_count = 559;
