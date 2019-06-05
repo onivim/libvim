@@ -40,9 +40,6 @@ static void clearop(oparg_T *oap);
 static void clearopbeep(oparg_T *oap);
 static void unshift_special(cmdarg_T *cap);
 static void may_clear_cmdline(void);
-#ifdef FEAT_CMDL_INFO
-static void del_from_showcmd(int);
-#endif
 
 /*
  * nv_*(): functions called to handle Normal and Visual mode commands.
@@ -147,9 +144,6 @@ static void nv_put_opt(cmdarg_T *cap, int fix_indent);
 static void nv_open(cmdarg_T *cap);
 #ifdef FEAT_NETBEANS_INTG
 static void nv_nbcmd(cmdarg_T *cap);
-#endif
-#ifdef FEAT_DND
-static void nv_drop(cmdarg_T *cap);
 #endif
 static void nv_cursorhold(cmdarg_T *cap);
 static void get_op_vcol(oparg_T *oap, colnr_T col, int initial);
@@ -396,9 +390,6 @@ static const struct nv_cmd {
 #ifdef FEAT_NETBEANS_INTG
     {K_F21, nv_nbcmd, NV_NCH_ALW, 0},
 #endif
-#ifdef FEAT_DND
-    {K_DROP, nv_drop, NV_STS, 0},
-#endif
     {K_CURSORHOLD, nv_cursorhold, NV_KEEPREG, 0},
     {K_PS, nv_edit, 0, 0},
 };
@@ -515,9 +506,6 @@ typedef struct {
   int old_col;
   int should_finish_op; /* Set to true if the next command should be able to
                            finish the operation */
-#ifdef FEAT_CMDL_INFO
-  int need_flushbuf; /* need to call out_flush() */
-#endif
   pos_T old_pos;
   int mapped_len;
   int idx;
@@ -526,20 +514,19 @@ typedef struct {
   normalState_T state;
 #endif
 
+  int was_inserting;
 } normalCmd_T;
 
-void *state_normal_cmd_initialize() {
-  normalCmd_T *context = (normalCmd_T *)alloc(sizeof(normalCmd_T));
-  oparg_T *oap = alloc(sizeof(oparg_T));
-  clear_oparg(oap);
-
+void start_normal_mode(normalCmd_T *context) {
   context->state = NORMAL_INITIAL;
+  context->was_inserting = 0;
   context->ctrl_w = FALSE;
   context->old_col = curwin->w_curswant;
-  context->oap = oap;
+  clear_oparg(context->oap);
   cmdarg_T ca;
   vim_memset(&ca, 0, sizeof(ca));
-  ca.oap = oap;
+  ca.oap = context->oap;
+  oparg_T *oap = context->oap;
 
   /* Use a count remembered from before entering an operator.  After typing
    * "3d" we return from normal_cmd() and come back here, the "3" is
@@ -582,6 +569,14 @@ void *state_normal_cmd_initialize() {
   if (readbuf1_empty())
     set_vcount_ca(&ca, &context->set_prevcount);
 #endif
+}
+
+void *state_normal_cmd_initialize() {
+  normalCmd_T *context = (normalCmd_T *)alloc(sizeof(normalCmd_T));
+  oparg_T *oap = alloc(sizeof(oparg_T));
+  context->oap = oap;
+
+  start_normal_mode(context);
 
   return context;
 }
@@ -597,7 +592,14 @@ static int old_mapped_len = 0;
 executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
+
+  if (context->was_inserting == TRUE) {
+    start_normal_mode(context);
+  }
+
   oparg_T *oap = context->oap;
+
+
 
 restart_state:
   switch (context->state) {
@@ -651,9 +653,6 @@ restart_state:
   case NORMAL_COUNT:
     if (c == K_DEL || c == K_KDEL) {
       context->ca.count0 /= 10;
-#ifdef FEAT_CMDL_INFO
-      del_from_showcmd(4); /* delete the digit and ~@% */
-#endif
     } else
       context->ca.count0 = context->ca.count0 * 10 + (c - '0');
     if (context->ca.count0 < 0) /* got too large! */
@@ -764,6 +763,13 @@ restart_state:
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
 
+    /* If we are now in insert mode, relinquish control to the insert mode state */
+    if (sm_get_current_mode() == INSERT) {
+	printf("insert mode");
+	context->was_inserting = TRUE;
+	return HANDLED;
+    }
+
     if (!finish_op && context->should_finish_op) {
       finish_op = TRUE;
     } else if (!finish_op && oap->op_type != OP_NOP) {
@@ -824,9 +830,6 @@ void normal_cmd(oparg_T *oap,
   int c;
   int ctrl_w = FALSE; /* got CTRL-W command */
   int old_col = curwin->w_curswant;
-#ifdef FEAT_CMDL_INFO
-  int need_flushbuf; /* need to call out_flush() */
-#endif
   pos_T old_pos; /* cursor position before command */
   int mapped_len;
   int idx;
@@ -919,10 +922,6 @@ void normal_cmd(oparg_T *oap,
     old_mapped_len = 0; /* do go to Insert mode */
   }
 
-#ifdef FEAT_CMDL_INFO
-  need_flushbuf = add_to_showcmd(c);
-#endif
-
 getcount:
   if (!(VIsual_active && VIsual_select)) {
     /*
@@ -934,9 +933,6 @@ getcount:
            (ca.count0 != 0 && (c == K_DEL || c == K_KDEL || c == '0'))) {
       if (c == K_DEL || c == K_KDEL) {
         ca.count0 /= 10;
-#ifdef FEAT_CMDL_INFO
-        del_from_showcmd(4); /* delete the digit and ~@% */
-#endif
       } else
         ca.count0 = ca.count0 * 10 + (c - '0');
       if (ca.count0 < 0) /* got too large! */
@@ -960,9 +956,6 @@ getcount:
         --no_mapping;
         --allow_keys;
       }
-#ifdef FEAT_CMDL_INFO
-      need_flushbuf |= add_to_showcmd(c);
-#endif
     }
 
     /*
@@ -978,9 +971,6 @@ getcount:
       LANGMAP_ADJUST(c, TRUE);
       --no_mapping;
       --allow_keys;
-#ifdef FEAT_CMDL_INFO
-      need_flushbuf |= add_to_showcmd(c);
-#endif
       goto getcount; /* jump back */
     }
   }
@@ -1150,9 +1140,6 @@ getcount:
        */
       ca.nchar = plain_vgetc();
       LANGMAP_ADJUST(ca.nchar, TRUE);
-#ifdef FEAT_CMDL_INFO
-      need_flushbuf |= add_to_showcmd(ca.nchar);
-#endif
       if (ca.nchar == 'r' || ca.nchar == '\'' || ca.nchar == '`' ||
           ca.nchar == Ctrl_BSL) {
         cp = &ca.extra_char; /* need to get a third character */
@@ -1207,9 +1194,6 @@ getcount:
 
       p_smd = save_smd;
 #endif
-#ifdef FEAT_CMDL_INFO
-      need_flushbuf |= add_to_showcmd(*cp);
-#endif
 
       if (!lit) {
 #ifdef FEAT_DIGRAPHS
@@ -1220,11 +1204,6 @@ getcount:
           c = get_digraph(FALSE);
           if (c > 0) {
             *cp = c;
-#ifdef FEAT_CMDL_INFO
-            /* Guessing how to update showcmd here... */
-            del_from_showcmd(3);
-            need_flushbuf |= add_to_showcmd(*cp);
-#endif
           }
         }
 #endif
@@ -1293,16 +1272,6 @@ getcount:
     --allow_keys;
   }
 
-#ifdef FEAT_CMDL_INFO
-  /*
-   * Flush the showcmd characters onto the screen so we can see them while
-   * the command is being executed.  Only do this when the shown command was
-   * actually displayed, otherwise this will slow down a lot when executing
-   * mappings.
-   */
-  if (need_flushbuf)
-    out_flush();
-#endif
   if (ca.cmdchar != K_IGNORE)
     did_cursorhold = FALSE;
 
@@ -1439,11 +1408,6 @@ normal_end:
 
   /* Reset finish_op, in case it was set */
   finish_op = FALSE;
-
-#ifdef FEAT_CMDL_INFO
-  if (oap->op_type == OP_NOP && oap->regname == 0 && ca.cmdchar != K_CURSORHOLD)
-    clear_showcmd();
-#endif
 
   checkpcmark(); /* check if we moved since setting pcmark */
   vim_free(ca.searchbuf);
@@ -3492,235 +3456,7 @@ static void unshift_special(cmdarg_T *cap) {
 static void may_clear_cmdline(void) {
   if (mode_displayed)
     clear_cmdline = TRUE; /* unshow visual mode later */
-#ifdef FEAT_CMDL_INFO
-  else
-    clear_showcmd();
-#endif
 }
-
-#if defined(FEAT_CMDL_INFO) || defined(PROTO)
-/*
- * Routines for displaying a partly typed command
- */
-
-#define SHOWCMD_BUFLEN SHOWCMD_COLS + 1 + 30
-static char_u showcmd_buf[SHOWCMD_BUFLEN];
-static char_u old_showcmd_buf[SHOWCMD_BUFLEN]; /* For push_showcmd() */
-static int showcmd_is_clear = TRUE;
-static int showcmd_visual = FALSE;
-
-static void display_showcmd(void);
-
-void clear_showcmd(void) {
-  if (!p_sc)
-    return;
-
-  if (VIsual_active && !char_avail()) {
-    int cursor_bot = LT_POS(VIsual, curwin->w_cursor);
-    long lines;
-    colnr_T leftcol, rightcol;
-    linenr_T top, bot;
-
-    /* Show the size of the Visual area. */
-    if (cursor_bot) {
-      top = VIsual.lnum;
-      bot = curwin->w_cursor.lnum;
-    } else {
-      top = curwin->w_cursor.lnum;
-      bot = VIsual.lnum;
-    }
-#ifdef FEAT_FOLDING
-    /* Include closed folds as a whole. */
-    (void)hasFolding(top, &top, NULL);
-    (void)hasFolding(bot, NULL, &bot);
-#endif
-    lines = bot - top + 1;
-
-    if (VIsual_mode == Ctrl_V) {
-#ifdef FEAT_LINEBREAK
-      char_u *saved_sbr = p_sbr;
-
-      /* Make 'sbr' empty for a moment to get the correct size. */
-      p_sbr = empty_option;
-#endif
-      getvcols(curwin, &curwin->w_cursor, &VIsual, &leftcol, &rightcol);
-#ifdef FEAT_LINEBREAK
-      p_sbr = saved_sbr;
-#endif
-      sprintf((char *)showcmd_buf, "%ldx%ld", lines,
-              (long)(rightcol - leftcol + 1));
-    } else if (VIsual_mode == 'V' || VIsual.lnum != curwin->w_cursor.lnum)
-      sprintf((char *)showcmd_buf, "%ld", lines);
-    else {
-      char_u *s, *e;
-      int l;
-      int bytes = 0;
-      int chars = 0;
-
-      if (cursor_bot) {
-        s = ml_get_pos(&VIsual);
-        e = ml_get_cursor();
-      } else {
-        s = ml_get_cursor();
-        e = ml_get_pos(&VIsual);
-      }
-      while ((*p_sel != 'e') ? s <= e : s < e) {
-        l = (*mb_ptr2len)(s);
-        if (l == 0) {
-          ++bytes;
-          ++chars;
-          break; /* end of line */
-        }
-        bytes += l;
-        ++chars;
-        s += l;
-      }
-      if (bytes == chars)
-        sprintf((char *)showcmd_buf, "%d", chars);
-      else
-        sprintf((char *)showcmd_buf, "%d-%d", chars, bytes);
-    }
-    showcmd_buf[SHOWCMD_COLS] = NUL; /* truncate */
-    showcmd_visual = TRUE;
-  } else {
-    showcmd_buf[0] = NUL;
-    showcmd_visual = FALSE;
-
-    /* Don't actually display something if there is nothing to clear. */
-    if (showcmd_is_clear)
-      return;
-  }
-
-  display_showcmd();
-}
-
-/*
- * Add 'c' to string of shown command chars.
- * Return TRUE if output has been written (and setcursor() has been called).
- */
-int add_to_showcmd(int c) {
-  char_u *p;
-  int old_len;
-  int extra_len;
-  int overflow;
-#if defined(FEAT_MOUSE)
-  int i;
-  static int ignore[] = {
-#ifdef FEAT_GUI
-      K_VER_SCROLLBAR, K_HOR_SCROLLBAR,
-      K_LEFTMOUSE_NM,  K_LEFTRELEASE_NM,
-#endif
-      K_IGNORE,        K_PS,
-      K_LEFTMOUSE,     K_LEFTDRAG,
-      K_LEFTRELEASE,   K_MOUSEMOVE,
-      K_MIDDLEMOUSE,   K_MIDDLEDRAG,
-      K_MIDDLERELEASE, K_RIGHTMOUSE,
-      K_RIGHTDRAG,     K_RIGHTRELEASE,
-      K_MOUSEDOWN,     K_MOUSEUP,
-      K_MOUSELEFT,     K_MOUSERIGHT,
-      K_X1MOUSE,       K_X1DRAG,
-      K_X1RELEASE,     K_X2MOUSE,
-      K_X2DRAG,        K_X2RELEASE,
-      K_CURSORHOLD,    0};
-#endif
-
-  if (!p_sc || msg_silent != 0)
-    return FALSE;
-
-  if (showcmd_visual) {
-    showcmd_buf[0] = NUL;
-    showcmd_visual = FALSE;
-  }
-
-#if defined(FEAT_MOUSE)
-  /* Ignore keys that are scrollbar updates and mouse clicks */
-  if (IS_SPECIAL(c))
-    for (i = 0; ignore[i] != 0; ++i)
-      if (ignore[i] == c)
-        return FALSE;
-#endif
-
-  p = transchar(c);
-  if (*p == ' ')
-    STRCPY(p, "<20>");
-  old_len = (int)STRLEN(showcmd_buf);
-  extra_len = (int)STRLEN(p);
-  overflow = old_len + extra_len - SHOWCMD_COLS;
-  if (overflow > 0)
-    mch_memmove(showcmd_buf, showcmd_buf + overflow, old_len - overflow + 1);
-  STRCAT(showcmd_buf, p);
-
-  if (char_avail())
-    return FALSE;
-
-  display_showcmd();
-
-  return TRUE;
-}
-
-void add_to_showcmd_c(int c) {
-  if (!add_to_showcmd(c))
-    setcursor();
-}
-
-/*
- * Delete 'len' characters from the end of the shown command.
- */
-static void del_from_showcmd(int len) {
-  int old_len;
-
-  if (!p_sc)
-    return;
-
-  old_len = (int)STRLEN(showcmd_buf);
-  if (len > old_len)
-    len = old_len;
-  showcmd_buf[old_len - len] = NUL;
-
-  if (!char_avail())
-    display_showcmd();
-}
-
-/*
- * push_showcmd() and pop_showcmd() are used when waiting for the user to type
- * something and there is a partial mapping.
- */
-void push_showcmd(void) {
-  if (p_sc)
-    STRCPY(old_showcmd_buf, showcmd_buf);
-}
-
-void pop_showcmd(void) {
-  if (!p_sc)
-    return;
-
-  STRCPY(showcmd_buf, old_showcmd_buf);
-
-  display_showcmd();
-}
-
-static void display_showcmd(void) {
-  int len;
-
-  cursor_off();
-
-  len = (int)STRLEN(showcmd_buf);
-  if (len == 0)
-    showcmd_is_clear = TRUE;
-  else {
-    screen_puts(showcmd_buf, (int)Rows - 1, sc_col, 0);
-    showcmd_is_clear = FALSE;
-  }
-
-  /*
-   * clear the rest of an old message by outputting up to SHOWCMD_COLS
-   * spaces
-   */
-  screen_puts((char_u *)"          " + len, (int)Rows - 1, sc_col + len, 0);
-
-  setcursor(); /* put cursor back where it belongs */
-}
-#endif
 
 /*
  * When "check" is FALSE, prepare for commands that scroll the window.
@@ -4419,9 +4155,6 @@ static void nv_zet(cmdarg_T *cap) {
       LANGMAP_ADJUST(nchar, TRUE);
       --no_mapping;
       --allow_keys;
-#ifdef FEAT_CMDL_INFO
-      (void)add_to_showcmd(nchar);
-#endif
       if (nchar == K_DEL || nchar == K_KDEL)
         n /= 10;
       else if (VIM_ISDIGIT(nchar))
@@ -4786,9 +4519,6 @@ dozet:
     LANGMAP_ADJUST(nchar, TRUE);
     --no_mapping;
     --allow_keys;
-#ifdef FEAT_CMDL_INFO
-    (void)add_to_showcmd(nchar);
-#endif
     if (vim_strchr((char_u *)"gGwW", nchar) == NULL) {
       clearopbeep(cap->oap);
       break;
@@ -8248,11 +7978,14 @@ static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
   /* Always reset "restart_edit", this is not a restarted edit. */
   restart_edit = 0;
 
-  if (edit(cmd, startln, cap->count1))
-    cap->retval |= CA_COMMAND_BUSY;
+  printf("pushing edit state\n");
+  sm_push_insert(cmd, startln, cap->count1);
+ 
+  /* if (edit(cmd, startln, cap->count1)) */
+  /*   cap->retval |= CA_COMMAND_BUSY; */
 
-  if (restart_edit == 0)
-    restart_edit = restart_edit_save;
+  /* if (restart_edit == 0) */
+  /*   restart_edit = restart_edit_save; */
 }
 
 #ifdef FEAT_TEXTOBJ
@@ -8576,16 +8309,6 @@ static void nv_open(cmdarg_T *cap) {
   else
     n_opencmd(cap);
 }
-
-#ifdef FEAT_NETBEANS_INTG
-static void nv_nbcmd(cmdarg_T *cap) { netbeans_keycommand(cap->nchar); }
-#endif
-
-#ifdef FEAT_DND
-static void nv_drop(cmdarg_T *cap UNUSED) {
-  do_put('~', BACKWARD, 1L, PUT_CURSEND);
-}
-#endif
 
 /*
  * Trigger CursorHold event.

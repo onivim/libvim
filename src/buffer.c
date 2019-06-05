@@ -803,9 +803,6 @@ buf_freeall(buf_T *buf, int flags)
     }
 #endif
 
-#ifdef FEAT_TCL
-    tcl_buffer_free(buf);
-#endif
     ml_close(buf, TRUE);	    /* close and delete the memline/memfile */
     buf->b_ml.ml_line_count = 0;    /* no lines in buffer */
     if ((flags & BFA_KEEP_UNDO) == 0)
@@ -911,9 +908,6 @@ free_buffer_stuff(
     {
 	clear_wininfo(buf);		/* including window-local options */
 	free_buf_options(buf, TRUE);
-#ifdef FEAT_SPELL
-	ga_clear(&buf->b_s.b_langp);
-#endif
     }
 #ifdef FEAT_EVAL
     {
@@ -1782,12 +1776,6 @@ enter_buffer(buf_T *buf)
     if (curbuf->b_kmap_state & KEYMAP_INIT)
 	(void)keymap_init();
 #endif
-#ifdef FEAT_SPELL
-    /* May need to set the spell language.  Can only do this after the buffer
-     * has been properly setup. */
-    if (!curbuf->b_help && curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
-	(void)did_set_spelllang(curwin);
-#endif
 #ifdef FEAT_VIMINFO
     curbuf->b_last_used = vim_time();
 #endif
@@ -2183,13 +2171,6 @@ free_buf_options(
     clear_string_option(&buf->b_p_syn);
     clear_string_option(&buf->b_s.b_syn_isk);
 #endif
-#ifdef FEAT_SPELL
-    clear_string_option(&buf->b_s.b_p_spc);
-    clear_string_option(&buf->b_s.b_p_spf);
-    vim_regfree(buf->b_s.b_cap_prog);
-    buf->b_s.b_cap_prog = NULL;
-    clear_string_option(&buf->b_s.b_p_spl);
-#endif
 #ifdef FEAT_SEARCHPATH
     clear_string_option(&buf->b_p_sua);
 #endif
@@ -2203,10 +2184,6 @@ free_buf_options(
 #endif
 #ifdef FEAT_INS_EXPAND
     clear_string_option(&buf->b_p_cpt);
-#endif
-#ifdef FEAT_COMPL_FUNC
-    clear_string_option(&buf->b_p_cfu);
-    clear_string_option(&buf->b_p_ofu);
 #endif
 #ifdef FEAT_QUICKFIX
     clear_string_option(&buf->b_p_gp);
@@ -3485,14 +3462,6 @@ fileinfo(
 					    (long)curbuf->b_ml.ml_line_count);
     if (curbuf->b_ml.ml_flags & ML_EMPTY)
 	vim_snprintf_add(buffer, IOSIZE, "%s", _(no_lines_msg));
-#ifdef FEAT_CMDL_INFO
-    else if (p_ru)
-	/* Current line and column are already on the screen -- webb */
-	vim_snprintf_add(buffer, IOSIZE,
-		NGETTEXT("%ld line --%d%%--", "%ld lines --%d%%--",
-						   curbuf->b_ml.ml_line_count),
-		(long)curbuf->b_ml.ml_line_count, n);
-#endif
     else
     {
 	vim_snprintf_add(buffer, IOSIZE,
@@ -4710,7 +4679,7 @@ build_stl_str_hl(
 }
 #endif /* FEAT_STL_OPT */
 
-#if defined(FEAT_STL_OPT) || defined(FEAT_CMDL_INFO) \
+#if defined(FEAT_STL_OPT) \
 	    || defined(FEAT_GUI_TABLINE) || defined(PROTO)
 /*
  * Get relative cursor position in window into "buf[buflen]", in the form 99%,

@@ -117,10 +117,6 @@ struct compl_S
 # define CP_ICASE	    16	// ins_compl_equal() ignores case
 
 static char e_hitend[] = N_("Hit end of paragraph");
-# ifdef FEAT_COMPL_FUNC
-static char e_complwin[] = N_("E839: Completion function changed window");
-static char e_compldel[] = N_("E840: Completion function deleted text");
-# endif
 
 /*
  * All the current matches are stored in a list.
@@ -199,7 +195,7 @@ static int  ins_compl_len(void);
 static void ins_compl_restart(void);
 static void ins_compl_set_original_text(char_u *str);
 static void ins_compl_fixRedoBufForLeader(char_u *ptr_arg);
-# if defined(FEAT_COMPL_FUNC) || defined(FEAT_EVAL)
+# if defined(FEAT_EVAL) 
 static void ins_compl_add_list(list_T *list);
 static void ins_compl_add_dict(dict_T *dict);
 # endif
@@ -210,11 +206,6 @@ static int  ins_compl_key2count(int c);
 static void show_pum(int prev_w_wrow, int prev_w_leftcol);
 static unsigned  quote_meta(char_u *dest, char_u *str, int len);
 #endif // FEAT_INS_EXPAND
-
-#ifdef FEAT_SPELL
-static void spell_back_to_badword(void);
-static int  spell_bad_len = 0;	// length of located bad word
-#endif
 
 #if defined(FEAT_INS_EXPAND) || defined(PROTO)
 /*
@@ -288,9 +279,6 @@ ctrl_x_mode_not_defined_yet(void)
 has_compl_option(int dict_opt)
 {
     if (dict_opt ? (*curbuf->b_p_dict == NUL && *p_dict == NUL
-# ifdef FEAT_SPELL
-							&& !curwin->w_p_spell
-# endif
 							)
 		 : (*curbuf->b_p_tsr == NUL && *p_tsr == NUL))
     {
@@ -361,12 +349,6 @@ vim_is_ctrl_x_key(int c)
 	case CTRL_X_CMDLINE:
 	    return (c == Ctrl_V || c == Ctrl_Q || c == Ctrl_P || c == Ctrl_N
 		    || c == Ctrl_X);
-#ifdef FEAT_COMPL_FUNC
-	case CTRL_X_FUNCTION:
-	    return (c == Ctrl_U || c == Ctrl_P || c == Ctrl_N);
-	case CTRL_X_OMNI:
-	    return (c == Ctrl_O || c == Ctrl_P || c == Ctrl_N);
-#endif
 	case CTRL_X_SPELL:
 	    return (c == Ctrl_S || c == Ctrl_P || c == Ctrl_N);
 	case CTRL_X_EVAL:
@@ -1197,13 +1179,6 @@ ins_compl_dictionaries(
 
     if (*dict == NUL)
     {
-#ifdef FEAT_SPELL
-	// When 'dictionary' is empty and spell checking is enabled use
-	// "spell".
-	if (!thesaurus && curwin->w_p_spell)
-	    dict = (char_u *)"spell";
-	else
-#endif
 	    return;
     }
 
@@ -1262,30 +1237,12 @@ ins_compl_dictionaries(
 	    // backticks (for security, the 'dict' option may have been set in
 	    // a modeline).
 	    copy_option_part(&dict, buf, LSIZE, ",");
-# ifdef FEAT_SPELL
-	    if (!thesaurus && STRCMP(buf, "spell") == 0)
-		count = -1;
-	    else
-# endif
 		if (vim_strchr(buf, '`') != NULL
 		    || expand_wildcards(1, &buf, &count, &files,
 						     EW_FILE|EW_SILENT) != OK)
 		count = 0;
 	}
 
-# ifdef FEAT_SPELL
-	if (count == -1)
-	{
-	    // Complete from active spelling.  Skip "\<" in the pattern, we
-	    // don't use it as a RE.
-	    if (pat[0] == '\\' && pat[1] == '<')
-		ptr = pat + 2;
-	    else
-		ptr = pat;
-	    spell_dump_compl(ptr, regmatch.rm_ic, &dir, 0);
-	}
-	else
-# endif
 	    if (count > 0)	// avoid warning for using "files" uninit
 	{
 	    ins_compl_files(count, files, thesaurus, flags,
@@ -1743,9 +1700,6 @@ ins_compl_new_leader(void)
 	ins_compl_set_original_text(compl_leader);
     else
     {
-#ifdef FEAT_SPELL
-	spell_bad_len = 0;	// need to redetect bad word
-#endif
 	// Matches were cleared, need to search for them now.  Befor drawing
 	// the popup menu display the changed text before the cursor.  Set
 	// "compl_restarting" to avoid that the first match is inserted.
@@ -1983,22 +1937,9 @@ ins_compl_prep(int c)
 	    case Ctrl_T:
 		ctrl_x_mode = CTRL_X_THESAURUS;
 		break;
-#ifdef FEAT_COMPL_FUNC
-	    case Ctrl_U:
-		ctrl_x_mode = CTRL_X_FUNCTION;
-		break;
-	    case Ctrl_O:
-		ctrl_x_mode = CTRL_X_OMNI;
-		break;
-#endif
 	    case 's':
 	    case Ctrl_S:
 		ctrl_x_mode = CTRL_X_SPELL;
-#ifdef FEAT_SPELL
-		++emsg_off;	// Avoid getting the E756 error twice.
-		spell_back_to_badword();
-		--emsg_off;
-#endif
 		break;
 	    case Ctrl_RSB:
 		ctrl_x_mode = CTRL_X_TAGS;
@@ -2265,93 +2206,7 @@ ins_compl_next_buf(buf_T *buf, int flag)
     return buf;
 }
 
-#ifdef FEAT_COMPL_FUNC
-/*
- * Execute user defined complete function 'completefunc' or 'omnifunc', and
- * get matches in "matches".
- */
-    static void
-expand_by_function(
-    int		type,	    // CTRL_X_OMNI or CTRL_X_FUNCTION
-    char_u	*base)
-{
-    list_T      *matchlist = NULL;
-    dict_T	*matchdict = NULL;
-    typval_T	args[3];
-    char_u	*funcname;
-    pos_T	pos;
-    win_T	*curwin_save;
-    buf_T	*curbuf_save;
-    typval_T	rettv;
-    int		save_State = State;
-
-    funcname = (type == CTRL_X_FUNCTION) ? curbuf->b_p_cfu : curbuf->b_p_ofu;
-    if (*funcname == NUL)
-	return;
-
-    // Call 'completefunc' to obtain the list of matches.
-    args[0].v_type = VAR_NUMBER;
-    args[0].vval.v_number = 0;
-    args[1].v_type = VAR_STRING;
-    args[1].vval.v_string = base != NULL ? base : (char_u *)"";
-    args[2].v_type = VAR_UNKNOWN;
-
-    pos = curwin->w_cursor;
-    curwin_save = curwin;
-    curbuf_save = curbuf;
-
-    // Call a function, which returns a list or dict.
-    if (call_vim_function(funcname, 2, args, &rettv) == OK)
-    {
-	switch (rettv.v_type)
-	{
-	    case VAR_LIST:
-		matchlist = rettv.vval.v_list;
-		break;
-	    case VAR_DICT:
-		matchdict = rettv.vval.v_dict;
-		break;
-	    case VAR_SPECIAL:
-		if (rettv.vval.v_number == VVAL_NONE)
-		    compl_opt_suppress_empty = TRUE;
-		// FALLTHROUGH
-	    default:
-		// TODO: Give error message?
-		clear_tv(&rettv);
-		break;
-	}
-    }
-
-    if (curwin_save != curwin || curbuf_save != curbuf)
-    {
-	emsg(_(e_complwin));
-	goto theend;
-    }
-    curwin->w_cursor = pos;	// restore the cursor position
-    validate_cursor();
-    if (!EQUAL_POS(curwin->w_cursor, pos))
-    {
-	emsg(_(e_compldel));
-	goto theend;
-    }
-
-    if (matchlist != NULL)
-	ins_compl_add_list(matchlist);
-    else if (matchdict != NULL)
-	ins_compl_add_dict(matchdict);
-
-theend:
-    // Restore State, it might have been changed.
-    State = save_State;
-
-    if (matchdict != NULL)
-	dict_unref(matchdict);
-    if (matchlist != NULL)
-	list_unref(matchlist);
-}
-#endif // FEAT_COMPL_FUNC
-
-#if defined(FEAT_COMPL_FUNC) || defined(FEAT_EVAL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Add completions from a list.
  */
@@ -2680,20 +2535,7 @@ ins_compl_get_exp(pos_T *ini)
 		ins_compl_add_matches(num_matches, matches, FALSE);
 	    break;
 
-#ifdef FEAT_COMPL_FUNC
-	case CTRL_X_FUNCTION:
-	case CTRL_X_OMNI:
-	    expand_by_function(type, compl_pattern);
-	    break;
-#endif
-
 	case CTRL_X_SPELL:
-#ifdef FEAT_SPELL
-	    num_matches = expand_spelling(first_match_pos.lnum,
-						     compl_pattern, &matches);
-	    if (num_matches > 0)
-		ins_compl_add_matches(num_matches, matches, p_ic);
-#endif
 	    break;
 
 	default:	// normal ^P/^N and ^X^L
@@ -3603,110 +3445,10 @@ ins_complete(int c, int enable_pum)
 	}
 	else if (ctrl_x_mode == CTRL_X_FUNCTION || ctrl_x_mode == CTRL_X_OMNI)
 	{
-#ifdef FEAT_COMPL_FUNC
-	    // Call user defined function 'completefunc' with "a:findstart"
-	    // set to 1 to obtain the length of text to use for completion.
-	    typval_T	args[3];
-	    int		col;
-	    char_u	*funcname;
-	    pos_T	pos;
-	    win_T	*curwin_save;
-	    buf_T	*curbuf_save;
-	    int		save_State = State;
-
-	    // Call 'completefunc' or 'omnifunc' and get pattern length as a
-	    // string
-	    funcname = ctrl_x_mode == CTRL_X_FUNCTION
-					  ? curbuf->b_p_cfu : curbuf->b_p_ofu;
-	    if (*funcname == NUL)
-	    {
-		semsg(_(e_notset), ctrl_x_mode == CTRL_X_FUNCTION
-					     ? "completefunc" : "omnifunc");
-		// restore did_ai, so that adding comment leader works
-		did_ai = save_did_ai;
-		return FAIL;
-	    }
-
-	    args[0].v_type = VAR_NUMBER;
-	    args[0].vval.v_number = 1;
-	    args[1].v_type = VAR_STRING;
-	    args[1].vval.v_string = (char_u *)"";
-	    args[2].v_type = VAR_UNKNOWN;
-	    pos = curwin->w_cursor;
-	    curwin_save = curwin;
-	    curbuf_save = curbuf;
-	    col = call_func_retnr(funcname, 2, args);
-
-	    State = save_State;
-	    if (curwin_save != curwin || curbuf_save != curbuf)
-	    {
-		emsg(_(e_complwin));
-		return FAIL;
-	    }
-	    curwin->w_cursor = pos;	// restore the cursor position
-	    validate_cursor();
-	    if (!EQUAL_POS(curwin->w_cursor, pos))
-	    {
-		emsg(_(e_compldel));
-		return FAIL;
-	    }
-
-	    // Return value -2 means the user complete function wants to
-	    // cancel the complete without an error.
-	    // Return value -3 does the same as -2 and leaves CTRL-X mode.
-	    if (col == -2)
-		return FAIL;
-	    if (col == -3)
-	    {
-		ctrl_x_mode = CTRL_X_NORMAL;
-		edit_submode = NULL;
-		if (!shortmess(SHM_COMPLETIONMENU))
-		    msg_clr_cmdline();
-		return FAIL;
-	    }
-
-	    // Reset extended parameters of completion, when start new
-	    // completion.
-	    compl_opt_refresh_always = FALSE;
-	    compl_opt_suppress_empty = FALSE;
-
-	    if (col < 0)
-		col = curs_col;
-	    compl_col = col;
-	    if (compl_col > curs_col)
-		compl_col = curs_col;
-
-	    // Setup variables for completion.  Need to obtain "line" again,
-	    // it may have become invalid.
-	    line = ml_get(curwin->w_cursor.lnum);
-	    compl_length = curs_col - compl_col;
-	    compl_pattern = vim_strnsave(line + compl_col, compl_length);
-	    if (compl_pattern == NULL)
-#endif
 		return FAIL;
 	}
 	else if (ctrl_x_mode == CTRL_X_SPELL)
 	{
-#ifdef FEAT_SPELL
-	    if (spell_bad_len > 0)
-		compl_col = curs_col - spell_bad_len;
-	    else
-		compl_col = spell_word_start(startcol);
-	    if (compl_col >= (colnr_T)startcol)
-	    {
-		compl_length = 0;
-		compl_col = curs_col;
-	    }
-	    else
-	    {
-		spell_expand_check_cap(compl_col);
-		compl_length = (int)curs_col - compl_col;
-	    }
-	    // Need to obtain "line" again, it may have become invalid.
-	    line = ml_get(curwin->w_cursor.lnum);
-	    compl_pattern = vim_strnsave(line + compl_col, compl_length);
-	    if (compl_pattern == NULL)
-#endif
 		return FAIL;
 	}
 	else
@@ -4031,22 +3773,6 @@ quote_meta(char_u *dest, char_u *src, int len)
 free_insexpand_stuff(void)
 {
     VIM_CLEAR(compl_orig_text);
-}
-# endif
-
-# ifdef FEAT_SPELL
-/*
- * Called when starting CTRL_X_SPELL mode: Move backwards to a previous badly
- * spelled word, if there is one.
- */
-    static void
-spell_back_to_badword(void)
-{
-    pos_T	tpos = curwin->w_cursor;
-
-    spell_bad_len = spell_move_to(curwin, BACKWARD, TRUE, TRUE, NULL);
-    if (curwin->w_cursor.col != tpos.col)
-	start_arrow(&tpos);
 }
 # endif
 

@@ -15,27 +15,11 @@
  * The "%f|%l| %m" one is used for when the contents of the quickfix window is
  * written to a file.
  */
-#ifdef AMIGA
-# define DFLT_EFM	"%f>%l:%c:%t:%n:%m,%f:%l: %t%*\\D%n: %m,%f %l %t%*\\D%n: %m,%*[^\"]\"%f\"%*\\D%l: %m,%f:%l:%m,%f|%l| %m"
-#else
 # if defined(MSWIN)
 #  define DFLT_EFM	"%f(%l) \\=: %t%*\\D%n: %m,%*[^\"]\"%f\"%*\\D%l: %m,%f(%l) \\=: %m,%*[^ ] %f %l: %m,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,%f|%l| %m"
 # else
-#  if defined(__QNX__)
-#   define DFLT_EFM	"%f(%l):%*[^WE]%t%*\\D%n:%m,%f|%l| %m"
-#  else
-#   ifdef VMS
-#    define DFLT_EFM	"%A%p^,%C%%CC-%t-%m,%Cat line number %l in file %f,%f|%l| %m"
-#   else /* Unix, probably */
-#    ifdef EBCDIC
-#define DFLT_EFM	"%*[^ ] %*[^ ] %f:%l%*[ ]%m,%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory %*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%DMaking %*\\a in %f,%f|%l| %m"
-#     else
 #define DFLT_EFM	"%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%-G%f:%l: (Each undeclared identifier is reported only once,%-G%f:%l: for each function it appears in.),%-GIn file included from %f:%l:%c:,%-GIn file included from %f:%l:%c\\,,%-GIn file included from %f:%l:%c,%-GIn file included from %f:%l,%-G%*[ ]from %f:%l:%c,%-G%*[ ]from %f:%l:,%-G%*[ ]from %f:%l\\,,%-G%*[ ]from %f:%l,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory %*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%D%*\\a: Entering directory %*[`']%f',%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a in %f,%f|%l| %m"
-#    endif
-#   endif
-#  endif
 # endif
-#endif
 
 #define DFLT_GREPFORMAT	"%f:%l:%m,%f:%l%m,%f  %l%m"
 
@@ -416,19 +400,6 @@ EXTERN long	p_ph;		/* 'pumheight' */
 EXTERN long	p_pw;		/* 'pumwidth' */
 #endif
 EXTERN char_u	*p_cpo;		/* 'cpoptions' */
-#ifdef FEAT_CSCOPE
-EXTERN char_u	*p_csprg;	/* 'cscopeprg' */
-EXTERN int	p_csre;		/* 'cscoperelative' */
-# ifdef FEAT_QUICKFIX
-EXTERN char_u	*p_csqf;	/* 'cscopequickfix' */
-#  define	CSQF_CMDS   "sgdctefia"
-#  define	CSQF_FLAGS  "+-0"
-# endif
-EXTERN int	p_cst;		/* 'cscopetag' */
-EXTERN long	p_csto;		/* 'cscopetagorder' */
-EXTERN long	p_cspc;		/* 'cscopepathcomp' */
-EXTERN int	p_csverbose;	/* 'cscopeverbose' */
-#endif
 EXTERN char_u	*p_debug;	/* 'debug' */
 #ifdef FEAT_FIND_ID
 EXTERN char_u	*p_def;		/* 'define' */
@@ -576,9 +547,6 @@ EXTERN char_u	*p_langmap;	/* 'langmap'*/
 EXTERN int	p_lnr;		/* 'langnoremap' */
 EXTERN int	p_lrm;		/* 'langremap' */
 #endif
-#if defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)
-EXTERN char_u	*p_lm;		/* 'langmenu' */
-#endif
 #ifdef FEAT_GUI
 EXTERN long	p_linespace;	/* 'linespace' */
 #endif
@@ -619,9 +587,6 @@ EXTERN long	p_mmd;		/* 'maxmapdepth' */
 EXTERN long	p_mm;		/* 'maxmem' */
 EXTERN long	p_mmp;		/* 'maxmempattern' */
 EXTERN long	p_mmt;		/* 'maxmemtot' */
-#ifdef FEAT_MENU
-EXTERN long	p_mis;		/* 'menuitems' */
-#endif
 #ifdef FEAT_SPELL
 EXTERN char_u	*p_msm;		/* 'mkspellmem' */
 #endif
@@ -697,9 +662,6 @@ EXTERN int	p_ri;		/* 'revins' */
 #if defined(DYNAMIC_RUBY)
 EXTERN char_u	*p_rubydll;	/* 'rubydll' */
 #endif
-#ifdef FEAT_CMDL_INFO
-EXTERN int	p_ru;		/* 'ruler' */
-#endif
 #ifdef FEAT_STL_OPT
 EXTERN char_u	*p_ruf;		/* 'rulerformat' */
 #endif
@@ -762,9 +724,6 @@ EXTERN int	p_sr;		/* 'shiftround' */
 EXTERN char_u	*p_shm;		/* 'shortmess' */
 #ifdef FEAT_LINEBREAK
 EXTERN char_u	*p_sbr;		/* 'showbreak' */
-#endif
-#ifdef FEAT_CMDL_INFO
-EXTERN int	p_sc;		/* 'showcmd' */
 #endif
 EXTERN int	p_sft;		/* 'showfulltag' */
 EXTERN int	p_sm;		/* 'showmatch' */
@@ -988,9 +947,6 @@ enum
     , BV_DICT
     , BV_TSR
 #endif
-#ifdef FEAT_COMPL_FUNC
-    , BV_CFU
-#endif
 #ifdef FEAT_FIND_ID
     , BV_DEF
     , BV_INC
@@ -1037,9 +993,6 @@ enum
     , BV_MOD
     , BV_MPS
     , BV_NF
-#ifdef FEAT_COMPL_FUNC
-    , BV_OFU
-#endif
     , BV_PATH
     , BV_PI
 #ifdef FEAT_TEXTOBJ

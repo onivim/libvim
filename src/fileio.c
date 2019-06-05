@@ -769,14 +769,6 @@ readfile(
 # endif
 		    mch_msg(_("Vim: Reading from stdin...\n"));
 #endif
-#ifdef FEAT_GUI
-		/* Also write a message in the GUI window, if there is one. */
-		if (gui.in_use && !gui.dying && !gui.starting)
-		{
-		    p = (char_u *)_("Reading from stdin...");
-		    gui_write(p, (int)STRLEN(p));
-		}
-#endif
 	    }
 	}
 	else if (!read_buffer)
@@ -6099,7 +6091,7 @@ shorten_fnames(int force)
     redraw_tabline = TRUE;
 }
 
-#if (defined(FEAT_DND) && defined(FEAT_GUI_GTK)) \
+#if defined(FEAT_GUI_GTK) \
 	|| defined(FEAT_GUI_MSWIN) \
 	|| defined(FEAT_GUI_MAC) \
 	|| defined(PROTO)

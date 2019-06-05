@@ -1487,7 +1487,7 @@ skipdigits(char_u *q)
     return p;
 }
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_SYN_HL) || defined(PROTO)
 /*
  * skip over binary digits
  */

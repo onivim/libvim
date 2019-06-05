@@ -168,11 +168,6 @@ static char *(features[]) =
 #else
 	"-cmdline_hist",
 #endif
-#ifdef FEAT_CMDL_INFO
-	"+cmdline_info",
-#else
-	"-cmdline_info",
-#endif
 #ifdef FEAT_COMMENTS
 	"+comments",
 #else
@@ -223,11 +218,6 @@ static char *(features[]) =
 # else
 	"-directx",
 # endif
-#endif
-#ifdef FEAT_DND
-	"+dnd",
-#else
-	"-dnd",
 #endif
 #ifdef EBCDIC
 	"+ebcdic",
@@ -363,11 +353,6 @@ static char *(features[]) =
 #else
 	"-lua",
 #endif
-#ifdef FEAT_MENU
-	"+menu",
-#else
-	"-menu",
-#endif
 #ifdef FEAT_SESSION
 	"+mksession",
 #else
@@ -404,14 +389,6 @@ static char *(features[]) =
 	"+mouse_netterm",
 # else
 	"-mouse_netterm",
-# endif
-#endif
-
-#ifdef __QNX__
-# ifdef FEAT_MOUSE_PTERM
-	"+mouse_pterm",
-# else
-	"-mouse_pterm",
 # endif
 #endif
 
@@ -597,15 +574,6 @@ static char *(features[]) =
 #endif
 	"-tag_old_static",
 	"-tag_any_white",
-#ifdef FEAT_TCL
-# ifdef DYNAMIC_TCL
-	"+tcl/dyn",
-# else
-	"+tcl",
-# endif
-#else
-	"-tcl",
-#endif
 #ifdef FEAT_TERMGUICOLORS
 	"+termguicolors",
 #else

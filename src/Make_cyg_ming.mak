@@ -86,9 +86,6 @@ ifndef WINVER
 WINVER = 0x0600
 endif
 
-# Set to yes to enable Cscope support.
-CSCOPE=yes
-
 # Set to yes to enable inter process communication.
 ifeq (HUGE, $(FEATURES))
 CHANNEL=yes
@@ -392,30 +389,6 @@ PYTHON3INC=-I $(PYTHON3)/win32inc
  endif
 endif
 
-#	TCL interface:
-#	  TCL=[Path to TCL directory] (Set inside Make_cyg.mak or Make_ming.mak)
-#	  DYNAMIC_TCL=yes (to load the TCL DLL dynamically)
-#	  TCL_VER=[TCL version, eg 83, 84] (default is 86)
-#	  TCL_VER_LONG=[Tcl version, eg 8.3] (default is 8.6)
-#	    You must set TCL_VER_LONG when you set TCL_VER.
-#	  TCL_DLL=[TCL dll name, eg tcl86.dll] (default is tcl86.dll)
-ifdef TCL
- ifndef DYNAMIC_TCL
-DYNAMIC_TCL=yes
- endif
- ifndef TCL_VER
-TCL_VER = 86
- endif
- ifndef TCL_VER_LONG
-TCL_VER_LONG = 8.6
- endif
- ifndef TCL_DLL
-TCL_DLL = tcl$(TCL_VER).dll
- endif
-TCLINC += -I$(TCL)/include
-endif
-
-
 #	Ruby interface:
 #	  RUBY=[Path to Ruby directory] (Set inside Make_cyg.mak or Make_ming.mak)
 #	  DYNAMIC_RUBY=yes (to load the Ruby DLL dynamically, "no" for static)
@@ -584,23 +557,12 @@ CFLAGS += -DDYNAMIC_PYTHON3 -DDYNAMIC_PYTHON3_DLL=\"$(DYNAMIC_PYTHON3_DLL)\"
  endif
 endif
 
-ifdef TCL
-CFLAGS += -DFEAT_TCL $(TCLINC)
- ifeq (yes, $(DYNAMIC_TCL))
-CFLAGS += -DDYNAMIC_TCL -DDYNAMIC_TCL_DLL=\"$(TCL_DLL)\" -DDYNAMIC_TCL_VER=\"$(TCL_VER_LONG)\"
- endif
-endif
-
 ifeq ($(POSTSCRIPT),yes)
 DEFINES += -DMSWINPS
 endif
 
 ifeq (yes, $(OLE))
 DEFINES += -DFEAT_OLE
-endif
-
-ifeq ($(CSCOPE),yes)
-DEFINES += -DFEAT_CSCOPE
 endif
 
 ifeq ($(CHANNEL),yes)
@@ -707,7 +669,6 @@ OBJ = \
 	$(OUTDIR)/mark.o \
 	$(OUTDIR)/memfile.o \
 	$(OUTDIR)/memline.o \
-	$(OUTDIR)/menu.o \
 	$(OUTDIR)/message.o \
 	$(OUTDIR)/misc1.o \
 	$(OUTDIR)/misc2.o \
@@ -727,8 +688,6 @@ OBJ = \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
 	$(OUTDIR)/sign.o \
-	$(OUTDIR)/spell.o \
-	$(OUTDIR)/spellfile.o \
 	$(OUTDIR)/state_machine.o \
 	$(OUTDIR)/syntax.o \
 	$(OUTDIR)/tag.o \
@@ -777,12 +736,6 @@ OBJ += $(OUTDIR)/if_python3.o
 endif
 ifdef RUBY
 OBJ += $(OUTDIR)/if_ruby.o
-endif
-ifdef TCL
-OBJ += $(OUTDIR)/if_tcl.o
-endif
-ifeq ($(CSCOPE),yes)
-OBJ += $(OUTDIR)/if_cscope.o
 endif
 
 ifeq ($(CHANNEL),yes)
@@ -896,15 +849,6 @@ LIB += -L$(PERLLIBS) -lperl$(PERL_VER)
  endif
 endif
 
-ifdef TCL
-LIB += -L$(TCL)/lib
- ifeq (yes, $(DYNAMIC_TCL))
-LIB += -ltclstub$(TCL_VER)
- else
-LIB += -ltcl$(TCL_VER)
- endif
-endif
-
 ifeq (yes, $(OLE))
 LIB += -loleaut32
 OBJ += $(OUTDIR)/if_ole.o
@@ -951,18 +895,13 @@ endif
 
 DEST_BIN = $(DESTDIR)/bin
 DEST_LIB = $(DESTDIR)/lib
+DEST_INCLUDE = $(DESTDIR)/include
 INSTALL_PROG = cp
 
-all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe install.exe uninstal.exe GvimExt/gvimext.dll
+all: $(MAIN_TARGET) vimrun.exe xxd/xxd.exe tee/tee.exe GvimExt/gvimext.dll
 
 vimrun.exe: vimrun.c
 	$(CC) $(CFLAGS) -o vimrun.exe vimrun.c $(LIB)
-
-install.exe: dosinst.c
-	$(CC) $(CFLAGS) -o install.exe dosinst.c $(LIB) -lole32 -luuid
-
-uninstal.exe: uninstal.c
-	$(CC) $(CFLAGS) -o uninstal.exe uninstal.c $(LIB)
 
 ifeq ($(VIMDLL),yes)
 $(TARGET): $(OUTDIR) $(OBJ)
@@ -982,6 +921,10 @@ libvim.a: $(OUTDIR) $(OBJ)
 	$(AR) rcs libvim.a $(OBJ)
 
 installlibvim: libvim.a
+	mkdir -p $(DEST_INCLUDE)
+	$(INSTALL_PROG) *.h $(DEST_INCLUDE)
+	mkdir -p $(DEST_INCLUDE)/proto
+	$(INSTALL_PROG) proto/*.pro $(DEST_INCLUDE)/proto
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 TEST_SRC = $(wildcard apitest/*.c)
@@ -1026,7 +969,7 @@ clean:
 	-$(DEL) $(OUTDIR)$(DIRSLASH)*.o
 	-$(DEL) $(OUTDIR)$(DIRSLASH)*.res
 	-rmdir $(OUTDIR)
-	-$(DEL) $(MAIN_TARGET) vimrun.exe install.exe uninstal.exe
+	-$(DEL) $(MAIN_TARGET) vimrun.exe
 	-$(DEL) pathdef.c
 ifdef PERL
 	-$(DEL) if_perl.c
@@ -1042,7 +985,7 @@ endif
 ###########################################################################
 INCL =	vim.h alloc.h ascii.h ex_cmds.h feature.h globals.h \
 	keymap.h macros.h option.h os_dos.h os_win32.h proto.h regexp.h \
-	spell.h structs.h term.h $(NBDEBUG_INCL)
+	structs.h term.h $(NBDEBUG_INCL)
 GUI_INCL = gui.h
 ifeq ($(DIRECTX),yes)
 GUI_INCL += gui_dwrite.h
@@ -1097,9 +1040,6 @@ $(OUTDIR)/gui_beval.o:	gui_beval.c $(INCL) $(GUI_INCL)
 
 $(OUTDIR)/gui_w32.o:	gui_w32.c $(INCL) $(GUI_INCL)
 	$(CC) -c $(CFLAGS) gui_w32.c -o $@
-
-$(OUTDIR)/if_cscope.o:	if_cscope.c $(INCL) if_cscope.h
-	$(CC) -c $(CFLAGS) if_cscope.c -o $@
 
 $(OUTDIR)/if_mzsch.o:	if_mzsch.c $(INCL) $(MZSCHEME_INCL) $(MZ_EXTRA_DEP)
 	$(CC) -c $(CFLAGS) if_mzsch.c -o $@

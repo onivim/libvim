@@ -52,17 +52,11 @@ extern int _stricoll(char *a, char *b);
 # ifdef __BEOS__
 #  include "os_beos.pro"
 # endif
-# ifdef __QNX__
-#  include "os_qnx.pro"
-# endif
 
 # include "autocmd.pro"
 # include "buffer.pro"
 # include "change.pro"
 # include "charset.pro"
-# ifdef FEAT_CSCOPE
-#  include "if_cscope.pro"
-# endif
 # include "debugger.pro"
 # include "dict.pro"
 # include "diff.pro"
@@ -94,9 +88,6 @@ extern int _stricoll(char *a, char *b);
 # include "mark.pro"
 # include "memfile.pro"
 # include "memline.pro"
-# ifdef FEAT_MENU
-#  include "menu.pro"
-# endif
 # ifdef FEAT_ARABIC
 #  include "arabic.pro"
 # endif
@@ -177,8 +168,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # ifdef FEAT_SIGNS
 #  include "sign.pro"
 # endif
-# include "spell.pro"
-# include "spellfile.pro"
 # include "state_machine.pro"
 # include "syntax.pro"
 # include "tag.pro"
@@ -214,10 +203,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 
 # ifdef FEAT_PYTHON3
 #  include "if_python3.pro"
-# endif
-
-# ifdef FEAT_TCL
-#  include "if_tcl.pro"
 # endif
 
 # ifdef FEAT_RUBY

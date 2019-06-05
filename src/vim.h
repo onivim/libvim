@@ -268,10 +268,6 @@
 # include "os_mac.h"
 #endif
 
-#ifdef __QNX__
-# include "os_qnx.h"
-#endif
-
 #ifdef X_LOCALE
 # include <X11/Xlocale.h>
 #else
@@ -813,11 +809,7 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define FINDFILE_BOTH	2	/* files and directories */
 
 #define W_ENDCOL(wp)	(wp->w_wincol + wp->w_width)
-#ifdef FEAT_MENU
-# define W_WINROW(wp)	(wp->w_winrow + wp->w_winbar_height)
-#else
 # define W_WINROW(wp)	(wp->w_winrow)
-#endif
 
 #ifdef NO_EXPANDPATH
 # define gen_expand_wildcards mch_expand_wildcards
@@ -1469,13 +1461,8 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define MIN_COLUMNS	12	/* minimal columns for screen */
 #define MIN_LINES	2	/* minimal lines for screen */
 #define STATUS_HEIGHT	1	/* height of a status line under a window */
-#ifdef FEAT_MENU		/* height of a status line under a window */
-# define WINBAR_HEIGHT(wp)	(wp)->w_winbar_height
-# define VISIBLE_HEIGHT(wp)	((wp)->w_height + (wp)->w_winbar_height)
-#else
 # define WINBAR_HEIGHT(wp)	0
 # define VISIBLE_HEIGHT(wp)	(wp)->w_height
-#endif
 #define QF_WINHEIGHT	10	/* default height for quickfix window */
 
 /*
@@ -2076,7 +2063,6 @@ typedef enum {
 } flush_buffers_T;
 
 #include "ex_cmds.h"	    /* Ex command defines */
-#include "spell.h"	    /* spell checking stuff */
 
 #include "proto.h"	    /* function prototypes */
 

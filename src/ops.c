@@ -35,16 +35,9 @@
 #   define PLUS_REGISTER	STAR_REGISTER	    /* there is only one */
 #  endif
 #endif
-#ifdef FEAT_DND
-# define TILDE_REGISTER		(PLUS_REGISTER + 1)
-#endif
 
 #ifdef FEAT_CLIPBOARD
-# ifdef FEAT_DND
-#  define NUM_REGISTERS		(TILDE_REGISTER + 1)
-# else
 #  define NUM_REGISTERS		(PLUS_REGISTER + 1)
-# endif
 #else
 # define NUM_REGISTERS		37
 #endif
@@ -878,9 +871,6 @@ valid_yank_reg(
 	    || regname == '*'
 	    || regname == '+'
 #endif
-#ifdef FEAT_DND
-	    || (!writing && regname == '~')
-#endif
 							)
 	return TRUE;
     return FALSE;
@@ -934,10 +924,6 @@ get_yank_register(int regname, int writing)
 	i = PLUS_REGISTER;
 	ret = TRUE;
     }
-#endif
-#ifdef FEAT_DND
-    else if (!writing && regname == '~')
-	i = TILDE_REGISTER;
 #endif
     else		/* not 0-9, a-z, A-Z or '-': use register 0 */
 	i = 0;
@@ -6253,11 +6239,6 @@ write_viminfo_registers(FILE *fp)
 	if (i == STAR_REGISTER || i == PLUS_REGISTER)
 	    continue;
 #endif
-#ifdef FEAT_DND
-	/* Neither do we want the '~' register */
-	if (i == TILDE_REGISTER)
-	    continue;
-#endif
 	/* When reading viminfo for merging and writing: Use the register from
 	 * viminfo if it's newer. */
 	if (y_read_regs != NULL
@@ -6638,25 +6619,6 @@ may_set_selection(void)
 }
 
 #endif /* FEAT_CLIPBOARD || PROTO */
-
-
-#if defined(FEAT_DND) || defined(PROTO)
-/*
- * Replace the contents of the '~' register with str.
- */
-    void
-dnd_yank_drag_data(char_u *str, long len)
-{
-    yankreg_T *curr;
-
-    curr = y_current;
-    y_current = &y_regs[TILDE_REGISTER];
-    free_yank_all();
-    str_to_reg(y_current, MCHAR, str, len, 0L, FALSE);
-    y_current = curr;
-}
-#endif
-
 
 #if defined(FEAT_EVAL) || defined(PROTO)
 /*

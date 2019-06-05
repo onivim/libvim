@@ -203,13 +203,6 @@
  */
 
 /*
- * +cmdline_info	'showcmd' and 'ruler' options.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_CMDL_INFO
-#endif
-
-/*
  * +linebreak		'showbreak', 'breakat'  and 'linebreak' options.
  *			Also 'numberwidth'.
  */
@@ -310,13 +303,6 @@
  */
 
 /*
- * +cscope		Unix only: Cscope support.
- */
-#if defined(UNIX) && defined(FEAT_BIG) && !defined(FEAT_CSCOPE) && !defined(MACOS_X)
-# define FEAT_CSCOPE
-#endif
-
-/*
  * +eval		Built-in script language and expression evaluation,
  *			":let", ":if", etc.
  * +float		Floating point variables.
@@ -371,13 +357,6 @@
 #endif
 
 /*
- *			Insert mode completion with 'completefunc'.
- */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_EVAL)
-# define FEAT_COMPL_FUNC
-#endif
-
-/*
  * +user_commands	Allow the user to define his own commands.
  *			Now always enabled.
  */
@@ -420,13 +399,6 @@
  */
 #if defined(FEAT_NORMAL)
 # define FEAT_TITLE
-#endif
-
-#ifdef FEAT_NORMAL
-# define FEAT_STL_OPT
-# ifndef FEAT_CMDL_INFO
-#  define FEAT_CMDL_INFO	/* 'ruler' is required for 'statusline' */
-# endif
 #endif
 
 #ifdef FEAT_NORMAL
@@ -481,15 +453,6 @@
  */
 #if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
 # define FEAT_TEXT_PROP
-#endif
-
-/*
- * +spell		spell checking
- *
- * Disabled for EBCDIC: * Doesn't work (SIGSEGV).
- */
-#if (defined(FEAT_NORMAL) || defined(PROTO)) && !defined(EBCDIC)
-# define FEAT_SPELL
 #endif
 
 /*
@@ -645,45 +608,10 @@
 # define FEAT_LIBCALL
 #endif
 
-/*
- * +menu		":menu" command
- */
-#ifdef FEAT_NORMAL
-# define FEAT_MENU
-# ifdef FEAT_GUI_MSWIN
-#  define FEAT_TEAROFF
-# endif
-#endif
-
-/*
- * popup menu in a terminal
- */
-#if defined(FEAT_MENU) && !defined(ALWAYS_USE_GUI) && defined(FEAT_INS_EXPAND)
-# define FEAT_TERM_POPUP_MENU
-#endif
-
 /* There are two ways to use XPM. */
 #if (defined(HAVE_XM_XPMP_H) && defined(FEAT_GUI_MOTIF)) \
 		|| defined(HAVE_X11_XPM_H)
 # define HAVE_XPM 1
-#endif
-
-/*
- * +toolbar		Include code for a toolbar (for the Win32 GUI, GTK
- *			always has it).  But only if menus are enabled.
- */
-#if defined(FEAT_NORMAL) && defined(FEAT_MENU) \
-	&& (defined(FEAT_GUI_GTK) \
-		|| defined(FEAT_GUI_MSWIN) \
-		|| ((defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)) \
-			&& defined(HAVE_XPM)) \
-		|| defined(FEAT_GUI_PHOTON))
-# define FEAT_TOOLBAR
-#endif
-
-
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_MENU)
-# define FEAT_MENU
 #endif
 
 /*
@@ -1021,9 +949,6 @@
 # if defined(FEAT_NORMAL) && defined(MSWIN)
 #  define DOS_MOUSE
 # endif
-# if defined(FEAT_NORMAL) && defined(__QNX__)
-#  define FEAT_MOUSE_PTERM
-# endif
 #endif
 
 /*
@@ -1086,13 +1011,6 @@
 # ifndef FEAT_CLIPBOARD
 #  define FEAT_CLIPBOARD
 # endif
-#endif
-
-/*
- * +dnd		Drag'n'drop support.  Always used for the GTK+ GUI.
- */
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_GUI_GTK)
-# define FEAT_DND
 #endif
 
 #if defined(FEAT_GUI_MSWIN) && defined(FEAT_SMALL)
@@ -1211,50 +1129,9 @@
 # endif
 #endif
 
-/*
- * +balloon_eval	Allow balloon expression evaluation. Used with a
- *			debugger and for tooltips.
- *			Only for GUIs where it was implemented.
- */
-#if (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) \
-	|| defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN)) \
-	&& (   ((defined(FEAT_TOOLBAR) || defined(FEAT_GUI_TABLINE)) \
-		&& !defined(FEAT_GUI_GTK) && !defined(FEAT_GUI_MSWIN)) \
-	    || defined(FEAT_NETBEANS_INTG) || defined(FEAT_EVAL))
-# define FEAT_BEVAL_GUI
-# if !defined(FEAT_XFONTSET) && !defined(FEAT_GUI_GTK) \
-	&& !defined(FEAT_GUI_MSWIN)
-#  define FEAT_XFONTSET
-# endif
-#endif
-
-#if defined(FEAT_BEVAL_GUI) && (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA))
-# define FEAT_BEVAL_TIP		/* balloon eval used for toolbar tooltip */
-#endif
-
-/*
- * +balloon_eval_term	Allow balloon expression evaluation in the terminal.
- */
-#if defined(FEAT_HUGE) && defined(FEAT_TIMERS) && \
-	(defined(UNIX) || defined(VMS) || \
-	 (defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))))
-# define FEAT_BEVAL_TERM
-#endif
-
-#if defined(FEAT_BEVAL_GUI) || defined(FEAT_BEVAL_TERM)
-# define FEAT_BEVAL
-#endif
-
 /* both Motif and Athena are X11 and share some code */
 #if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
 # define FEAT_GUI_X11
-#endif
-
-#if defined(FEAT_NETBEANS_INTG)
-// NetBeans uses menus.
-# if !defined(FEAT_MENU)
-#  define FEAT_MENU
-# endif
 #endif
 
 #if 0

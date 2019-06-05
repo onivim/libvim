@@ -1120,10 +1120,6 @@ call_func_retnr(
     return retval;
 }
 
-#if defined(FEAT_CMDL_COMPL) \
-	|| defined(FEAT_COMPL_FUNC) || defined(PROTO)
-
-# if defined(FEAT_CMDL_COMPL) || defined(PROTO)
 /*
  * Call Vim script function "func" and return the result as a string.
  * Returns NULL when calling the function fails.
@@ -1146,7 +1142,6 @@ call_func_retstr(
     clear_tv(&rettv);
     return retval;
 }
-# endif
 
 /*
  * Call Vim script function "func" and return the result as a List.
@@ -1173,7 +1168,6 @@ call_func_retlist(
 
     return rettv.vval.v_list;
 }
-#endif
 
 
 #ifdef FEAT_FOLDING
@@ -3381,31 +3375,6 @@ item_lock(typval_T *tv, int deep, int lock)
     }
     --recurse;
 }
-
-#if (defined(FEAT_MENU) && defined(FEAT_MULTI_LANG)) || defined(PROTO)
-/*
- * Delete all "menutrans_" variables.
- */
-    void
-del_menutrans_vars(void)
-{
-    hashitem_T	*hi;
-    int		todo;
-
-    hash_lock(&globvarht);
-    todo = (int)globvarht.ht_used;
-    for (hi = globvarht.ht_array; todo > 0 && !got_int; ++hi)
-    {
-	if (!HASHITEM_EMPTY(hi))
-	{
-	    --todo;
-	    if (STRNCMP(HI2DI(hi)->di_key, "menutrans_", 10) == 0)
-		delete_var(&globvarht, hi);
-	}
-    }
-    hash_unlock(&globvarht);
-}
-#endif
 
 #if defined(FEAT_CMDL_COMPL) || defined(PROTO)
 

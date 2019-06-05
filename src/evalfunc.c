@@ -2884,23 +2884,6 @@ f_count(typval_T *argvars, typval_T *rettv)
     static void
 f_cscope_connection(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_CSCOPE
-    int		num = 0;
-    char_u	*dbpath = NULL;
-    char_u	*prepend = NULL;
-    char_u	buf[NUMBUFLEN];
-
-    if (argvars[0].v_type != VAR_UNKNOWN
-	    && argvars[1].v_type != VAR_UNKNOWN)
-    {
-	num = (int)tv_get_number(&argvars[0]);
-	dbpath = tv_get_string(&argvars[1]);
-	if (argvars[2].v_type != VAR_UNKNOWN)
-	    prepend = tv_get_string_buf(&argvars[2], buf);
-    }
-
-    rettv->vval.v_number = cs_connection(num, dbpath, prepend);
-#endif
 }
 
 /*
@@ -5160,20 +5143,6 @@ f_getcompletion(typval_T *argvars, typval_T *rettv)
 	return;
     }
 
-# if defined(FEAT_MENU)
-    if (xpc.xp_context == EXPAND_MENUS)
-    {
-	set_context_in_menu_cmd(&xpc, (char_u *)"menu", xpc.xp_pattern, FALSE);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-# endif
-#ifdef FEAT_CSCOPE
-    if (xpc.xp_context == EXPAND_CSCOPE)
-    {
-	set_context_in_cscope_cmd(&xpc, xpc.xp_pattern, CMD_cscope);
-	xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
-    }
-#endif
 #ifdef FEAT_SIGNS
     if (xpc.xp_context == EXPAND_SIGN)
     {
@@ -5959,9 +5928,6 @@ get_win_info(win_T *wp, short tpnr, short winnr)
     dict_add_number(dict, "winrow", wp->w_winrow + 1);
     dict_add_number(dict, "topline", wp->w_topline);
     dict_add_number(dict, "botline", wp->w_botline - 1);
-#ifdef FEAT_MENU
-    dict_add_number(dict, "winbar", wp->w_winbar_height);
-#endif
     dict_add_number(dict, "width", wp->w_width);
     dict_add_number(dict, "wincol", wp->w_wincol + 1);
     dict_add_number(dict, "bufnr", wp->w_buffer->b_fnum);
@@ -6335,9 +6301,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"osxdarwin",	/* synonym for macunix */
 # endif
 #endif
-#ifdef __QNX__
-	"qnx",
-#endif
 #ifdef SUN_SYSTEM
 	"sun",
 #else
@@ -6420,9 +6383,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"crypt-blowfish",
 	"crypt-blowfish2",
 #endif
-#ifdef FEAT_CSCOPE
-	"cscope",
-#endif
 	"cursorbind",
 #ifdef DEBUG
 	"debug",
@@ -6441,9 +6401,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_DIRECTX
 	"directx",
-#endif
-#ifdef FEAT_DND
-	"dnd",
 #endif
 #ifdef FEAT_EMACS_TAGS
 	"emacs_tags",
@@ -6549,9 +6506,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 # ifndef DYNAMIC_LUA
 	"lua",
 # endif
-#endif
-#ifdef FEAT_MENU
-	"menu",
 #endif
 #ifdef FEAT_SESSION
 	"mksession",
@@ -6666,10 +6620,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"ruby",
 #endif
 	"scrollbind",
-#ifdef FEAT_CMDL_INFO
-	"showcmd",
-	"cmdline_info",
-#endif
 #ifdef FEAT_SIGNS
 	"signs",
 #endif
@@ -6685,9 +6635,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_NETBEANS_INTG
 	"netbeans_intg",
 #endif
-#ifdef FEAT_SPELL
-	"spell",
-#endif
 #ifdef FEAT_SYN_HL
 	"syntax",
 #endif
@@ -6696,11 +6643,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
-#endif
-#ifdef FEAT_TCL
-# ifndef DYNAMIC_TCL
-	"tcl",
-# endif
 #endif
 #ifdef FEAT_TERMGUICOLORS
 	"termguicolors",
@@ -12712,11 +12654,7 @@ f_soundfold(typval_T *argvars, typval_T *rettv)
 
     rettv->v_type = VAR_STRING;
     s = tv_get_string(&argvars[0]);
-#ifdef FEAT_SPELL
-    rettv->vval.v_string = eval_soundfold(s);
-#else
     rettv->vval.v_string = vim_strsave(s);
-#endif
 }
 
 /*
@@ -12731,40 +12669,6 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-
-#ifdef FEAT_SPELL
-    if (argvars[0].v_type == VAR_UNKNOWN)
-    {
-	/* Find the start and length of the badly spelled word. */
-	len = spell_move_to(curwin, FORWARD, TRUE, TRUE, &attr);
-	if (len != 0)
-	{
-	    word = ml_get_cursor();
-	    curwin->w_set_curswant = TRUE;
-	}
-    }
-    else if (curwin->w_p_spell && *curbuf->b_s.b_p_spl != NUL)
-    {
-	char_u	*str = tv_get_string_chk(&argvars[0]);
-	int	capcol = -1;
-
-	if (str != NULL)
-	{
-	    /* Check the argument for spelling. */
-	    while (*str != NUL)
-	    {
-		len = spell_check(curwin, str, &attr, &capcol, FALSE);
-		if (attr != HLF_COUNT)
-		{
-		    word = str;
-		    break;
-		}
-		str += len;
-		capcol -= len;
-	    }
-	}
-    }
-#endif
 
     list_append_string(rettv->vval.v_list, word, len);
     list_append_string(rettv->vval.v_list, (char_u *)(
@@ -12781,58 +12685,9 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_spellsuggest(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_SPELL
-    char_u	*str;
-    int		typeerr = FALSE;
-    int		maxcount;
-    garray_T	ga;
-    int		i;
-    listitem_T	*li;
-    int		need_capital = FALSE;
-#endif
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-
-#ifdef FEAT_SPELL
-    if (curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
-    {
-	str = tv_get_string(&argvars[0]);
-	if (argvars[1].v_type != VAR_UNKNOWN)
-	{
-	    maxcount = (int)tv_get_number_chk(&argvars[1], &typeerr);
-	    if (maxcount <= 0)
-		return;
-	    if (argvars[2].v_type != VAR_UNKNOWN)
-	    {
-		need_capital = (int)tv_get_number_chk(&argvars[2], &typeerr);
-		if (typeerr)
-		    return;
-	    }
-	}
-	else
-	    maxcount = 25;
-
-	spell_suggest_list(&ga, str, maxcount, need_capital, FALSE);
-
-	for (i = 0; i < ga.ga_len; ++i)
-	{
-	    str = ((char_u **)ga.ga_data)[i];
-
-	    li = listitem_alloc();
-	    if (li == NULL)
-		vim_free(str);
-	    else
-	    {
-		li->li_tv.v_type = VAR_STRING;
-		li->li_tv.v_lock = 0;
-		li->li_tv.vval.v_string = str;
-		list_append(rettv->vval.v_list, li);
-	    }
-	}
-	ga_clear(&ga);
-    }
-#endif
 }
 
     static void
