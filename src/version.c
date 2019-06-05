@@ -168,11 +168,6 @@ static char *(features[]) =
 #else
 	"-cmdline_hist",
 #endif
-#ifdef FEAT_CMDL_INFO
-	"+cmdline_info",
-#else
-	"-cmdline_info",
-#endif
 #ifdef FEAT_COMMENTS
 	"+comments",
 #else

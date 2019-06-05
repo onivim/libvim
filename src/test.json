@@ -7,7 +7,7 @@
     "build": [
         ["bash", "-c", "#{os == 'windows' ? 'build/build-windows-tests.sh' : 'build/build-posix-tests.sh'}"]
     ],
-    "buildsInSource":true
+    "buildsInSource": "_build"
   },
   "dependencies": { }
 }
