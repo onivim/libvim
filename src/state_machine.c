@@ -45,7 +45,7 @@ void sm_push_cmdline(int cmdchar, long count, int indent, char_u **result) {
 /*
  * sm_execute_normal
  *
- * Like sm_execute, but if there is no activate state,
+ * Like sm_execute, but if there is no active state,
  * defaults to normal mode.
  */
 void sm_execute_normal(char_u *keys) {

@@ -768,6 +768,9 @@ restart_state:
 	printf("insert mode");
 	context->was_inserting = TRUE;
 	return HANDLED;
+    } else if (sm_get_current_mode() == CMDLINE) {
+	    printf("cmdline mode");
+	    return HANDLED;
     }
 
     if (!finish_op && context->should_finish_op) {
@@ -4719,28 +4722,31 @@ static void nv_colon(cmdarg_T *cap) {
     old_p_im = p_im;
 
     /* get a command line and execute it */
-    cmd_result = do_cmdline(NULL, getexline, NULL,
-                            cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0);
+    /* cmd_result = do_cmdline(NULL, getexline, NULL, */
+    /*                         cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0); */
 
-    /* If 'insertmode' changed, enter or exit Insert mode */
-    if (p_im != old_p_im) {
-      if (p_im)
-        restart_edit = 'i';
-      else
-        restart_edit = 0;
-    }
+    sm_push_cmdline(':', 0, 0, NULL);
 
-    if (cmd_result == FAIL)
-      /* The Ex command failed, do not execute the operator. */
-      clearop(cap->oap);
-    else if (cap->oap->op_type != OP_NOP &&
-             (cap->oap->start.lnum > curbuf->b_ml.ml_line_count ||
-              cap->oap->start.col >
-                  (colnr_T)STRLEN(ml_get(cap->oap->start.lnum)) ||
-              did_emsg))
-      /* The start of the operator has become invalid by the Ex command.
-       */
-      clearopbeep(cap->oap);
+    /* TODO: Port this over */
+//    If 'insertmode' changed, enter or exit Insert mode 
+//    if (p_im != old_p_im) {
+//      if (p_im)
+//        restart_edit = 'i';
+//      else
+//        restart_edit = 0;
+//    }
+//
+//    if (cmd_result == FAIL)
+//      /* The Ex command failed, do not execute the operator. */
+//      clearop(cap->oap);
+//    else if (cap->oap->op_type != OP_NOP &&
+//             (cap->oap->start.lnum > curbuf->b_ml.ml_line_count ||
+//              cap->oap->start.col >
+//                  (colnr_T)STRLEN(ml_get(cap->oap->start.lnum)) ||
+//              did_emsg))
+//      /* The start of the operator has become invalid by the Ex command.
+//       */
+//      clearopbeep(cap->oap);
   }
 }
 
@@ -5518,7 +5524,9 @@ static void nv_search(cmdarg_T *cap) {
 
   /* When using 'incsearch' the cursor may be moved to set a different search
    * start position. */
-  cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
+  // TODO!!
+  // cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
+  cap->searchbuf = "i";
 
   if (cap->searchbuf == NULL) {
     clearop(oap);

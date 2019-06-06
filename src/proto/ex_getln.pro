@@ -2,7 +2,7 @@
 
 void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **result);
 executionStatus_T state_cmdline_execute(void *ctx, int c);
-void *state_cmdline_cleanup(void *context);
+void state_cmdline_cleanup(void *context);
 
 void cmdline_init(void);
 char_u *getcmdline(int firstc, long count, int indent);
