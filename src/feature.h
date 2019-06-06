@@ -64,7 +64,7 @@
 # if defined(UNIX) || defined(MSWIN) || defined(MACOS_X)
 #  define FEAT_HUGE
 # else
-#  if defined(MSWIN) || defined(VMS) || defined(AMIGA)
+#  if defined(MSWIN) || defined(VMS)
 #   define FEAT_BIG
 #  else
 #   define FEAT_NORMAL
@@ -365,8 +365,7 @@
  * +printer		":hardcopy" command
  * +postscript		Printing uses PostScript file output.
  */
-#if defined(FEAT_NORMAL) && (defined(MSWIN) || defined(FEAT_EVAL)) \
-	&& !defined(AMIGA)
+#if defined(FEAT_NORMAL) && (defined(MSWIN) || defined(FEAT_EVAL))
 # define FEAT_PRINTER
 #endif
 #if defined(FEAT_PRINTER) && ((defined(MSWIN) && defined(MSWINPS)) \
@@ -917,7 +916,6 @@
  * +mouse		Any mouse support (any of the above enabled).
  */
 /* OS/2 and Amiga console have no mouse support */
-#if !defined(AMIGA)
 # ifdef FEAT_NORMAL
 #  define FEAT_MOUSE_XTERM
 # endif
@@ -933,7 +931,6 @@
 # if defined(FEAT_NORMAL) && defined(MSWIN)
 #  define DOS_MOUSE
 # endif
-#endif
 
 /*
  * Note: Only one of the following may be defined:

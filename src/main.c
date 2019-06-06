@@ -2168,12 +2168,6 @@ command_line_scan(mparm_T *parmp)
 #endif
 #ifdef FEAT_DIFF
 	    case 'd':		/* "-d"		'diff' */
-# ifdef AMIGA
-		/* check for "-dev {device}" */
-		if (argv[0][argv_idx] == 'e' && argv[0][argv_idx + 1] == 'v')
-		    want_argument = TRUE;
-		else
-# endif
 		    parmp->diff_mode = TRUE;
 		break;
 #endif
@@ -2626,7 +2620,7 @@ read_stdin(void)
     TIME_MSG("reading stdin");
 
     check_swap_exists_action();
-#if !(defined(AMIGA) || defined(MACOS_X))
+#if !(defined(MACOS_X))
     /*
      * Close stdin and dup it from stderr.  Required for GPM to work
      * properly, and for running external commands.
@@ -3023,13 +3017,6 @@ source_startup_scripts(mparm_T *parmp)
     }
     else if (!silent_mode)
     {
-#ifdef AMIGA
-	struct Process	*proc = (struct Process *)FindTask(0L);
-	APTR		save_winptr = proc->pr_WindowPtr;
-
-	/* Avoid a requester here for a volume that doesn't exist. */
-	proc->pr_WindowPtr = (APTR)-1L;
-#endif
 
 	/*
 	 * Get system wide defaults, if the file name is defined.
@@ -3135,9 +3122,6 @@ source_startup_scripts(mparm_T *parmp)
 	if (secure == 2)
 	    need_wait_return = TRUE;
 	secure = 0;
-#ifdef AMIGA
-	proc->pr_WindowPtr = save_winptr;
-#endif
     }
     TIME_MSG("sourcing vimrc file(s)");
 }
@@ -3353,10 +3337,6 @@ usage(void)
     main_msg(_("-r\t\t\tList swap files and exit"));
     main_msg(_("-r (with file name)\tRecover crashed session"));
     main_msg(_("-L\t\t\tSame as -r"));
-#ifdef AMIGA
-    main_msg(_("-f\t\t\tDon't use newcli to open window"));
-    main_msg(_("-dev <device>\t\tUse <device> for I/O"));
-#endif
 #ifdef FEAT_ARABIC
     main_msg(_("-A\t\t\tStart in Arabic mode"));
 #endif

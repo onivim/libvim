@@ -1900,10 +1900,6 @@ CPROTO = cproto $(PROTO_FLAGS) -DPROTO \
 	$(CPROTO) -DFEAT_GUI $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
 
-os_amiga.pro: os_amiga.c
-	$(CPROTO) -DAMIGA -UHAVE_CONFIG_H -DBPTR=char* $< > proto/$@
-	echo "/* vim: set ft=c : */" >> proto/$@
-
 os_win32.pro: os_win32.c
 	$(CPROTO) -DWIN32 -UHAVE_CONFIG_H $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@

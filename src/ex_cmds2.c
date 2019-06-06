@@ -2458,13 +2458,6 @@ do_in_path(
     char_u	**files;
     int		i;
     int		did_one = FALSE;
-#ifdef AMIGA
-    struct Process	*proc = (struct Process *)FindTask(0L);
-    APTR		save_winptr = proc->pr_WindowPtr;
-
-    /* Avoid a requester here for a volume that doesn't exist. */
-    proc->pr_WindowPtr = (APTR)-1L;
-#endif
 
     /* Make a copy of 'runtimepath'.  Invoking the callback may change the
      * value. */
@@ -2559,10 +2552,6 @@ do_in_path(
 	    verbose_leave();
 	}
     }
-
-#ifdef AMIGA
-    proc->pr_WindowPtr = save_winptr;
-#endif
 
     return did_one ? OK : FAIL;
 }

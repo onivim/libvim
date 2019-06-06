@@ -266,7 +266,7 @@ static struct builtin_term builtin_termcaps[] =
 
 #ifndef NO_BUILTIN_TCAPS
 
-# if defined(AMIGA) || defined(ALL_BUILTIN_TCAPS)
+# if defined(ALL_BUILTIN_TCAPS)
 /*
  * Amiga console window, default for Amiga
  */
@@ -1397,10 +1397,6 @@ termgui_mch_get_rgb(guicolor_T color)
 /*
  * DEFAULT_TERM is used, when no terminal is specified with -T option or $TERM.
  */
-#ifdef AMIGA
-# define DEFAULT_TERM	(char_u *)"amiga"
-#endif
-
 #ifdef MSWIN
 # define DEFAULT_TERM	(char_u *)"win32"
 #endif
@@ -2007,9 +2003,6 @@ set_termname(char_u *term)
     else
     {
 	term_console = TRUE;
-# ifdef AMIGA
-	win_resize_on();	/* enable window resizing reports */
-# endif
     }
 #endif
 
@@ -2456,7 +2449,7 @@ term_is_gui(char_u *name)
 }
 #endif
 
-#if !defined(HAVE_TGETENT) || defined(AMIGA) || defined(PROTO)
+#if !defined(HAVE_TGETENT) || defined(PROTO)
 
     char_u *
 tltoa(unsigned long i)
@@ -3300,11 +3293,6 @@ set_shellsize(int width, int height, int mustset)
 	return;
 
     ++busy;
-
-#ifdef AMIGA
-    out_flush();	    /* must do this before mch_get_shellsize() for
-			       some obscure reason */
-#endif
 
     if (mustset || (ui_get_shellsize() == FAIL && height != 0))
     {

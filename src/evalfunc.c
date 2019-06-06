@@ -16,10 +16,6 @@
 
 #if defined(FEAT_EVAL) || defined(PROTO)
 
-#ifdef AMIGA
-# include <time.h>	/* for strftime() */
-#endif
-
 #ifdef VMS
 # include <float.h>
 #endif
@@ -3258,14 +3254,12 @@ f_empty(typval_T *argvars, typval_T *rettv)
     static void
 f_environ(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#if !defined(AMIGA)
     int			i = 0;
     char_u		*entry, *value;
 # ifdef MSWIN
     extern wchar_t	**_wenviron;
 # else
     extern char		**environ;
-# endif
 
     if (rettv_dict_alloc(rettv) != OK)
 	return;
@@ -6269,12 +6263,6 @@ f_has(typval_T *argvars, typval_T *rettv)
     int		n = FALSE;
     static char	*(has_list[]) =
     {
-#ifdef AMIGA
-	"amiga",
-# ifdef FEAT_ARP
-	"arp",
-# endif
-#endif
 #ifdef __BEOS__
 	"beos",
 #endif

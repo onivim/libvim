@@ -2325,30 +2325,6 @@ vgetorpeek(int advance)
 			    keylen = 0;
 			if (keylen == 0)	/* no matching terminal code */
 			{
-#ifdef AMIGA			/* check for window bounds report */
-			    if (typebuf.tb_maplen == 0 && (typebuf.tb_buf[
-					       typebuf.tb_off] & 0xff) == CSI)
-			    {
-				for (s = typebuf.tb_buf + typebuf.tb_off + 1;
-					s < typebuf.tb_buf + typebuf.tb_off
-							      + typebuf.tb_len
-				   && (VIM_ISDIGIT(*s) || *s == ';'
-								|| *s == ' ');
-					++s)
-				    ;
-				if (*s == 'r' || *s == '|') /* found one */
-				{
-				    del_typebuf((int)(s + 1 -
-				       (typebuf.tb_buf + typebuf.tb_off)), 0);
-				    /* get size and redraw screen */
-				    shell_resized();
-				    continue;
-				}
-				if (*s == NUL)	    /* need more characters */
-				    keylen = KEYLEN_PART_KEY;
-			    }
-			    if (keylen >= 0)
-#endif
 			      /* When there was a matching mapping and no
 			       * termcode could be replaced after another one,
 			       * use that mapping (loop around). If there was

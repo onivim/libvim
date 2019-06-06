@@ -32,9 +32,6 @@
 #  define XImage int
 # endif
 
-# ifdef AMIGA
-#  include "os_amiga.pro"
-# endif
 # if defined(UNIX) || defined(VMS)
 #  include "os_unix.pro"
 # endif
@@ -175,7 +172,7 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # ifdef FEAT_TERMINAL
 #  include "terminal.pro"
 # endif
-# if defined(HAVE_TGETENT) && (defined(AMIGA) || defined(VMS))
+# if defined(HAVE_TGETENT) && (defined(VMS))
 #  include "termlib.pro"
 # endif
 # ifdef FEAT_TEXT_PROP
