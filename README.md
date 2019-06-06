@@ -4,11 +4,13 @@
 
 ## What is `libvim`?
 
-`libvim` is a minimal C-based abstraction of Vim modal editing (it is an unofficial fork). It does not include any user interface, and is primarily responsible for acting as a fast buffer manipulation engine. 
+`libvim` is a fork of [Vim](https://github.com/vim/vim), with the goal of providing a [minimal C-based API](https://github.com/onivim/libvim/blob/master/src/libvim.h), modelling Vim modal editing. It does not include any user interface at all (not even a terminal UI), and is primarily responsible for acting as a fast buffer manipulation engine, faithful to Vim keystrokes. It's still a work-in-progress and there is lots of work left to stabilize.
+
+If you're looking for a terminal Vim, check out [neovim](https://github.com/neovim/neovim), or a GUI Vim, check out [Onivim 2](https://v2.onivim.io).
 
 ## Why?
 
-`libvim` is an experiment primarily used for [Onivim 2](https://v2.onivim.io). After implementing several iterations of 'UI Vims' between v1, v2, and other projects, the abstraction I wished to have was a sort of a pure functional Vim, completely decoupled from terminal UI - where 'vim' is a function of `(editor state, input) => (new editor state)`.
+`libvim` is primarily intended for [Onivim 2](https://v2.onivim.io). After implementing several iterations of 'UI Vims' between v1, v2, and other projects, the abstraction I wished to have was a sort of a pure functional Vim, completely decoupled from terminal UI - where 'vim' is a function of `(editor state, input) => (new editor state)`. As Onivim 2 completely handles the rendering layer, this Vim-modelled-as-a-pure-function could focus on just buffer manipulation.
 
 To that end, `libvim` exposes a simple C API for working with Vim, and supports listening to buffer changes, messages, etc. 
 
@@ -18,127 +20,86 @@ It is responsible for:
 - Parsing and sourcing VimL
 - Handling key remaps
 
-It is not responsible for:
+It is __NOT__ responsible for:
 - Any sort of UI rendering (terminal, etc)
 - Mouse support
 - Syntax Highlighting
 - Spell Checking
 - Terminal Support
+- Completion
 
-Support TBD:
-- Folding
-- Line breaking
+All of these are intended to be handled by the consumer of the library - leaving `libvim` to be focused on the job of fast buffer manipulation.
 
-`libvim` is planned to build cross-platform (since [Onivim 2](https://v2.onivim.io) requires it!), as well as for WebAssembly - we'd like to port our v1 tutorials to a browser-based experience.
+`libvim` builds cross-platform (since [Onivim 2](https://v2.onivim.io) requires it!), as well as for WebAssembly - we'd like to port our v1 tutorials to a browser-based experience.
 
-## Distribution ##
+There are other interesting applications of such an 'abstracted Vim':
+- WebAssembly builds could be useful for implementing Vim modes in browsers / websites
+- Native builds could be useful for applications that want Vim-native bindings - it'd be a nice foundation for implementing `readline`, for example.
 
-You can often use your favorite package manager to install Vim.  On Mac and
-Linux a small version of Vim is pre-installed, you still need to install Vim
-if you want more features.
+## API
 
-There are separate distributions for Unix, PC, Amiga and some other systems.
-This `README.md` file comes with the runtime archive.  It includes the
-documentation, syntax files and other files that are used at runtime.  To run
-Vim you must get either one of the binary archives or a source archive.
-Which one you need depends on the system you want to run it on and whether you
-want or must compile it yourself.  Check http://www.vim.org/download.php for
-an overview of currently available distributions.
+For an example of the API usage, check out the [apitests](https://github.com/onivim/libvim/blob/master/src/apitest) like [normal_mode_motion](https://github.com/onivim/libvim/blob/master/src/apitest/normal_mode_motion.c). The full API is available here: [libvim.h](https://github.com/onivim/libvim/blob/master/src/libvim.h)
 
-Some popular places to get the latest Vim:
-* Check out the git repository from [github](https://github.com/vim/vim).
-* Get the source code as an [archive](https://github.com/vim/vim/releases).
-* Get a Windows executable from the
-[vim-win32-installer](https://github.com/vim/vim-win32-installer/releases) repository.
+The heart of the API is `vimInput` which takes a single key, and is synchronously processed by the state machine. 'Side-effects' like buffer updates, messages, etc can be subscribed to via callbacks like `vimSetBufferUpdateCallback`.
 
-
+This library is in active development and we currently make no guarantees about backwards compatibility. Use the API at your own risk.
 
 ## Compiling ##
 
-If you obtained a binary distribution you don't need to compile Vim.  If you
-obtained a source distribution, all the stuff for compiling Vim is in the
-`src` directory.  See `src/INSTALL` for instructions.
+### Install [esy](https://esy.sh/)
 
+`esy` is like `npm` for native code. If you don't have it already, install it by running:
+```
+npm install -g esy@0.5.7
+```
 
-## Installation ##
+### Installing dependencies
 
-See one of these files for system-specific instructions.  Either in the
-READMEdir directory (in the repository) or the top directory (if you unpack an
-archive):
+- `esy install`
+- `esy '@test' install`
 
-	README_ami.txt		Amiga
-	README_unix.txt		Unix
-	README_dos.txt		MS-DOS and MS-Windows
-	README_mac.txt		Macintosh
-	README_vms.txt		VMS
+### Building
 
-There are other `README_*.txt` files, depending on the distribution you used.
+- `esy build`
 
+### Running tests
 
-## Documentation ##
+- `esy '@test' build`
 
-The Vim tutor is a one hour training course for beginners.  Often it can be
-started as `vimtutor`.  See `:help tutor` for more information.
+## FAQ
 
-The best is to use `:help` in Vim.  If you don't have an executable yet, read
-`runtime/doc/help.txt`.  It contains pointers to the other documentation
-files.  The User Manual reads like a book and is recommended to learn to use
-Vim.  See `:help user-manual`.
+### Why is `libvim` based on Vim and not Neovim?
 
+I'm a huge fan of the work the Neovim team is doing (and the team has been incredibly support of the Onivim project). Ideally, we would've stuck with Neovim or implemented `libvim` based on `libnvim`. In fact, the first time I tried to build this 'minimal abstraction' - I tried to base it off Neovim's `libnvim`. I timeboxed the investigation to 2 days, and ran into some serious hurdles - our build environment is a bit challenging on Windows (it's based on Cygwin + MingW cross-compiler toolchain) - I encountered several issues getting Neovim + deps to build in that environment. Based off that spike, I estimated it would take ~3-4 weeks to get it working in that toolchain.
 
-## Copying ##
+Note that this is not a Neovim issue - the choice of modern C++, dependencies, and build-system make perfect sense - it's a consequence of our OCaml build system. The Cygwin + MingW cross-compiler toolchain isn't well handled by all dependencies (being a weird hybrid of Win32 and Unix, it's often the case where #ifdefs are wrong, incorrect dependencies are pulled in, and it can be a huge time sink working through these issues). It's also easier to pick up libraries via the C FFI (C++ APIs usually need to be wrapped to be picked up in Reason/OCaml).
 
-Vim is Charityware.  You can use and copy it as much as you like, but you are
-encouraged to make a donation to help orphans in Uganda.  Please read the file
-`runtime/doc/uganda.txt` for details (do `:help uganda` inside Vim).
+The pure-C codebase of Vim was able to compile in that environment easily (NOTE: If anyone is interested in building a cross-platform, `esy`-enabled Neovim package - we can revisit this!). I'm also interested in WebAssembly builds, for porting the Onivim v1 tutorials to the web, in which this C-abstracted library compiled to WebAssembly would be a perfect fit.
 
-Summary of the license: There are no restrictions on using or distributing an
-unmodified copy of Vim.  Parts of Vim may also be distributed, but the license
-text must always be included.  For modified versions a few restrictions apply.
-The license is GPL compatible, you may compile Vim with GPL libraries and
-distribute it.
+Beyond the build issues, both Neovim and Vim would need refactoring to provide that synchronous, functional API:
+- Neovim uses an event loop at its core, which would need to be short-circuited or removed to provide that API
+- Vim uses blocking input, which would need to be inverted to support the functional API
 
+The motivation of all this work was to remove the RPC layer from Onivim v2 to reduce complexity and failure modes - at the end, this was purely a constraint-based technical decision. If we can get a similar API, buildable via `esy` cross-platform, with `nvim` - I'd be happy to use that :)
 
-## Sponsoring ##
+## Supporting
 
-Fixing bugs and adding new features takes a lot of time and effort.  To show
-your appreciation for the work and motivate Bram and others to continue
-working on Vim please send a donation.
+If `libvim` is interesting to you, and you'd like to support development, consider the following:
 
-Since Bram is back to a paid job the money will now be used to help children
-in Uganda.  See `runtime/doc/uganda.txt`.  But at the same time donations
-increase Bram's motivation to keep working on Vim!
+- [Pre-order](https://v2.onivim.io) Onivim 2
+- Support on [Patreon](https://www.patreon.com/onivim)
 
-For the most recent information about sponsoring look on the Vim web site:
-	http://www.vim.org/sponsor/
+## Contributing
 
+If you would like to help making `libvim` better, see the [CONTRIBUTING.md](https://github.com/vim/vim/blob/master/CONTRIBUTING.md) file.
 
-## Contributing ##
+Some places for contribution:
+- Help us [add test cases](https://github.com/onivim/libvim/tree/master/src/apitest)
+- Help us remove [code](https://github.com/onivim/libvim/pull/31) or [features](https://github.com/onivim/libvim/pull/30) that aren't required for `libvim`
+- Help us port [patches](https://github.com/vim/vim/commits/master) from Vim
 
-If you would like to help making Vim better, see the [CONTRIBUTING.md](https://github.com/vim/vim/blob/master/CONTRIBUTING.md) file.
+## License
 
+`libvim` code is licensed under the [MIT License](./LICENSE).
 
-## Information ##
-
-The latest news about Vim can be found on the Vim home page:
-	http://www.vim.org/
-
-If you have problems, have a look at the Vim documentation or tips:
-	http://www.vim.org/docs.php
-	http://vim.wikia.com/wiki/Vim_Tips_Wiki
-
-If you still have problems or any other questions, use one of the mailing
-lists to discuss them with Vim users and developers:
-	http://www.vim.org/maillist.php
-
-If nothing else works, report bugs directly:
-	Bram Moolenaar <Bram@vim.org>
-
-
-## Main author ##
-
-Send any other comments, patches, flowers and suggestions to:
-	Bram Moolenaar <Bram@vim.org>
-
-
-This is `README.md` for version 8.1 of Vim: Vi IMproved.
+It also depends on third-party code, notably Vim, but also others - see [ThirdPartyLicenses.txt](./ThirdPartyLicenses.txt) for license details.
