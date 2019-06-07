@@ -10,57 +10,57 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(test_w) {
-  mu_check(vimWindowGetCursorColumn() == 0);
+  mu_check(vimCursorGetColumn() == 0);
 
   vimInput("w");
 
-  mu_check(vimWindowGetCursorColumn() == 5);
+  mu_check(vimCursorGetColumn() == 5);
 
   vimInput("2");
   vimInput("w");
 
-  mu_check(vimWindowGetCursorColumn() == 12);
+  mu_check(vimCursorGetColumn() == 12);
 
   vimInput("1");
   vimInput("0");
   vimInput("w");
 
-  mu_check(vimWindowGetCursorLine() == 2);
-  mu_check(vimWindowGetCursorColumn() == 19);
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 19);
 }
 
 MU_TEST(test_e) {
-  mu_check(vimWindowGetCursorColumn() == 0);
+  mu_check(vimCursorGetColumn() == 0);
 
   vimInput("e");
 
-  mu_check(vimWindowGetCursorColumn() == 3);
+  mu_check(vimCursorGetColumn() == 3);
 
   vimInput("2");
   vimInput("e");
 
-  mu_check(vimWindowGetCursorColumn() == 10);
+  mu_check(vimCursorGetColumn() == 10);
 
   vimInput("1");
   vimInput("0");
   vimInput("0");
   vimInput("e");
 
-  mu_check(vimWindowGetCursorLine() == 3);
-  mu_check(vimWindowGetCursorColumn() == 36);
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 36);
 }
 
 MU_TEST(test_b) {
-  mu_check(vimWindowGetCursorColumn() == 0);
+  mu_check(vimCursorGetColumn() == 0);
 
   vimInput("$");
 
   vimInput("b");
-  mu_check(vimWindowGetCursorColumn() == 33);
+  mu_check(vimCursorGetColumn() == 33);
 
   vimInput("5");
   vimInput("b");
-  mu_check(vimWindowGetCursorColumn() == 12);
+  mu_check(vimCursorGetColumn() == 12);
 }
 
 MU_TEST_SUITE(test_suite) {

@@ -37,11 +37,11 @@ int vimBufferGetModified(buf_T *buf);
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
 /***
- * Window Methods
+ * Cursor Methods
  ***/
-linenr_T vimWindowGetCursorLine(void);
-colnr_T vimWindowGetCursorColumn(void);
-pos_T vimWindowGetCursorPosition(void);
+colnr_T vimCursorGetColumn(void);
+linenr_T vimCursorGetLine(void);
+pos_T vimCursorGetPosition(void);
 
 /***
  * User Input

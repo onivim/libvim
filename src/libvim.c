@@ -58,9 +58,9 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
   bufferUpdateCallback = f;
 }
 
-linenr_T vimWindowGetCursorLine(void) { return curwin->w_cursor.lnum; };
-colnr_T vimWindowGetCursorColumn(void) { return curwin->w_cursor.col; };
-pos_T vimWindowGetCursorPosition(void) { return curwin->w_cursor; };
+linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
+colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
+pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
 
 void vimInput(char_u *input) {
   char_u *ptr = NULL;
