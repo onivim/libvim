@@ -12,6 +12,7 @@ void set_expr_line(char_u *new_line);
 char_u *get_expr_line(void);
 char_u *get_expr_line_src(void);
 int valid_yank_reg(int regname, int writing);
+void get_yank_register_value(int regname, int *num_lines, char_u ***lines);
 int get_yank_register(int regname, int writing);
 int may_get_selection(int regname);
 void *get_register(int name, int copy);

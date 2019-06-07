@@ -49,8 +49,15 @@ void vimInput(char_u *input);
 void vimExecute(char_u *cmd);
 
 /***
+ * Registers
+ ***/
+
+void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines);
+
+/***
  * Misc
  ***/
 int vimGetMode(void);
+
 
 /* vim: set ft=c : */
