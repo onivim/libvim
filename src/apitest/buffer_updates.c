@@ -80,6 +80,16 @@ MU_TEST(test_delete_multiple_lines) {
   mu_check(lastXtra == -3);
 }
 
+MU_TEST(test_insert) {
+  vimInput("i");
+  vimInput("a");
+
+  mu_check(updateCount == 1);
+  mu_check(lastLnum == 1);
+  mu_check(lastLnume == 2);
+  mu_check(lastXtra == 0);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
