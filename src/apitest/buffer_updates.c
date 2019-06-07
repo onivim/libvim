@@ -83,8 +83,9 @@ MU_TEST(test_delete_multiple_lines) {
 MU_TEST(test_insert) {
   vimInput("i");
   vimInput("a");
+  vimInput("b");
 
-  mu_check(updateCount == 1);
+  mu_check(updateCount == 2);
   mu_check(lastLnum == 1);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == 0);
@@ -98,6 +99,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_add_multiple_lines);
   MU_RUN_TEST(test_delete_line);
   MU_RUN_TEST(test_delete_multiple_lines);
+  MU_RUN_TEST(test_insert);
 }
 
 int main(int argc, char **argv) {
