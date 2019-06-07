@@ -29,13 +29,17 @@ void vimInit(int argc, char **argv) {
 
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags) {
   buf_T *buffer = buflist_new(ffname_arg, NULL, lnum, flags);
-  set_curbuf(buffer, 0);
+  set_curbuf(buffer, DOBUF_SPLIT);
   return buffer;
 }
 
 buf_T *vimBufferGetCurrent(void) { return curbuf; }
 
+buf_T *vimBufferGetById(int id) { return buflist_findnr(id); }
+
 char_u *vimBufferGetFilename(buf_T *buf) { return buf->b_ffname; }
+
+void vimBufferSetCurrent(buf_T *buf) { set_curbuf(buf, DOBUF_SPLIT); }
 
 int vimBufferGetId(buf_T *buf) { return buf->b_fnum; }
 
@@ -80,26 +84,20 @@ void vimInput(char_u *input) {
   vim_free((char_u *)ptr);
 }
 
-int vimVisualIsActive(void) {
-    return VIsual_active;
-}
+int vimVisualIsActive(void) { return VIsual_active; }
 
-int vimSelectIsActive(void) {
-    return VIsual_select;
-}
+int vimSelectIsActive(void) { return VIsual_select; }
 
-int vimVisualGetType(void) {
-    return VIsual_mode;
-}
+int vimVisualGetType(void) { return VIsual_mode; }
 
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
-    if (VIsual_active || VIsual_select) {
-	    *startPos = VIsual;
-	    *endPos = curwin->w_cursor;
-    } else {
-	    *startPos = curbuf->b_visual.vi_start;
-	    *endPos = curbuf->b_visual.vi_end;
-    }
+  if (VIsual_active || VIsual_select) {
+    *startPos = VIsual;
+    *endPos = curwin->w_cursor;
+  } else {
+    *startPos = curbuf->b_visual.vi_start;
+    *endPos = curbuf->b_visual.vi_end;
+  }
 }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
