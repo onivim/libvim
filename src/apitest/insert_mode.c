@@ -41,7 +41,10 @@ MU_TEST(insert_cr) {
   vimInput("<CR>");
 
   char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
-  mu_check(strcmp(line, "abc") == 0);
+  mu_check(strcmp(line, "This is the first line of a test file") == 0);
+
+  char_u *prevLine = vimBufferGetLine(curbuf, vimWindowGetCursorLine() - 1);
+  mu_check(strcmp(prevLine, "abc") == 0);
 }
 
 MU_TEST(insert_prev_line) {
