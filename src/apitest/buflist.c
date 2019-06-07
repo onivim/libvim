@@ -16,8 +16,6 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(buflist_get_id) {
-  vimInput("x");
-
   buf_T *current = vimBufferGetCurrent();
   int currentId = vimBufferGetId(current);
 
