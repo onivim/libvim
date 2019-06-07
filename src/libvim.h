@@ -55,8 +55,25 @@ void vimExecute(char_u *cmd);
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines);
 
 /***
+ * Visual Mode
+ ***/
+
+int vimVisualGetType(void);
+int vimVisualIsActive(void);
+int vimSelectIsActive(void);
+
+/*
+ * vimVisualGetRange
+ *
+ * If in visual mode or select mode, returns the current range.
+ * If not in visual or select mode, returns the last visual range.
+ */
+void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
+
+/***
  * Misc
  ***/
+
 int vimGetMode(void);
 
 

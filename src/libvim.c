@@ -80,6 +80,28 @@ void vimInput(char_u *input) {
   vim_free((char_u *)ptr);
 }
 
+int vimVisualIsActive(void) {
+    return VIsual_active;
+}
+
+int vimSelectIsActive(void) {
+    return VIsual_select;
+}
+
+int vimVisualGetType(void) {
+    return VIsual_mode;
+}
+
+void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
+    if (VIsual_active || VIsual_select) {
+	    *startPos = VIsual;
+	    *endPos = curwin->w_cursor;
+    } else {
+	    *startPos = curbuf->b_visual.vi_start;
+	    *endPos = curbuf->b_visual.vi_end;
+    }
+}
+
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
 int vimGetMode(void) { return State; }
