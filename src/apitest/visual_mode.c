@@ -34,10 +34,38 @@ MU_TEST(test_visual_is_active) {
   mu_check(vimVisualIsActive() == 1);
 }
 
+MU_TEST(test_characterwise_range) {
+  vimInput("v");
+
+  vimInput("l");
+  vimInput("l");
+
+  pos_T start;
+  pos_T end;
+
+  // Get current range
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 1);
+  mu_check(start.col == 0);
+  mu_check(end.lnum == 1);
+  mu_check(end.col == 2);
+
+  vimInput("<esc>");
+  vimInput("j");
+
+  // Validate we still get previous range
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 1);
+  mu_check(start.col == 0);
+  mu_check(end.lnum == 1);
+  mu_check(end.col == 2);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_visual_is_active);
+  MU_RUN_TEST(test_characterwise_range);
 }
 
 int main(int argc, char **argv) {
