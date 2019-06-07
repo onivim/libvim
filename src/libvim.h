@@ -23,7 +23,9 @@ void vimInit(int argc, char **argv);
  */
 
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
+buf_T *vimBufferGetById(int id);
 buf_T *vimBufferGetCurrent(void);
+void vimBufferSetCurrent(buf_T *buf);
 
 char_u *vimBufferGetFilename(buf_T *buf);
 int vimBufferGetId(buf_T *buf);
@@ -75,6 +77,5 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
  ***/
 
 int vimGetMode(void);
-
 
 /* vim: set ft=c : */
