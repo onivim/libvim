@@ -200,9 +200,6 @@ EXTERN int	no_wait_return INIT(= 0);   /* don't wait for return for now */
 EXTERN int	need_wait_return INIT(= 0); /* need to wait for return later */
 EXTERN int	did_wait_return INIT(= FALSE);	/* wait_return() was used and
 						   nothing written since then */
-#ifdef FEAT_TITLE
-EXTERN int	need_maketitle INIT(= TRUE); /* call maketitle() soon */
-#endif
 
 EXTERN int	quit_more INIT(= FALSE);    /* 'q' hit at "--more--" msg */
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
@@ -1189,13 +1186,6 @@ EXTERN linenr_T	sub_nlines;	/* total number of lines changed */
 /* table to store parsed 'wildmode' */
 EXTERN char_u	wim_flags[4];
 
-#if defined(FEAT_TITLE) && defined(FEAT_STL_OPT)
-/* whether titlestring and iconstring contains statusline syntax */
-# define STL_IN_ICON	1
-# define STL_IN_TITLE	2
-EXTERN int      stl_syntax INIT(= 0);
-#endif
-
 #ifdef FEAT_SEARCH_EXTRA
 /* don't use 'hlsearch' temporarily */
 EXTERN int	no_hlsearch INIT(= FALSE);
@@ -1208,58 +1198,6 @@ EXTERN int		balloonEvalForTerm INIT(= FALSE);
 EXTERN int bevalServers INIT(= 0);
 #  define BEVAL_NETBEANS		0x01
 # endif
-#endif
-
-#ifdef FEAT_PRINTER
-/*
- * Printer stuff shared between hardcopy.c and machine-specific printing code.
- */
-# define OPT_PRINT_TOP		0
-# define OPT_PRINT_BOT		1
-# define OPT_PRINT_LEFT		2
-# define OPT_PRINT_RIGHT	3
-# define OPT_PRINT_HEADERHEIGHT	4
-# define OPT_PRINT_SYNTAX	5
-# define OPT_PRINT_NUMBER	6
-# define OPT_PRINT_WRAP		7
-# define OPT_PRINT_DUPLEX	8
-# define OPT_PRINT_PORTRAIT	9
-# define OPT_PRINT_PAPER	10
-# define OPT_PRINT_COLLATE	11
-# define OPT_PRINT_JOBSPLIT	12
-# define OPT_PRINT_FORMFEED	13
-
-# define OPT_PRINT_NUM_OPTIONS	14
-
-EXTERN option_table_T printer_opts[OPT_PRINT_NUM_OPTIONS]
-# ifdef DO_INIT
- =
-{
-    {"top",	TRUE, 0, NULL, 0, FALSE},
-    {"bottom",	TRUE, 0, NULL, 0, FALSE},
-    {"left",	TRUE, 0, NULL, 0, FALSE},
-    {"right",	TRUE, 0, NULL, 0, FALSE},
-    {"header",	TRUE, 0, NULL, 0, FALSE},
-    {"syntax",	FALSE, 0, NULL, 0, FALSE},
-    {"number",	FALSE, 0, NULL, 0, FALSE},
-    {"wrap",	FALSE, 0, NULL, 0, FALSE},
-    {"duplex",	FALSE, 0, NULL, 0, FALSE},
-    {"portrait", FALSE, 0, NULL, 0, FALSE},
-    {"paper",	FALSE, 0, NULL, 0, FALSE},
-    {"collate",	FALSE, 0, NULL, 0, FALSE},
-    {"jobsplit", FALSE, 0, NULL, 0, FALSE},
-    {"formfeed", FALSE, 0, NULL, 0, FALSE},
-}
-# endif
-;
-
-/* For prt_get_unit(). */
-# define PRT_UNIT_NONE	-1
-# define PRT_UNIT_PERC	0
-# define PRT_UNIT_INCH	1
-# define PRT_UNIT_MM	2
-# define PRT_UNIT_POINT	3
-# define PRT_UNIT_NAMES {"pc", "in", "mm", "pt"}
 #endif
 
 #if (defined(FEAT_PRINTER) && defined(FEAT_STL_OPT)) \

@@ -146,9 +146,6 @@ changed_internal(void)
     ml_setflags(curbuf);
     check_status(curbuf);
     redraw_tabline = TRUE;
-#ifdef FEAT_TITLE
-    need_maketitle = TRUE;	    // set window title later
-#endif
 }
 
 #ifdef FEAT_EVAL
@@ -865,14 +862,8 @@ unchanged(buf_T *buf, int ff)
 	    save_file_ff(buf);
 	check_status(buf);
 	redraw_tabline = TRUE;
-#ifdef FEAT_TITLE
-	need_maketitle = TRUE;	    // set window title later
-#endif
     }
     ++CHANGEDTICK(buf);
-#ifdef FEAT_NETBEANS_INTG
-    netbeans_unmodified(buf);
-#endif
 }
 
 /*

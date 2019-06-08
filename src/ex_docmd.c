@@ -6220,14 +6220,7 @@ ex_stop(exarg_T *eap)
 	out_flush();
 	stoptermcap();
 	out_flush();		/* needed for SUN to restore xterm buffer */
-#ifdef FEAT_TITLE
-	mch_restore_title(SAVE_RESTORE_BOTH);	/* restore window titles */
-#endif
 	ui_suspend();		/* call machine specific function */
-#ifdef FEAT_TITLE
-	maketitle();
-	resettitle();		/* force updating the title */
-#endif
 	starttermcap();
 	scroll_start();		/* scroll screen before redrawing */
 	redraw_later_clear();
@@ -7245,14 +7238,7 @@ do_exedit(
     {
 	if (eap->do_ecmd_cmd != NULL)
 	    do_cmdline_cmd(eap->do_ecmd_cmd);
-#ifdef FEAT_TITLE
-	n = curwin->w_arg_idx_invalid;
-#endif
 	check_arg_idx(curwin);
-#ifdef FEAT_TITLE
-	if (n != curwin->w_arg_idx_invalid)
-	    maketitle();
-#endif
     }
 
     /*
@@ -8279,10 +8265,6 @@ ex_redraw(exarg_T *eap)
     validate_cursor();
     update_topline();
     update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
-#ifdef FEAT_TITLE
-    if (need_maketitle)
-	maketitle();
-#endif
 #if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
 # ifdef VIMDLL
     if (!gui.in_use)

@@ -388,18 +388,6 @@
 # define FEAT_DIFF
 #endif
 
-/*
- * +title		'title' and 'icon' options
- * +statusline		'statusline', 'rulerformat' and special format of
- *			'titlestring' and 'iconstring' options.
- * +byte_offset		'%o' in 'statusline' and builtin functions line2byte()
- *			and byte2line().
- *			Note: Required for Macintosh.
- */
-#if defined(FEAT_NORMAL)
-# define FEAT_TITLE
-#endif
-
 #ifdef FEAT_NORMAL
 # define FEAT_BYTEOFF
 #endif

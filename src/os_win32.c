@@ -44,12 +44,6 @@
 # include <direct.h>
 #endif
 
-#ifndef PROTO
-# if defined(FEAT_TITLE) && !defined(FEAT_GUI_MSWIN)
-#  include <shellapi.h>
-# endif
-#endif
-
 #ifdef FEAT_JOB_CHANNEL
 # include <tlhelp32.h>
 #endif
@@ -2436,114 +2430,6 @@ static ConsoleBuffer g_cbOrig = { 0 };
 static ConsoleBuffer g_cbNonTermcap = { 0 };
 static ConsoleBuffer g_cbTermcap = { 0 };
 
-#ifdef FEAT_TITLE
-char g_szOrigTitle[256] = { 0 };
-HWND g_hWnd = NULL;	/* also used in os_mswin.c */
-static HICON g_hOrigIconSmall = NULL;
-static HICON g_hOrigIcon = NULL;
-static HICON g_hVimIcon = NULL;
-static BOOL g_fCanChangeIcon = FALSE;
-
-/* ICON* are not defined in VC++ 4.0 */
-#ifndef ICON_SMALL
-#define ICON_SMALL 0
-#endif
-#ifndef ICON_BIG
-#define ICON_BIG 1
-#endif
-/*
- * GetConsoleIcon()
- * Description:
- *  Attempts to retrieve the small icon and/or the big icon currently in
- *  use by a given window.
- * Returns:
- *  TRUE on success
- */
-    static BOOL
-GetConsoleIcon(
-    HWND	hWnd,
-    HICON	*phIconSmall,
-    HICON	*phIcon)
-{
-    if (hWnd == NULL)
-	return FALSE;
-
-    if (phIconSmall != NULL)
-	*phIconSmall = (HICON)SendMessage(hWnd, WM_GETICON,
-					       (WPARAM)ICON_SMALL, (LPARAM)0);
-    if (phIcon != NULL)
-	*phIcon = (HICON)SendMessage(hWnd, WM_GETICON,
-						 (WPARAM)ICON_BIG, (LPARAM)0);
-    return TRUE;
-}
-
-/*
- * SetConsoleIcon()
- * Description:
- *  Attempts to change the small icon and/or the big icon currently in
- *  use by a given window.
- * Returns:
- *  TRUE on success
- */
-    static BOOL
-SetConsoleIcon(
-    HWND    hWnd,
-    HICON   hIconSmall,
-    HICON   hIcon)
-{
-    if (hWnd == NULL)
-	return FALSE;
-
-    if (hIconSmall != NULL)
-	SendMessage(hWnd, WM_SETICON,
-			    (WPARAM)ICON_SMALL, (LPARAM)hIconSmall);
-    if (hIcon != NULL)
-	SendMessage(hWnd, WM_SETICON,
-			    (WPARAM)ICON_BIG, (LPARAM) hIcon);
-    return TRUE;
-}
-
-/*
- * SaveConsoleTitleAndIcon()
- * Description:
- *  Saves the current console window title in g_szOrigTitle, for later
- *  restoration.  Also, attempts to obtain a handle to the console window,
- *  and use it to save the small and big icons currently in use by the
- *  console window.  This is not always possible on some versions of Windows;
- *  nor is it possible when running Vim remotely using Telnet (since the
- *  console window the user sees is owned by a remote process).
- */
-    static void
-SaveConsoleTitleAndIcon(void)
-{
-    /* Save the original title. */
-    if (!GetConsoleTitle(g_szOrigTitle, sizeof(g_szOrigTitle)))
-	return;
-
-    /*
-     * Obtain a handle to the console window using GetConsoleWindow() from
-     * KERNEL32.DLL; we need to handle in order to change the window icon.
-     * This function only exists on NT-based Windows, starting with Windows
-     * 2000.  On older operating systems, we can't change the window icon
-     * anyway.
-     */
-    g_hWnd = GetConsoleWindow();
-    if (g_hWnd == NULL)
-	return;
-
-    /* Save the original console window icon. */
-    GetConsoleIcon(g_hWnd, &g_hOrigIconSmall, &g_hOrigIcon);
-    if (g_hOrigIconSmall == NULL || g_hOrigIcon == NULL)
-	return;
-
-    /* Extract the first icon contained in the Vim executable. */
-    if (mch_icon_load((HANDLE *)&g_hVimIcon) == FAIL || g_hVimIcon == NULL)
-	g_hVimIcon = ExtractIcon(NULL, (LPCSTR)exe_name, 0);
-    if (g_hVimIcon != NULL)
-	g_fCanChangeIcon = TRUE;
-}
-#endif
-
 static int g_fWindInitCalled = FALSE;
 static int g_fTermcapMode = FALSE;
 static CONSOLE_CURSOR_INFO g_cci;
@@ -2605,17 +2491,6 @@ mch_init_c(void)
     GetConsoleMode(g_hConIn,  &g_cmodein);
     GetConsoleMode(g_hConOut, &g_cmodeout);
 
-#ifdef FEAT_TITLE
-    SaveConsoleTitleAndIcon();
-    /*
-     * Set both the small and big icons of the console window to Vim's icon.
-     * Note that Vim presently only has one size of icon (32x32), but it
-     * automatically gets scaled down to 16x16 when setting the small icon.
-     */
-    if (g_fCanChangeIcon)
-	SetConsoleIcon(g_hWnd, g_hVimIcon, g_hVimIcon);
-#endif
-
     ui_get_shellsize();
 
 #ifdef MCH_WRITE_DUMP
@@ -2665,16 +2540,6 @@ mch_exit_c(int r)
 
     if (g_fWindInitCalled)
     {
-#ifdef FEAT_TITLE
-	mch_restore_title(SAVE_RESTORE_BOTH);
-	/*
-	 * Restore both the small and big icons of the console window to
-	 * what they were at startup.  Don't do this when the window is
-	 * closed, Vim would hang here.
-	 */
-	if (g_fCanChangeIcon && !g_fForceExit)
-	    SetConsoleIcon(g_hWnd, g_hOrigIconSmall, g_hOrigIcon);
-#endif
 
 #ifdef MCH_WRITE_DUMP
 	if (fdDump)
@@ -4563,31 +4428,6 @@ mch_call_shell(
 {
     int		x = 0;
     int		tmode = cur_tmode;
-#ifdef FEAT_TITLE
-    WCHAR	szShellTitle[512];
-
-    /* Change the title to reflect that we are in a subshell. */
-    if (GetConsoleTitleW(szShellTitle,
-		sizeof(szShellTitle)/sizeof(WCHAR) - 4) > 0)
-    {
-	if (cmd == NULL)
-	    wcscat(szShellTitle, L" :sh");
-	else
-	{
-	    WCHAR *wn = enc_to_utf16((char_u *)cmd, NULL);
-
-	    if (wn != NULL)
-	    {
-		wcscat(szShellTitle, L" - !");
-		if ((wcslen(szShellTitle) + wcslen(wn) <
-			    sizeof(szShellTitle)/sizeof(WCHAR)))
-		    wcscat(szShellTitle, wn);
-		SetConsoleTitleW(szShellTitle);
-		vim_free(wn);
-	    }
-	}
-    }
-#endif
 
     out_flush();
 
@@ -4609,9 +4449,6 @@ mch_call_shell(
     {
 	/* Use a terminal window to run the command in. */
 	x = mch_call_shell_terminal(cmd, options);
-# ifdef FEAT_TITLE
-	resettitle();
-# endif
 	return x;
     }
 #endif
@@ -4853,9 +4690,6 @@ mch_call_shell(
 	smsg(_("shell returned %d"), x);
 	msg_putchar('\n');
     }
-#ifdef FEAT_TITLE
-    resettitle();
-#endif
 
     signal(SIGINT, SIG_DFL);
 #if defined(__GNUC__) && !defined(__MINGW32__)
@@ -5418,10 +5252,6 @@ termcap_mode_start(void)
 	set_console_color_rgb();
 	ResizeConBufAndWindow(g_hConOut, Columns, Rows);
     }
-
-#ifdef FEAT_TITLE
-    resettitle();
-#endif
 
     GetConsoleMode(g_hConIn, &cmodein);
 #ifdef FEAT_MOUSE

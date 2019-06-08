@@ -6645,9 +6645,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_TIMERS
 	"timers",
 #endif
-#ifdef FEAT_TITLE
-	"title",
-#endif
 #ifdef FEAT_TOOLBAR
 	"toolbar",
 #endif

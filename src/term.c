@@ -2042,9 +2042,6 @@ set_termname(char_u *term)
 #ifdef FEAT_MOUSE
 	setmouse();		/* may start using the mouse */
 #endif
-#ifdef FEAT_TITLE
-	maketitle();		/* may display window title */
-#endif
     }
 
 	/* display initial screen after ttest() checking. jw. */
@@ -2633,7 +2630,7 @@ out_char_nf(unsigned c)
     /* No-op */
 }
 
-#if defined(FEAT_TITLE) || defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
+#if defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
     || defined(FEAT_TERMRESPONSE) || defined(PROTO)
 /*
  * A never-padding out_str.
@@ -2913,61 +2910,6 @@ term_fg_rgb_color(guicolor_T rgb)
 term_bg_rgb_color(guicolor_T rgb)
 {
     term_rgb_color(T_8B, rgb);
-}
-#endif
-
-#if (defined(FEAT_TITLE) && (defined(UNIX) || defined(VMS) \
-	|| defined(MACOS_X))) || defined(PROTO)
-/*
- * Generic function to set window title, using t_ts and t_fs.
- */
-    void
-term_settitle(char_u *title)
-{
-    /* t_ts takes one argument: column in status line */
-    OUT_STR(tgoto((char *)T_TS, 0, 0));	/* set title start */
-    out_str_nf(title);
-    out_str(T_FS);			/* set title end */
-    out_flush();
-}
-
-/*
- * Tell the terminal to push (save) the title and/or icon, so that it can be
- * popped (restored) later.
- */
-    void
-term_push_title(int which)
-{
-    if ((which & SAVE_RESTORE_TITLE) && T_CST != NULL && *T_CST != NUL)
-    {
-	OUT_STR(T_CST);
-	out_flush();
-    }
-
-    if ((which & SAVE_RESTORE_ICON) && T_SSI != NULL && *T_SSI != NUL)
-    {
-	OUT_STR(T_SSI);
-	out_flush();
-    }
-}
-
-/*
- * Tell the terminal to pop the title and/or icon.
- */
-    void
-term_pop_title(int which)
-{
-    if ((which & SAVE_RESTORE_TITLE) && T_CRT != NULL && *T_CRT != NUL)
-    {
-	OUT_STR(T_CRT);
-	out_flush();
-    }
-
-    if ((which & SAVE_RESTORE_ICON) && T_SRI != NULL && *T_SRI != NUL)
-    {
-	OUT_STR(T_SRI);
-	out_flush();
-    }
 }
 #endif
 
@@ -3315,9 +3257,6 @@ set_shellsize(int width, int height, int mustset)
 
     if (starting != NO_SCREEN)
     {
-#ifdef FEAT_TITLE
-	maketitle();
-#endif
 	changed_line_abv_curs();
 	invalidate_botline();
 
