@@ -38,6 +38,7 @@ buf_T *vimBufferGetCurrent(void) { return curbuf; }
 buf_T *vimBufferGetById(int id) { return buflist_findnr(id); }
 
 char_u *vimBufferGetFilename(buf_T *buf) { return buf->b_ffname; }
+char_u *vimBufferGetFiletype(buf_T *buf) { return buf->b_p_ft; }
 
 void vimBufferSetCurrent(buf_T *buf) { set_curbuf(buf, DOBUF_SPLIT); }
 
