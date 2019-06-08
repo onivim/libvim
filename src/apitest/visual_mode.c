@@ -18,20 +18,25 @@ MU_TEST(test_visual_is_active) {
   vimInput("v");
   mu_check(vimVisualGetType() == 'v');
   mu_check(vimVisualIsActive() == 1);
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
 
   vimInput("<esc>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 
   vimInput("<c-v>");
   mu_check(vimVisualGetType() == Ctrl_V);
   mu_check(vimVisualIsActive() == 1);
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
 
   vimInput("<esc>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 
   vimInput("V");
   mu_check(vimVisualGetType() == 'V');
   mu_check(vimVisualIsActive() == 1);
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
 }
 
 MU_TEST(test_characterwise_range) {
