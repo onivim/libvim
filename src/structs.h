@@ -90,6 +90,9 @@ typedef int			scid_T;		/* script ID */
 typedef struct file_buffer	buf_T;  /* forward declaration */
 typedef struct terminal_S	term_T;
 
+typedef void (*AutoCommandCallback)(event_T, buf_T *buf);
+
+
 /*
  * SCript ConteXt (SCTX): identifies a script script line.
  * When sourcing a script "sc_lnum" is zero, "sourcing_lnum" is the current

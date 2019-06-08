@@ -37,6 +37,12 @@ int vimBufferGetModified(buf_T *buf);
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
 /***
+ * Autocommands
+ ***/
+
+void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
+
+/***
  * Cursor Methods
  ***/
 colnr_T vimCursorGetColumn(void);

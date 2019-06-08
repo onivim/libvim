@@ -58,6 +58,10 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
   bufferUpdateCallback = f;
 }
 
+void vimSetAutoCommandCallback(AutoCommandCallback f) {
+  autoCommandCallback = f;
+}
+
 linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
 colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
 pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
@@ -82,6 +86,13 @@ void vimInput(char_u *input) {
     sm_execute_normal(input);
   }
   vim_free((char_u *)ptr);
+  /* Trigger CursorMoved if the cursor moved. */
+  if (!finish_op && (has_cursormoved()) &&
+      !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
+    if (has_cursormoved())
+      apply_autocmds(EVENT_CURSORMOVED, NULL, NULL, FALSE, curbuf);
+    last_cursormoved = curwin->w_cursor;
+  }
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }
