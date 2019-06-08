@@ -6,9 +6,7 @@ void test_setup(void) {
   vimInput("g");
 }
 
-void test_teardown(void) {
-
-}
+void test_teardown(void) {}
 
 MU_TEST(test_G_gg) {
   mu_check(vimCursorGetLine() == 1);
@@ -50,11 +48,11 @@ MU_TEST(test_2j_2k) {
 }
 
 MU_TEST_SUITE(test_suite) {
-    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+  MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    MU_RUN_TEST(test_G_gg);
-    MU_RUN_TEST(test_j_k);
-    MU_RUN_TEST(test_2j_2k);
+  MU_RUN_TEST(test_G_gg);
+  MU_RUN_TEST(test_j_k);
+  MU_RUN_TEST(test_2j_2k);
 }
 
 int main(int argc, char **argv) {

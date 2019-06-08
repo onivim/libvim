@@ -7,9 +7,7 @@ void test_setup(void) {
   vimExecute("e!");
 }
 
-void test_teardown(void) {
-
-}
+void test_teardown(void) {}
 
 /* TODO: Get this test green */
 /* MU_TEST(insert_count) { */
@@ -20,7 +18,8 @@ void test_teardown(void) {
 
 /*   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine()); */
 /*   printf("LINE: %s\n", line); */
-/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0); */
+/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0);
+ */
 /* } */
 
 MU_TEST(insert_beginning) {
@@ -88,14 +87,14 @@ MU_TEST(insert_end) {
 }
 
 MU_TEST_SUITE(test_suite) {
-    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+  MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    /* MU_RUN_TEST(insert_count); */
-    MU_RUN_TEST(insert_prev_line);
-    MU_RUN_TEST(insert_next_line);
-    MU_RUN_TEST(insert_beginning);
-    MU_RUN_TEST(insert_cr);
-    MU_RUN_TEST(insert_end);
+  /* MU_RUN_TEST(insert_count); */
+  MU_RUN_TEST(insert_prev_line);
+  MU_RUN_TEST(insert_next_line);
+  MU_RUN_TEST(insert_beginning);
+  MU_RUN_TEST(insert_cr);
+  MU_RUN_TEST(insert_end);
 }
 
 int main(int argc, char **argv) {
