@@ -7,7 +7,6 @@ static int idx = 0;
 void reset() { idx = 0; }
 
 void onAutoCommand(event_T event, buf_T *buf) {
-  printf("Auto command: %d\n", event);
   events[idx] = event;
   idx++;
 }
@@ -15,7 +14,6 @@ void onAutoCommand(event_T event, buf_T *buf) {
 int didEvent(event_T evt) {
   for (int i = 0; i < idx; i++) {
     if (events[i] == evt) {
-      printf("TRUE");
       return TRUE;
     }
   }
