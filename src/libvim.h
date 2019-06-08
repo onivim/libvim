@@ -28,6 +28,7 @@ buf_T *vimBufferGetCurrent(void);
 void vimBufferSetCurrent(buf_T *buf);
 
 char_u *vimBufferGetFilename(buf_T *buf);
+char_u *vimBufferGetFiletype(buf_T *buf);
 int vimBufferGetId(buf_T *buf);
 long vimBufferGetLastChangedTick(buf_T *buf);
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum);
