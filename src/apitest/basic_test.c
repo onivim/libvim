@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
   win_setheight(100);
 
   buf_T *buf = vimBufferOpen("testfile.txt", 1, 0);
-  assert(vimGetMode() & NORMAL == NORMAL);
+  assert((vimGetMode() & NORMAL) == NORMAL);
 
   char *line = vimBufferGetLine(buf, 1);
   printf("LINE: %s\n", line);
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   assert(vimCursorGetLine() > 1);
 
   vimInput("v");
-  assert(vimGetMode() & VISUAL == VISUAL);
+  assert((vimGetMode() & VISUAL) == VISUAL);
   vimInput("l");
   vimInput("l");
   vimInput("x");
