@@ -4021,7 +4021,7 @@ eval5(char_u **arg, typval_T *rettv, int evaluate)
 						   && var2.v_type == VAR_LIST)
 	    {
 		/* concatenate Lists */
-		if (list_concat(rettv->vval.v_list, var2.vval.v_list,
+		if (vim_list_concat(rettv->vval.v_list, var2.vval.v_list,
 							       &var3) == FAIL)
 		{
 		    clear_tv(rettv);

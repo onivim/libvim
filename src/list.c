@@ -629,7 +629,7 @@ list_extend(list_T *l1, list_T *l2, listitem_T *bef)
  * Return FAIL when out of memory.
  */
     int
-list_concat(list_T *l1, list_T *l2, typval_T *tv)
+vim_list_concat(list_T *l1, list_T *l2, typval_T *tv)
 {
     list_T	*l;
 

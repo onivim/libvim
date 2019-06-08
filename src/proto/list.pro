@@ -29,7 +29,10 @@ int list_append_number(list_T *l, varnumber_T n);
 int list_insert_tv(list_T *l, typval_T *tv, listitem_T *item);
 void list_insert(list_T *l, listitem_T *ni, listitem_T *item);
 int list_extend(list_T *l1, list_T *l2, listitem_T *bef);
-int list_concat(list_T *l1, list_T *l2, typval_T *tv);
+
+/* Renamed from list_concat -> vim_list_concat due to clash with OCaml namespace */
+int vim_list_concat(list_T *l1, list_T *l2, typval_T *tv);
+
 list_T *list_copy(list_T *orig, int deep, int copyID);
 void vimlist_remove(list_T *l, listitem_T *item, listitem_T *item2);
 char_u *list2string(typval_T *tv, int copyID, int restore_copyID);
