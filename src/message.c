@@ -698,21 +698,15 @@ msg_trunc_attr(char *s, int force, int attr)
     int		n;
     char	*ts;
 
-    printf("msg_trunc_attr - 1\n");
-
     /* Add message to history before truncating */
     add_msg_hist((char_u *)s, -1, attr);
 
-    printf("msg_trunc_attr - 2\n");
     ts = (char *)msg_may_trunc(force, (char_u *)s);
-    printf("msg_trunc_attr - 3\n");
 
     msg_hist_off = TRUE;
-    printf("msg_trunc_attr - 4\n");
     n = msg_attr(ts, attr);
     msg_hist_off = FALSE;
 
-    printf("msg_trunc_attr - 5\n");
     if (n)
 	return ts;
     return NULL;
