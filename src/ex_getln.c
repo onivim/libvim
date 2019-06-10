@@ -3946,7 +3946,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
-	printf("COMMAND IS complete: %s\n", ccline.cmdbuff);
 	do_cmdline_cmd(ccline.cmdbuff);
 	return COMPLETED;
 
@@ -3992,7 +3991,6 @@ cmdline_changed:
 		)
 #endif
 
-    /* printf("CMDLINE CHAR: %c\n", c); */
     return HANDLED;
 }
 
@@ -5672,7 +5670,6 @@ tilde_replace(
     static int
 showmatches(expand_T *xp, int wildmenu UNUSED)
 {
-    printf("SHOW MATCHES");
 #define L_SHOWFILE(m) (showtail ? sm_gettail(files_found[m]) : files_found[m])
     int		num_files;
     char_u	**files_found;

@@ -2,13 +2,10 @@
 #include "minunit.h"
 
 void test_setup(void) {
-  printf("test_setup - start\n");
   vimInput("<esc>");
   vimInput("<esc>");
-  printf("escape escape");
 
   vimExecute("e!");
-  printf("test_setup - teardown\n");
 }
 
 void test_teardown(void) {}
@@ -16,6 +13,8 @@ void test_teardown(void) {}
 /* MU_TEST(test_search_forward_esc) { */
 /*     printf("SERACHING!\n"); */
 /*   vimInput("/"); */
+/*   vimInput("h"); */
+/*   vimInput("<esc>"); */
 /*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
 /*   vimInput("n"); */
 /*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
@@ -48,7 +47,6 @@ MU_TEST(test_cmdline_enter) {
 }
 
 MU_TEST(test_cmdline_execute) {
-    printf("Starting execute test...\n");
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
@@ -63,35 +61,31 @@ MU_TEST(test_cmdline_execute) {
 
   lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 1);
-    printf("Finish execute test...\n");
 }
 
 MU_TEST(test_cmdline_substitution) {
-    printf("Starting substituation test...\n");
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
 
-  printf("1\n");
   vimInput(":");
   vimInput("s");
   vimInput("!");
   vimInput("T");
-  printf("10\n");
   vimInput("!");
   vimInput("A");
   vimInput("!");
   vimInput("g");
   vimInput("<cr>");
-  printf("20\n");
 
-  mu_check(strcmp(vimBufferGetLine(buffer, 1), "Ahis is the first line of a test file") == 0);
+  mu_check(strcmp(vimBufferGetLine(buffer, 1),
+                  "Ahis is the first line of a test file") == 0);
 }
 
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  /* MU_RUN_TEST(test_search_forward_esc); */
+  MU_RUN_TEST(test_search_forward_esc);
   MU_RUN_TEST(test_cmdline_esc);
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);

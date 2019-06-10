@@ -132,7 +132,6 @@ msg_attr_keep(
     int		retval;
     char_u	*buf = NULL;
 
-    printf("msg_attr_keep: 1\n");
     /* Skip messages not matching ":filter pattern".
      * Don't filter when there is an error. */
     if (!emsg_on_display && message_filtered((char_u *)s))
@@ -143,7 +142,6 @@ msg_attr_keep(
 	set_vim_var_string(VV_STATUSMSG, (char_u *)s, -1);
 #endif
 
-    printf("msg_attr_keep: 2\n");
     /*
      * It is possible that displaying a messages causes a problem (e.g.,
      * when redrawing the window), which causes another message, etc..	To
@@ -152,7 +150,6 @@ msg_attr_keep(
     if (entered >= 3)
 	return TRUE;
     ++entered;
-    printf("msg_attr_keep: 3\n");
 
     /* Add message to history (unless it's a repeated kept message or a
      * truncated message) */
@@ -163,7 +160,6 @@ msg_attr_keep(
 		&& STRCMP(s, last_msg_hist->msg)))
 	add_msg_hist((char_u *)s, -1, attr);
 
-    printf("msg_attr_keep: 4\n");
 #ifdef FEAT_JOB_CHANNEL
     if (emsg_to_channel_log)
 	/* Write message in the channel log. */
@@ -175,27 +171,19 @@ msg_attr_keep(
     if ((char_u *)s == keep_msg)
 	keep_msg = NULL;
 
-    printf("msg_attr_keep: 5\n");
     /* Truncate the message if needed. */
     msg_start();
-    printf("msg_attr_keep: 6\n");
     buf = msg_strtrunc((char_u *)s, FALSE);
-    printf("msg_attr_keep: y\n");
     if (buf != NULL)
 	s = (char *)buf;
 
-    printf("msg_attr_keep: 7\n");
     msg_outtrans_attr((char_u *)s, attr);
-    printf("msg_attr_keep: 8\n");
     msg_clr_eos();
-    printf("msg_attr_keep: 9\n");
     retval = msg_end();
 
-    printf("msg_attr_keep: 10\n");
     if (keep && retval && vim_strsize((char_u *)s)
 			    < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
 	set_keep_msg((char_u *)s, 0);
-    printf("msg_attr_keep: 11\n");
 
     vim_free(buf);
     --entered;
@@ -600,122 +588,11 @@ emsg_core(char_u *s)
     int		ignore = FALSE;
     int		severe;
 #endif
-
-#ifdef FEAT_EVAL
-    /* When testing some errors are turned into a normal message. */
-    if (ignore_error(s))
-	/* don't call msg() if it results in a dialog */
-	return msg_use_printf() ? FALSE : msg((char *)s);
-#endif
-
-    called_emsg = TRUE;
-
-#ifdef FEAT_EVAL
-    /* If "emsg_severe" is TRUE: When an error exception is to be thrown,
-     * prefer this message over previous messages for the same command. */
-    severe = emsg_severe;
-    emsg_severe = FALSE;
-#endif
-
-    if (!emsg_off || vim_strchr(p_debug, 't') != NULL)
-    {
-#ifdef FEAT_EVAL
-	/*
-	 * Cause a throw of an error exception if appropriate.  Don't display
-	 * the error message in this case.  (If no matching catch clause will
-	 * be found, the message will be displayed later on.)  "ignore" is set
-	 * when the message should be ignored completely (used for the
-	 * interrupt message).
-	 */
-	if (cause_errthrow(s, severe, &ignore) == TRUE)
-	{
-	    if (!ignore)
-		++did_emsg;
-	    return TRUE;
-	}
-
-	/* set "v:errmsg", also when using ":silent! cmd" */
-	set_vim_var_string(VV_ERRMSG, s, -1);
-#endif
-
-	/*
-	 * When using ":silent! cmd" ignore error messages.
-	 * But do write it to the redirection file.
-	 */
-	if (emsg_silent != 0)
-	{
-	    if (emsg_noredir == 0)
-	    {
-		msg_start();
-		p = get_emsg_source();
-		if (p != NULL)
-		{
-		    STRCAT(p, "\n");
-		    redir_write(p, -1);
-		    vim_free(p);
-		}
-		p = get_emsg_lnum();
-		if (p != NULL)
-		{
-		    STRCAT(p, "\n");
-		    redir_write(p, -1);
-		    vim_free(p);
-		}
-		redir_write(s, -1);
-	    }
-#ifdef FEAT_JOB_CHANNEL
-	    ch_log(NULL, "ERROR: %s", (char *)s);
-#endif
-	    return TRUE;
-	}
-
-	ex_exitval = 1;
-
-	/* Reset msg_silent, an error causes messages to be switched back on.
-	 */
-	msg_silent = 0;
-	cmd_silent = FALSE;
-
-	if (global_busy)		/* break :global command */
-	    ++global_busy;
-
-	if (p_eb)
-	    beep_flush();		/* also includes flush_buffers() */
-	else
-	    flush_buffers(FLUSH_MINIMAL);  // flush internal buffers
-	++did_emsg;			   // flag for DoOneCmd()
-#ifdef FEAT_EVAL
-	did_uncaught_emsg = TRUE;
-#endif
-    }
-
-    emsg_on_display = TRUE;	/* remember there is an error message */
-    ++msg_scroll;		/* don't overwrite a previous message */
-    attr = HL_ATTR(HLF_E);	/* set highlight mode for error messages */
-    if (msg_scrolled != 0)
-	need_wait_return = TRUE;    /* needed in case emsg() is called after
-				     * wait_return has reset need_wait_return
-				     * and a redraw is expected because
-				     * msg_scrolled is non-zero */
-
-#ifdef FEAT_JOB_CHANNEL
-    emsg_to_channel_log = TRUE;
-#endif
-    /*
-     * Display name and line number for the source of the error.
-     */
-    msg_source(attr);
-
-    /*
-     * Display the error message itself.
-     */
-    msg_nowait = FALSE;			/* wait for this msg */
-    r = msg_attr((char *)s, attr);
-
-#ifdef FEAT_JOB_CHANNEL
-    emsg_to_channel_log = FALSE;
-#endif
-    return r;
+    /* TODO: Handle severe? */
+    /* TODO: Handle ignore? */
+    /* TODO: Externalize */
+    printf("[EMSG] %s\n", p);
+    return TRUE;
 }
 
 /*
@@ -724,7 +601,6 @@ emsg_core(char_u *s)
     int
 emsg(char *s)
 {
-    printf("EMSG: %s\n", s);
     /* Skip this if not giving error messages at the moment. */
     if (!emsg_not_now())
 	return emsg_core((char_u *)s);

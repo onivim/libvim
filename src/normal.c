@@ -765,11 +765,9 @@ restart_state:
 
     /* If we are now in insert mode, relinquish control to the insert mode state */
     if (sm_get_current_mode() == INSERT) {
-	printf("insert mode");
 	context->was_inserting = TRUE;
 	return HANDLED;
     } else if (sm_get_current_mode() == CMDLINE) {
-	    printf("cmdline mode");
 	    return HANDLED;
     }
 
@@ -4721,11 +4719,11 @@ static void nv_colon(cmdarg_T *cap) {
 
     old_p_im = p_im;
 
+    /* TODO: Import this */
     /* get a command line and execute it */
     /* cmd_result = do_cmdline(NULL, getexline, NULL, */
     /*                         cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0); */
 
-    printf ("OPENING COMMAND LINE MODE: \n");
     sm_push_cmdline(':', 0, 0);
 
     /* TODO: Port this over */
@@ -5525,9 +5523,9 @@ static void nv_search(cmdarg_T *cap) {
 
   /* When using 'incsearch' the cursor may be moved to set a different search
    * start position. */
-  // TODO!!
-  // cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
-  cap->searchbuf = "i";
+
+  // TODO: How to handle this?
+  cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
 
   if (cap->searchbuf == NULL) {
     clearop(oap);
