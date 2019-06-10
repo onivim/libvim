@@ -2071,7 +2071,8 @@ TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
-	$(INSTALL_PROG) $< $(DEST_BIN)
+	mkdir $(DEST_BIN)/collateral
+	$(INSTALL_PROG) $< $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
 	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
