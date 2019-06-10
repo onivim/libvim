@@ -92,3 +92,6 @@ src/pixmaps
 
 # other possible files build by tools
 src/cscope.out
+
+src/apitest/*.txt
+!src/apitest/collateral

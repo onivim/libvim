@@ -842,7 +842,7 @@ installlibvim: libvim.a
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 TEST_SRC = $(wildcard apitest/*.c)
-TEST_COLLATERAL = $(wildcard apitest/*.txt)
+TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
