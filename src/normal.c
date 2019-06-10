@@ -4725,7 +4725,8 @@ static void nv_colon(cmdarg_T *cap) {
     /* cmd_result = do_cmdline(NULL, getexline, NULL, */
     /*                         cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0); */
 
-    sm_push_cmdline(':', 0, 0, NULL);
+    printf ("OPENING COMMAND LINE MODE: \n");
+    sm_push_cmdline(':', 0, 0);
 
     /* TODO: Port this over */
 //    If 'insertmode' changed, enter or exit Insert mode 

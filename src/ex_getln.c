@@ -2647,14 +2647,11 @@ typedef struct {
     struct cmdline_info save_ccline;
     int		did_save_ccline;
     int		cmdline_type;
-
-    char_u **result;
 #endif
 } cmdlineState_T;
 
-void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **result) {
+void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
-	context->result = result;
 	context->firstc = c;
 	context->count = count;
 	context->gotesc = FALSE;
@@ -2710,7 +2707,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **re
     alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
     if (ccline.cmdbuff == NULL) {
 	    // out of memory
-      printf("out of memory?\n");
 	    context->bail_immediately = TRUE;
 	    return context;
     }
@@ -2800,7 +2796,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
     
     if (context->bail_immediately == TRUE) {
-	    printf("\nbailing\n");
 	    return COMPLETED_UNHANDLED;
     }
 
@@ -3216,7 +3211,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		    windgoto(msg_row, 0);
 		    out_flush();
 		}
-		printf("completed here!");
 		goto returncmd;
 	    }
 	}
@@ -3952,6 +3946,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 
 returncmd:
 	printf("COMMAND IS complete: %s\n", ccline.cmdbuff);
+	do_cmdline_cmd(ccline.cmdbuff);
 	return COMPLETED;
 
 /*
@@ -3978,10 +3973,11 @@ cmdline_changed:
 	set_expand_context(&context->xpc);
 	int i = expand_cmdline(&context->xpc, ccline.cmdbuff, ccline.cmdpos,
 						    &num_files, &files_found);
-	printf ("COMPLETEIONS: %d\n", num_files);
-	for(int x = 0; x < num_files; x++) {
-	    printf( "-- %d : %s\n", x, files_found[x]);
-	}
+	/* TODO: Factor this to a method */
+	/* printf ("COMPLETEIONS: %d\n", num_files); */
+	/* for(int x = 0; x < num_files; x++) { */
+	/*     printf( "-- %d : %s\n", x, files_found[x]); */
+	/* } */
 
 #ifdef FEAT_SEARCH_EXTRA
 	may_do_incsearch_highlighting(context->firstc, context->count, &context->is_state);
@@ -3995,12 +3991,13 @@ cmdline_changed:
 		)
 #endif
 
-    printf("CMDLINE CHAR: %c\n", c);
+    /* printf("CMDLINE CHAR: %c\n", c); */
     return HANDLED;
 }
 
 void state_cmdline_cleanup(void *ctx) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
+	  ccline.cmdbuff = NULL;
     State = context->save_State;
     vim_free(context);
 }

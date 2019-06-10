@@ -1,6 +1,6 @@
 /* ex_getln.c */
 
-void *state_cmdline_initialize(int c, long count UNUSED, int indent, char_u **result);
+void *state_cmdline_initialize(int c, long count UNUSED, int indent);
 executionStatus_T state_cmdline_execute(void *ctx, int c);
 void state_cmdline_cleanup(void *context);
 
