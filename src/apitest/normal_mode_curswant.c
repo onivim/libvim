@@ -5,33 +5,7 @@ void test_setup(void) {
   vimInput("<esc>");
   vimInput("<esc>");
 
-  // Create buffer like:
-  // abc
-  // ab
-  // a
-  // abcd
-
   vimExecute("e!");
-
-  vimInput("I");
-  vimInput("a");
-  vimInput("b");
-  vimInput("c");
-  vimInput("<cr>");
-  vimInput("a");
-  vimInput("b");
-  vimInput("<cr>");
-  vimInput("a");
-  vimInput("<cr>");
-  vimInput("a");
-  vimInput("b");
-  vimInput("c");
-  vimInput("d");
-  vimInput("<cr>");
-
-  vimInput("<esc>");
-  vimInput("<esc>");
-
   vimInput("g");
   vimInput("g");
   vimInput("0");
@@ -103,8 +77,8 @@ MU_TEST(test_curswant_reset) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  /* MU_RUN_TEST(test_curswant_column2); */
-  /* MU_RUN_TEST(test_curswant_maxcolumn); */
+  MU_RUN_TEST(test_curswant_column2);
+  MU_RUN_TEST(test_curswant_maxcolumn);
   MU_RUN_TEST(test_curswant_reset);
 }
 
@@ -114,7 +88,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  buf_T *buf = vimBufferOpen("collateral/curswant.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
