@@ -944,9 +944,7 @@ getcmdline_int(
      */
     msg_scroll = FALSE;
 
-
     State = CMDLINE;
-
 
     if (firstc == '/' || firstc == '?' || firstc == '@')
     {
@@ -2653,7 +2651,6 @@ typedef struct {
 } cmdlineState_T;
 
 void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
-	printf("state_cmdline_initialize!\n");
 	cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
 	context->firstc = c;
 	context->count = count;
@@ -2756,7 +2753,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 #endif
 
     State = CMDLINE;
-    printf("STATE IS NOW CMDLINE! %d\n", State);
 
     if (context->firstc == '/' || context->firstc == '?' || context->firstc == '@')
     {
