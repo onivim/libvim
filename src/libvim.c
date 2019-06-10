@@ -115,14 +115,11 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
   }
 }
 
-void vimExecute(char_u *cmd) { 
-    do_cmdline_cmd(cmd); 
+pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
 
-}
+void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
-int vimGetMode(void) {
-    return get_real_state();
-}
+int vimGetMode(void) { return get_real_state(); }
 
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines) {
   get_yank_register_value(reg_name, num_lines, lines);
