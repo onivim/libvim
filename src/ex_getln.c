@@ -3996,6 +3996,10 @@ cmdline_changed:
 
 void state_cmdline_cleanup(void *ctx) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
+
+    /* Trigger CmdlineLeave autocommands. */
+    trigger_cmd_autocmd(context->cmdline_type, EVENT_CMDLINELEAVE);
+
 	  ccline.cmdbuff = NULL;
     State = context->save_State;
     vim_free(context);
