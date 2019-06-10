@@ -6,6 +6,9 @@ void test_setup(void) {
   vimInput("<esc>");
 
   vimExecute("e!");
+  vimInput("g");
+  vimInput("g");
+  vimInput("0");
 }
 
 void test_teardown(void) {}
