@@ -2071,6 +2071,7 @@ TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
+	echo "Copying $< to $(DEST_BIN)/collateral"
 	mkdir $(DEST_BIN)/collateral
 	$(INSTALL_PROG) $< $(DEST_BIN)/collateral
 
