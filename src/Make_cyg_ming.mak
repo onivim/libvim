@@ -842,11 +842,12 @@ installlibvim: libvim.a
 	$(INSTALL_PROG) libvim.a $(DEST_LIB)
 
 TEST_SRC = $(wildcard apitest/*.c)
-TEST_COLLATERAL = $(wildcard apitest/*.txt)
+TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
-	$(INSTALL_PROG) $< $(DEST_BIN)
+	mkdir $(DEST_BIN)/collateral
+	$(INSTALL_PROG) $< $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
 	$(CC) -I. -Iproto -L. -Lproto $< $(EXELFLAGS) -o $@ libvim.a -lstdc++ -lole32 -lws2_32 -lnetapi32 -lversion -lcomctl32 -luuid -lgdi32
