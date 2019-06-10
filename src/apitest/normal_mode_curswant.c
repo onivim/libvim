@@ -45,6 +45,8 @@ MU_TEST(test_curswant_maxcolumn) {
   vimInput("j");
   vimInput("j");
 
+  printf("column: %d\n", vimCursorGetColumn());
+  
   // Cursor should be all the way to the right
   mu_check(vimCursorGetColumn() == 3);
   mu_check(vimCursorGetLine() == 4);
