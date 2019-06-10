@@ -115,7 +115,10 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
   }
 }
 
-void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
+void vimExecute(char_u *cmd) { 
+    do_cmdline_cmd(cmd); 
+
+}
 
 int vimGetMode(void) {
     return get_real_state();
