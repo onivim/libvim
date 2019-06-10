@@ -1088,9 +1088,6 @@ free_all_mem(void)
 #endif
     }
 
-# ifdef FEAT_TITLE
-    free_titles();
-# endif
 # if defined(FEAT_SEARCHPATH)
     free_findfile();
 # endif
@@ -3181,9 +3178,6 @@ set_fileformat(
     /* This may cause the buffer to become (un)modified. */
     check_status(curbuf);
     redraw_tabline = TRUE;
-#ifdef FEAT_TITLE
-    need_maketitle = TRUE;	    /* set window title later */
-#endif
 }
 
 /*
