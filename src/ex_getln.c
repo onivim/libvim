@@ -2686,7 +2686,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 #endif
 #ifdef FEAT_RIGHTLEFT
     /* start without Hebrew mapping for a command line */
-    if (firstc == ':' || firstc == '=' || firstc == '>')
+    if (context->firstc == ':' || context->firstc == '=' || context->firstc == '>')
 	cmd_hkmap = 0;
 #endif
 
