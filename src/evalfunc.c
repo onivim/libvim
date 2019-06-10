@@ -6578,9 +6578,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_POSTSCRIPT
 	"postscript",
 #endif
-#ifdef FEAT_PRINTER
-	"printer",
-#endif
 #ifdef FEAT_PROFILE
 	"profile",
 #endif

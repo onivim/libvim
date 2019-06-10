@@ -4287,11 +4287,7 @@ build_stl_str_hl(
 		str = buf_tmp;
 	    break;
 	case STL_PAGENUM:
-#if defined(FEAT_PRINTER) || defined(FEAT_GUI_TABLINE)
-	    num = printer_page_num;
-#else
 	    num = 0;
-#endif
 	    break;
 
 	case STL_BUFNO:
