@@ -6,9 +6,6 @@ void test_setup(void) {
   vimInput("<esc>");
 
   vimExecute("e!");
-  /* vimInput("g"); */
-  /* vimInput("g"); */
-  /* vimInput("0"); */
 }
 
 void test_teardown(void) {}
@@ -40,9 +37,6 @@ MU_TEST(test_curswant_maxcolumn) {
   // Move all the way to the right
   vimInput("$");
 
-  printf("1 column: %d\n", vimCursorGetColumn());
-  printf("1 want: %d\n", vimCursorGetDesiredColumn());
-
   mu_check(vimCursorGetColumn() == 2);
   mu_check(vimCursorGetLine() == 1);
 
@@ -51,9 +45,6 @@ MU_TEST(test_curswant_maxcolumn) {
   vimInput("j");
   vimInput("j");
 
-  printf("2 column: %d\n", vimCursorGetColumn());
-  printf("2 want: %d\n", vimCursorGetDesiredColumn());
-  
   // Cursor should be all the way to the right
   mu_check(vimCursorGetColumn() == 3);
   mu_check(vimCursorGetLine() == 4);
