@@ -88,6 +88,20 @@ int vimSelectIsActive(void);
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
 
 /***
+ * Search
+ ***/
+
+/*
+ * vimSearchGetMatchingPair
+ *
+ * Returns the position of a matching pair,
+ * based on the current buffer and cursor position
+ *
+ * result is NULL if no match found.
+ */
+pos_T *vimSearchGetMatchingPair(int initc);
+
+/***
  * Misc
  ***/
 
