@@ -51,6 +51,14 @@ linenr_T vimCursorGetLine(void);
 pos_T vimCursorGetPosition(void);
 
 /***
+ * vimCursorGetDesiredColumn
+ *
+ * Get the column that we'd like to be at - used to stay in the same
+ * column for up/down cursor motions.
+ */
+colnr_T vimCursorGetDesiredColumn(void);
+
+/***
  * User Input
  ***/
 void vimInput(char_u *input);
