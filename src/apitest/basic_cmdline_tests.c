@@ -13,17 +13,17 @@ void test_teardown(void) {}
 MU_TEST(test_search_forward_esc) {
     printf("SERACHING!\n");
   vimInput("/");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   vimInput("n");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   vimInput("n");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   vimInput("n");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   vimInput("n");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   vimInput("n");
-  printf("CURSOR COL: %d\n", vimWindowGetCursorColumn());
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
   /* mu_check((vimGetMode() & CMDLINE) == CMDLINE); */
   vimInput("<esc>");
   printf("DONE");
