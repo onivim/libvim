@@ -66,6 +66,7 @@ void vimSetAutoCommandCallback(AutoCommandCallback f) {
 linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
 colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
 pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
+colnr_T vimCursorGetDesiredColumn(void) { return curwin->w_curswant; };
 
 void vimInput(char_u *input) {
   char_u *ptr = NULL;
@@ -94,6 +95,8 @@ void vimInput(char_u *input) {
       apply_autocmds(EVENT_CURSORMOVED, NULL, NULL, FALSE, curbuf);
     last_cursormoved = curwin->w_cursor;
   }
+
+  update_curswant();
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }
