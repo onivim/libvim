@@ -5,7 +5,6 @@ int main(int argc, char **argv) {
   char *c[0];
   vimInit(0, c);
 
-
   printf("TEST: %d\n", curbuf);
 
   printf("Initialized without crashing\n");

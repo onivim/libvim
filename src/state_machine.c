@@ -38,10 +38,14 @@ void sm_push_insert(int cmdchar, int startln, long count) {
           state_edit_execute, state_edit_cleanup);
 }
 
+void sm_push_cmdline(int cmdchar, long count, int indent) {
+  sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent), state_cmdline_execute, state_cmdline_cleanup);
+}
+
 /*
  * sm_execute_normal
  *
- * Like sm_execute, but if there is no activate state,
+ * Like sm_execute, but if there is no active state,
  * defaults to normal mode.
  */
 void sm_execute_normal(char_u *keys) {
