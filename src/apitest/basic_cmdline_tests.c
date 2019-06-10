@@ -10,27 +10,27 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-/* MU_TEST(test_search_forward_esc) { */
-/*     printf("SERACHING!\n"); */
-/*   vimInput("/"); */
-/*   vimInput("h"); */
-/*   vimInput("<esc>"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   /1* mu_check((vimGetMode() & CMDLINE) == CMDLINE); *1/ */
-/*   vimInput("<esc>"); */
-/*   printf("DONE"); */
-/*   /1* mu_check((vimGetMode() & NORMAL) == NORMAL); *1/ */
-/* } */
+MU_TEST(test_search_forward_esc) {
+    printf("SERACHING!\n");
+  vimInput("/");
+  vimInput("h");
+  vimInput("<esc>");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  vimInput("n");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  vimInput("n");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  vimInput("n");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  vimInput("n");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  vimInput("n");
+  printf("CURSOR COL: %d\n", vimCursorGetColumn());
+  /* mu_check((vimGetMode() & CMDLINE) == CMDLINE); */
+  vimInput("<esc>");
+  printf("DONE");
+  /* mu_check((vimGetMode() & NORMAL) == NORMAL); */
+}
 
 MU_TEST(test_cmdline_esc) {
   vimInput(":");
@@ -85,7 +85,7 @@ MU_TEST(test_cmdline_substitution) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  /* MU_RUN_TEST(test_search_forward_esc); */
+  MU_RUN_TEST(test_search_forward_esc);
   MU_RUN_TEST(test_cmdline_esc);
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);

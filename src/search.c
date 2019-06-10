@@ -1303,8 +1303,10 @@ do_search(
 					    /* use previous pattern */
 	if (pat == NULL || *pat == NUL || *pat == dirc)
 	{
+      printf("pat is NULL\n");
 	    if (spats[RE_SEARCH].pat == NULL)	    /* no previous pattern */
 	    {
+	    printf("Falling back to last pattern: %s\n", spats[RE_SEARCH].pat);
 		searchstr = spats[RE_SUBST].pat;
 		if (searchstr == NULL)
 		{

@@ -5525,7 +5525,8 @@ static void nv_search(cmdarg_T *cap) {
    * start position. */
 
   // TODO: How to handle this?
-  cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
+  /* cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0); */
+  cap->searchbuf = "h";
 
   if (cap->searchbuf == NULL) {
     clearop(oap);
@@ -5565,6 +5566,8 @@ static int normal_search(cmdarg_T *cap, int dir, char_u *pat,
                          int opt) /* extra flags for do_search() */
 {
   int i;
+
+  printf("Normal search - pat: %s\n", pat);
 
   cap->oap->motion_type = MCHAR;
   cap->oap->inclusive = FALSE;
