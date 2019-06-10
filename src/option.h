@@ -710,9 +710,6 @@ EXTERN char_u	*p_shq;		/* 'shellquote' */
 EXTERN char_u	*p_sxq;		/* 'shellxquote' */
 EXTERN char_u	*p_sxe;		/* 'shellxescape' */
 EXTERN char_u	*p_srr;		/* 'shellredir' */
-#ifdef AMIGA
-EXTERN long	p_st;		/* 'shelltype' */
-#endif
 EXTERN int	p_stmp;		/* 'shelltemp' */
 #ifdef BACKSLASH_IN_FILENAME
 EXTERN int	p_ssl;		/* 'shellslash' */

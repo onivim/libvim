@@ -6345,9 +6345,6 @@ vim_rename(char_u *from, char_u *to)
     int		n;
     char	*errmsg = NULL;
     char	*buffer;
-#ifdef AMIGA
-    BPTR	flock;
-#endif
     stat_T	st;
     long	perm;
 #ifdef HAVE_ACL
@@ -6442,27 +6439,7 @@ vim_rename(char_u *from, char_u *to)
      * two files when the mch_rename() fails.
      */
 
-#ifdef AMIGA
-    /*
-     * With MSDOS-compatible filesystems (crossdos, messydos) it is possible
-     * that the name of the "to" file is the same as the "from" file, even
-     * though the names are different. To avoid the chance of accidentally
-     * deleting the "from" file (horror!) we lock it during the remove.
-     *
-     * When used for making a backup before writing the file: This should not
-     * happen with ":w", because startscript() should detect this problem and
-     * set buf->b_shortname, causing modname() to return a correct ".bak" file
-     * name.  This problem does exist with ":w filename", but then the
-     * original file will be somewhere else so the backup isn't really
-     * important. If autoscripting is off the rename may fail.
-     */
-    flock = Lock((UBYTE *)from, (long)ACCESS_READ);
-#endif
     mch_remove(to);
-#ifdef AMIGA
-    if (flock)
-	UnLock(flock);
-#endif
 
     /*
      * First try a normal rename, return if it works.

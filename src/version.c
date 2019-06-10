@@ -9,10 +9,6 @@
 
 #include "vim.h"
 
-#ifdef AMIGA
-# include <time.h>	/* for time() */
-#endif
-
 /*
  * Vim originated from Stevie version 3.6 (Fish disk 217) by GRWalter (Fred)
  * It has been changed beyond recognition since then.
@@ -85,13 +81,6 @@ static char *(features[]) =
 	"+acl",
 #else
 	"-acl",
-#endif
-#ifdef AMIGA		/* only for Amiga systems */
-# ifdef FEAT_ARP
-	"+ARP",
-# else
-	"-ARP",
-# endif
 #endif
 #ifdef FEAT_ARABIC
 	"+arabic",
@@ -703,6 +692,8 @@ static char *(features[]) =
 
 static int included_patches[] =
 {   /* Add new patch number below this line */
+/**/
+    1486,
 /**/
     1456,
 /**/

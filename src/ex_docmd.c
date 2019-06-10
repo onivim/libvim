@@ -10564,7 +10564,7 @@ get_view_file(int c)
 	    else if (vim_ispathsep(*p))
 	    {
 		*s++ = '=';
-#if defined(BACKSLASH_IN_FILENAME) || defined(AMIGA) || defined(VMS)
+#if defined(BACKSLASH_IN_FILENAME) || defined(VMS)
 		if (*p == ':')
 		    *s++ = '-';
 		else

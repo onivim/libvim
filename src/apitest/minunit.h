@@ -135,6 +135,10 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_end_proc_timer - minunit_proc_timer);\
 )
 
+#define MU_RETURN() MU__SAFE_BLOCK(\
+  return minunit_fail > 0 ? 1 : 0;\
+)
+
 /*  Assertions */
 #define mu_check(test) MU__SAFE_BLOCK(\
 	minunit_assert++;\

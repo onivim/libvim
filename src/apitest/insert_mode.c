@@ -7,9 +7,7 @@ void test_setup(void) {
   vimExecute("e!");
 }
 
-void test_teardown(void) {
-
-}
+void test_teardown(void) {}
 
 /* TODO: Get this test green */
 /* MU_TEST(insert_count) { */
@@ -18,9 +16,10 @@ void test_teardown(void) {
 /*   vimInput("a"); */
 /*   vimInput("\033"); */
 
-/*   char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine()); */
+/*   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine()); */
 /*   printf("LINE: %s\n", line); */
-/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0); */
+/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0);
+ */
 /* } */
 
 MU_TEST(insert_beginning) {
@@ -29,7 +28,7 @@ MU_TEST(insert_beginning) {
   vimInput("b");
   vimInput("c");
 
-  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   mu_check(strcmp(line, "abcThis is the first line of a test file") == 0);
 }
 
@@ -40,8 +39,11 @@ MU_TEST(insert_cr) {
   vimInput("c");
   vimInput("<CR>");
 
-  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
-  mu_check(strcmp(line, "abc") == 0);
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "This is the first line of a test file") == 0);
+
+  char_u *prevLine = vimBufferGetLine(curbuf, vimCursorGetLine() - 1);
+  mu_check(strcmp(prevLine, "abc") == 0);
 }
 
 MU_TEST(insert_prev_line) {
@@ -49,9 +51,9 @@ MU_TEST(insert_prev_line) {
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  mu_check(vimWindowGetCursorLine() == 1);
+  mu_check(vimCursorGetLine() == 1);
 
-  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
   printf("LINE: %s\n", line);
 
@@ -64,9 +66,9 @@ MU_TEST(insert_next_line) {
   vimInput("b");
   vimInput("c");
 
-  mu_check(vimWindowGetCursorLine() == 2);
+  mu_check(vimCursorGetLine() == 2);
 
-  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
   printf("LINE: %s\n", line);
 
@@ -77,7 +79,7 @@ MU_TEST(insert_end) {
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  char_u *line = vimBufferGetLine(curbuf, vimWindowGetCursorLine());
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
   printf("LINE: %s\n", line);
 
@@ -85,14 +87,14 @@ MU_TEST(insert_end) {
 }
 
 MU_TEST_SUITE(test_suite) {
-    MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
+  MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    /* MU_RUN_TEST(insert_count); */
-    MU_RUN_TEST(insert_prev_line);
-    MU_RUN_TEST(insert_next_line);
-    MU_RUN_TEST(insert_beginning);
-    MU_RUN_TEST(insert_cr);
-    MU_RUN_TEST(insert_end);
+  /* MU_RUN_TEST(insert_count); */
+  MU_RUN_TEST(insert_prev_line);
+  MU_RUN_TEST(insert_next_line);
+  MU_RUN_TEST(insert_beginning);
+  MU_RUN_TEST(insert_cr);
+  MU_RUN_TEST(insert_end);
 }
 
 int main(int argc, char **argv) {
@@ -105,6 +107,5 @@ int main(int argc, char **argv) {
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
-
-  return minunit_status;
+  MU_RETURN();
 }

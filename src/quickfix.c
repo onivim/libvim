@@ -4809,12 +4809,6 @@ ex_make(exarg_T *eap)
     // let the shell know if we are redirecting output or not
     do_shell(cmd, *p_sp != NUL ? SHELL_DOOUT : 0);
 
-#ifdef AMIGA
-    out_flush();
-		// read window status report and redraw before message
-    (void)char_avail();
-#endif
-
     incr_quickfix_busy();
 
     res = qf_init(wp, fname, (eap->cmdidx != CMD_make

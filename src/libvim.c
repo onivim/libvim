@@ -29,13 +29,18 @@ void vimInit(int argc, char **argv) {
 
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags) {
   buf_T *buffer = buflist_new(ffname_arg, NULL, lnum, flags);
-  set_curbuf(buffer, 0);
+  set_curbuf(buffer, DOBUF_SPLIT);
   return buffer;
 }
 
 buf_T *vimBufferGetCurrent(void) { return curbuf; }
 
+buf_T *vimBufferGetById(int id) { return buflist_findnr(id); }
+
 char_u *vimBufferGetFilename(buf_T *buf) { return buf->b_ffname; }
+char_u *vimBufferGetFiletype(buf_T *buf) { return buf->b_p_ft; }
+
+void vimBufferSetCurrent(buf_T *buf) { set_curbuf(buf, DOBUF_SPLIT); }
 
 int vimBufferGetId(buf_T *buf) { return buf->b_fnum; }
 
@@ -54,32 +59,68 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
   bufferUpdateCallback = f;
 }
 
-linenr_T vimWindowGetCursorLine(void) { return curwin->w_cursor.lnum; };
-colnr_T vimWindowGetCursorColumn(void) { return curwin->w_cursor.col; };
-pos_T vimWindowGetCursorPosition(void) { return curwin->w_cursor; };
+void vimSetAutoCommandCallback(AutoCommandCallback f) {
+  autoCommandCallback = f;
+}
 
-void vimInput(char_u *input) { 
-    char_u      *ptr = NULL;
-    char_u      *cpo_save = p_cpo;
+linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
+colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
+pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
+colnr_T vimCursorGetDesiredColumn(void) { return curwin->w_curswant; };
 
-    /* Set 'cpoptions' the way we want it.
-     *    B set - backslashes are *not* treated specially
-     *    k set - keycodes are *not* reverse-engineered
-     *    < unset - <Key> sequences *are* interpreted
-     *  The last but one parameter of replace_termcodes() is TRUE so that the
-     *  <lt> sequence is recognised - needed for a real backslash.
-     */
-    p_cpo = (char_u *)"Bk";
-    input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
-    p_cpo = cpo_save;
+void vimInput(char_u *input) {
+  char_u *ptr = NULL;
+  char_u *cpo_save = p_cpo;
 
-    if (*ptr != NUL)	/* trailing CTRL-V results in nothing */
-    {
-	      sm_execute_normal(input); 
-    }
-    vim_free((char_u *)ptr);
+  /* Set 'cpoptions' the way we want it.
+   *    B set - backslashes are *not* treated specially
+   *    k set - keycodes are *not* reverse-engineered
+   *    < unset - <Key> sequences *are* interpreted
+   *  The last but one parameter of replace_termcodes() is TRUE so that the
+   *  <lt> sequence is recognised - needed for a real backslash.
+   */
+  p_cpo = (char_u *)"Bk";
+  input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
+  p_cpo = cpo_save;
+
+  if (*ptr != NUL) /* trailing CTRL-V results in nothing */
+  {
+    sm_execute_normal(input);
+  }
+  vim_free((char_u *)ptr);
+  /* Trigger CursorMoved if the cursor moved. */
+  if (!finish_op && (has_cursormoved()) &&
+      !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
+    if (has_cursormoved())
+      apply_autocmds(EVENT_CURSORMOVED, NULL, NULL, FALSE, curbuf);
+    last_cursormoved = curwin->w_cursor;
+  }
+
+  update_curswant();
+}
+
+int vimVisualIsActive(void) { return VIsual_active; }
+
+int vimSelectIsActive(void) { return VIsual_select; }
+
+int vimVisualGetType(void) { return VIsual_mode; }
+
+void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
+  if (VIsual_active || VIsual_select) {
+    *startPos = VIsual;
+    *endPos = curwin->w_cursor;
+  } else {
+    *startPos = curbuf->b_visual.vi_start;
+    *endPos = curbuf->b_visual.vi_end;
+  }
 }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
-int vimGetMode(void) { return State; }
+int vimGetMode(void) {
+    return get_real_state();
+}
+
+void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines) {
+  get_yank_register_value(reg_name, num_lines, lines);
+}

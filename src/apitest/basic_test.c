@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
   win_setheight(100);
 
   buf_T *buf = vimBufferOpen("testfile.txt", 1, 0);
-  assert(vimGetMode() & NORMAL == NORMAL);
+  assert((vimGetMode() & NORMAL) == NORMAL);
 
   char *line = vimBufferGetLine(buf, 1);
   printf("LINE: %s\n", line);
@@ -19,22 +19,22 @@ int main(int argc, char **argv) {
   size_t len = vimBufferGetLineCount(buf);
   assert(len == 3);
 
-  printf("cursor line: %d\n", vimWindowGetCursorLine());
+  printf("cursor line: %d\n", vimCursorGetLine());
 
-  assert(vimWindowGetCursorLine() == 1);
+  assert(vimCursorGetLine() == 1);
 
   vimInput("G");
-  printf("cursor line: %d\n", vimWindowGetCursorLine());
+  printf("cursor line: %d\n", vimCursorGetLine());
 
-  assert(vimWindowGetCursorLine() > 1);
+  assert(vimCursorGetLine() > 1);
 
   vimInput("v");
-  assert(vimGetMode() & VISUAL == VISUAL);
+  assert((vimGetMode() & VISUAL) == VISUAL);
   vimInput("l");
   vimInput("l");
   vimInput("x");
 
-  printf("CURSOR LINE: %d\n", vimWindowGetCursorLine());
+  printf("CURSOR LINE: %d\n", vimCursorGetLine());
   /* assert(vimGetMode() & INSERT == INSERT); */
 
   line = vimBufferGetLine(buf, 1);

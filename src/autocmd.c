@@ -1841,6 +1841,10 @@ apply_autocmds_group(
     save_redo_T	save_redo;
     int		save_KeyTyped = KeyTyped;
 
+    if (autoCommandCallback != NULL) {
+	    (*autoCommandCallback)(event, buf);
+    }
+
     /*
      * Quickly return if there are no autocommands for this event or
      * autocommands are blocked.

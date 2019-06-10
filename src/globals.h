@@ -46,6 +46,7 @@ EXTERN char_u	*LineWraps INIT(= NULL);	/* line wraps to next line */
 
 /* libvim API callbacks */
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
+EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine
@@ -1510,7 +1511,7 @@ EXTERN char e_readerrf[]	INIT(= N_("E47: Error while reading errorfile"));
 EXTERN char e_sandbox[]	INIT(= N_("E48: Not allowed in sandbox"));
 #endif
 EXTERN char e_secure[]	INIT(= N_("E523: Not allowed here"));
-#if defined(AMIGA) || defined(MACOS_X) || defined(MSWIN)  \
+#if defined(MACOS_X) || defined(MSWIN)  \
 	|| defined(UNIX) || defined(VMS)
 EXTERN char e_screenmode[]	INIT(= N_("E359: Screen mode setting not supported"));
 #endif

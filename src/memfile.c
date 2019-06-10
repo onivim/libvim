@@ -55,15 +55,6 @@
 /*
  * for Amiga Dos 2.0x we use Flush
  */
-#ifdef AMIGA
-# ifdef FEAT_ARP
-extern int dos2;			/* this is in os_amiga.c */
-# endif
-# ifdef SASC
-#  include <proto/dos.h>
-#  include <ios1.h>			/* for chkufb() */
-# endif
-#endif
 
 #define MEMFILE_PAGE_SIZE 4096		/* default page size */
 
@@ -625,49 +616,6 @@ mf_sync(memfile_T *mfp, int flags)
 	if (_commit(mfp->mf_fd))
 	    status = FAIL;
 #endif
-#ifdef AMIGA
-# if defined(__AROS__) || defined(__amigaos4__)
-	if (vim_fsync(mfp->mf_fd) != 0)
-	    status = FAIL;
-# else
-	/*
-	 * Flush() only exists for AmigaDos 2.0.
-	 * For 1.3 it should be done with close() + open(), but then the risk
-	 * is that the open() may fail and lose the file....
-	 */
-#  ifdef FEAT_ARP
-	if (dos2)
-#  endif
-#  ifdef SASC
-	{
-	    struct UFB *fp = chkufb(mfp->mf_fd);
-
-	    if (fp != NULL)
-		Flush(fp->ufbfh);
-	}
-#  else
-#   if defined(_DCC) || defined(__GNUC__) || defined(__MORPHOS__)
-	{
-#    if defined(__GNUC__) && !defined(__MORPHOS__) && defined(__libnix__)
-	    /* Have function (in libnix at least),
-	     * but ain't got no prototype anywhere. */
-	    extern unsigned long fdtofh(int filedescriptor);
-#    endif
-#    if !defined(__libnix__)
-	    fflush(NULL);
-#    else
-	    BPTR fh = (BPTR)fdtofh(mfp->mf_fd);
-
-	    if (fh != 0)
-		Flush(fh);
-#    endif
-	}
-#   else /* assume Manx */
-	    Flush(_devtab[mfp->mf_fd].fd);
-#   endif
-#  endif
-# endif
-#endif /* AMIGA */
     }
 
     got_int |= got_int_save;
