@@ -2071,9 +2071,10 @@ TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
-	echo "Copying $< to $(DEST_BIN)/collateral"
 	mkdir $(DEST_BIN)/collateral
-	$(INSTALL_PROG) $< $(DEST_BIN)/collateral
+	$(INSTALL_PROG) apitest/collateral/* $(DEST_BIN)/collateral
+	echo "--- collateral folder ---"
+	ls $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
 	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
