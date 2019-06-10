@@ -2728,7 +2728,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     ccline.xpc = &context->xpc;
 
 #ifdef FEAT_RIGHTLEFT
-	goto theend;	// out of memory
     if (curwin->w_p_rl && *curwin->w_p_rlc == 's'
 					  && (context->firstc == '/' || context->firstc == '?'))
 	cmdmsg_rl = TRUE;
