@@ -470,18 +470,6 @@ EXTERN char_u	*p_fp;		/* 'formatprg' */
 EXTERN int	p_fs;		/* 'fsync' */
 #endif
 EXTERN int	p_gd;		/* 'gdefault' */
-#ifdef FEAT_PRINTER
-EXTERN char_u	*p_pdev;	/* 'printdevice' */
-# ifdef FEAT_POSTSCRIPT
-EXTERN char_u	*p_penc;	/* 'printencoding' */
-EXTERN char_u	*p_pexpr;	/* 'printexpr' */
-EXTERN char_u	*p_pmfn;	/* 'printmbfont' */
-EXTERN char_u	*p_pmcs;	/* 'printmbcharset' */
-# endif
-EXTERN char_u	*p_pfn;		/* 'printfont' */
-EXTERN char_u	*p_popt;	/* 'printoptions' */
-EXTERN char_u	*p_header;	/* 'printheader' */
-#endif
 EXTERN int	p_prompt;	/* 'prompt' */
 #ifdef FEAT_GUI
 EXTERN char_u	*p_guifont;	/* 'guifont' */

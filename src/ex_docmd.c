@@ -15,9 +15,6 @@
 
 static int	quitmore = 0;
 static int	ex_pressedreturn = FALSE;
-#ifndef FEAT_PRINTER
-# define ex_hardcopy	ex_ni
-#endif
 
 #ifdef FEAT_EVAL
 static char_u	*do_one_cmd(char_u **, int, struct condstack *, char_u *(*fgetline)(int, void *, int), void *cookie);
