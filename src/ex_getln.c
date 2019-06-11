@@ -114,10 +114,6 @@ trigger_cmd_autocmd(int typechar, int evt)
 abandon_cmdline(void)
 {
     VIM_CLEAR(ccline.cmdbuff);
-    if (msg_scrolled == 0)
-	compute_cmdrow();
-    msg("");
-    redraw_cmdline = TRUE;
 }
 
 #ifdef FEAT_SEARCH_EXTRA
@@ -3913,12 +3909,14 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
-	if (context->firstc == ':') {
-	    do_cmdline_cmd(ccline.cmdbuff);
-	    return COMPLETED_UNHANDLED;
+	if (context->gotesc == TRUE) {
+	    abandon_cmdline();
 	} else {
-    return COMPLETED_UNHANDLED;
+	    if (context->firstc == ':')
+		do_cmdline_cmd(ccline.cmdbuff);
 	}
+
+  return COMPLETED_UNHANDLED;
 
 /*
  * This part implements incremental searches for "/" and "?"

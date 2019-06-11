@@ -73,6 +73,23 @@ MU_TEST(test_cmdline_autocmds) {
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
+MU_TEST(test_cmdline_no_execute_with_esc) {
+  buf_T *buffer = vimBufferGetCurrent();
+  int lc = vimBufferGetLineCount(buffer);
+  mu_check(lc == 3);
+
+  vimInput(":");
+  vimInput("1");
+  vimInput(",");
+  vimInput("2");
+  vimInput("d");
+  vimInput("<c-c>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  lc = vimBufferGetLineCount(buffer);
+  mu_check(lc == 3);
+}
+
 MU_TEST(test_cmdline_execute) {
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
@@ -115,6 +132,7 @@ MU_TEST_SUITE(test_suite) {
 
   /* MU_RUN_TEST(test_search_forward_esc); */
   MU_RUN_TEST(test_cmdline_autocmds);
+  MU_RUN_TEST(test_cmdline_no_execute_with_esc);
   MU_RUN_TEST(test_cmdline_esc);
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);

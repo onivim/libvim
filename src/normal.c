@@ -516,6 +516,7 @@ typedef struct {
 #endif
 
   int returnState; // The state we are returning from
+  pos_T returnPriorPosition; // The cursor position prior to running the state
 } normalCmd_T;
 
 void start_normal_mode(normalCmd_T *context) {
@@ -608,6 +609,7 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 			    char_u cmdc = ccline.cmdfirstc;
 			    if (cmdc == '/' || cmdc == '?') {
 				    if (cmd == NULL) {
+						    curwin->w_cursor = context->returnPriorPosition;
 						    clearop(context->oap);
 				    } else {
 					    context->ca.searchbuf = cmd;
@@ -801,6 +803,7 @@ restart_state:
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL) {
 	    context->returnState = stateMode;
+	    context->returnPriorPosition = curwin->w_cursor;
 	    return HANDLED;
     }
 
