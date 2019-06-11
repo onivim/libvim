@@ -114,10 +114,6 @@ trigger_cmd_autocmd(int typechar, int evt)
 abandon_cmdline(void)
 {
     VIM_CLEAR(ccline.cmdbuff);
-    if (msg_scrolled == 0)
-	compute_cmdrow();
-    msg("");
-    redraw_cmdline = TRUE;
 }
 
 #ifdef FEAT_SEARCH_EXTRA
@@ -3499,6 +3495,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 
 	case ESC:	/* get here if p_wc != ESC or when ESC typed twice */
 	case Ctrl_C:
+		printf("got escape key\n");
 		/* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
 		if (exmode_active
@@ -3913,12 +3910,17 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
-	if (context->firstc == ':') {
-	    do_cmdline_cmd(ccline.cmdbuff);
-	    return COMPLETED_UNHANDLED;
+	printf("returncmd\n");
+	if (context->gotesc == TRUE) {
+	    printf("gotesc pressed!\n");
+	    abandon_cmdline();
+	    printf("abandoned command line\n");
 	} else {
-    return COMPLETED_UNHANDLED;
+	    if (context->firstc == ':')
+		do_cmdline_cmd(ccline.cmdbuff);
 	}
+
+  return COMPLETED_UNHANDLED;
 
 /*
  * This part implements incremental searches for "/" and "?"
