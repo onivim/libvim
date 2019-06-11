@@ -235,9 +235,6 @@
 # define PV_CUL		OPT_WIN(WV_CUL)
 # define PV_CC		OPT_WIN(WV_CC)
 #endif
-#ifdef FEAT_STL_OPT
-# define PV_STL		OPT_BOTH(OPT_WIN(WV_STL))
-#endif
 #define PV_UL		OPT_BOTH(OPT_BUF(BV_UL))
 # define PV_WFH		OPT_WIN(WV_WFH)
 # define PV_WFW		OPT_WIN(WV_WFW)
@@ -2202,11 +2199,7 @@ static struct vimoption options[] =
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"rulerformat", "ruf",  P_STRING|P_VI_DEF|P_ALLOCED|P_RSTAT|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_ruf, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"runtimepath", "rtp",  P_STRING|P_VI_DEF|P_EXPAND|P_ONECOMMA|P_NODUP
 								    |P_SECURE,
@@ -2460,11 +2453,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_sol, PV_NONE,
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"statusline"  ,"stl",  P_STRING|P_VI_DEF|P_ALLOCED|P_RSTAT|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_stl, PV_STL,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"suffixes",    "su",   P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
 			    (char_u *)&p_su, PV_NONE,
@@ -2507,11 +2496,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"tabline",	    "tal",  P_STRING|P_VI_DEF|P_RALL|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_tal, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"tabpagemax",  "tpm",  P_NUM|P_VI_DEF,
 			    (char_u *)&p_tpm, PV_NONE,
@@ -5727,9 +5712,6 @@ insecure_flag(int opt_idx, int opt_flags)
     if (opt_flags & OPT_LOCAL)
 	switch ((int)options[opt_idx].indir)
 	{
-#ifdef FEAT_STL_OPT
-	    case PV_STL:	return &curwin->w_p_stl_flags;
-#endif
 #ifdef FEAT_EVAL
 # ifdef FEAT_FOLDING
 	    case PV_FDE:	return &curwin->w_p_fde_flags;
@@ -6910,15 +6892,6 @@ did_set_string_option(
     /* 'titlestring' and 'iconstring' */
     else if (varp == &p_titlestring || varp == &p_iconstring)
     {
-# ifdef FEAT_STL_OPT
-	int	flagval = (varp == &p_titlestring) ? STL_IN_TITLE : STL_IN_ICON;
-
-	/* NULL => statusline syntax */
-	if (vim_strchr(*varp, '%') && check_stl_option(*varp) == NULL)
-	    stl_syntax |= flagval;
-	else
-	    stl_syntax &= ~flagval;
-# endif
 	did_set_title();
     }
 #endif
@@ -7087,34 +7060,6 @@ did_set_string_option(
 #endif
 	}
     }
-
-#ifdef FEAT_STL_OPT
-    /* 'statusline' or 'rulerformat' */
-    else if (gvarp == &p_stl || varp == &p_ruf)
-    {
-	int wid;
-
-	if (varp == &p_ruf)	/* reset ru_wid first */
-	    ru_wid = 0;
-	s = *varp;
-	if (varp == &p_ruf && *s == '%')
-	{
-	    /* set ru_wid if 'ruf' starts with "%99(" */
-	    if (*++s == '-')	/* ignore a '-' */
-		s++;
-	    wid = getdigits(&s);
-	    if (wid && *s == '(' && (errmsg = check_stl_option(p_ruf)) == NULL)
-		ru_wid = wid;
-	    else
-		errmsg = check_stl_option(p_ruf);
-	}
-	/* check 'statusline' only if it doesn't start with "%!" */
-	else if (varp == &p_ruf || s[0] != '%' || s[1] != '!')
-	    errmsg = check_stl_option(s);
-	if (varp == &p_ruf && errmsg == NULL)
-	    comp_col();
-    }
-#endif
 
 #ifdef FEAT_INS_EXPAND
     /* check if it is a valid value for 'complete' -- Acevedo */
@@ -7922,78 +7867,6 @@ set_chars_option(char_u **varp)
 
     return NULL;	/* no error */
 }
-
-#ifdef FEAT_STL_OPT
-/*
- * Check validity of options with the 'statusline' format.
- * Return error message or NULL.
- */
-    char *
-check_stl_option(char_u *s)
-{
-    int		itemcnt = 0;
-    int		groupdepth = 0;
-    static char errbuf[80];
-
-    while (*s && itemcnt < STL_MAX_ITEM)
-    {
-	/* Check for valid keys after % sequences */
-	while (*s && *s != '%')
-	    s++;
-	if (!*s)
-	    break;
-	s++;
-	if (*s != '%' && *s != ')')
-	    ++itemcnt;
-	if (*s == '%' || *s == STL_TRUNCMARK || *s == STL_MIDDLEMARK)
-	{
-	    s++;
-	    continue;
-	}
-	if (*s == ')')
-	{
-	    s++;
-	    if (--groupdepth < 0)
-		break;
-	    continue;
-	}
-	if (*s == '-')
-	    s++;
-	while (VIM_ISDIGIT(*s))
-	    s++;
-	if (*s == STL_USER_HL)
-	    continue;
-	if (*s == '.')
-	{
-	    s++;
-	    while (*s && VIM_ISDIGIT(*s))
-		s++;
-	}
-	if (*s == '(')
-	{
-	    groupdepth++;
-	    continue;
-	}
-	if (vim_strchr(STL_ALL, *s) == NULL)
-	{
-	    return illegal_char(errbuf, *s);
-	}
-	if (*s == '{')
-	{
-	    s++;
-	    while (*s != '}' && *s)
-		s++;
-	    if (*s != '}')
-		return N_("E540: Unclosed expression sequence");
-	}
-    }
-    if (itemcnt >= STL_MAX_ITEM)
-	return N_("E541: too many items");
-    if (groupdepth != 0)
-	return N_("E542: unbalanced groups");
-    return NULL;
-}
-#endif
 
 #ifdef FEAT_CLIPBOARD
 /*
@@ -10565,11 +10438,6 @@ unset_global_local_option(char_u *name, void *from)
 	    clear_string_option(&buf->b_p_cm);
 	    break;
 #endif
-#ifdef FEAT_STL_OPT
-	case PV_STL:
-	    clear_string_option(&((win_T *)from)->w_p_stl);
-	    break;
-#endif
 	case PV_UL:
 	    buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
 	    break;
@@ -10628,9 +10496,6 @@ get_varp_scope(struct vimoption *p, int opt_flags)
 #endif
 #if defined(FEAT_CRYPT)
 	    case PV_CM:	  return (char_u *)&(curbuf->b_p_cm);
-#endif
-#ifdef FEAT_STL_OPT
-	    case PV_STL:  return (char_u *)&(curwin->w_p_stl);
 #endif
 	    case PV_UL:   return (char_u *)&(curbuf->b_p_ul);
 #ifdef FEAT_LISP
@@ -10706,10 +10571,6 @@ get_varp(struct vimoption *p)
 #if defined(FEAT_CRYPT)
 	case PV_CM:	return *curbuf->b_p_cm != NUL
 				    ? (char_u *)&(curbuf->b_p_cm) : p->var;
-#endif
-#ifdef FEAT_STL_OPT
-	case PV_STL:	return *curwin->w_p_stl != NUL
-				    ? (char_u *)&(curwin->w_p_stl) : p->var;
 #endif
 	case PV_UL:	return curbuf->b_p_ul != NO_LOCAL_UNDOLEVEL
 				    ? (char_u *)&(curbuf->b_p_ul) : p->var;
@@ -10939,9 +10800,6 @@ copy_winopt(winopt_T *from, winopt_T *to)
     to->wo_rl  = from->wo_rl;
     to->wo_rlc = vim_strsave(from->wo_rlc);
 #endif
-#ifdef FEAT_STL_OPT
-    to->wo_stl = vim_strsave(from->wo_stl);
-#endif
     to->wo_wrap = from->wo_wrap;
 #ifdef FEAT_DIFF
     to->wo_wrap_save = from->wo_wrap_save;
@@ -11033,9 +10891,6 @@ check_winopt(winopt_T *wop UNUSED)
 #ifdef FEAT_RIGHTLEFT
     check_string_option(&wop->wo_rlc);
 #endif
-#ifdef FEAT_STL_OPT
-    check_string_option(&wop->wo_stl);
-#endif
 #ifdef FEAT_SYN_HL
     check_string_option(&wop->wo_cc);
 #endif
@@ -11077,9 +10932,6 @@ clear_winopt(winopt_T *wop UNUSED)
     clear_string_option(&wop->wo_wcr);
 #ifdef FEAT_RIGHTLEFT
     clear_string_option(&wop->wo_rlc);
-#endif
-#ifdef FEAT_STL_OPT
-    clear_string_option(&wop->wo_stl);
 #endif
 #ifdef FEAT_SYN_HL
     clear_string_option(&wop->wo_cc);

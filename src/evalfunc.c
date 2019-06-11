@@ -6603,9 +6603,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef STARTUPTIME
 	"startuptime",
 #endif
-#ifdef FEAT_STL_OPT
-	"statusline",
-#endif
 #ifdef FEAT_NETBEANS_INTG
 	"netbeans_intg",
 #endif

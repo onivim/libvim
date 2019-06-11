@@ -510,8 +510,6 @@
 /* # define FEAT_CRYPT */
 /* #endif */
 
-#undef FEAT_CRYPT
-
 /*
  * +mksession		":mksession" command.
  *			Requires +windows and +vertsplit.
@@ -1130,3 +1128,8 @@
 #if (!defined(FEAT_GUI) || defined(VIMDLL)) && defined(MSWIN)
 # define FEAT_VTP
 #endif
+
+// Features in the process of removing
+#undef FEAT_CRYPT
+#undef FEAT_STL_OPT;
+#undef FEAT_TITLE;
