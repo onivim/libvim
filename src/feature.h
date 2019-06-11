@@ -384,18 +384,6 @@
 # define FEAT_DIFF
 #endif
 
-/*
- * +title		'title' and 'icon' options
- * +statusline		'statusline', 'rulerformat' and special format of
- *			'titlestring' and 'iconstring' options.
- * +byte_offset		'%o' in 'statusline' and builtin functions line2byte()
- *			and byte2line().
- *			Note: Required for Macintosh.
- */
-#if defined(FEAT_NORMAL)
-# define FEAT_TITLE
-#endif
-
 #ifdef FEAT_NORMAL
 # define FEAT_BYTEOFF
 #endif
@@ -509,8 +497,6 @@
 /* #if defined(FEAT_NORMAL) && !defined(FEAT_CRYPT) || defined(PROTO) */
 /* # define FEAT_CRYPT */
 /* #endif */
-
-#undef FEAT_CRYPT
 
 /*
  * +mksession		":mksession" command.
@@ -1130,3 +1116,8 @@
 #if (!defined(FEAT_GUI) || defined(VIMDLL)) && defined(MSWIN)
 # define FEAT_VTP
 #endif
+
+// Features in the process of removing
+#undef FEAT_CRYPT
+#undef FEAT_STL_OPT
+#undef FEAT_TITLE

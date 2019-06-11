@@ -4274,10 +4274,6 @@ do_ecmd(
 
 	/* Even when cursor didn't move we need to recompute topline. */
 	changed_line_abv_curs();
-
-#ifdef FEAT_TITLE
-	maketitle();
-#endif
     }
 
 #ifdef FEAT_DIFF

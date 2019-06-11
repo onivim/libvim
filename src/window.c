@@ -4547,9 +4547,6 @@ win_enter_ext(
 	    apply_autocmds(EVENT_BUFENTER, NULL, NULL, FALSE, curbuf);
     }
 
-#ifdef FEAT_TITLE
-    maketitle();
-#endif
     curwin->w_redr_status = TRUE;
     redraw_tabline = TRUE;
     if (restart_edit)

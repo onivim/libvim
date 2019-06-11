@@ -235,9 +235,6 @@
 # define PV_CUL		OPT_WIN(WV_CUL)
 # define PV_CC		OPT_WIN(WV_CC)
 #endif
-#ifdef FEAT_STL_OPT
-# define PV_STL		OPT_BOTH(OPT_WIN(WV_STL))
-#endif
 #define PV_UL		OPT_BOTH(OPT_BUF(BV_UL))
 # define PV_WFH		OPT_WIN(WV_WFH)
 # define PV_WFW		OPT_WIN(WV_WFW)
@@ -1407,18 +1404,10 @@ static struct vimoption options[] =
 			    (char_u *)&p_hls, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"icon",	    NULL,   P_BOOL|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_icon, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"iconstring",  NULL,   P_STRING|P_VI_DEF|P_MLE,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_iconstring, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"ignorecase",  "ic",   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_ic, PV_NONE,
@@ -2202,11 +2191,7 @@ static struct vimoption options[] =
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"rulerformat", "ruf",  P_STRING|P_VI_DEF|P_ALLOCED|P_RSTAT|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_ruf, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"runtimepath", "rtp",  P_STRING|P_VI_DEF|P_EXPAND|P_ONECOMMA|P_NODUP
 								    |P_SECURE,
@@ -2460,11 +2445,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_sol, PV_NONE,
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"statusline"  ,"stl",  P_STRING|P_VI_DEF|P_ALLOCED|P_RSTAT|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_stl, PV_STL,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"suffixes",    "su",   P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
 			    (char_u *)&p_su, PV_NONE,
@@ -2507,11 +2488,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"tabline",	    "tal",  P_STRING|P_VI_DEF|P_RALL|P_MLE,
-#ifdef FEAT_STL_OPT
-			    (char_u *)&p_tal, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"tabpagemax",  "tpm",  P_NUM|P_VI_DEF,
 			    (char_u *)&p_tpm, PV_NONE,
@@ -2661,35 +2638,17 @@ static struct vimoption options[] =
 			    (char_u *)&p_tm, PV_NONE,
 			    {(char_u *)1000L, (char_u *)0L} SCTX_INIT},
     {"title",	    NULL,   P_BOOL|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_title, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"titlelen",    NULL,   P_NUM|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titlelen, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)85L, (char_u *)0L} SCTX_INIT},
     {"titleold",    NULL,   P_STRING|P_VI_DEF|P_GETTEXT|P_SECURE|P_NO_MKRC,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titleold, PV_NONE,
-			    {(char_u *)N_("Thanks for flying Vim"),
-							       (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"titlestring", NULL,   P_STRING|P_VI_DEF|P_MLE,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titlestring, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"toolbar",     "tb",   P_STRING|P_ONECOMMA|P_VI_DEF|P_NODUP,
 #if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
@@ -4079,10 +4038,6 @@ set_init_3(void)
 	if (idx_ffs >= 0 && (options[idx_ffs].flags & P_WAS_SET))
 	    set_fileformat(default_fileformat(), OPT_LOCAL);
     }
-
-#ifdef FEAT_TITLE
-    set_title_defaults();
-#endif
 }
 
 #if defined(FEAT_MULTI_LANG) || defined(PROTO)
@@ -4147,52 +4102,6 @@ init_gui_options(void)
     {
 	set_option_value((char_u *)"bg", 0L, gui_bg_default(), 0);
 	highlight_changed();
-    }
-}
-#endif
-
-#ifdef FEAT_TITLE
-/*
- * 'title' and 'icon' only default to true if they have not been set or reset
- * in .vimrc and we can read the old value.
- * When 'title' and 'icon' have been reset in .vimrc, we won't even check if
- * they can be reset.  This reduces startup time when using X on a remote
- * machine.
- */
-    void
-set_title_defaults(void)
-{
-    int	    idx1;
-    long    val;
-
-    /*
-     * If GUI is (going to be) used, we can always set the window title and
-     * icon name.  Saves a bit of time, because the X11 display server does
-     * not need to be contacted.
-     */
-    idx1 = findoption((char_u *)"title");
-    if (idx1 >= 0 && !(options[idx1].flags & P_WAS_SET))
-    {
-#ifdef FEAT_GUI
-	if (gui.starting || gui.in_use)
-	    val = TRUE;
-	else
-#endif
-	    val = mch_can_restore_title();
-	options[idx1].def_val[VI_DEFAULT] = (char_u *)(long_i)val;
-	p_title = val;
-    }
-    idx1 = findoption((char_u *)"icon");
-    if (idx1 >= 0 && !(options[idx1].flags & P_WAS_SET))
-    {
-#ifdef FEAT_GUI
-	if (gui.starting || gui.in_use)
-	    val = TRUE;
-	else
-#endif
-	    val = mch_can_restore_icon();
-	options[idx1].def_val[VI_DEFAULT] = (char_u *)(long_i)val;
-	p_icon = val;
     }
 }
 #endif
@@ -5273,25 +5182,6 @@ check_cedit(void)
 }
 #endif
 
-#ifdef FEAT_TITLE
-/*
- * When changing 'title', 'titlestring', 'icon' or 'iconstring', call
- * maketitle() to create and display it.
- * When switching the title or icon off, call mch_restore_title() to get
- * the old value back.
- */
-    static void
-did_set_title(void)
-{
-    if (starting != NO_SCREEN
-#ifdef FEAT_GUI
-	    && !gui.starting
-#endif
-				)
-	maketitle();
-}
-#endif
-
 /*
  * set_options_bin -  called when 'bin' changes value.
  */
@@ -5727,9 +5617,6 @@ insecure_flag(int opt_idx, int opt_flags)
     if (opt_flags & OPT_LOCAL)
 	switch ((int)options[opt_idx].indir)
 	{
-#ifdef FEAT_STL_OPT
-	    case PV_STL:	return &curwin->w_p_stl_flags;
-#endif
 #ifdef FEAT_EVAL
 # ifdef FEAT_FOLDING
 	    case PV_FDE:	return &curwin->w_p_fde_flags;
@@ -5750,17 +5637,6 @@ insecure_flag(int opt_idx, int opt_flags)
 
     /* Nothing special, return global flags field. */
     return &options[opt_idx].flags;
-}
-#endif
-
-#ifdef FEAT_TITLE
-/*
- * Redraw the window title and/or tab page text later.
- */
-static void redraw_titles(void)
-{
-    need_maketitle = TRUE;
-    redraw_tabline = TRUE;
 }
 #endif
 
@@ -6334,10 +6210,6 @@ did_set_string_option(
 		errmsg = e_invarg;
 	    else
 	    {
-#ifdef FEAT_TITLE
-		/* May show a "+" in the title now. */
-		redraw_titles();
-#endif
 		/* Add 'fileencoding' to the swap file. */
 		ml_setflags(curbuf);
 	    }
@@ -6354,9 +6226,6 @@ did_set_string_option(
 	    if (varp == &p_enc)
 	    {
 		errmsg = mb_init();
-#ifdef FEAT_TITLE
-		redraw_titles();
-#endif
 	    }
 	}
 
@@ -6496,9 +6365,6 @@ did_set_string_option(
 		curbuf->b_p_tx = TRUE;
 	    else
 		curbuf->b_p_tx = FALSE;
-#ifdef FEAT_TITLE
-	    redraw_titles();
-#endif
 	    /* update flag in swap file */
 	    ml_setflags(curbuf);
 	    /* Redraw needed when switching to/from "mac": a CR in the text
@@ -6906,23 +6772,6 @@ did_set_string_option(
 	fill_breakat_flags();
 #endif
 
-#ifdef FEAT_TITLE
-    /* 'titlestring' and 'iconstring' */
-    else if (varp == &p_titlestring || varp == &p_iconstring)
-    {
-# ifdef FEAT_STL_OPT
-	int	flagval = (varp == &p_titlestring) ? STL_IN_TITLE : STL_IN_ICON;
-
-	/* NULL => statusline syntax */
-	if (vim_strchr(*varp, '%') && check_stl_option(*varp) == NULL)
-	    stl_syntax |= flagval;
-	else
-	    stl_syntax &= ~flagval;
-# endif
-	did_set_title();
-    }
-#endif
-
 #ifdef FEAT_GUI
     /* 'guioptions' */
     else if (varp == &p_go)
@@ -7082,39 +6931,8 @@ did_set_string_option(
 		redraw_later(VALID);
 	    }
 	    curbuf->b_help = (curbuf->b_p_bt[0] == 'h');
-#ifdef FEAT_TITLE
-	    redraw_titles();
-#endif
 	}
     }
-
-#ifdef FEAT_STL_OPT
-    /* 'statusline' or 'rulerformat' */
-    else if (gvarp == &p_stl || varp == &p_ruf)
-    {
-	int wid;
-
-	if (varp == &p_ruf)	/* reset ru_wid first */
-	    ru_wid = 0;
-	s = *varp;
-	if (varp == &p_ruf && *s == '%')
-	{
-	    /* set ru_wid if 'ruf' starts with "%99(" */
-	    if (*++s == '-')	/* ignore a '-' */
-		s++;
-	    wid = getdigits(&s);
-	    if (wid && *s == '(' && (errmsg = check_stl_option(p_ruf)) == NULL)
-		ru_wid = wid;
-	    else
-		errmsg = check_stl_option(p_ruf);
-	}
-	/* check 'statusline' only if it doesn't start with "%!" */
-	else if (varp == &p_ruf || s[0] != '%' || s[1] != '!')
-	    errmsg = check_stl_option(s);
-	if (varp == &p_ruf && errmsg == NULL)
-	    comp_col();
-    }
-#endif
 
 #ifdef FEAT_INS_EXPAND
     /* check if it is a valid value for 'complete' -- Acevedo */
@@ -7923,78 +7741,6 @@ set_chars_option(char_u **varp)
     return NULL;	/* no error */
 }
 
-#ifdef FEAT_STL_OPT
-/*
- * Check validity of options with the 'statusline' format.
- * Return error message or NULL.
- */
-    char *
-check_stl_option(char_u *s)
-{
-    int		itemcnt = 0;
-    int		groupdepth = 0;
-    static char errbuf[80];
-
-    while (*s && itemcnt < STL_MAX_ITEM)
-    {
-	/* Check for valid keys after % sequences */
-	while (*s && *s != '%')
-	    s++;
-	if (!*s)
-	    break;
-	s++;
-	if (*s != '%' && *s != ')')
-	    ++itemcnt;
-	if (*s == '%' || *s == STL_TRUNCMARK || *s == STL_MIDDLEMARK)
-	{
-	    s++;
-	    continue;
-	}
-	if (*s == ')')
-	{
-	    s++;
-	    if (--groupdepth < 0)
-		break;
-	    continue;
-	}
-	if (*s == '-')
-	    s++;
-	while (VIM_ISDIGIT(*s))
-	    s++;
-	if (*s == STL_USER_HL)
-	    continue;
-	if (*s == '.')
-	{
-	    s++;
-	    while (*s && VIM_ISDIGIT(*s))
-		s++;
-	}
-	if (*s == '(')
-	{
-	    groupdepth++;
-	    continue;
-	}
-	if (vim_strchr(STL_ALL, *s) == NULL)
-	{
-	    return illegal_char(errbuf, *s);
-	}
-	if (*s == '{')
-	{
-	    s++;
-	    while (*s != '}' && *s)
-		s++;
-	    if (*s != '}')
-		return N_("E540: Unclosed expression sequence");
-	}
-    }
-    if (itemcnt >= STL_MAX_ITEM)
-	return N_("E541: too many items");
-    if (groupdepth != 0)
-	return N_("E542: unbalanced groups");
-    return NULL;
-}
-#endif
-
 #ifdef FEAT_CLIPBOARD
 /*
  * Extract the items in the 'clipboard' option and set global values.
@@ -8305,9 +8051,6 @@ set_bool_option(
 	if (curbuf->b_p_ro)
 	    curbuf->b_did_warn = FALSE;
 
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
     }
 
 #ifdef FEAT_GUI
@@ -8330,35 +8073,12 @@ set_bool_option(
 	    return N_("E946: Cannot make a terminal with running job modifiable");
 	}
 # endif
-# ifdef FEAT_TITLE
-	redraw_titles();
-# endif
     }
-#ifdef FEAT_TITLE
-    /* when 'endofline' is changed, redraw the window title */
-    else if ((int *)varp == &curbuf->b_p_eol)
-    {
-	redraw_titles();
-    }
-    /* when 'fixeol' is changed, redraw the window title */
-    else if ((int *)varp == &curbuf->b_p_fixeol)
-    {
-	redraw_titles();
-    }
-    /* when 'bomb' is changed, redraw the window title and tab page text */
-    else if ((int *)varp == &curbuf->b_p_bomb)
-    {
-	redraw_titles();
-    }
-#endif
 
     /* when 'bin' is set also set some other options */
     else if ((int *)varp == &curbuf->b_p_bin)
     {
 	set_options_bin(old_value, curbuf->b_p_bin, opt_flags);
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
     }
 
     /* when 'buflisted' changes, trigger autocommands */
@@ -8492,21 +8212,10 @@ set_bool_option(
     }
 #endif
 
-#ifdef FEAT_TITLE
-    /* when 'title' changed, may need to change the title; same for 'icon' */
-    else if ((int *)varp == &p_title || (int *)varp == &p_icon)
-    {
-	did_set_title();
-    }
-#endif
-
     else if ((int *)varp == &curbuf->b_changed)
     {
 	if (!value)
 	    save_file_ff(curbuf);	/* Buffer is unchanged */
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
 	modified_was_set = value;
     }
 
@@ -9034,20 +8743,6 @@ set_num_option(
 	}
 	p_imsearch = curbuf->b_p_imsearch;
     }
-
-#ifdef FEAT_TITLE
-    /* if 'titlelen' has changed, redraw the title */
-    else if (pp == &p_titlelen)
-    {
-	if (p_titlelen < 0)
-	{
-	    errmsg = e_positive;
-	    p_titlelen = 85;
-	}
-	if (starting != NO_SCREEN && old_value != p_titlelen)
-	    need_maketitle = TRUE;
-    }
-#endif
 
     /* if p_ch changed value, change the command line height */
     else if (pp == &p_ch)
@@ -10366,9 +10061,6 @@ clear_termoptions(void)
 #ifdef FEAT_MOUSE_TTY
     mch_setmouse(FALSE);	    /* switch mouse off */
 #endif
-#ifdef FEAT_TITLE
-    mch_restore_title(SAVE_RESTORE_BOTH);    /* restore window titles */
-#endif
 #if defined(FEAT_XCLIPBOARD) && defined(FEAT_GUI)
     /* When starting the GUI close the display opened for the clipboard.
      * After restoring the title, because that will need the display. */
@@ -10565,11 +10257,6 @@ unset_global_local_option(char_u *name, void *from)
 	    clear_string_option(&buf->b_p_cm);
 	    break;
 #endif
-#ifdef FEAT_STL_OPT
-	case PV_STL:
-	    clear_string_option(&((win_T *)from)->w_p_stl);
-	    break;
-#endif
 	case PV_UL:
 	    buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
 	    break;
@@ -10628,9 +10315,6 @@ get_varp_scope(struct vimoption *p, int opt_flags)
 #endif
 #if defined(FEAT_CRYPT)
 	    case PV_CM:	  return (char_u *)&(curbuf->b_p_cm);
-#endif
-#ifdef FEAT_STL_OPT
-	    case PV_STL:  return (char_u *)&(curwin->w_p_stl);
 #endif
 	    case PV_UL:   return (char_u *)&(curbuf->b_p_ul);
 #ifdef FEAT_LISP
@@ -10706,10 +10390,6 @@ get_varp(struct vimoption *p)
 #if defined(FEAT_CRYPT)
 	case PV_CM:	return *curbuf->b_p_cm != NUL
 				    ? (char_u *)&(curbuf->b_p_cm) : p->var;
-#endif
-#ifdef FEAT_STL_OPT
-	case PV_STL:	return *curwin->w_p_stl != NUL
-				    ? (char_u *)&(curwin->w_p_stl) : p->var;
 #endif
 	case PV_UL:	return curbuf->b_p_ul != NO_LOCAL_UNDOLEVEL
 				    ? (char_u *)&(curbuf->b_p_ul) : p->var;
@@ -10939,9 +10619,6 @@ copy_winopt(winopt_T *from, winopt_T *to)
     to->wo_rl  = from->wo_rl;
     to->wo_rlc = vim_strsave(from->wo_rlc);
 #endif
-#ifdef FEAT_STL_OPT
-    to->wo_stl = vim_strsave(from->wo_stl);
-#endif
     to->wo_wrap = from->wo_wrap;
 #ifdef FEAT_DIFF
     to->wo_wrap_save = from->wo_wrap_save;
@@ -11033,9 +10710,6 @@ check_winopt(winopt_T *wop UNUSED)
 #ifdef FEAT_RIGHTLEFT
     check_string_option(&wop->wo_rlc);
 #endif
-#ifdef FEAT_STL_OPT
-    check_string_option(&wop->wo_stl);
-#endif
 #ifdef FEAT_SYN_HL
     check_string_option(&wop->wo_cc);
 #endif
@@ -11077,9 +10751,6 @@ clear_winopt(winopt_T *wop UNUSED)
     clear_string_option(&wop->wo_wcr);
 #ifdef FEAT_RIGHTLEFT
     clear_string_option(&wop->wo_rlc);
-#endif
-#ifdef FEAT_STL_OPT
-    clear_string_option(&wop->wo_stl);
 #endif
 #ifdef FEAT_SYN_HL
     clear_string_option(&wop->wo_cc);

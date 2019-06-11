@@ -134,9 +134,6 @@ static void copy_text_attr(int off, char_u *buf, int len, int attr);
 #endif
 static int win_line(win_T *, linenr_T, int, int, int nochange, int number_only);
 static void draw_vsep_win(win_T *wp, int row);
-#ifdef FEAT_STL_OPT
-static void redraw_custom_statusline(win_T *wp);
-#endif
 #ifdef FEAT_SEARCH_EXTRA
 # define SEARCH_HL_PRIORITY 0
 static void start_search_hl(void);
@@ -157,9 +154,6 @@ static void msg_pos_mode(void);
 static void recording_mode(int attr);
 static int fillchar_status(int *attr, win_T *wp);
 static int fillchar_vsep(int *attr);
-#ifdef FEAT_STL_OPT
-static void win_redr_custom(win_T *wp, int draw_ruler);
-#endif
 
 /* Ugly global: overrule attribute used by screen_char() */
 static int screen_char_attr = 0;
@@ -1208,9 +1202,6 @@ updateWindow(win_T *wp)
 	draw_tabline();
 
     if (wp->w_redr_status
-# ifdef FEAT_STL_OPT
-	    || *p_stl != NUL || *wp->w_p_stl != NUL
-# endif
 	    )
 	win_redr_status(wp, FALSE);
 
@@ -7120,13 +7111,6 @@ win_redr_status(win_T *wp, int ignore_pum UNUSED)
 	/* Don't redraw right now, do it later. */
 	wp->w_redr_status = TRUE;
     }
-#ifdef FEAT_STL_OPT
-    else if (*p_stl != NUL || *wp->w_p_stl != NUL)
-    {
-	/* redraw custom status line */
-	redraw_custom_statusline(wp);
-    }
-#endif
     else
     {
 	fillchar = fillchar_status(&attr, wp);
@@ -7232,39 +7216,6 @@ win_redr_status(win_T *wp, int ignore_pum UNUSED)
     busy = FALSE;
 }
 
-#ifdef FEAT_STL_OPT
-/*
- * Redraw the status line according to 'statusline' and take care of any
- * errors encountered.
- */
-    static void
-redraw_custom_statusline(win_T *wp)
-{
-    static int	    entered = FALSE;
-    int		    saved_did_emsg = did_emsg;
-
-    /* When called recursively return.  This can happen when the statusline
-     * contains an expression that triggers a redraw. */
-    if (entered)
-	return;
-    entered = TRUE;
-
-    did_emsg = FALSE;
-    win_redr_custom(wp, FALSE);
-    if (did_emsg)
-    {
-	/* When there is an error disable the statusline, otherwise the
-	 * display is messed up with errors and a redraw triggers the problem
-	 * again and again. */
-	set_string_option_direct((char_u *)"statusline", -1,
-		(char_u *)"", OPT_FREE | (*wp->w_p_stl != NUL
-					? OPT_LOCAL : OPT_GLOBAL), SID_ERROR);
-    }
-    did_emsg |= saved_did_emsg;
-    entered = FALSE;
-}
-#endif
-
 /*
  * Return TRUE if the status line of window "wp" is connected to the status
  * line of the window right of it.  If not, then it's a vertical separator.
@@ -7341,197 +7292,6 @@ get_keymap_str(
     }
     return buf[0] != NUL;
 }
-
-#if defined(FEAT_STL_OPT) || defined(PROTO)
-/*
- * Redraw the status line or ruler of window "wp".
- * When "wp" is NULL redraw the tab pages line from 'tabline'.
- */
-    static void
-win_redr_custom(
-    win_T	*wp,
-    int		draw_ruler)	/* TRUE or FALSE */
-{
-    static int	entered = FALSE;
-    int		attr;
-    int		curattr;
-    int		row;
-    int		col = 0;
-    int		maxwidth;
-    int		width;
-    int		n;
-    int		len;
-    int		fillchar;
-    char_u	buf[MAXPATHL];
-    char_u	*stl;
-    char_u	*p;
-    struct	stl_hlrec hltab[STL_MAX_ITEM];
-    struct	stl_hlrec tabtab[STL_MAX_ITEM];
-    int		use_sandbox = FALSE;
-    win_T	*ewp;
-    int		p_crb_save;
-
-    /* There is a tiny chance that this gets called recursively: When
-     * redrawing a status line triggers redrawing the ruler or tabline.
-     * Avoid trouble by not allowing recursion. */
-    if (entered)
-	return;
-    entered = TRUE;
-
-    /* setup environment for the task at hand */
-    if (wp == NULL)
-    {
-	/* Use 'tabline'.  Always at the first line of the screen. */
-	stl = p_tal;
-	row = 0;
-	fillchar = ' ';
-	attr = HL_ATTR(HLF_TPF);
-	maxwidth = Columns;
-# ifdef FEAT_EVAL
-	use_sandbox = was_set_insecurely((char_u *)"tabline", 0);
-# endif
-    }
-    else
-    {
-	row = W_WINROW(wp) + wp->w_height;
-	fillchar = fillchar_status(&attr, wp);
-	maxwidth = wp->w_width;
-
-	if (draw_ruler)
-	{
-	    stl = p_ruf;
-	    /* advance past any leading group spec - implicit in ru_col */
-	    if (*stl == '%')
-	    {
-		if (*++stl == '-')
-		    stl++;
-		if (atoi((char *)stl))
-		    while (VIM_ISDIGIT(*stl))
-			stl++;
-		if (*stl++ != '(')
-		    stl = p_ruf;
-	    }
-	    col = ru_col - (Columns - wp->w_width);
-	    if (col < (wp->w_width + 1) / 2)
-		col = (wp->w_width + 1) / 2;
-	    maxwidth = wp->w_width - col;
-	    if (!wp->w_status_height)
-	    {
-		row = Rows - 1;
-		--maxwidth;	/* writing in last column may cause scrolling */
-		fillchar = ' ';
-		attr = 0;
-	    }
-
-# ifdef FEAT_EVAL
-	    use_sandbox = was_set_insecurely((char_u *)"rulerformat", 0);
-# endif
-	}
-	else
-	{
-	    if (*wp->w_p_stl != NUL)
-		stl = wp->w_p_stl;
-	    else
-		stl = p_stl;
-# ifdef FEAT_EVAL
-	    use_sandbox = was_set_insecurely((char_u *)"statusline",
-					 *wp->w_p_stl == NUL ? 0 : OPT_LOCAL);
-# endif
-	}
-
-	col += wp->w_wincol;
-    }
-
-    if (maxwidth <= 0)
-	goto theend;
-
-    /* Temporarily reset 'cursorbind', we don't want a side effect from moving
-     * the cursor away and back. */
-    ewp = wp == NULL ? curwin : wp;
-    p_crb_save = ewp->w_p_crb;
-    ewp->w_p_crb = FALSE;
-
-    /* Make a copy, because the statusline may include a function call that
-     * might change the option value and free the memory. */
-    stl = vim_strsave(stl);
-    width = build_stl_str_hl(ewp, buf, sizeof(buf),
-				stl, use_sandbox,
-				fillchar, maxwidth, hltab, tabtab);
-    vim_free(stl);
-    ewp->w_p_crb = p_crb_save;
-
-    /* Make all characters printable. */
-    p = transstr(buf);
-    if (p != NULL)
-    {
-	vim_strncpy(buf, p, sizeof(buf) - 1);
-	vim_free(p);
-    }
-
-    /* fill up with "fillchar" */
-    len = (int)STRLEN(buf);
-    while (width < maxwidth && len < (int)sizeof(buf) - 1)
-    {
-	len += (*mb_char2bytes)(fillchar, buf + len);
-	++width;
-    }
-    buf[len] = NUL;
-
-    /*
-     * Draw each snippet with the specified highlighting.
-     */
-    curattr = attr;
-    p = buf;
-    for (n = 0; hltab[n].start != NULL; n++)
-    {
-	len = (int)(hltab[n].start - p);
-	screen_puts_len(p, len, row, col, curattr);
-	col += vim_strnsize(p, len);
-	p = hltab[n].start;
-
-	if (hltab[n].userhl == 0)
-	    curattr = attr;
-	else if (hltab[n].userhl < 0)
-	    curattr = syn_id2attr(-hltab[n].userhl);
-#ifdef FEAT_TERMINAL
-	else if (wp != NULL && wp != curwin && bt_terminal(wp->w_buffer)
-						   && wp->w_status_height != 0)
-	    curattr = highlight_stltermnc[hltab[n].userhl - 1];
-	else if (wp != NULL && bt_terminal(wp->w_buffer)
-						   && wp->w_status_height != 0)
-	    curattr = highlight_stlterm[hltab[n].userhl - 1];
-#endif
-	else if (wp != NULL && wp != curwin && wp->w_status_height != 0)
-	    curattr = highlight_stlnc[hltab[n].userhl - 1];
-	else
-	    curattr = highlight_user[hltab[n].userhl - 1];
-    }
-    screen_puts(p, row, col, curattr);
-
-    if (wp == NULL)
-    {
-	/* Fill the TabPageIdxs[] array for clicking in the tab pagesline. */
-	col = 0;
-	len = 0;
-	p = buf;
-	fillchar = 0;
-	for (n = 0; tabtab[n].start != NULL; n++)
-	{
-	    len += vim_strnsize(p, (int)(tabtab[n].start - p));
-	    while (col < len)
-		TabPageIdxs[col++] = fillchar;
-	    p = tabtab[n].start;
-	    fillchar = tabtab[n].userhl;
-	}
-	while (col < Columns)
-	    TabPageIdxs[col++] = fillchar;
-    }
-
-theend:
-    entered = FALSE;
-}
-
-#endif /* FEAT_STL_OPT */
 
 /*
  * Output a single character directly to the screen and update ScreenLines.
@@ -10706,25 +10466,6 @@ draw_tabline(void)
     if (tabline_height() < 1)
 	return;
 
-#if defined(FEAT_STL_OPT)
-    clear_TabPageIdxs();
-
-    /* Use the 'tabline' option if it's set. */
-    if (*p_tal != NUL)
-    {
-	int	saved_did_emsg = did_emsg;
-
-	/* Check for an error.  If there is one we would loop in redrawing the
-	 * screen.  Avoid that by making 'tabline' empty. */
-	did_emsg = FALSE;
-	win_redr_custom(NULL, FALSE);
-	if (did_emsg)
-	    set_string_option_direct((char_u *)"tabline", -1,
-					   (char_u *)"", OPT_FREE, SID_ERROR);
-	did_emsg |= saved_did_emsg;
-    }
-    else
-#endif
     {
 	FOR_ALL_TABPAGES(tp)
 	    ++tabcount;
@@ -10958,21 +10699,7 @@ showruler(int always)
 	return;
     }
 #endif
-#if defined(FEAT_STL_OPT)
-    if ((*p_stl != NUL || *curwin->w_p_stl != NUL) && curwin->w_status_height)
-	redraw_custom_statusline(curwin);
-    else
-#endif
 
-#ifdef FEAT_TITLE
-    if (need_maketitle
-# ifdef FEAT_STL_OPT
-	    || (p_icon && (stl_syntax & STL_IN_ICON))
-	    || (p_title && (stl_syntax & STL_IN_TITLE))
-# endif
-       )
-	maketitle();
-#endif
     /* Redraw the tab pages line if needed. */
     if (redraw_tabline)
 	draw_tabline();

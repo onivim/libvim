@@ -206,9 +206,6 @@ EXTERN int	no_wait_return INIT(= 0);   /* don't wait for return for now */
 EXTERN int	need_wait_return INIT(= 0); /* need to wait for return later */
 EXTERN int	did_wait_return INIT(= FALSE);	/* wait_return() was used and
 						   nothing written since then */
-#ifdef FEAT_TITLE
-EXTERN int	need_maketitle INIT(= TRUE); /* call maketitle() soon */
-#endif
 
 EXTERN int	quit_more INIT(= FALSE);    /* 'q' hit at "--more--" msg */
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
@@ -372,18 +369,8 @@ EXTERN int	did_check_timestamps INIT(= FALSE); /* did check timestamps
 EXTERN int	no_check_timestamps INIT(= 0);	/* Don't check timestamps */
 
 EXTERN int	highlight_attr[HLF_COUNT];  /* Highl. attr for each context. */
-#ifdef FEAT_STL_OPT
-# define USER_HIGHLIGHT
-#endif
 #ifdef USER_HIGHLIGHT
 EXTERN int	highlight_user[9];		/* User[1-9] attributes */
-# ifdef FEAT_STL_OPT
-EXTERN int	highlight_stlnc[9];		/* On top of user */
-#  ifdef FEAT_TERMINAL
-EXTERN int	highlight_stlterm[9];		/* On top of user */
-EXTERN int	highlight_stltermnc[9];		/* On top of user */
-#  endif
-# endif
 #endif
 #ifdef FEAT_TERMINAL
 		// When TRUE skip calling terminal_loop() once.  Used when
@@ -615,9 +602,6 @@ EXTERN int	arg_had_last INIT(= FALSE); /* accessed last file in
 					       global_alist */
 
 EXTERN int	ru_col;		/* column for ruler */
-#ifdef FEAT_STL_OPT
-EXTERN int	ru_wid;		/* 'rulerfmt' width of ruler when non-zero */
-#endif
 EXTERN int	sc_col;		/* column for shown command */
 
 #ifdef TEMPDIRNAMES
@@ -1183,13 +1167,6 @@ EXTERN linenr_T	sub_nlines;	/* total number of lines changed */
 
 /* table to store parsed 'wildmode' */
 EXTERN char_u	wim_flags[4];
-
-#if defined(FEAT_TITLE) && defined(FEAT_STL_OPT)
-/* whether titlestring and iconstring contains statusline syntax */
-# define STL_IN_ICON	1
-# define STL_IN_TITLE	2
-EXTERN int      stl_syntax INIT(= 0);
-#endif
 
 #ifdef FEAT_SEARCH_EXTRA
 /* don't use 'hlsearch' temporarily */

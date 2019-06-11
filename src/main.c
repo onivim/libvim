@@ -1262,10 +1262,6 @@ main_loop(
 	    else if (redraw_cmdline || clear_cmdline)
 		showmode();
 	    redraw_statuslines();
-#ifdef FEAT_TITLE
-	    if (need_maketitle)
-		maketitle();
-#endif
 #ifdef FEAT_VIMINFO
 	    curbuf->b_last_used = vim_time();
 #endif

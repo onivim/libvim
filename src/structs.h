@@ -273,10 +273,6 @@ typedef struct
     char_u	*wo_cc;
 # define w_p_cc w_onebuf_opt.wo_cc	/* 'colorcolumn' */
 #endif
-#ifdef FEAT_STL_OPT
-    char_u	*wo_stl;
-#define w_p_stl w_onebuf_opt.wo_stl	/* 'statusline' */
-#endif
     int		wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb	/* 'scrollbind' */
     int		wo_diff_saved; /* options were saved for starting diff mode */
@@ -3028,9 +3024,6 @@ struct window_S
     winopt_T	w_allbuf_opt;
 
     /* A few options have local flags for P_INSECURE. */
-#ifdef FEAT_STL_OPT
-    long_u	w_p_stl_flags;	    /* flags for 'statusline' */
-#endif
 #ifdef FEAT_EVAL
     long_u	w_p_fde_flags;	    /* flags for 'foldexpr' */
     long_u	w_p_fdt_flags;	    /* flags for 'foldtext' */
