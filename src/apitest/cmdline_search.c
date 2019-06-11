@@ -76,11 +76,29 @@ MU_TEST(test_cancel_inc_search) {
   mu_check(vimCursorGetColumn() == 0);
 }
 
+MU_TEST(test_cancel_n) {
+  vimInput("/");
+  vimInput("s");
+  vimInput("t");
+  vimInput("<c-c>");
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("n")
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("N");
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_cancel_inc_search);
   MU_RUN_TEST(test_search_forward_esc);
+  MU_RUN_TEST(test_cancel_n);
 }
 
 int main(int argc, char **argv) {
