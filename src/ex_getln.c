@@ -3938,8 +3938,8 @@ cmdline_changed:
     char_u	**files_found;
 
 	set_expand_context(&context->xpc);
-	int i = expand_cmdline(&context->xpc, ccline.cmdbuff, ccline.cmdpos,
-						    &num_files, &files_found);
+	/* int i = expand_cmdline(&context->xpc, ccline.cmdbuff, ccline.cmdpos, */
+	/* 					    &num_files, &files_found); */
 	/* TODO: Factor this to a method */
 	/* printf ("COMPLETEIONS: %d\n", num_files); */
 	/* for(int x = 0; x < num_files; x++) { */

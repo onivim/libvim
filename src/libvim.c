@@ -76,8 +76,21 @@ int vimCommandLineGetPosition(void) {
 }
 
 void vimCommandLineGetCompletions(char ***completions, int* count) {
+	/* set_expand_context(&ccline.xpc); */
+if (!ccline.xpc) {
     *count = 0;
     *completions = NULL;
+    return;
+}
+	int i = expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos,
+						    count, completions);
+	/* TODO: Factor this to a method */
+	if (*count > 0) {
+	printf ("COMPLETEIONS: %d\n", *count);
+	for(int x = 0; x < *count; x++) {
+	    printf( "-- %d : %s\n", x, (*completions)[x]);
+	}
+	}
 }
 
 linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
