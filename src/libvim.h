@@ -101,6 +101,9 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
  */
 pos_T *vimSearchGetMatchingPair(int initc);
 
+int vimSearchPattern(char_u *pat, linenr_T stop_lnum, pos_T *startPosition, pos_T *endPos);
+
+
 /***
  * Misc
  ***/
