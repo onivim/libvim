@@ -157,7 +157,9 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
   pos_T endPos;
 
+  printf("vimSearchGetHighlights - getting pattern...\n");
   char_u *pattern = get_search_pat();
+  printf("vimSearchGetHighlights - pattern: %s\n", pattern);
 
   while (v == 1) {
     v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1,
