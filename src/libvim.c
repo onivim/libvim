@@ -176,11 +176,6 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
     cur->next = new;
     cur = new;
 
-    printf("Match number: %d Return value: %d startPos: %d, %d endPos: %d, %d "
-           "lastPos: %d, %d\n",
-           count, v, startPos.lnum, startPos.col, endPos.lnum, endPos.col,
-           lastPos.lnum, lastPos.col);
-
     cur->highlight.start.lnum = startPos.lnum;
     cur->highlight.start.col = startPos.col;
     cur->highlight.end.lnum = endPos.lnum;
