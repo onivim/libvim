@@ -1622,7 +1622,6 @@ may_restore_clipboard(void)
 # endif
 
 	setup_term_clip();
-	get_x11_title(FALSE);
     }
 }
 

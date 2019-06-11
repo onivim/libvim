@@ -1784,7 +1784,6 @@ set_terminal_mode(term_T *term, int normal_mode)
 	handle_postponed_scrollback(term);
     VIM_CLEAR(term->tl_status_text);
     if (term->tl_buffer == curbuf)
-	maketitle();
 }
 
 /*
@@ -2660,7 +2659,6 @@ handle_settermprop(
 		term->tl_title = vim_strsave((char_u *)value->string);
 	    VIM_CLEAR(term->tl_status_text);
 	    if (term == curbuf->b_term)
-		maketitle();
 	    break;
 
 	case VTERM_PROP_CURSORVISIBLE:
@@ -3025,7 +3023,6 @@ term_channel_closed(channel_T *ch)
 	if (term != NULL)
 	{
 	    if (term->tl_job == ch->ch_job)
-		maketitle();
 	    update_cursor(term, term->tl_cursor_visible);
 	}
     }
