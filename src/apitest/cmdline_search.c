@@ -76,11 +76,34 @@ MU_TEST(test_cancel_inc_search) {
   mu_check(vimCursorGetColumn() == 0);
 }
 
+MU_TEST(test_cancel_n) {
+  // Start a query
+  vimInput("/");
+  vimInput("e");
+  vimInput("s");
+  vimInput("<cr>");
+
+  // Create a new query, then cancel
+  vimInput("/");
+  vimInput("a");
+  vimInput("<c-c>");
+
+  // n / N should use the previous query
+  vimInput("n");
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 30);
+
+  vimInput("n");
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 29);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_cancel_inc_search);
   MU_RUN_TEST(test_search_forward_esc);
+  MU_RUN_TEST(test_cancel_n);
 }
 
 int main(int argc, char **argv) {
