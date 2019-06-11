@@ -1,6 +1,28 @@
 #include "libvim.h"
 #include "minunit.h"
 
+static int cmdLineEnterCount = 0;
+static int cmdLineLeaveCount = 0;
+static int cmdLineChangedCount = 0;
+
+void onAutoCommand(event_T command, buf_T *buf) {
+  printf("Autocommand: %d\n", command);
+
+  switch (command) {
+  case EVENT_CMDLINECHANGED:
+    cmdLineChangedCount++;
+    return;
+  case EVENT_CMDLINEENTER:
+    cmdLineEnterCount++;
+    return;
+  case EVENT_CMDLINELEAVE:
+    cmdLineLeaveCount++;
+    return;
+  default:
+    return;
+  }
+}
+
 void test_setup(void) {
   vimInput("<esc>");
   vimInput("<esc>");
@@ -8,7 +30,11 @@ void test_setup(void) {
   vimExecute("e!");
 }
 
-void test_teardown(void) {}
+void test_teardown(void) {
+  cmdLineEnterCount = 0;
+  cmdLineLeaveCount = 0;
+  cmdLineChangedCount = 0;
+}
 
 /* MU_TEST(test_search_forward_esc) { */
 /*     printf("SERACHING!\n"); */
@@ -43,6 +69,31 @@ MU_TEST(test_cmdline_enter) {
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
   vimInput("<cr>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+}
+
+MU_TEST(test_cmdline_autocmds) {
+  buf_T *buffer = vimBufferGetCurrent();
+  int lc = vimBufferGetLineCount(buffer);
+  mu_check(lc == 3);
+
+  mu_check(cmdLineEnterCount == 0);
+  vimInput(":");
+  mu_check(cmdLineEnterCount == 1);
+  mu_check(cmdLineChangedCount == 0);
+
+  vimInput("a");
+  mu_check(cmdLineChangedCount == 1);
+
+  vimInput("b");
+  mu_check(cmdLineChangedCount == 2);
+
+  vimInput("c");
+  mu_check(cmdLineChangedCount == 3);
+  mu_check(cmdLineLeaveCount == 0);
+  vimInput("<esc>");
+  mu_check(cmdLineLeaveCount == 1);
+
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
@@ -86,7 +137,7 @@ MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   /* MU_RUN_TEST(test_search_forward_esc); */
-  /* TODO: Fix */
+  MU_RUN_TEST(test_cmdline_autocmds);
   MU_RUN_TEST(test_cmdline_esc);
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);
@@ -94,6 +145,7 @@ MU_TEST_SUITE(test_suite) {
 }
 
 int main(int argc, char **argv) {
+  vimSetAutoCommandCallback(&onAutoCommand);
   vimInit(argc, argv);
 
   win_setwidth(5);
