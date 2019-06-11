@@ -20,7 +20,9 @@ void test_teardown(void) {}
 MU_TEST(test_no_highlights_initially) {
   int num;
   searchHighlight_T *highlights;
+  printf("here1\n");
   vimSearchGetHighlights(0, 0, &num, &highlights);
+  printf("here2\n");
 
   mu_check(num == 0);
   mu_check(highlights == NULL);
