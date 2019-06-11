@@ -31,13 +31,6 @@
 # include <direct.h>
 #endif
 
-#ifndef PROTO
-# if defined(FEAT_TITLE) && !defined(FEAT_GUI_MSWIN)
-#  include <shellapi.h>
-# endif
-
-#endif /* PROTO */
-
 #ifdef __MINGW32__
 # ifndef FROM_LEFT_1ST_BUTTON_PRESSED
 #  define FROM_LEFT_1ST_BUTTON_PRESSED    0x0001
@@ -258,80 +251,6 @@ mch_input_isatty(void)
     return FALSE;
 #endif
 }
-
-#ifdef FEAT_TITLE
-/*
- * mch_settitle(): set titlebar of our window
- */
-    void
-mch_settitle(
-    char_u *title,
-    char_u *icon)
-{
-# ifdef FEAT_GUI_MSWIN
-#  ifdef VIMDLL
-    if (gui.in_use)
-#  endif
-    {
-	gui_mch_settitle(title, icon);
-	return;
-    }
-# endif
-# if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
-    if (title != NULL)
-    {
-	WCHAR	*wp = enc_to_utf16(title, NULL);
-
-	if (wp == NULL)
-	    return;
-
-	SetConsoleTitleW(wp);
-	vim_free(wp);
-	return;
-    }
-# endif
-}
-
-
-/*
- * Restore the window/icon title.
- * which is one of:
- *  SAVE_RESTORE_TITLE: Just restore title
- *  SAVE_RESTORE_ICON:  Just restore icon (which we don't have)
- *  SAVE_RESTORE_BOTH:  Restore title and icon (which we don't have)
- */
-    void
-mch_restore_title(int which UNUSED)
-{
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
-# ifdef VIMDLL
-    if (!gui.in_use)
-# endif
-	SetConsoleTitle(g_szOrigTitle);
-#endif
-}
-
-
-/*
- * Return TRUE if we can restore the title (we can)
- */
-    int
-mch_can_restore_title(void)
-{
-    return TRUE;
-}
-
-
-/*
- * Return TRUE if we can restore the icon title (we can't)
- */
-    int
-mch_can_restore_icon(void)
-{
-    return FALSE;
-}
-#endif /* FEAT_TITLE */
-
 
 /*
  * Get absolute file name into buffer "buf" of length "len" bytes,
@@ -950,9 +869,6 @@ Trace(
 #endif //_DEBUG
 
 #if !defined(FEAT_GUI) || defined(VIMDLL) || defined(PROTO)
-# ifdef FEAT_TITLE
-extern HWND g_hWnd;	/* This is in os_win32.c. */
-# endif
 
 /*
  * Showing the printer dialog is tricky since we have no GUI
@@ -965,15 +881,6 @@ GetConsoleHwnd(void)
     /* Skip if it's already set. */
     if (s_hwnd != 0)
 	return;
-
-# ifdef FEAT_TITLE
-    /* Window handle may have been found by init code (Windows NT only) */
-    if (g_hWnd != 0)
-    {
-	s_hwnd = g_hWnd;
-	return;
-    }
-# endif
 
     s_hwnd = GetConsoleWindow();
 }
@@ -1669,9 +1576,6 @@ serverSetName(char_u *name)
     {
 	/* Remember the name */
 	serverName = ok_name;
-#ifdef FEAT_TITLE
-	need_maketitle = TRUE;	/* update Vim window title later */
-#endif
 
 	/* Update the message window title */
 	SetWindowText(message_window, (LPCSTR)ok_name);

@@ -37,9 +37,6 @@ static int	buf_same_ino(buf_T *buf, stat_T *stp);
 #else
 static int	otherfile_buf(buf_T *buf, char_u *ffname);
 #endif
-#ifdef FEAT_TITLE
-static int	value_changed(char_u *str, char_u **last);
-#endif
 static int	append_arg_number(win_T *wp, char_u *buf, int buflen, int add_file);
 static void	free_buffer(buf_T *);
 static void	free_buffer_stuff(buf_T *buf, int free_options);
@@ -1755,9 +1752,6 @@ enter_buffer(buf_T *buf)
 
     check_arg_idx(curwin);		/* check for valid arg_idx */
 
-#ifdef FEAT_TITLE
-    maketitle();
-#endif
 	/* when autocmds didn't change it */
     if (curwin->w_topline == 1 && !curwin->w_topline_was_set)
 	scroll_cursor_halfway(FALSE);	/* redisplay at correct position */
@@ -3202,9 +3196,6 @@ buf_name_changed(buf_T *buf)
 
     if (curwin->w_buffer == buf)
 	check_arg_idx(curwin);	/* check file name for arg list */
-#ifdef FEAT_TITLE
-    maketitle();		/* set window title */
-#endif
     status_redraw_all();	/* status lines need to be redrawn */
     fmarks_check_names(buf);	/* check named file marks */
     ml_timestamp(buf);		/* reset timestamp */
@@ -3512,237 +3503,6 @@ col_print(
     else
 	vim_snprintf((char *)buf, buflen, "%d-%d", col, vcol);
 }
-
-#if defined(FEAT_TITLE) || defined(PROTO)
-static char_u *lasttitle = NULL;
-static char_u *lasticon = NULL;
-
-/*
- * Put the file name in the title bar and icon of the window.
- */
-    void
-maketitle(void)
-{
-    char_u	*p;
-    char_u	*title_str = NULL;
-    char_u	*icon_str = NULL;
-    int		maxlen = 0;
-    int		len;
-    int		mustset;
-    char_u	buf[IOSIZE];
-    int		off;
-
-    if (!redrawing())
-    {
-	/* Postpone updating the title when 'lazyredraw' is set. */
-	need_maketitle = TRUE;
-	return;
-    }
-
-    need_maketitle = FALSE;
-    if (!p_title && !p_icon && lasttitle == NULL && lasticon == NULL)
-	return;  // nothing to do
-
-    if (p_title)
-    {
-	if (p_titlelen > 0)
-	{
-	    maxlen = p_titlelen * Columns / 100;
-	    if (maxlen < 10)
-		maxlen = 10;
-	}
-
-	title_str = buf;
-	if (*p_titlestring != NUL)
-	{
-		title_str = p_titlestring;
-	}
-	else
-	{
-	    /* format: "fname + (path) (1 of 2) - VIM" */
-
-#define SPACE_FOR_FNAME (IOSIZE - 100)
-#define SPACE_FOR_DIR   (IOSIZE - 20)
-#define SPACE_FOR_ARGNR (IOSIZE - 10)  /* at least room for " - VIM" */
-	    if (curbuf->b_fname == NULL)
-		vim_strncpy(buf, (char_u *)_("[No Name]"), SPACE_FOR_FNAME);
-#ifdef FEAT_TERMINAL
-	    else if (curbuf->b_term != NULL)
-	    {
-		vim_strncpy(buf, term_get_status_text(curbuf->b_term),
-							      SPACE_FOR_FNAME);
-	    }
-#endif
-	    else
-	    {
-		p = transstr(gettail(curbuf->b_fname));
-		vim_strncpy(buf, p, SPACE_FOR_FNAME);
-		vim_free(p);
-	    }
-
-#ifdef FEAT_TERMINAL
-	    if (curbuf->b_term == NULL)
-#endif
-		switch (bufIsChanged(curbuf)
-			+ (curbuf->b_p_ro * 2)
-			+ (!curbuf->b_p_ma * 4))
-		{
-		    case 1: STRCAT(buf, " +"); break;
-		    case 2: STRCAT(buf, " ="); break;
-		    case 3: STRCAT(buf, " =+"); break;
-		    case 4:
-		    case 6: STRCAT(buf, " -"); break;
-		    case 5:
-		    case 7: STRCAT(buf, " -+"); break;
-		}
-
-	    if (curbuf->b_fname != NULL
-#ifdef FEAT_TERMINAL
-		    && curbuf->b_term == NULL
-#endif
-		    )
-	    {
-		/* Get path of file, replace home dir with ~ */
-		off = (int)STRLEN(buf);
-		buf[off++] = ' ';
-		buf[off++] = '(';
-		home_replace(curbuf, curbuf->b_ffname,
-					buf + off, SPACE_FOR_DIR - off, TRUE);
-#ifdef BACKSLASH_IN_FILENAME
-		/* avoid "c:/name" to be reduced to "c" */
-		if (isalpha(buf[off]) && buf[off + 1] == ':')
-		    off += 2;
-#endif
-		/* remove the file name */
-		p = gettail_sep(buf + off);
-		if (p == buf + off)
-		{
-		    /* must be a help buffer */
-		    vim_strncpy(buf + off, (char_u *)_("help"),
-					   (size_t)(SPACE_FOR_DIR - off - 1));
-		}
-		else
-		    *p = NUL;
-
-		/* Translate unprintable chars and concatenate.  Keep some
-		 * room for the server name.  When there is no room (very long
-		 * file name) use (...). */
-		if (off < SPACE_FOR_DIR)
-		{
-		    p = transstr(buf + off);
-		    vim_strncpy(buf + off, p, (size_t)(SPACE_FOR_DIR - off));
-		    vim_free(p);
-		}
-		else
-		{
-		    vim_strncpy(buf + off, (char_u *)"...",
-					     (size_t)(SPACE_FOR_ARGNR - off));
-		}
-		STRCAT(buf, ")");
-	    }
-
-	    append_arg_number(curwin, buf, SPACE_FOR_ARGNR, FALSE);
-
-#if defined(FEAT_CLIENTSERVER)
-	    if (serverName != NULL)
-	    {
-		STRCAT(buf, " - ");
-		vim_strcat(buf, serverName, IOSIZE);
-	    }
-	    else
-#endif
-		STRCAT(buf, " - VIM");
-
-	    if (maxlen > 0)
-	    {
-		/* make it shorter by removing a bit in the middle */
-		if (vim_strsize(buf) > maxlen)
-		    trunc_string(buf, buf, maxlen, IOSIZE);
-	    }
-	}
-    }
-    mustset = value_changed(title_str, &lasttitle);
-
-    if (p_icon)
-    {
-	icon_str = buf;
-	if (*p_iconstring != NUL)
-	{
-		icon_str = p_iconstring;
-	}
-	else
-	{
-	    if (buf_spname(curbuf) != NULL)
-		p = buf_spname(curbuf);
-	    else		    /* use file name only in icon */
-		p = gettail(curbuf->b_ffname);
-	    *icon_str = NUL;
-	    /* Truncate name at 100 bytes. */
-	    len = (int)STRLEN(p);
-	    if (len > 100)
-	    {
-		len -= 100;
-		if (has_mbyte)
-		    len += (*mb_tail_off)(p, p + len) + 1;
-		p += len;
-	    }
-	    STRCPY(icon_str, p);
-	    trans_characters(icon_str, IOSIZE);
-	}
-    }
-
-    mustset |= value_changed(icon_str, &lasticon);
-
-    if (mustset)
-	resettitle();
-}
-
-/*
- * Used for title and icon: Check if "str" differs from "*last".  Set "*last"
- * from "str" if it does.
- * Return TRUE if resettitle() is to be called.
- */
-    static int
-value_changed(char_u *str, char_u **last)
-{
-    if ((str == NULL) != (*last == NULL)
-	    || (str != NULL && *last != NULL && STRCMP(str, *last) != 0))
-    {
-	vim_free(*last);
-	if (str == NULL)
-	{
-	    *last = NULL;
-	    mch_restore_title(
-		  last == &lasttitle ? SAVE_RESTORE_TITLE : SAVE_RESTORE_ICON);
-	}
-	else
-	{
-	    *last = vim_strsave(str);
-	    return TRUE;
-	}
-    }
-    return FALSE;
-}
-
-/*
- * Put current window title back (used after calling a shell)
- */
-    void
-resettitle(void)
-{
-    mch_settitle(lasttitle, lasticon);
-}
-
-# if defined(EXITFREE) || defined(PROTO)
-    void
-free_titles(void)
-{
-    vim_free(lasttitle);
-    vim_free(lasticon);
-}
-# endif
-
-#endif /* FEAT_TITLE */
 
 /*
  * Append (file 2 of 8) to "buf[buflen]", if editing more than one file.

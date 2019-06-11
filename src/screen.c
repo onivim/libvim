@@ -10700,11 +10700,6 @@ showruler(int always)
     }
 #endif
 
-#ifdef FEAT_TITLE
-    if (need_maketitle
-       )
-	maketitle();
-#endif
     /* Redraw the tab pages line if needed. */
     if (redraw_tabline)
 	draw_tabline();

@@ -1404,18 +1404,10 @@ static struct vimoption options[] =
 			    (char_u *)&p_hls, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"icon",	    NULL,   P_BOOL|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_icon, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"iconstring",  NULL,   P_STRING|P_VI_DEF|P_MLE,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_iconstring, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"ignorecase",  "ic",   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_ic, PV_NONE,
@@ -2646,35 +2638,17 @@ static struct vimoption options[] =
 			    (char_u *)&p_tm, PV_NONE,
 			    {(char_u *)1000L, (char_u *)0L} SCTX_INIT},
     {"title",	    NULL,   P_BOOL|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_title, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"titlelen",    NULL,   P_NUM|P_VI_DEF,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titlelen, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)85L, (char_u *)0L} SCTX_INIT},
     {"titleold",    NULL,   P_STRING|P_VI_DEF|P_GETTEXT|P_SECURE|P_NO_MKRC,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titleold, PV_NONE,
-			    {(char_u *)N_("Thanks for flying Vim"),
-							       (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"titlestring", NULL,   P_STRING|P_VI_DEF|P_MLE,
-#ifdef FEAT_TITLE
-			    (char_u *)&p_titlestring, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"toolbar",     "tb",   P_STRING|P_ONECOMMA|P_VI_DEF|P_NODUP,
 #if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
@@ -4064,10 +4038,6 @@ set_init_3(void)
 	if (idx_ffs >= 0 && (options[idx_ffs].flags & P_WAS_SET))
 	    set_fileformat(default_fileformat(), OPT_LOCAL);
     }
-
-#ifdef FEAT_TITLE
-    set_title_defaults();
-#endif
 }
 
 #if defined(FEAT_MULTI_LANG) || defined(PROTO)
@@ -4132,52 +4102,6 @@ init_gui_options(void)
     {
 	set_option_value((char_u *)"bg", 0L, gui_bg_default(), 0);
 	highlight_changed();
-    }
-}
-#endif
-
-#ifdef FEAT_TITLE
-/*
- * 'title' and 'icon' only default to true if they have not been set or reset
- * in .vimrc and we can read the old value.
- * When 'title' and 'icon' have been reset in .vimrc, we won't even check if
- * they can be reset.  This reduces startup time when using X on a remote
- * machine.
- */
-    void
-set_title_defaults(void)
-{
-    int	    idx1;
-    long    val;
-
-    /*
-     * If GUI is (going to be) used, we can always set the window title and
-     * icon name.  Saves a bit of time, because the X11 display server does
-     * not need to be contacted.
-     */
-    idx1 = findoption((char_u *)"title");
-    if (idx1 >= 0 && !(options[idx1].flags & P_WAS_SET))
-    {
-#ifdef FEAT_GUI
-	if (gui.starting || gui.in_use)
-	    val = TRUE;
-	else
-#endif
-	    val = mch_can_restore_title();
-	options[idx1].def_val[VI_DEFAULT] = (char_u *)(long_i)val;
-	p_title = val;
-    }
-    idx1 = findoption((char_u *)"icon");
-    if (idx1 >= 0 && !(options[idx1].flags & P_WAS_SET))
-    {
-#ifdef FEAT_GUI
-	if (gui.starting || gui.in_use)
-	    val = TRUE;
-	else
-#endif
-	    val = mch_can_restore_icon();
-	options[idx1].def_val[VI_DEFAULT] = (char_u *)(long_i)val;
-	p_icon = val;
     }
 }
 #endif
@@ -5258,25 +5182,6 @@ check_cedit(void)
 }
 #endif
 
-#ifdef FEAT_TITLE
-/*
- * When changing 'title', 'titlestring', 'icon' or 'iconstring', call
- * maketitle() to create and display it.
- * When switching the title or icon off, call mch_restore_title() to get
- * the old value back.
- */
-    static void
-did_set_title(void)
-{
-    if (starting != NO_SCREEN
-#ifdef FEAT_GUI
-	    && !gui.starting
-#endif
-				)
-	maketitle();
-}
-#endif
-
 /*
  * set_options_bin -  called when 'bin' changes value.
  */
@@ -5732,17 +5637,6 @@ insecure_flag(int opt_idx, int opt_flags)
 
     /* Nothing special, return global flags field. */
     return &options[opt_idx].flags;
-}
-#endif
-
-#ifdef FEAT_TITLE
-/*
- * Redraw the window title and/or tab page text later.
- */
-static void redraw_titles(void)
-{
-    need_maketitle = TRUE;
-    redraw_tabline = TRUE;
 }
 #endif
 
@@ -6316,10 +6210,6 @@ did_set_string_option(
 		errmsg = e_invarg;
 	    else
 	    {
-#ifdef FEAT_TITLE
-		/* May show a "+" in the title now. */
-		redraw_titles();
-#endif
 		/* Add 'fileencoding' to the swap file. */
 		ml_setflags(curbuf);
 	    }
@@ -6336,9 +6226,6 @@ did_set_string_option(
 	    if (varp == &p_enc)
 	    {
 		errmsg = mb_init();
-#ifdef FEAT_TITLE
-		redraw_titles();
-#endif
 	    }
 	}
 
@@ -6478,9 +6365,6 @@ did_set_string_option(
 		curbuf->b_p_tx = TRUE;
 	    else
 		curbuf->b_p_tx = FALSE;
-#ifdef FEAT_TITLE
-	    redraw_titles();
-#endif
 	    /* update flag in swap file */
 	    ml_setflags(curbuf);
 	    /* Redraw needed when switching to/from "mac": a CR in the text
@@ -6888,14 +6772,6 @@ did_set_string_option(
 	fill_breakat_flags();
 #endif
 
-#ifdef FEAT_TITLE
-    /* 'titlestring' and 'iconstring' */
-    else if (varp == &p_titlestring || varp == &p_iconstring)
-    {
-	did_set_title();
-    }
-#endif
-
 #ifdef FEAT_GUI
     /* 'guioptions' */
     else if (varp == &p_go)
@@ -7055,9 +6931,6 @@ did_set_string_option(
 		redraw_later(VALID);
 	    }
 	    curbuf->b_help = (curbuf->b_p_bt[0] == 'h');
-#ifdef FEAT_TITLE
-	    redraw_titles();
-#endif
 	}
     }
 
@@ -8178,9 +8051,6 @@ set_bool_option(
 	if (curbuf->b_p_ro)
 	    curbuf->b_did_warn = FALSE;
 
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
     }
 
 #ifdef FEAT_GUI
@@ -8203,35 +8073,12 @@ set_bool_option(
 	    return N_("E946: Cannot make a terminal with running job modifiable");
 	}
 # endif
-# ifdef FEAT_TITLE
-	redraw_titles();
-# endif
     }
-#ifdef FEAT_TITLE
-    /* when 'endofline' is changed, redraw the window title */
-    else if ((int *)varp == &curbuf->b_p_eol)
-    {
-	redraw_titles();
-    }
-    /* when 'fixeol' is changed, redraw the window title */
-    else if ((int *)varp == &curbuf->b_p_fixeol)
-    {
-	redraw_titles();
-    }
-    /* when 'bomb' is changed, redraw the window title and tab page text */
-    else if ((int *)varp == &curbuf->b_p_bomb)
-    {
-	redraw_titles();
-    }
-#endif
 
     /* when 'bin' is set also set some other options */
     else if ((int *)varp == &curbuf->b_p_bin)
     {
 	set_options_bin(old_value, curbuf->b_p_bin, opt_flags);
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
     }
 
     /* when 'buflisted' changes, trigger autocommands */
@@ -8365,21 +8212,10 @@ set_bool_option(
     }
 #endif
 
-#ifdef FEAT_TITLE
-    /* when 'title' changed, may need to change the title; same for 'icon' */
-    else if ((int *)varp == &p_title || (int *)varp == &p_icon)
-    {
-	did_set_title();
-    }
-#endif
-
     else if ((int *)varp == &curbuf->b_changed)
     {
 	if (!value)
 	    save_file_ff(curbuf);	/* Buffer is unchanged */
-#ifdef FEAT_TITLE
-	redraw_titles();
-#endif
 	modified_was_set = value;
     }
 
@@ -8907,20 +8743,6 @@ set_num_option(
 	}
 	p_imsearch = curbuf->b_p_imsearch;
     }
-
-#ifdef FEAT_TITLE
-    /* if 'titlelen' has changed, redraw the title */
-    else if (pp == &p_titlelen)
-    {
-	if (p_titlelen < 0)
-	{
-	    errmsg = e_positive;
-	    p_titlelen = 85;
-	}
-	if (starting != NO_SCREEN && old_value != p_titlelen)
-	    need_maketitle = TRUE;
-    }
-#endif
 
     /* if p_ch changed value, change the command line height */
     else if (pp == &p_ch)
@@ -10238,9 +10060,6 @@ clear_termoptions(void)
      */
 #ifdef FEAT_MOUSE_TTY
     mch_setmouse(FALSE);	    /* switch mouse off */
-#endif
-#ifdef FEAT_TITLE
-    mch_restore_title(SAVE_RESTORE_BOTH);    /* restore window titles */
 #endif
 #if defined(FEAT_XCLIPBOARD) && defined(FEAT_GUI)
     /* When starting the GUI close the display opened for the clipboard.

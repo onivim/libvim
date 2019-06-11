@@ -206,9 +206,6 @@ EXTERN int	no_wait_return INIT(= 0);   /* don't wait for return for now */
 EXTERN int	need_wait_return INIT(= 0); /* need to wait for return later */
 EXTERN int	did_wait_return INIT(= FALSE);	/* wait_return() was used and
 						   nothing written since then */
-#ifdef FEAT_TITLE
-EXTERN int	need_maketitle INIT(= TRUE); /* call maketitle() soon */
-#endif
 
 EXTERN int	quit_more INIT(= FALSE);    /* 'q' hit at "--more--" msg */
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)

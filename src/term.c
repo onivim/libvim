@@ -2042,9 +2042,6 @@ set_termname(char_u *term)
 #ifdef FEAT_MOUSE
 	setmouse();		/* may start using the mouse */
 #endif
-#ifdef FEAT_TITLE
-	maketitle();		/* may display window title */
-#endif
     }
 
 	/* display initial screen after ttest() checking. jw. */
@@ -2633,7 +2630,7 @@ out_char_nf(unsigned c)
     /* No-op */
 }
 
-#if defined(FEAT_TITLE) || defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
+#if defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI) \
     || defined(FEAT_TERMRESPONSE) || defined(PROTO)
 /*
  * A never-padding out_str.
@@ -2916,8 +2913,8 @@ term_bg_rgb_color(guicolor_T rgb)
 }
 #endif
 
-#if (defined(FEAT_TITLE) && (defined(UNIX) || defined(VMS) \
-	|| defined(MACOS_X))) || defined(PROTO)
+#if (defined(VMS) \
+	|| defined(MACOS_X)) || defined(PROTO)
 /*
  * Generic function to set window title, using t_ts and t_fs.
  */
@@ -3315,9 +3312,6 @@ set_shellsize(int width, int height, int mustset)
 
     if (starting != NO_SCREEN)
     {
-#ifdef FEAT_TITLE
-	maketitle();
-#endif
 	changed_line_abv_curs();
 	invalidate_botline();
 
