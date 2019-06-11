@@ -133,6 +133,11 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
 
 pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
 
+void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_highlights, searchHighlight_T **highlights) {
+    *num_highlights = 0;
+    *highlights = NULL;
+}
+
 char_u *vimSearchGetPattern() { return get_search_pat(); }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }

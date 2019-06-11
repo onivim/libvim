@@ -2753,6 +2753,15 @@ typedef struct
 #endif
 } match_T;
 
+/**
+ * Struct used for returning search highlight match positions
+ */
+typedef struct
+{
+    pos_T start;
+    pos_T end;
+} searchHighlight_T;
+
 /* number of positions supported by matchaddpos() */
 #define MAXPOSMATCH 8
 

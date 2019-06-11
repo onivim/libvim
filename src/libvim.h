@@ -111,6 +111,13 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
 pos_T *vimSearchGetMatchingPair(int initc);
 
 /*
+ * vimSearchGetHighlights
+ *
+ * Get highlights for the current search
+ */
+void vimSearchGetHighlights(linenr_T start_lnum, linenr end_lnum, int *num_highlights, searchHighlight_T **highlights);
+
+/*
  * vimSearchGetPattern
  *
  * Get the current search pattern
