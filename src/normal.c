@@ -567,7 +567,6 @@ void start_normal_mode(normalCmd_T *context) {
   /* Set v:count here, when called from main() and not a stuffed
    * command, so that v:count can be used in an expression mapping
    * when there is no count. Do set it for redo. */
-					printf("Searching in reverse! CURRENT LINE %d and COLUMN %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
   if (readbuf1_empty())
     set_vcount_ca(&ca, &context->set_prevcount);
 #endif
@@ -595,8 +594,6 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
 
-  printf("state_normal_cmd_execute\n");
-
   if (context->returnState != NORMAL) {
       
       switch (context->returnState) {
@@ -609,35 +606,23 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 		      // hasn't been executed yet.
 			    char_u *cmd = ccline.cmdbuff;
 			    char_u cmdc = ccline.cmdfirstc;
-		      printf("RETURNING FROM CMDLINE MODE! Type: %c cmd: %s\n", cmdc, cmd);
 			    if (cmdc == '/' || cmdc == '?') {
 				    if (cmd == NULL) {
 						    clearop(context->oap);
 				    } else {
 					    /* Seed the search - bump it forward and back so everything is set for N and n */
-					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
 			      (void)normal_search(&context->ca, cmdc, cmd, 0);
-					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
 			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
-					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
+
+			      /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
+				      /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
+				      /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
+				      /*                         ? 0 */
+				      /*                         : SEARCH_MARK); */
 				    }
+			    }
 			    start_normal_mode(context);
 			    return HANDLED;
-					
-  /* if (cap->searchbuf == NULL) { */
-  /*   clearop(oap); */
-  /*   return; */
-  /* } */
-
-  /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
-  /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
-  /*                         ? 0 */
-  /*                         : SEARCH_MARK); */
-				  
-				    /* printf("do_cmdline_cmd: %s\n", cmd); */
-				    /* do_cmdline_cmd(cmd); */
-				    /* abandon_cmdline(); */
-			    }
 			    break;
 			  default:
 			    break;
@@ -814,7 +799,6 @@ restart_state:
 
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL) {
-		  printf("-- Setting context->returnState: %d\n", stateMode);
 	    context->returnState = stateMode;
 	    return HANDLED;
     }

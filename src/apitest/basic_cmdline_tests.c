@@ -34,32 +34,11 @@ void test_teardown(void) {
   cmdLineChangedCount = 0;
 }
 
-/* MU_TEST(test_search_forward_esc) { */
-/*     printf("SERACHING!\n"); */
-/*   vimInput("/"); */
-/*   vimInput("h"); */
-/*   vimInput("<esc>"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   /1* mu_check((vimGetMode() & CMDLINE) == CMDLINE); *1/ */
-/*   vimInput("<esc>"); */
-/*   printf("DONE"); */
-/*   /1* mu_check((vimGetMode() & NORMAL) == NORMAL); *1/ */
-/* } */
-
 MU_TEST(test_cmdline_esc) {
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
   vimInput("<esc>");
+  printf("MODE: %d\n", vimGetMode());
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
@@ -67,6 +46,7 @@ MU_TEST(test_cmdline_enter) {
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
   vimInput("<cr>");
+  printf("MODE: %d\n", vimGetMode());
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
