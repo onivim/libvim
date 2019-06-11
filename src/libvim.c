@@ -143,23 +143,27 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
                             int *num_highlights,
                             searchHighlight_T **highlights) {
 
-  shlNode_T *head = ALLOC_CLEAR_ONE(shlNode_T);
-  shlNode_T *cur = head;
-
   int v = 1;
   int count = 0;
 
   pos_T lastPos;
   pos_T startPos;
+  pos_T endPos;
+
   startPos.lnum = start_lnum;
   startPos.col = 0;
   lastPos = startPos;
 
-  pos_T endPos;
-
-  printf("vimSearchGetHighlights - getting pattern...\n");
   char_u *pattern = get_search_pat();
-  printf("vimSearchGetHighlights - pattern: %s\n", pattern);
+
+  if (pattern == NULL) {
+    *num_highlights = 0;
+    *highlights = NULL;
+    return;
+  }
+
+  shlNode_T *head = ALLOC_CLEAR_ONE(shlNode_T);
+  shlNode_T *cur = head;
 
   while (v == 1) {
     v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1,
