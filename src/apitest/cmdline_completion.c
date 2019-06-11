@@ -56,13 +56,21 @@ MU_TEST(test_cmdline_completions) {
 
   vimInput(":");
 
+  vimInput("e");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 20);
+
+  vimInput("d");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 1);
+
+  vimInput(" ");
+  vimInput(".");
+  vimInput(".");
+  vimInput("/");
   vimInput("a");
   vimCommandLineGetCompletions(&completions, &count);
-  mu_check(count == 19);
-
-  vimInput("b");
-  vimCommandLineGetCompletions(&completions, &count);
-  mu_check(count == 3);
+  mu_check(count == 6);
 }
 
 MU_TEST_SUITE(test_suite) {
