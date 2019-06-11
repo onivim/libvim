@@ -62,10 +62,6 @@ static void nv_zet(cmdarg_T *cap);
 static void nv_ver_scrollbar(cmdarg_T *cap);
 static void nv_hor_scrollbar(cmdarg_T *cap);
 #endif
-#ifdef FEAT_GUI_TABLINE
-static void nv_tabline(cmdarg_T *cap);
-static void nv_tabmenu(cmdarg_T *cap);
-#endif
 static void nv_exmode(cmdarg_T *cap);
 static void nv_colon(cmdarg_T *cap);
 static void nv_ctrlg(cmdarg_T *cap);
@@ -382,10 +378,6 @@ static const struct nv_cmd {
 #ifdef FEAT_GUI
     {K_VER_SCROLLBAR, nv_ver_scrollbar, 0, 0},
     {K_HOR_SCROLLBAR, nv_hor_scrollbar, 0, 0},
-#endif
-#ifdef FEAT_GUI_TABLINE
-    {K_TABLINE, nv_tabline, 0, 0},
-    {K_TABMENU, nv_tabmenu, 0, 0},
 #endif
 #ifdef FEAT_NETBEANS_INTG
     {K_F21, nv_nbcmd, NV_NCH_ALW, 0},
@@ -4650,65 +4642,6 @@ static void nv_hor_scrollbar(cmdarg_T *cap) {
 
   /* Even if an operator was pending, we still want to scroll */
   gui_do_horiz_scroll(scrollbar_value, FALSE);
-}
-#endif
-
-#if defined(FEAT_GUI_TABLINE) || defined(PROTO)
-/*
- * Click in GUI tab.
- */
-static void nv_tabline(cmdarg_T *cap) {
-  if (cap->oap->op_type != OP_NOP)
-    clearopbeep(cap->oap);
-
-  /* Even if an operator was pending, we still want to jump tabs. */
-  goto_tabpage(current_tab);
-}
-
-/*
- * Selected item in tab line menu.
- */
-static void nv_tabmenu(cmdarg_T *cap) {
-  if (cap->oap->op_type != OP_NOP)
-    clearopbeep(cap->oap);
-
-  /* Even if an operator was pending, we still want to jump tabs. */
-  handle_tabmenu();
-}
-
-/*
- * Handle selecting an item of the GUI tab line menu.
- * Used in Normal and Insert mode.
- */
-void handle_tabmenu(void) {
-  switch (current_tabmenu) {
-  case TABLINE_MENU_CLOSE:
-    if (current_tab == 0)
-      do_cmdline_cmd((char_u *)"tabclose");
-    else {
-      vim_snprintf((char *)IObuff, IOSIZE, "tabclose %d", current_tab);
-      do_cmdline_cmd(IObuff);
-    }
-    break;
-
-  case TABLINE_MENU_NEW:
-    if (current_tab == 0)
-      do_cmdline_cmd((char_u *)"$tabnew");
-    else {
-      vim_snprintf((char *)IObuff, IOSIZE, "%dtabnew", current_tab - 1);
-      do_cmdline_cmd(IObuff);
-    }
-    break;
-
-  case TABLINE_MENU_OPEN:
-    if (current_tab == 0)
-      do_cmdline_cmd((char_u *)"browse $tabnew");
-    else {
-      vim_snprintf((char *)IObuff, IOSIZE, "browse %dtabnew", current_tab - 1);
-      do_cmdline_cmd(IObuff);
-    }
-    break;
-  }
 }
 #endif
 

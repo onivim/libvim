@@ -1973,16 +1973,6 @@ getcmdline_int(
 		}
 		goto cmdline_not_changed;
 #endif
-#ifdef FEAT_GUI_TABLINE
-	case K_TABLINE:
-	case K_TABMENU:
-		/* Don't want to change any tabs here.  Make sure the same tab
-		 * is still selected. */
-		if (gui_use_tabline())
-		    gui_mch_set_curtab(tabpage_index(curtab));
-		goto cmdline_not_changed;
-#endif
-
 	case K_SELECT:	    /* end of Select mode mapping - ignore */
 		goto cmdline_not_changed;
 

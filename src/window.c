@@ -4026,9 +4026,6 @@ enter_tabpage(
 	clear_cmdline = TRUE;
     p_ch = curtab->tp_ch_used;
     if (curtab->tp_old_Rows != Rows || (old_off != firstwin->w_winrow
-#ifdef FEAT_GUI_TABLINE
-			    && !gui_use_tabline()
-#endif
 		))
 	shell_new_rows();
     if (curtab->tp_old_Columns != Columns && starting == 0)
@@ -4118,10 +4115,6 @@ goto_tabpage(int n)
 
     goto_tabpage_tp(tp, TRUE, TRUE);
 
-#ifdef FEAT_GUI_TABLINE
-    if (gui_use_tabline())
-	gui_mch_set_curtab(tabpage_index(curtab));
-#endif
 }
 
 /*
@@ -4162,10 +4155,6 @@ goto_tabpage_win(tabpage_T *tp, win_T *wp)
     if (curtab == tp && win_valid(wp))
     {
 	win_enter(wp, TRUE);
-# ifdef FEAT_GUI_TABLINE
-	if (gui_use_tabline())
-	    gui_mch_set_curtab(tabpage_index(curtab));
-# endif
     }
 }
 
@@ -6216,11 +6205,6 @@ last_status_rec(frame_T *fr, int statusline)
     int
 tabline_height(void)
 {
-#ifdef FEAT_GUI_TABLINE
-    /* When the GUI has the tabline then this always returns zero. */
-    if (gui_use_tabline())
-	return 0;
-#endif
     switch (p_stal)
     {
 	case 0: return 0;
