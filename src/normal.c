@@ -610,7 +610,7 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 				    if (cmd == NULL) {
 						    clearop(context->oap);
 				    } else {
-					    cap->searchbuf = cmd;
+					    context->ca.searchbuf = cmd;
 					    /* Seed the search - bump it forward and back so everything is set for N and n */
 			      (void)normal_search(&context->ca, cmdc, cmd, 0);
 			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
@@ -5573,7 +5573,6 @@ static void nv_next(cmdarg_T *cap) {
     /* Avoid getting stuck on the current cursor position, which can
      * happen when an offset is given and the cursor is on the last char
      * in the buffer: Repeat with count + 1. */
-    printf("Trying search again?\n");
     cap->count1 += 1;
     (void)normal_search(cap, 0, NULL, SEARCH_MARK | cap->arg);
     cap->count1 -= 1;
