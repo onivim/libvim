@@ -1783,7 +1783,6 @@ set_terminal_mode(term_T *term, int normal_mode)
     if (!normal_mode)
 	handle_postponed_scrollback(term);
     VIM_CLEAR(term->tl_status_text);
-    if (term->tl_buffer == curbuf)
 }
 
 /*
