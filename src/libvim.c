@@ -63,34 +63,20 @@ void vimSetAutoCommandCallback(AutoCommandCallback f) {
   autoCommandCallback = f;
 }
 
-char_u vimCommandLineGetType(void) {
-    return ccline.cmdfirstc;
-}
+char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
-char_u  *vimCommandLineGetText(void) {
-    return ccline.cmdbuff;
-}
+char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }
 
-int vimCommandLineGetPosition(void) {
-    return ccline.cmdpos;
-}
+int vimCommandLineGetPosition(void) { return ccline.cmdpos; }
 
-void vimCommandLineGetCompletions(char ***completions, int* count) {
-	/* set_expand_context(&ccline.xpc); */
-if (!ccline.xpc) {
+void vimCommandLineGetCompletions(char ***completions, int *count) {
+  /* set_expand_context(&ccline.xpc); */
+  if (!ccline.xpc) {
     *count = 0;
     *completions = NULL;
     return;
-}
-	int i = expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos,
-						    count, completions);
-	/* TODO: Factor this to a method */
-	if (*count > 0) {
-	printf ("COMPLETEIONS: %d\n", *count);
-	for(int x = 0; x < *count; x++) {
-	    printf( "-- %d : %s\n", x, (*completions)[x]);
-	}
-	}
+  }
+  expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 
 linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
