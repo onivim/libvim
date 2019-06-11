@@ -498,6 +498,7 @@ typedef enum {
   NORMAL_EXECUTE_COMMAND,
 } normalState_T;
 
+
 typedef struct {
   cmdarg_T ca;
   oparg_T *oap;
@@ -514,14 +515,14 @@ typedef struct {
   normalState_T state;
 #endif
 
-  int was_inserting;
+  int returnState; // The state we are returning from
 } normalCmd_T;
 
 void start_normal_mode(normalCmd_T *context) {
   context->state = NORMAL_INITIAL;
-  context->was_inserting = 0;
   context->ctrl_w = FALSE;
   context->old_col = curwin->w_curswant;
+  context->returnState = NORMAL;
   clear_oparg(context->oap);
   cmdarg_T ca;
   vim_memset(&ca, 0, sizeof(ca));
@@ -566,6 +567,7 @@ void start_normal_mode(normalCmd_T *context) {
   /* Set v:count here, when called from main() and not a stuffed
    * command, so that v:count can be used in an expression mapping
    * when there is no count. Do set it for redo. */
+					printf("Searching in reverse! CURRENT LINE %d and COLUMN %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
   if (readbuf1_empty())
     set_vcount_ca(&ca, &context->set_prevcount);
 #endif
@@ -593,8 +595,55 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
 
-  if (context->was_inserting == TRUE) {
-    start_normal_mode(context);
+  printf("state_normal_cmd_execute\n");
+
+  if (context->returnState != NORMAL) {
+      
+      switch (context->returnState) {
+		    case INSERT:
+			    // If we are coming back from insert, restart normal mode
+			    start_normal_mode(context);
+			    break;
+		    case CMDLINE: ;
+			    // If we're coming back from command line, the command
+		      // hasn't been executed yet.
+			    char_u *cmd = ccline.cmdbuff;
+			    char_u cmdc = ccline.cmdfirstc;
+		      printf("RETURNING FROM CMDLINE MODE! Type: %c cmd: %s\n", cmdc, cmd);
+			    if (cmdc == '/' || cmdc == '?') {
+				    if (cmd == NULL) {
+						    clearop(context->oap);
+				    } else {
+					    /* Seed the search - bump it forward and back so everything is set for N and n */
+					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
+			      (void)normal_search(&context->ca, cmdc, cmd, 0);
+					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
+			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
+					printf("N - LINE: %d COLUMN: %d\n", curwin->w_cursor.lnum, curwin->w_cursor.col);
+				    }
+			    start_normal_mode(context);
+			    return HANDLED;
+					
+  /* if (cap->searchbuf == NULL) { */
+  /*   clearop(oap); */
+  /*   return; */
+  /* } */
+
+  /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
+  /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
+  /*                         ? 0 */
+  /*                         : SEARCH_MARK); */
+				  
+				    /* printf("do_cmdline_cmd: %s\n", cmd); */
+				    /* do_cmdline_cmd(cmd); */
+				    /* abandon_cmdline(); */
+			    }
+			    break;
+			  default:
+			    break;
+      }
+
+      context->returnState = NORMAL;
   }
 
   oparg_T *oap = context->oap;
@@ -763,11 +812,10 @@ restart_state:
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
 
-    /* If we are now in insert mode, relinquish control to the insert mode state */
-    if (sm_get_current_mode() == INSERT) {
-	context->was_inserting = TRUE;
-	return HANDLED;
-    } else if (sm_get_current_mode() == CMDLINE) {
+    int stateMode = sm_get_current_mode();
+    if (stateMode != NORMAL) {
+		  printf("-- Setting context->returnState: %d\n", stateMode);
+	    context->returnState = stateMode;
 	    return HANDLED;
     }
 
@@ -5530,17 +5578,21 @@ static void nv_search(cmdarg_T *cap) {
    * start position. */
 
   // TODO: How to handle this?
-  cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
+  /* cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0); */
+  printf("PUSHING CMDLINE state: %c\n", cap->cmdchar);
+  sm_push_cmdline(cap->cmdchar, cap->count1, 0);
 
-  if (cap->searchbuf == NULL) {
-    clearop(oap);
-    return;
-  }
+  /* TODO: Port over to return? */
 
-  (void)normal_search(cap, cap->cmdchar, cap->searchbuf,
-                      (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor))
-                          ? 0
-                          : SEARCH_MARK);
+  /* if (cap->searchbuf == NULL) { */
+  /*   clearop(oap); */
+  /*   return; */
+  /* } */
+
+  /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
+  /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
+  /*                         ? 0 */
+  /*                         : SEARCH_MARK); */
 }
 
 /*
@@ -5555,6 +5607,7 @@ static void nv_next(cmdarg_T *cap) {
     /* Avoid getting stuck on the current cursor position, which can
      * happen when an offset is given and the cursor is on the last char
      * in the buffer: Repeat with count + 1. */
+    printf("Trying search again?\n");
     cap->count1 += 1;
     (void)normal_search(cap, 0, NULL, SEARCH_MARK | cap->arg);
     cap->count1 -= 1;

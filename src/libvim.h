@@ -48,9 +48,9 @@ void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
  ***/
 
 char_u vimCommandLineGetType(void);
-char_u* vimCommandLineGetText(void);
+char_u *vimCommandLineGetText(void);
 int vimCommandLineGetPosition(void);
-void vimCommandLineGetCompletions(char ***completions, int* count);
+void vimCommandLineGetCompletions(char ***completions, int *count);
 
 /***
  * Cursor Methods
@@ -109,6 +109,13 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
  * result is NULL if no match found.
  */
 pos_T *vimSearchGetMatchingPair(int initc);
+
+/*
+ * vimSearchGetPattern
+ *
+ * Get the current search pattern
+ */
+char_u *vimSearchGetPattern();
 
 /***
  * Misc

@@ -6,8 +6,6 @@ static int cmdLineLeaveCount = 0;
 static int cmdLineChangedCount = 0;
 
 void onAutoCommand(event_T command, buf_T *buf) {
-  printf("Autocommand: %d\n", command);
-
   switch (command) {
   case EVENT_CMDLINECHANGED:
     cmdLineChangedCount++;
@@ -115,11 +113,15 @@ MU_TEST(test_cmdline_execute) {
 }
 
 MU_TEST(test_cmdline_substitution) {
+  printf("\n\n--START test_cmdline_substitution--\n\n");
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
 
+
+  printf("Entering :\n");
   vimInput(":");
+  printf("Entering s\n");
   vimInput("s");
   vimInput("!");
   vimInput("T");
@@ -131,6 +133,7 @@ MU_TEST(test_cmdline_substitution) {
 
   mu_check(strcmp(vimBufferGetLine(buffer, 1),
                   "Ahis is the first line of a test file") == 0);
+  printf("\n--END test_cmdline_substitution--\n");
 }
 
 MU_TEST_SUITE(test_suite) {

@@ -133,6 +133,8 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
 
 pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
 
+char_u *vimSearchGetPattern() { return get_search_pat(); }
+
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
 int vimGetMode(void) { return get_real_state(); }
