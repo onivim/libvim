@@ -77,20 +77,25 @@ MU_TEST(test_cancel_inc_search) {
 }
 
 MU_TEST(test_cancel_n) {
+  // Start a query
   vimInput("/");
+  vimInput("e");
   vimInput("s");
-  vimInput("t");
+  vimInput("<cr>");
+
+  // Create a new query, then cancel
+  vimInput("/");
+  vimInput("a");
   vimInput("<c-c>");
-  mu_check(vimCursorGetLine() == 1);
-  mu_check(vimCursorGetColumn() == 0);
 
-  vimInput("n")
-  mu_check(vimCursorGetLine() == 1);
-  mu_check(vimCursorGetColumn() == 0);
+  // n / N should use the previous query
+  vimInput("n");
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 30);
 
-  vimInput("N");
-  mu_check(vimCursorGetLine() == 1);
-  mu_check(vimCursorGetColumn() == 0);
+  vimInput("n");
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 29);
 }
 
 MU_TEST_SUITE(test_suite) {
