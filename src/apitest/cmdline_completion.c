@@ -11,16 +11,16 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(test_cmdline_null) {
-    // Verify values are expected when we're not in command line mode
+  // Verify values are expected when we're not in command line mode
 
-    mu_check(vimCommandLineGetText() == NULL);
-    mu_check(vimCommandLineGetType() == NULL);
-    mu_check(vimCommandLineGetPosition() == 0);
+  mu_check(vimCommandLineGetText() == NULL);
+  mu_check(vimCommandLineGetType() == NULL);
+  mu_check(vimCommandLineGetPosition() == 0);
 
-    char **completions;
-    int count = 1;
-    vimCommandLineGetCompletions(&completions, &count);
-    mu_check(count == 0);
+  char **completions;
+  int count = 1;
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 0);
 }
 
 MU_TEST(test_cmdline_get_type) {
@@ -50,12 +50,28 @@ MU_TEST(test_cmdline_get_text) {
   mu_check(vimCommandLineGetPosition() == 2);
 }
 
+MU_TEST(test_cmdline_completions) {
+  char **completions;
+  int count = 1;
+
+  vimInput(":");
+
+  vimInput("a");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 19);
+
+  vimInput("b");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 3);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_cmdline_null);
   MU_RUN_TEST(test_cmdline_get_text);
   MU_RUN_TEST(test_cmdline_get_type);
+  MU_RUN_TEST(test_cmdline_completions);
 }
 
 int main(int argc, char **argv) {
