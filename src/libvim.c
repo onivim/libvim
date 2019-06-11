@@ -63,6 +63,22 @@ void vimSetAutoCommandCallback(AutoCommandCallback f) {
   autoCommandCallback = f;
 }
 
+char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
+
+char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }
+
+int vimCommandLineGetPosition(void) { return ccline.cmdpos; }
+
+void vimCommandLineGetCompletions(char ***completions, int *count) {
+  /* set_expand_context(&ccline.xpc); */
+  if (!ccline.xpc) {
+    *count = 0;
+    *completions = NULL;
+    return;
+  }
+  expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
+}
+
 linenr_T vimCursorGetLine(void) { return curwin->w_cursor.lnum; };
 colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
 pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };

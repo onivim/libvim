@@ -109,6 +109,11 @@ EXTERN int	no_win_do_lines_ins INIT(= FALSE); // don't insert lines
 EXTERN int	cmdline_star INIT(= FALSE);	// cmdline is crypted
 #endif
 
+// The current cmdline_info.  It is initialized in getcmdline() and after that
+// used by other functions.  When invoking getcmdline() recursively it needs
+// to be saved with save_cmdline() and restored with restore_cmdline().
+EXTERN struct cmdline_info ccline;
+
 EXTERN int	exec_from_reg INIT(= FALSE);	/* executing register */
 
 EXTERN int	screen_cleared INIT(= FALSE);	/* screen has been cleared */
