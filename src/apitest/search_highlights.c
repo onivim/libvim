@@ -29,60 +29,27 @@ MU_TEST(test_no_highlights_initially) {
 MU_TEST(test_get_highlights) {
 
   vimInput("/");
-  vimInput("e");
+  vimInput("o");
+  vimInput("f");
 
   int num;
   searchHighlight_T *highlights;
   vimSearchGetHighlights(0, 0, &num, &highlights);
 
-  int v = 1;
-  int count = 0;
-      pos_T lastPos;
-      pos_T startPos;
-      startPos.lnum = 2;
-      startPos.col = 0;
-      lastPos = startPos;
+  mu_check(num == 3);
+  mu_check(highlights[0].start.lnum == 1);
+  mu_check(highlights[0].start.col == 23);
+  mu_check(highlights[0].end.lnum == 1);
+  mu_check(highlights[0].end.col == 25);
 
-      pos_T endPos;
+  mu_check(highlights[1].start.col == 24);
 
-  char_u* pattern = vimSearchGetPattern();
-  printf("Pattern: %s\n", pattern);
+  mu_check(highlights[2].start.lnum == 3);
+  mu_check(highlights[2].start.col == 23);
+  mu_check(highlights[2].end.lnum == 3);
+  mu_check(highlights[2].end.col == 25);
 
-  while (v == 1) {
-      v = searchit(
-              NULL,
-              curbuf,
-              &startPos,
-              &endPos,
-              FORWARD,
-              pattern,
-              1,
-              SEARCH_KEEP,
-              RE_SEARCH,
-              2,
-              NULL,
-              NULL);
-
-      if (v == 0) {
-          break;
-      }
-
-      if (startPos.lnum < lastPos.lnum || (startPos.lnum == lastPos.lnum && startPos.col <= lastPos.col)) {
-          break;
-      }
-
-      printf("Match number: %d Return value: %d startPos: %d, %d endPos: %d, %d lastPos: %d, %d\n", count, v, startPos.lnum, startPos.col, endPos.lnum, endPos.col, lastPos.lnum, lastPos.col);
-
-
-
-
-      lastPos = startPos;
-
-      startPos = endPos;
-      startPos.col = startPos.col + 1;
-      count++;
-  }
-
+  vim_free(highlights);
   mu_check(num == 3);
 }
 
