@@ -104,23 +104,28 @@ static void (*minunit_teardown)(void) = NULL;
 	minunit_teardown = teardown_fun;\
 )
 
+#define STR(X) #X
+#define ASSTR(X) STR(X)
+
 /*  Test runner */
 #define MU_RUN_TEST(test) MU__SAFE_BLOCK(\
 	if (minunit_real_timer==0 && minunit_proc_timer==0) {\
 		minunit_real_timer = mu_timer_real();\
 		minunit_proc_timer = mu_timer_cpu();\
 	}\
+  printf("\n-- START " ASSTR(test) " --\n"); \
 	if (minunit_setup) (*minunit_setup)();\
 	minunit_status = 0;\
 	test();\
 	minunit_run++;\
 	if (minunit_status) {\
 		minunit_fail++;\
-		printf("F");\
+		printf("[FAILED]");\
 		printf("\n%s\n", minunit_last_message);\
 	}\
 	fflush(stdout);\
 	if (minunit_teardown) (*minunit_teardown)();\
+  printf("\n-- END " ASSTR(test) " --\n"); \
 )
 
 /*  Report */
@@ -147,7 +152,7 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_status = 1;\
 		return;\
 	} else {\
-		printf(".");\
+		printf(".\n");\
 	}\
 )
 
@@ -165,7 +170,7 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_status = 1;\
 		return;\
 	} else {\
-		printf(".");\
+		printf(".\n");\
 	}\
 )
 

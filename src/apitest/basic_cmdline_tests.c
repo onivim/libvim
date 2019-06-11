@@ -6,8 +6,6 @@ static int cmdLineLeaveCount = 0;
 static int cmdLineChangedCount = 0;
 
 void onAutoCommand(event_T command, buf_T *buf) {
-  printf("Autocommand: %d\n", command);
-
   switch (command) {
   case EVENT_CMDLINECHANGED:
     cmdLineChangedCount++;
@@ -35,28 +33,6 @@ void test_teardown(void) {
   cmdLineLeaveCount = 0;
   cmdLineChangedCount = 0;
 }
-
-/* MU_TEST(test_search_forward_esc) { */
-/*     printf("SERACHING!\n"); */
-/*   vimInput("/"); */
-/*   vimInput("h"); */
-/*   vimInput("<esc>"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   vimInput("n"); */
-/*   printf("CURSOR COL: %d\n", vimCursorGetColumn()); */
-/*   /1* mu_check((vimGetMode() & CMDLINE) == CMDLINE); *1/ */
-/*   vimInput("<esc>"); */
-/*   printf("DONE"); */
-/*   /1* mu_check((vimGetMode() & NORMAL) == NORMAL); *1/ */
-/* } */
 
 MU_TEST(test_cmdline_esc) {
   vimInput(":");
@@ -118,6 +94,7 @@ MU_TEST(test_cmdline_substitution) {
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
+
 
   vimInput(":");
   vimInput("s");

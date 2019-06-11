@@ -498,6 +498,7 @@ typedef enum {
   NORMAL_EXECUTE_COMMAND,
 } normalState_T;
 
+
 typedef struct {
   cmdarg_T ca;
   oparg_T *oap;
@@ -514,14 +515,14 @@ typedef struct {
   normalState_T state;
 #endif
 
-  int was_inserting;
+  int returnState; // The state we are returning from
 } normalCmd_T;
 
 void start_normal_mode(normalCmd_T *context) {
   context->state = NORMAL_INITIAL;
-  context->was_inserting = 0;
   context->ctrl_w = FALSE;
   context->old_col = curwin->w_curswant;
+  context->returnState = NORMAL;
   clear_oparg(context->oap);
   cmdarg_T ca;
   vim_memset(&ca, 0, sizeof(ca));
@@ -593,8 +594,42 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
 
-  if (context->was_inserting == TRUE) {
-    start_normal_mode(context);
+  if (context->returnState != NORMAL) {
+      
+      switch (context->returnState) {
+		    case INSERT:
+			    // If we are coming back from insert, restart normal mode
+			    start_normal_mode(context);
+			    break;
+		    case CMDLINE: ;
+			    // If we're coming back from command line, the command
+		      // hasn't been executed yet.
+			    char_u *cmd = ccline.cmdbuff;
+			    char_u cmdc = ccline.cmdfirstc;
+			    if (cmdc == '/' || cmdc == '?') {
+				    if (cmd == NULL) {
+						    clearop(context->oap);
+				    } else {
+					    context->ca.searchbuf = cmd;
+					    /* Seed the search - bump it forward and back so everything is set for N and n */
+			      (void)normal_search(&context->ca, cmdc, cmd, 0);
+			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
+
+			      /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
+				      /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
+				      /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
+				      /*                         ? 0 */
+				      /*                         : SEARCH_MARK); */
+				    }
+			    }
+			    start_normal_mode(context);
+			    return HANDLED;
+			    break;
+			  default:
+			    break;
+      }
+
+      context->returnState = NORMAL;
   }
 
   oparg_T *oap = context->oap;
@@ -763,11 +798,9 @@ restart_state:
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
 
-    /* If we are now in insert mode, relinquish control to the insert mode state */
-    if (sm_get_current_mode() == INSERT) {
-	context->was_inserting = TRUE;
-	return HANDLED;
-    } else if (sm_get_current_mode() == CMDLINE) {
+    int stateMode = sm_get_current_mode();
+    if (stateMode != NORMAL) {
+	    context->returnState = stateMode;
 	    return HANDLED;
     }
 
@@ -5516,7 +5549,6 @@ static void nv_dollar(cmdarg_T *cap) {
  */
 static void nv_search(cmdarg_T *cap) {
   oparg_T *oap = cap->oap;
-  pos_T save_cursor = curwin->w_cursor;
 
   if (cap->cmdchar == '?' && cap->oap->op_type == OP_ROT13) {
     /* Translate "g??" to "g?g?" */
@@ -5526,21 +5558,7 @@ static void nv_search(cmdarg_T *cap) {
     return;
   }
 
-  /* When using 'incsearch' the cursor may be moved to set a different search
-   * start position. */
-
-  // TODO: How to handle this?
-  cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0);
-
-  if (cap->searchbuf == NULL) {
-    clearop(oap);
-    return;
-  }
-
-  (void)normal_search(cap, cap->cmdchar, cap->searchbuf,
-                      (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor))
-                          ? 0
-                          : SEARCH_MARK);
+  sm_push_cmdline(cap->cmdchar, cap->count1, 0);
 }
 
 /*

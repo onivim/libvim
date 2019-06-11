@@ -2762,7 +2762,7 @@ theend:
 
 executionStatus_T state_cmdline_execute(void *ctx, int c) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
-    
+
     if (context->bail_immediately == TRUE) {
 	    return COMPLETED_UNHANDLED;
     }
@@ -3913,8 +3913,12 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
-	do_cmdline_cmd(ccline.cmdbuff);
-	return COMPLETED;
+	if (context->firstc == ':') {
+	    do_cmdline_cmd(ccline.cmdbuff);
+	    return COMPLETED_UNHANDLED;
+	} else {
+    return COMPLETED_UNHANDLED;
+	}
 
 /*
  * This part implements incremental searches for "/" and "?"
@@ -3938,13 +3942,6 @@ cmdline_changed:
     char_u	**files_found;
 
 	set_expand_context(&context->xpc);
-	/* int i = expand_cmdline(&context->xpc, ccline.cmdbuff, ccline.cmdpos, */
-	/* 					    &num_files, &files_found); */
-	/* TODO: Factor this to a method */
-	/* printf ("COMPLETEIONS: %d\n", num_files); */
-	/* for(int x = 0; x < num_files; x++) { */
-	/*     printf( "-- %d : %s\n", x, files_found[x]); */
-	/* } */
 
 #ifdef FEAT_SEARCH_EXTRA
 	may_do_incsearch_highlighting(context->firstc, context->count, &context->is_state);
@@ -3957,7 +3954,6 @@ cmdline_changed:
 # endif
 		)
 #endif
-
     return HANDLED;
 }
 
@@ -3967,7 +3963,7 @@ void state_cmdline_cleanup(void *ctx) {
     /* Trigger CmdlineLeave autocommands. */
     trigger_cmd_autocmd(context->cmdline_type, EVENT_CMDLINELEAVE);
 
-	  ccline.cmdbuff = NULL;
+	  /* ccline.cmdbuff = NULL; */
     State = context->save_State;
     vim_free(context);
 }

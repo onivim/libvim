@@ -48,6 +48,8 @@ MU_TEST(test_cmdline_get_text) {
   vimInput("<c-h>");
   mu_check(strcmp(vimCommandLineGetText(), "ab") == 0);
   mu_check(vimCommandLineGetPosition() == 2);
+
+  vimInput("<cr>");
 }
 
 MU_TEST(test_cmdline_completions) {
