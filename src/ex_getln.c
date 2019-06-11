@@ -3495,7 +3495,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 
 	case ESC:	/* get here if p_wc != ESC or when ESC typed twice */
 	case Ctrl_C:
-		printf("got escape key\n");
 		/* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
 		if (exmode_active
