@@ -66,11 +66,11 @@ MU_TEST(test_cmdline_completions) {
 
   vimInput(" ");
   vimInput(".");
-  vimInput(".");
   vimInput("/");
-  vimInput("a");
+  vimInput("c");
+  vimInput("o");
   vimCommandLineGetCompletions(&completions, &count);
-  mu_check(count == 6);
+  mu_check(count == 1);
 }
 
 MU_TEST_SUITE(test_suite) {
