@@ -43,6 +43,15 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
 void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
 
+/**
+ * Commandline
+ ***/
+
+char_u vimCommandLineGetType(void);
+char_u* vimCommandLineGetText(void);
+int vimCommandLineGetPosition(void);
+void vimCommandLineGetCompletions(char ***completions, int* count);
+
 /***
  * Cursor Methods
  ***/

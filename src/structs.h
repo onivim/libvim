@@ -590,6 +590,34 @@ typedef struct expand
     int		xp_col;			/* cursor position in line */
 } expand_T;
 
+/*
+ * Variables shared between getcmdline(), redrawcmdline() and others.
+ * These need to be saved when using CTRL-R |, that's why they are in a
+ * structure.
+ */
+struct cmdline_info
+{
+    char_u	*cmdbuff;	/* pointer to command line buffer */
+    int		cmdbufflen;	/* length of cmdbuff */
+    int		cmdlen;		/* number of chars in command line */
+    int		cmdpos;		/* current cursor position */
+    int		cmdspos;	/* cursor column on screen */
+    int		cmdfirstc;	/* ':', '/', '?', '=', '>' or NUL */
+    int		cmdindent;	/* number of spaces before cmdline */
+    char_u	*cmdprompt;	/* message in front of cmdline */
+    int		cmdattr;	/* attributes for prompt */
+    int		overstrike;	/* Typing mode on the command line.  Shared by
+				   getcmdline() and put_on_cmdline(). */
+    expand_T	*xpc;		/* struct being used for expansion, xp_pattern
+				   may point into cmdbuff */
+    int		xp_context;	/* type of expansion */
+# ifdef FEAT_EVAL
+    char_u	*xp_arg;	/* user-defined expansion arg */
+    int		input_fn;	/* when TRUE Invoked for input() function */
+# endif
+};
+
+
 /* values for xp_backslash */
 #define XP_BS_NONE	0	/* nothing special for backslashes */
 #define XP_BS_ONE	1	/* uses one backslash before a space */

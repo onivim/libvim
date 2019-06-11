@@ -17,38 +17,6 @@
 # define MAX(x,y) ((x) > (y) ? (x) : (y))
 #endif
 
-/*
- * Variables shared between getcmdline(), redrawcmdline() and others.
- * These need to be saved when using CTRL-R |, that's why they are in a
- * structure.
- */
-struct cmdline_info
-{
-    char_u	*cmdbuff;	/* pointer to command line buffer */
-    int		cmdbufflen;	/* length of cmdbuff */
-    int		cmdlen;		/* number of chars in command line */
-    int		cmdpos;		/* current cursor position */
-    int		cmdspos;	/* cursor column on screen */
-    int		cmdfirstc;	/* ':', '/', '?', '=', '>' or NUL */
-    int		cmdindent;	/* number of spaces before cmdline */
-    char_u	*cmdprompt;	/* message in front of cmdline */
-    int		cmdattr;	/* attributes for prompt */
-    int		overstrike;	/* Typing mode on the command line.  Shared by
-				   getcmdline() and put_on_cmdline(). */
-    expand_T	*xpc;		/* struct being used for expansion, xp_pattern
-				   may point into cmdbuff */
-    int		xp_context;	/* type of expansion */
-# ifdef FEAT_EVAL
-    char_u	*xp_arg;	/* user-defined expansion arg */
-    int		input_fn;	/* when TRUE Invoked for input() function */
-# endif
-};
-
-// The current cmdline_info.  It is initialized in getcmdline() and after that
-// used by other functions.  When invoking getcmdline() recursively it needs
-// to be saved with save_cmdline() and restored with restore_cmdline().
-static struct cmdline_info ccline;
-
 static int	cmd_showtail;	/* Only show path tail in lists ? */
 
 #ifdef FEAT_EVAL
