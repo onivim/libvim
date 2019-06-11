@@ -1320,10 +1320,6 @@ term_convert_key(term_T *term, int c, char *buf)
 	case K_VER_SCROLLBAR:	return 0;
 	case K_HOR_SCROLLBAR:	return 0;
 #endif
-#ifdef FEAT_GUI_TABLINE
-	case K_TABLINE:		return 0;
-	case K_TABMENU:		return 0;
-#endif
 #ifdef FEAT_NETBEANS_INTG
 	case K_F21:		key = VTERM_KEY_FUNCTION(21); break;
 #endif

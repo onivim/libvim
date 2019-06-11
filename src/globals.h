@@ -477,17 +477,6 @@ EXTERN int	diff_need_scrollbind INIT(= FALSE);
 EXTERN int	updating_screen INIT(= FALSE);
 
 #ifdef FEAT_GUI
-# ifdef FEAT_GUI_TABLINE
-/* Tab in tab pages line just selected, set by check_termcode() */
-EXTERN int	    current_tab;
-
-/* Menu entry in tab pages line menu just selected, set by check_termcode() */
-EXTERN int	    current_tabmenu;
-#  define TABLINE_MENU_CLOSE	1
-#  define TABLINE_MENU_NEW	2
-#  define TABLINE_MENU_OPEN	3
-# endif
-
 /* Scrollbar moved and new value, set by check_termcode() */
 EXTERN int	current_scrollbar;
 EXTERN long_u	scrollbar_value;

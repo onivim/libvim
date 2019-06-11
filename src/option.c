@@ -1353,22 +1353,12 @@ static struct vimoption options[] =
 #endif
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"guitablabel",  "gtl", P_STRING|P_VI_DEF|P_RWIN|P_MLE,
-#if defined(FEAT_GUI_TABLINE)
-			    (char_u *)&p_gtl, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"guitabtooltip",  "gtt", P_STRING|P_VI_DEF|P_RWIN,
-#if defined(FEAT_GUI_TABLINE)
-			    (char_u *)&p_gtt, PV_NONE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"hardtabs",    "ht",   P_NUM|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -6938,20 +6928,6 @@ did_set_string_option(
     else if (varp == &p_go)
     {
 	gui_init_which_components(oldval);
-	redraw_gui_only = TRUE;
-    }
-#endif
-
-#if defined(FEAT_GUI_TABLINE)
-    /* 'guitablabel' */
-    else if (varp == &p_gtl)
-    {
-	redraw_tabline = TRUE;
-	redraw_gui_only = TRUE;
-    }
-    /* 'guitabtooltip' */
-    else if (varp == &p_gtt)
-    {
 	redraw_gui_only = TRUE;
     }
 #endif

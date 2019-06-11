@@ -62,9 +62,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p);
 static void ins_mouse(int c);
 static void ins_mousescroll(int dir);
 #endif
-#if defined(FEAT_GUI_TABLINE) || defined(PROTO)
-static void ins_tabline(int c);
-#endif
 static void ins_left(void);
 static void ins_home(int c);
 static void ins_end(int c);
@@ -863,13 +860,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   case K_PE:
     /* Got K_PE without K_PS, ignore. */
     break;
-
-#ifdef FEAT_GUI_TABLINE
-  case K_TABLINE:
-  case K_TABMENU:
-    ins_tabline(c);
-    break;
-#endif
 
   case K_IGNORE: /* Something mapped to nothing */
     break;
@@ -1965,13 +1955,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_PE:
       /* Got K_PE without K_PS, ignore. */
       break;
-
-#ifdef FEAT_GUI_TABLINE
-    case K_TABLINE:
-    case K_TABMENU:
-      ins_tabline(c);
-      break;
-#endif
 
     case K_IGNORE: /* Something mapped to nothing */
       break;
@@ -5906,27 +5889,6 @@ int bracketed_paste(paste_mode_T mode, int drop, garray_T *gap) {
 
   return ret_char;
 }
-
-#if defined(FEAT_GUI_TABLINE) || defined(PROTO)
-static void ins_tabline(int c) {
-  /* We will be leaving the current window, unless closing another tab. */
-  if (c != K_TABMENU || current_tabmenu != TABLINE_MENU_CLOSE ||
-      (current_tab != 0 && current_tab != tabpage_index(curtab))) {
-    undisplay_dollar();
-    start_arrow(&curwin->w_cursor);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
-  }
-
-  if (c == K_TABLINE)
-    goto_tabpage(current_tab);
-  else {
-    handle_tabmenu();
-    redraw_statuslines(); /* will redraw the tabline when needed */
-  }
-}
-#endif
 
 #if defined(FEAT_GUI) || defined(PROTO)
 void ins_scroll(void) {

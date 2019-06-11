@@ -3784,7 +3784,7 @@ free_titles(void)
 
 #endif /* FEAT_TITLE */
 
-#if defined(FEAT_STL_OPT) || defined(FEAT_GUI_TABLINE) || defined(PROTO)
+#if defined(FEAT_STL_OPT) || defined(PROTO)
 /*
  * Build a string from the status line items in "fmt".
  * Return length of string in screen cells.
@@ -4673,7 +4673,7 @@ build_stl_str_hl(
 #endif /* FEAT_STL_OPT */
 
 #if defined(FEAT_STL_OPT) \
-	    || defined(FEAT_GUI_TABLINE) || defined(PROTO)
+	    || defined(PROTO)
 /*
  * Get relative cursor position in window into "buf[buflen]", in the form 99%,
  * using "Top", "Bot" or "All" when appropriate.

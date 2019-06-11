@@ -10703,15 +10703,6 @@ draw_tabline(void)
 	return;
     redraw_tabline = FALSE;
 
-#ifdef FEAT_GUI_TABLINE
-    /* Take care of a GUI tabline. */
-    if (gui_use_tabline())
-    {
-	gui_update_tabline();
-	return;
-    }
-#endif
-
     if (tabline_height() < 1)
 	return;
 
