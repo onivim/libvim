@@ -3910,11 +3910,8 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
-	printf("returncmd\n");
 	if (context->gotesc == TRUE) {
-	    printf("gotesc pressed!\n");
 	    abandon_cmdline();
-	    printf("abandoned command line\n");
 	} else {
 	    if (context->firstc == ':')
 		do_cmdline_cmd(ccline.cmdbuff);
