@@ -726,13 +726,8 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"cedit",	    NULL,   P_STRING,
-#ifdef FEAT_CMDWIN
-			    (char_u *)&p_cedit, PV_NONE,
-			    {(char_u *)"", (char_u *)CTRL_F_STR}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"charconvert",  "ccv", P_STRING|P_VI_DEF|P_SECURE,
 #if defined(FEAT_EVAL)
@@ -794,11 +789,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_ch, PV_NONE,
 			    {(char_u *)1L, (char_u *)0L} SCTX_INIT},
     {"cmdwinheight", "cwh", P_NUM|P_VI_DEF,
-#ifdef FEAT_CMDWIN
-			    (char_u *)&p_cwh, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)7L, (char_u *)0L} SCTX_INIT},
     {"colorcolumn", "cc",   P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP|P_RWIN,
 #ifdef FEAT_SYN_HL
@@ -5159,29 +5150,6 @@ string_to_key(char_u *arg, int multi_byte)
     return *arg;
 }
 
-#ifdef FEAT_CMDWIN
-/*
- * Check value of 'cedit' and set cedit_key.
- * Returns NULL if value is OK, error message otherwise.
- */
-    static char *
-check_cedit(void)
-{
-    int n;
-
-    if (*p_cedit == NUL)
-	cedit_key = -1;
-    else
-    {
-	n = string_to_key(p_cedit, FALSE);
-	if (vim_isprintc(n))
-	    return e_invarg;
-	cedit_key = n;
-    }
-    return NULL;
-}
-#endif
-
 /*
  * set_options_bin -  called when 'bin' changes value.
  */
@@ -5369,10 +5337,6 @@ didset_options(void)
 #endif
 #if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
     (void)opt_strings_flags(p_tbis, p_tbis_values, &tbis_flags, FALSE);
-#endif
-#ifdef FEAT_CMDWIN
-    /* set cedit_key */
-    (void)check_cedit();
 #endif
 #ifdef FEAT_LINEBREAK
     briopt_check(curwin);
@@ -6549,14 +6513,6 @@ did_set_string_option(
     {
 	errmsg = set_chars_option(varp);
     }
-
-#ifdef FEAT_CMDWIN
-    /* 'cedit' */
-    else if (varp == &p_cedit)
-    {
-	errmsg = check_cedit();
-    }
-#endif
 
     /* 'verbosefile' */
     else if (varp == &p_vfile)
@@ -8977,13 +8933,6 @@ set_num_option(
 	errmsg = e_positive;
 	p_siso = 0;
     }
-#ifdef FEAT_CMDWIN
-    if (p_cwh < 1)
-    {
-	errmsg = e_positive;
-	p_cwh = 1;
-    }
-#endif
     if (p_ut < 0)
     {
 	errmsg = e_positive;

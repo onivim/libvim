@@ -1149,12 +1149,6 @@ EXTERN int	disable_fold_update INIT(= 0);
 EXTERN int	km_stopsel INIT(= FALSE);
 EXTERN int	km_startsel INIT(= FALSE);
 
-#ifdef FEAT_CMDWIN
-EXTERN int	cedit_key INIT(= -1);	/* key value of 'cedit' option */
-EXTERN int	cmdwin_type INIT(= 0);	/* type of cmdline window or 0 */
-EXTERN int	cmdwin_result INIT(= 0); /* result of cmdline window or 0 */
-#endif
-
 EXTERN char_u no_lines_msg[]	INIT(= N_("--No lines in buffer--"));
 
 /*
@@ -1275,9 +1269,6 @@ EXTERN int netbeansSuppressNoLines INIT(= 0); /* skip "No lines in buffer" */
 EXTERN char e_abort[]		INIT(= N_("E470: Command aborted"));
 EXTERN char e_argreq[]	INIT(= N_("E471: Argument required"));
 EXTERN char e_backslash[]	INIT(= N_("E10: \\ should be followed by /, ? or &"));
-#ifdef FEAT_CMDWIN
-EXTERN char e_cmdwin[]	INIT(= N_("E11: Invalid in command-line window; <CR> executes, CTRL-C quits"));
-#endif
 EXTERN char e_curdir[]	INIT(= N_("E12: Command not allowed from exrc/vimrc in current dir or tag search"));
 #ifdef FEAT_EVAL
 EXTERN char e_endif[]		INIT(= N_("E171: Missing :endif"));

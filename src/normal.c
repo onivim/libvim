@@ -2552,9 +2552,6 @@ int do_mouse(oparg_T *oap, /* operator argument, can be NULL */
 
     /* click in a tab selects that tab page */
     if (is_click
-#ifdef FEAT_CMDWIN
-        && cmdwin_type == 0
-#endif
         && mouse_col < Columns) {
       in_tab_line = TRUE;
       c1 = TabPageIdxs[mouse_col];
@@ -2776,13 +2773,6 @@ int do_mouse(oparg_T *oap, /* operator argument, can be NULL */
     /* don't move the cursor if still in the same window */
     if (curwin == old_curwin)
       curwin->w_cursor = save_cursor;
-  }
-#endif
-
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_CMDWIN)
-  if ((jump_flags & IN_OTHER_WIN) && !VIsual_active && clip_star.available) {
-    clip_modeless(which_button, is_click, is_drag);
-    return FALSE;
   }
 #endif
 
@@ -5381,12 +5371,6 @@ static void nv_down(cmdarg_T *cap) {
     qf_view_result(FALSE);
 #endif
   else {
-#ifdef FEAT_CMDWIN
-    /* In the cmdline window a <CR> executes the command. */
-    if (cmdwin_type != 0 && cap->cmdchar == CAR)
-      cmdwin_result = CAR;
-    else
-#endif
 #ifdef FEAT_JOB_CHANNEL
         /* In a prompt buffer a <CR> in the last line invokes the callback. */
         if (bt_prompt(curbuf) && cap->cmdchar == CAR &&
@@ -7732,10 +7716,6 @@ static void nv_normal(cmdarg_T *cap) {
     if (restart_edit != 0 && mode_displayed)
       clear_cmdline = TRUE; /* unshow mode later */
     restart_edit = 0;
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-      cmdwin_result = Ctrl_C;
-#endif
     if (VIsual_active) {
       end_visual_mode(); /* stop Visual */
       redraw_curbuf_later(INVERTED);
@@ -7760,9 +7740,6 @@ static void nv_esc(cmdarg_T *cap) {
   if (cap->arg) /* TRUE for CTRL-C */
   {
     if (restart_edit == 0
-#ifdef FEAT_CMDWIN
-        && cmdwin_type == 0
-#endif
         && !VIsual_active && no_reason) {
       if (anyBufIsChanged())
         msg(_("Type  :qa!  and press <Enter> to abandon all changes and exit "
@@ -7775,13 +7752,6 @@ static void nv_esc(cmdarg_T *cap) {
      * set again below when halfway a mapping. */
     if (!p_im)
       restart_edit = 0;
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0) {
-      cmdwin_result = K_IGNORE;
-      got_int = FALSE; /* don't stop executing autocommands et al. */
-      return;
-    }
-#endif
   }
 
   if (VIsual_active) {
@@ -8047,12 +8017,6 @@ static void nv_record(cmdarg_T *cap) {
     cap->nchar = 'q';
     nv_operator(cap);
   } else if (!checkclearop(cap->oap)) {
-#ifdef FEAT_CMDWIN
-    if (cap->nchar == ':' || cap->nchar == '/' || cap->nchar == '?') {
-      stuffcharReadbuff(cap->nchar);
-      stuffcharReadbuff(K_CMDWIN);
-    } else
-#endif
         /* (stop) recording into a named register, unless executing a
          * register */
         if (reg_executing == 0 && do_record(cap->nchar) == FAIL)

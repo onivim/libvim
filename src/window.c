@@ -90,18 +90,7 @@ do_window(
     if (NOT_IN_POPUP_WINDOW)
 	return;
 
-#ifdef FEAT_CMDWIN
-# define CHECK_CMDWIN \
-    do { \
-	if (cmdwin_type != 0) \
-	{ \
-	    emsg(_(e_cmdwin)); \
-	    return; \
-	} \
-    } while (0)
-#else
 # define CHECK_CMDWIN do { /**/ } while (0)
-#endif
 
     Prenum1 = Prenum == 0 ? 1 : Prenum;
 
@@ -5030,55 +5019,6 @@ shell_new_columns(void)
 	win_equal(curwin, FALSE, 'h');
 #endif
 }
-
-#if defined(FEAT_CMDWIN) || defined(PROTO)
-/*
- * Save the size of all windows in "gap".
- */
-    void
-win_size_save(garray_T *gap)
-
-{
-    win_T	*wp;
-
-    ga_init2(gap, (int)sizeof(int), 1);
-    if (ga_grow(gap, win_count() * 2) == OK)
-	FOR_ALL_WINDOWS(wp)
-	{
-	    ((int *)gap->ga_data)[gap->ga_len++] =
-					       wp->w_width + wp->w_vsep_width;
-	    ((int *)gap->ga_data)[gap->ga_len++] = wp->w_height;
-	}
-}
-
-/*
- * Restore window sizes, but only if the number of windows is still the same.
- * Does not free the growarray.
- */
-    void
-win_size_restore(garray_T *gap)
-{
-    win_T	*wp;
-    int		i, j;
-
-    if (win_count() * 2 == gap->ga_len)
-    {
-	/* The order matters, because frames contain other frames, but it's
-	 * difficult to get right. The easy way out is to do it twice. */
-	for (j = 0; j < 2; ++j)
-	{
-	    i = 0;
-	    FOR_ALL_WINDOWS(wp)
-	    {
-		frame_setwidth(wp->w_frame, ((int *)gap->ga_data)[i++]);
-		win_setheight_win(((int *)gap->ga_data)[i++], wp);
-	    }
-	}
-	/* recompute the window positions */
-	(void)win_comp_pos();
-    }
-}
-#endif /* FEAT_CMDWIN */
 
 /*
  * Update the position for all windows, using the width and height of the

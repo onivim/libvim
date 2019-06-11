@@ -382,10 +382,6 @@ EXTERN int	p_deco;		/* 'delcombine' */
 #ifdef FEAT_EVAL
 EXTERN char_u	*p_ccv;		/* 'charconvert' */
 #endif
-#ifdef FEAT_CMDWIN
-EXTERN char_u	*p_cedit;	/* 'cedit' */
-EXTERN long	p_cwh;		/* 'cmdwinheight' */
-#endif
 #ifdef FEAT_CLIPBOARD
 EXTERN char_u	*p_cb;		/* 'clipboard' */
 #endif

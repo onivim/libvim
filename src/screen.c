@@ -2800,17 +2800,6 @@ fold_line(
      * 1. Add the cmdwin_type for the command-line window
      * Ignores 'rightleft', this window is never right-left.
      */
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0 && wp == curwin)
-    {
-	ScreenLines[off] = cmdwin_type;
-	ScreenAttrs[off] = HL_ATTR(HLF_AT);
-	if (enc_utf8)
-	    ScreenLinesUC[off] = 0;
-	++col;
-    }
-#endif
-
     /*
      * 2. Add the 'foldcolumn'
      *    Reduce the width when there is not enough space.
@@ -3334,11 +3323,7 @@ win_line(
 
     /* draw_state: items that are drawn in sequence: */
 #define WL_START	0		/* nothing done yet */
-#ifdef FEAT_CMDWIN
-# define WL_CMDLINE	WL_START + 1	/* cmdline window column */
-#else
 # define WL_CMDLINE	WL_START
-#endif
 #ifdef FEAT_FOLDING
 # define WL_FOLD	WL_CMDLINE + 1	/* 'foldcolumn' */
 #else
@@ -3969,20 +3954,6 @@ win_line(
 	/* Skip this quickly when working on the text. */
 	if (draw_state != WL_LINE)
 	{
-#ifdef FEAT_CMDWIN
-	    if (draw_state == WL_CMDLINE - 1 && n_extra == 0)
-	    {
-		draw_state = WL_CMDLINE;
-		if (cmdwin_type != 0 && wp == curwin)
-		{
-		    /* Draw the cmdline character. */
-		    n_extra = 1;
-		    c_extra = cmdwin_type;
-		    c_final = NUL;
-		    char_attr = hl_combine_attr(wcr_attr, HL_ATTR(HLF_AT));
-		}
-	    }
-#endif
 
 #ifdef FEAT_FOLDING
 	    if (draw_state == WL_FOLD - 1 && n_extra == 0)

@@ -2862,11 +2862,6 @@ retnomove:
 	    end_visual_mode();
 	    redraw_curbuf_later(INVERTED);	/* delete the inversion */
 	}
-#if defined(FEAT_CMDWIN) && defined(FEAT_CLIPBOARD)
-	/* Continue a modeless selection in another window. */
-	if (cmdwin_type != 0 && row < curwin->w_winrow)
-	    return IN_OTHER_WIN;
-#endif
 	return IN_BUFFER;
     }
 
@@ -2951,9 +2946,6 @@ retnomove:
 			    wp->w_p_rl ? col < wp->w_width - wp->w_p_fdc :
 # endif
 			    col >= wp->w_p_fdc
-# ifdef FEAT_CMDWIN
-				  + (cmdwin_type == 0 && wp == curwin ? 0 : 1)
-# endif
 			    )
 #endif
 			&& (flags & MOUSE_MAY_STOP_VIS))))
@@ -2961,23 +2953,6 @@ retnomove:
 	    end_visual_mode();
 	    redraw_curbuf_later(INVERTED);	/* delete the inversion */
 	}
-#ifdef FEAT_CMDWIN
-	if (cmdwin_type != 0 && wp != curwin)
-	{
-	    /* A click outside the command-line window: Use modeless
-	     * selection if possible.  Allow dragging the status lines. */
-	    on_sep_line = 0;
-# ifdef FEAT_CLIPBOARD
-	    if (on_status_line)
-		return IN_STATUS_LINE;
-	    return IN_OTHER_WIN;
-# else
-	    row = 0;
-	    col += wp->w_wincol;
-	    wp = curwin;
-# endif
-	}
-#endif
 	/* Only change window focus when not clicking on or dragging the
 	 * status line.  Do change focus when releasing the mouse button
 	 * (MOUSE_FOCUS was set above if we dragged first). */
@@ -3060,12 +3035,6 @@ retnomove:
 	    end_visual_mode();
 	    redraw_curbuf_later(INVERTED);	/* delete the inversion */
 	}
-
-#if defined(FEAT_CMDWIN) && defined(FEAT_CLIPBOARD)
-	/* Continue a modeless selection in another window. */
-	if (cmdwin_type != 0 && row < curwin->w_winrow)
-	    return IN_OTHER_WIN;
-#endif
 
 	row -= W_WINROW(curwin);
 	col -= curwin->w_wincol;
@@ -3171,9 +3140,6 @@ retnomove:
 	    curwin->w_p_rl ? col < curwin->w_width - curwin->w_p_fdc :
 # endif
 	    col >= curwin->w_p_fdc
-#  ifdef FEAT_CMDWIN
-				+ (cmdwin_type == 0 ? 0 : 1)
-#  endif
        )
 	mouse_char = ' ';
 #endif

@@ -123,11 +123,6 @@
 # define FEAT_JUMPLIST
 #endif
 
-/* the cmdline-window requires FEAT_CMDHIST */
-#if defined(FEAT_CMDHIST)
-# define FEAT_CMDWIN
-#endif
-
 /*
  * +folding		Fold lines.
  */
@@ -1118,6 +1113,7 @@
 #endif
 
 // Features in the process of removing
+#undef FEAT_CMDWIN
 #undef FEAT_CRYPT
 #undef FEAT_STL_OPT
 #undef FEAT_TITLE
