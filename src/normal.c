@@ -610,6 +610,7 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 				    if (cmd == NULL) {
 						    clearop(context->oap);
 				    } else {
+					    cap->searchbuf = cmd;
 					    /* Seed the search - bump it forward and back so everything is set for N and n */
 			      (void)normal_search(&context->ca, cmdc, cmd, 0);
 			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
@@ -5548,7 +5549,6 @@ static void nv_dollar(cmdarg_T *cap) {
  */
 static void nv_search(cmdarg_T *cap) {
   oparg_T *oap = cap->oap;
-  pos_T save_cursor = curwin->w_cursor;
 
   if (cap->cmdchar == '?' && cap->oap->op_type == OP_ROT13) {
     /* Translate "g??" to "g?g?" */
@@ -5558,25 +5558,7 @@ static void nv_search(cmdarg_T *cap) {
     return;
   }
 
-  /* When using 'incsearch' the cursor may be moved to set a different search
-   * start position. */
-
-  // TODO: How to handle this?
-  /* cap->searchbuf = getcmdline(cap->cmdchar, cap->count1, 0); */
-  printf("PUSHING CMDLINE state: %c\n", cap->cmdchar);
   sm_push_cmdline(cap->cmdchar, cap->count1, 0);
-
-  /* TODO: Port over to return? */
-
-  /* if (cap->searchbuf == NULL) { */
-  /*   clearop(oap); */
-  /*   return; */
-  /* } */
-
-  /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
-  /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
-  /*                         ? 0 */
-  /*                         : SEARCH_MARK); */
 }
 
 /*

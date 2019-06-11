@@ -3965,7 +3965,6 @@ void state_cmdline_cleanup(void *ctx) {
 
 	  /* ccline.cmdbuff = NULL; */
     State = context->save_State;
-    printf("STATE AFTER CMDLINE CLEANUP: %d\n", State);
     vim_free(context);
 }
 
