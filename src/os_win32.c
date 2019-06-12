@@ -1120,330 +1120,6 @@ decode_key_event(
 #endif /* FEAT_GUI_MSWIN */
 
 
-#ifdef FEAT_MOUSE
-
-/*
- * For the GUI the mouse handling is in gui_w32.c.
- */
-# if defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)
-    void
-mch_setmouse(int on UNUSED)
-{
-}
-# else
-static int g_fMouseAvail = FALSE;   /* mouse present */
-static int g_fMouseActive = FALSE;  /* mouse enabled */
-static int g_nMouseClick = -1;	    /* mouse status */
-static int g_xMouse;		    /* mouse x coordinate */
-static int g_yMouse;		    /* mouse y coordinate */
-
-/*
- * Enable or disable mouse input
- */
-    void
-mch_setmouse(int on)
-{
-    DWORD cmodein;
-
-#  ifdef VIMDLL
-    if (gui.in_use)
-	return;
-#  endif
-    if (!g_fMouseAvail)
-	return;
-
-    g_fMouseActive = on;
-    GetConsoleMode(g_hConIn, &cmodein);
-
-    if (g_fMouseActive)
-	cmodein |= ENABLE_MOUSE_INPUT;
-    else
-	cmodein &= ~ENABLE_MOUSE_INPUT;
-
-    SetConsoleMode(g_hConIn, cmodein);
-}
-
-
-#if defined(FEAT_BEVAL_TERM) || defined(PROTO)
-/*
- * Called when 'balloonevalterm' changed.
- */
-    void
-mch_bevalterm_changed(void)
-{
-    mch_setmouse(g_fMouseActive);
-}
-#endif
-
-/*
- * Decode a MOUSE_EVENT.  If it's a valid event, return MOUSE_LEFT,
- * MOUSE_MIDDLE, or MOUSE_RIGHT for a click; MOUSE_DRAG for a mouse
- * move with a button held down; and MOUSE_RELEASE after a MOUSE_DRAG
- * or a MOUSE_LEFT, _MIDDLE, or _RIGHT.  We encode the button type,
- * the number of clicks, and the Shift/Ctrl/Alt modifiers in g_nMouseClick,
- * and we return the mouse position in g_xMouse and g_yMouse.
- *
- * Every MOUSE_LEFT, _MIDDLE, or _RIGHT will be followed by zero or more
- * MOUSE_DRAGs and one MOUSE_RELEASE.  MOUSE_RELEASE will be followed only
- * by MOUSE_LEFT, _MIDDLE, or _RIGHT.
- *
- * For multiple clicks, we send, say, MOUSE_LEFT/1 click, MOUSE_RELEASE,
- * MOUSE_LEFT/2 clicks, MOUSE_RELEASE, MOUSE_LEFT/3 clicks, MOUSE_RELEASE, ....
- *
- * Windows will send us MOUSE_MOVED notifications whenever the mouse
- * moves, even if it stays within the same character cell.  We ignore
- * all MOUSE_MOVED messages if the position hasn't really changed, and
- * we ignore all MOUSE_MOVED messages where no button is held down (i.e.,
- * we're only interested in MOUSE_DRAG).
- *
- * All of this is complicated by the code that fakes MOUSE_MIDDLE on
- * 2-button mouses by pressing the left & right buttons simultaneously.
- * In practice, it's almost impossible to click both at the same time,
- * so we need to delay a little.  Also, we tend not to get MOUSE_RELEASE
- * in such cases, if the user is clicking quickly.
- */
-    static BOOL
-decode_mouse_event(
-    MOUSE_EVENT_RECORD *pmer)
-{
-    static int s_nOldButton = -1;
-    static int s_nOldMouseClick = -1;
-    static int s_xOldMouse = -1;
-    static int s_yOldMouse = -1;
-    static linenr_T s_old_topline = 0;
-#ifdef FEAT_DIFF
-    static int s_old_topfill = 0;
-#endif
-    static int s_cClicks = 1;
-    static BOOL s_fReleased = TRUE;
-    static DWORD s_dwLastClickTime = 0;
-    static BOOL s_fNextIsMiddle = FALSE;
-
-    static DWORD cButtons = 0;	/* number of buttons supported */
-
-    const DWORD LEFT = FROM_LEFT_1ST_BUTTON_PRESSED;
-    const DWORD MIDDLE = FROM_LEFT_2ND_BUTTON_PRESSED;
-    const DWORD RIGHT = RIGHTMOST_BUTTON_PRESSED;
-    const DWORD LEFT_RIGHT = LEFT | RIGHT;
-
-    int nButton;
-
-    if (cButtons == 0 && !GetNumberOfConsoleMouseButtons(&cButtons))
-	cButtons = 2;
-
-    if (!g_fMouseAvail || !g_fMouseActive)
-    {
-	g_nMouseClick = -1;
-	return FALSE;
-    }
-
-    /* get a spurious MOUSE_EVENT immediately after receiving focus; ignore */
-    if (g_fJustGotFocus)
-    {
-	g_fJustGotFocus = FALSE;
-	return FALSE;
-    }
-
-    /* unprocessed mouse click? */
-    if (g_nMouseClick != -1)
-	return TRUE;
-
-    nButton = -1;
-    g_xMouse = pmer->dwMousePosition.X;
-    g_yMouse = pmer->dwMousePosition.Y;
-
-    if (pmer->dwEventFlags == MOUSE_MOVED)
-    {
-	/* Ignore MOUSE_MOVED events if (x, y) hasn't changed.	(We get these
-	 * events even when the mouse moves only within a char cell.) */
-	if (s_xOldMouse == g_xMouse && s_yOldMouse == g_yMouse)
-	    return FALSE;
-    }
-
-    /* If no buttons are pressed... */
-    if ((pmer->dwButtonState & ((1 << cButtons) - 1)) == 0)
-    {
-	nButton = MOUSE_RELEASE;
-
-	/* If the last thing returned was MOUSE_RELEASE, ignore this */
-	if (s_fReleased)
-	{
-#ifdef FEAT_BEVAL_TERM
-	    /* do return mouse move events when we want them */
-	    if (p_bevalterm)
-		nButton = MOUSE_DRAG;
-	    else
-#endif
-		return FALSE;
-	}
-
-	s_fReleased = TRUE;
-    }
-    else    /* one or more buttons pressed */
-    {
-	/* on a 2-button mouse, hold down left and right buttons
-	 * simultaneously to get MIDDLE. */
-
-	if (cButtons == 2 && s_nOldButton != MOUSE_DRAG)
-	{
-	    DWORD dwLR = (pmer->dwButtonState & LEFT_RIGHT);
-
-	    /* if either left or right button only is pressed, see if the
-	     * next mouse event has both of them pressed */
-	    if (dwLR == LEFT || dwLR == RIGHT)
-	    {
-		for (;;)
-		{
-		    /* wait a short time for next input event */
-		    if (WaitForSingleObject(g_hConIn, p_mouset / 3)
-							     != WAIT_OBJECT_0)
-			break;
-		    else
-		    {
-			DWORD cRecords = 0;
-			INPUT_RECORD ir;
-			MOUSE_EVENT_RECORD* pmer2 = &ir.Event.MouseEvent;
-
-			peek_console_input(g_hConIn, &ir, 1, &cRecords);
-
-			if (cRecords == 0 || ir.EventType != MOUSE_EVENT
-				|| !(pmer2->dwButtonState & LEFT_RIGHT))
-			    break;
-			else
-			{
-			    if (pmer2->dwEventFlags != MOUSE_MOVED)
-			    {
-				read_console_input(g_hConIn, &ir, 1, &cRecords);
-
-				return decode_mouse_event(pmer2);
-			    }
-			    else if (s_xOldMouse == pmer2->dwMousePosition.X &&
-				     s_yOldMouse == pmer2->dwMousePosition.Y)
-			    {
-				/* throw away spurious mouse move */
-				read_console_input(g_hConIn, &ir, 1, &cRecords);
-
-				/* are there any more mouse events in queue? */
-				peek_console_input(g_hConIn, &ir, 1, &cRecords);
-
-				if (cRecords==0 || ir.EventType != MOUSE_EVENT)
-				    break;
-			    }
-			    else
-				break;
-			}
-		    }
-		}
-	    }
-	}
-
-	if (s_fNextIsMiddle)
-	{
-	    nButton = (pmer->dwEventFlags == MOUSE_MOVED)
-		? MOUSE_DRAG : MOUSE_MIDDLE;
-	    s_fNextIsMiddle = FALSE;
-	}
-	else if (cButtons == 2	&&
-	    ((pmer->dwButtonState & LEFT_RIGHT) == LEFT_RIGHT))
-	{
-	    nButton = MOUSE_MIDDLE;
-
-	    if (! s_fReleased && pmer->dwEventFlags != MOUSE_MOVED)
-	    {
-		s_fNextIsMiddle = TRUE;
-		nButton = MOUSE_RELEASE;
-	    }
-	}
-	else if ((pmer->dwButtonState & LEFT) == LEFT)
-	    nButton = MOUSE_LEFT;
-	else if ((pmer->dwButtonState & MIDDLE) == MIDDLE)
-	    nButton = MOUSE_MIDDLE;
-	else if ((pmer->dwButtonState & RIGHT) == RIGHT)
-	    nButton = MOUSE_RIGHT;
-
-	if (! s_fReleased && ! s_fNextIsMiddle
-		&& nButton != s_nOldButton && s_nOldButton != MOUSE_DRAG)
-	    return FALSE;
-
-	s_fReleased = s_fNextIsMiddle;
-    }
-
-    if (pmer->dwEventFlags == 0 || pmer->dwEventFlags == DOUBLE_CLICK)
-    {
-	/* button pressed or released, without mouse moving */
-	if (nButton != -1 && nButton != MOUSE_RELEASE)
-	{
-	    DWORD dwCurrentTime = GetTickCount();
-
-	    if (s_xOldMouse != g_xMouse
-		    || s_yOldMouse != g_yMouse
-		    || s_nOldButton != nButton
-		    || s_old_topline != curwin->w_topline
-#ifdef FEAT_DIFF
-		    || s_old_topfill != curwin->w_topfill
-#endif
-		    || (int)(dwCurrentTime - s_dwLastClickTime) > p_mouset)
-	    {
-		s_cClicks = 1;
-	    }
-	    else if (++s_cClicks > 4)
-	    {
-		s_cClicks = 1;
-	    }
-
-	    s_dwLastClickTime = dwCurrentTime;
-	}
-    }
-    else if (pmer->dwEventFlags == MOUSE_MOVED)
-    {
-	if (nButton != -1 && nButton != MOUSE_RELEASE)
-	    nButton = MOUSE_DRAG;
-
-	s_cClicks = 1;
-    }
-
-    if (nButton == -1)
-	return FALSE;
-
-    if (nButton != MOUSE_RELEASE)
-	s_nOldButton = nButton;
-
-    g_nMouseClick = nButton;
-
-    if (pmer->dwControlKeyState & SHIFT_PRESSED)
-	g_nMouseClick |= MOUSE_SHIFT;
-    if (pmer->dwControlKeyState & (RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED))
-	g_nMouseClick |= MOUSE_CTRL;
-    if (pmer->dwControlKeyState & (RIGHT_ALT_PRESSED  | LEFT_ALT_PRESSED))
-	g_nMouseClick |= MOUSE_ALT;
-
-    if (nButton != MOUSE_DRAG && nButton != MOUSE_RELEASE)
-	SET_NUM_MOUSE_CLICKS(g_nMouseClick, s_cClicks);
-
-    /* only pass on interesting (i.e., different) mouse events */
-    if (s_xOldMouse == g_xMouse
-	    && s_yOldMouse == g_yMouse
-	    && s_nOldMouseClick == g_nMouseClick)
-    {
-	g_nMouseClick = -1;
-	return FALSE;
-    }
-
-    s_xOldMouse = g_xMouse;
-    s_yOldMouse = g_yMouse;
-    s_old_topline = curwin->w_topline;
-#ifdef FEAT_DIFF
-    s_old_topfill = curwin->w_topfill;
-#endif
-    s_nOldMouseClick = g_nMouseClick;
-
-    return TRUE;
-}
-
-# endif /* FEAT_GUI_MSWIN */
-#endif /* FEAT_MOUSE */
-
-
 #if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 /*
  * Handle FOCUS_EVENT.
@@ -1500,9 +1176,6 @@ WaitForChar(long msec, int ignore_input)
 	}
 
 	if (0
-#ifdef FEAT_MOUSE
-		|| g_nMouseClick != -1
-#endif
 #ifdef FEAT_CLIENTSERVER
 		|| (!ignore_input && input_available())
 #endif
@@ -1635,11 +1308,6 @@ WaitForChar(long msec, int ignore_input)
 		    shell_resized();
 		}
 	    }
-#ifdef FEAT_MOUSE
-	    else if (ir.EventType == MOUSE_EVENT
-		    && decode_mouse_event(&ir.Event.MouseEvent))
-		return TRUE;
-#endif
 	}
 	else if (msec == 0)
 	    break;
@@ -1712,10 +1380,6 @@ tgetch(int *pmodifiers, WCHAR *pch2)
 	(void)WaitForChar(-1L, FALSE);
 	if (input_available())
 	    return 0;
-# ifdef FEAT_MOUSE
-	if (g_nMouseClick != -1)
-	    return 0;
-# endif
 #endif
 	if (read_console_input(g_hConIn, &ir, 1, &cRecords) == 0)
 	{
@@ -1735,13 +1399,6 @@ tgetch(int *pmodifiers, WCHAR *pch2)
 	    handle_focus_event(ir);
 	else if (ir.EventType == WINDOW_BUFFER_SIZE_EVENT)
 	    shell_resized();
-#ifdef FEAT_MOUSE
-	else if (ir.EventType == MOUSE_EVENT)
-	{
-	    if (decode_mouse_event(&ir.Event.MouseEvent))
-		return 0;
-	}
-#endif
     }
 }
 #endif /* !FEAT_GUI_MSWIN */
@@ -1831,23 +1488,6 @@ mch_inchar(
 	    typeaheadlen = 0;
 	    break;
 	}
-#ifdef FEAT_MOUSE
-	if (g_nMouseClick != -1)
-	{
-# ifdef MCH_WRITE_DUMP
-	    if (fdDump)
-		fprintf(fdDump, "{%02x @ %d, %d}",
-			g_nMouseClick, g_xMouse, g_yMouse);
-# endif
-	    typeahead[typeaheadlen++] = ESC + 128;
-	    typeahead[typeaheadlen++] = 'M';
-	    typeahead[typeaheadlen++] = g_nMouseClick;
-	    typeahead[typeaheadlen++] = g_xMouse + '!';
-	    typeahead[typeaheadlen++] = g_yMouse + '!';
-	    g_nMouseClick = -1;
-	}
-	else
-#endif
 	{
 	    WCHAR	ch2 = NUL;
 	    int		modifiers = 0;
@@ -1870,9 +1510,6 @@ mch_inchar(
 		got_int = TRUE;
 	    }
 
-#ifdef FEAT_MOUSE
-	    if (g_nMouseClick == -1)
-#endif
 	    {
 		int	n = 1;
 
@@ -2507,10 +2144,6 @@ mch_init_c(void)
 #endif
 
     g_fWindInitCalled = TRUE;
-
-#ifdef FEAT_MOUSE
-    g_fMouseAvail = GetSystemMetrics(SM_MOUSEPRESENT);
-#endif
 
 #ifdef FEAT_CLIPBOARD
     win_clip_init();
@@ -3431,10 +3064,6 @@ mch_settmode(int tmode)
     {
 	cmodein &= ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT |
 		     ENABLE_ECHO_INPUT);
-#ifdef FEAT_MOUSE
-	if (g_fMouseActive)
-	    cmodein |= ENABLE_MOUSE_INPUT;
-#endif
 	cmodeout &= ~(
 #ifdef FEAT_TERMGUICOLORS
 	    /* Do not turn off the ENABLE_PROCESSED_OUTPUT flag when using
@@ -5252,12 +4881,6 @@ termcap_mode_start(void)
     }
 
     GetConsoleMode(g_hConIn, &cmodein);
-#ifdef FEAT_MOUSE
-    if (g_fMouseActive)
-	cmodein |= ENABLE_MOUSE_INPUT;
-    else
-	cmodein &= ~ENABLE_MOUSE_INPUT;
-#endif
     cmodein |= ENABLE_WINDOW_INPUT;
     SetConsoleMode(g_hConIn, cmodein);
 

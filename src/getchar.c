@@ -1339,10 +1339,6 @@ save_typebuf(void)
 
 static int old_char = -1;	/* character put back by vungetc() */
 static int old_mod_mask;	/* mod_mask for ungotten character */
-#ifdef FEAT_MOUSE
-static int old_mouse_row;	/* mouse_row related to old_char */
-static int old_mouse_col;	/* mouse_col related to old_char */
-#endif
 
 /*
  * Save all three kinds of typeahead, so that the user must type at a prompt.
@@ -1575,10 +1571,6 @@ vgetc(void)
 	c = old_char;
 	old_char = -1;
 	mod_mask = old_mod_mask;
-#ifdef FEAT_MOUSE
-	mouse_row = old_mouse_row;
-	mouse_col = old_mouse_col;
-#endif
     }
     else
     {
@@ -1890,10 +1882,6 @@ vungetc(int c)
 {
     old_char = c;
     old_mod_mask = mod_mask;
-#ifdef FEAT_MOUSE
-    old_mouse_row = mouse_row;
-    old_mouse_col = mouse_col;
-#endif
 }
 
 /*
@@ -2856,10 +2844,6 @@ inchar(
     {
 	cursor_on();
 	out_flush_cursor(FALSE, FALSE);
-#if defined(FEAT_GUI) && defined(FEAT_MOUSESHAPE)
-	if (gui.in_use && postponed_mouseshape)
-	    update_mouseshape(-1);
-#endif
     }
 
     /*

@@ -8779,9 +8779,6 @@ ex_normal(exarg_T *eap)
 
     restore_current_state(&save_state);
     --ex_normal_busy;
-#ifdef FEAT_MOUSE
-    setmouse();
-#endif
 
     vim_free(arg);
 }

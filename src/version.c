@@ -352,57 +352,6 @@ static char *(features[]) =
 #else
 	"-modify_fname",
 #endif
-#ifdef FEAT_MOUSE
-	"+mouse",
-# else
-	"-mouse",
-#endif
-
-#if defined(UNIX) || defined(VMS)
-# ifdef FEAT_MOUSE_DEC
-	"+mouse_dec",
-# else
-	"-mouse_dec",
-# endif
-# ifdef FEAT_MOUSE_GPM
-	"+mouse_gpm",
-# else
-	"-mouse_gpm",
-# endif
-# ifdef FEAT_MOUSE_JSB
-	"+mouse_jsbterm",
-# else
-	"-mouse_jsbterm",
-# endif
-# ifdef FEAT_MOUSE_NET
-	"+mouse_netterm",
-# else
-	"-mouse_netterm",
-# endif
-#endif
-
-#if defined(UNIX) || defined(VMS)
-# ifdef FEAT_MOUSE_XTERM
-	"+mouse_sgr",
-# else
-	"-mouse_sgr",
-# endif
-# ifdef FEAT_SYSMOUSE
-	"+mouse_sysmouse",
-# else
-	"-mouse_sysmouse",
-# endif
-# ifdef FEAT_MOUSE_URXVT
-	"+mouse_urxvt",
-# else
-	"-mouse_urxvt",
-# endif
-# ifdef FEAT_MOUSE_XTERM
-	"+mouse_xterm",
-# else
-	"-mouse_xterm",
-# endif
-#endif
 
 #ifdef FEAT_MBYTE_IME
 # ifdef DYNAMIC_IME

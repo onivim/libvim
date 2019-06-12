@@ -793,11 +793,6 @@ getcmdline_int(
     int		save_msg_scroll = msg_scroll;
     int		save_State = State;	/* remember State when called */
     int		some_key_typed = FALSE;	/* one of the keys was typed */
-#ifdef FEAT_MOUSE
-    /* mouse drag and release events are ignored, unless they are
-     * preceded with a mouse down event */
-    int		ignore_drag_release = TRUE;
-#endif
 #ifdef FEAT_EVAL
     int		break_ctrl_c = FALSE;
 #endif
@@ -922,10 +917,6 @@ getcmdline_int(
 #ifdef HAVE_INPUT_METHOD
     else if (p_imcmdline)
 	im_set_active(TRUE);
-#endif
-
-#ifdef FEAT_MOUSE
-    setmouse();
 #endif
 
     /* When inside an autocommand for writing "exiting" may be set and
@@ -1828,106 +1819,6 @@ getcmdline_int(
 	    break;
 #endif
 
-#ifdef FEAT_MOUSE
-	case K_MIDDLEDRAG:
-	case K_MIDDLERELEASE:
-		goto cmdline_not_changed;	/* Ignore mouse */
-
-	case K_MIDDLEMOUSE:
-# ifdef FEAT_GUI
-		/* When GUI is active, also paste when 'mouse' is empty */
-		if (!gui.in_use)
-# endif
-		    if (!mouse_has(MOUSE_COMMAND))
-			goto cmdline_not_changed;   /* Ignore mouse */
-# ifdef FEAT_CLIPBOARD
-		if (clip_star.available)
-		    cmdline_paste('*', TRUE, TRUE);
-		else
-# endif
-		    cmdline_paste(0, TRUE, TRUE);
-		redrawcmd();
-		goto cmdline_changed;
-
-	case K_LEFTDRAG:
-	case K_LEFTRELEASE:
-	case K_RIGHTDRAG:
-	case K_RIGHTRELEASE:
-		/* Ignore drag and release events when the button-down wasn't
-		 * seen before. */
-		if (ignore_drag_release)
-		    goto cmdline_not_changed;
-		/* FALLTHROUGH */
-	case K_LEFTMOUSE:
-	case K_RIGHTMOUSE:
-		if (c == K_LEFTRELEASE || c == K_RIGHTRELEASE)
-		    ignore_drag_release = TRUE;
-		else
-		    ignore_drag_release = FALSE;
-# ifdef FEAT_GUI
-		/* When GUI is active, also move when 'mouse' is empty */
-		if (!gui.in_use)
-# endif
-		    if (!mouse_has(MOUSE_COMMAND))
-			goto cmdline_not_changed;   /* Ignore mouse */
-# ifdef FEAT_CLIPBOARD
-		if (mouse_row < cmdline_row && clip_star.available)
-		{
-		    int	    button, is_click, is_drag;
-
-		    /*
-		     * Handle modeless selection.
-		     */
-		    button = get_mouse_button(KEY2TERMCAP1(c),
-							 &is_click, &is_drag);
-		    if (mouse_model_popup() && button == MOUSE_LEFT
-					       && (mod_mask & MOD_MASK_SHIFT))
-		    {
-			/* Translate shift-left to right button. */
-			button = MOUSE_RIGHT;
-			mod_mask &= ~MOD_MASK_SHIFT;
-		    }
-		    clip_modeless(button, is_click, is_drag);
-		    goto cmdline_not_changed;
-		}
-# endif
-
-		set_cmdspos();
-		for (ccline.cmdpos = 0; ccline.cmdpos < ccline.cmdlen;
-							      ++ccline.cmdpos)
-		{
-		    i = cmdline_charsize(ccline.cmdpos);
-		    if (mouse_row <= cmdline_row + ccline.cmdspos / Columns
-				  && mouse_col < ccline.cmdspos % Columns + i)
-			break;
-		    if (has_mbyte)
-		    {
-			/* Count ">" for double-wide char that doesn't fit. */
-			correct_cmdspos(ccline.cmdpos, i);
-			ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff
-							 + ccline.cmdpos) - 1;
-		    }
-		    ccline.cmdspos += i;
-		}
-		goto cmdline_not_changed;
-
-	/* Mouse scroll wheel: ignored here */
-	case K_MOUSEDOWN:
-	case K_MOUSEUP:
-	case K_MOUSELEFT:
-	case K_MOUSERIGHT:
-	/* Alternate buttons ignored here */
-	case K_X1MOUSE:
-	case K_X1DRAG:
-	case K_X1RELEASE:
-	case K_X2MOUSE:
-	case K_X2DRAG:
-	case K_X2RELEASE:
-	case K_MOUSEMOVE:
-		goto cmdline_not_changed;
-
-#endif	/* FEAT_MOUSE */
-
 #ifdef FEAT_GUI
 	case K_LEFTMOUSE_NM:	/* mousefocus click, ignored */
 	case K_LEFTRELEASE_NM:
@@ -2152,9 +2043,6 @@ getcmdline_int(
 
 	case Ctrl_V:
 	case Ctrl_Q:
-#ifdef FEAT_MOUSE
-		ignore_drag_release = TRUE;
-#endif
 		putcmdline('^', TRUE);
 		c = get_literal();	    /* get next (two) character(s) */
 		do_abbr = FALSE;	    /* don't do abbreviation now */
@@ -2170,9 +2058,6 @@ getcmdline_int(
 
 #ifdef FEAT_DIGRAPHS
 	case Ctrl_K:
-#ifdef FEAT_MOUSE
-		ignore_drag_release = TRUE;
-#endif
 		putcmdline('?', TRUE);
 		c = get_digraph(TRUE);
 		extra_char = NUL;
@@ -2341,9 +2226,6 @@ returncmd:
     if (b_im_ptr != NULL && *b_im_ptr != B_IMODE_LMAP)
 	im_save_status(b_im_ptr);
     im_set_active(FALSE);
-#endif
-#ifdef FEAT_MOUSE
-    setmouse();
 #endif
     sb_text_end_cmdline();
 
