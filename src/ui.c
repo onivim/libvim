@@ -1007,32 +1007,7 @@ static void clip_update_modeless_selection(VimClipboard *, int, int,
     void
 clip_modeless(int button, int is_click, int is_drag)
 {
-    int		repeat;
-
-    repeat = ((clip_star.mode == SELECT_MODE_CHAR
-		|| clip_star.mode == SELECT_MODE_LINE)
-					      && (mod_mask & MOD_MASK_2CLICK))
-	    || (clip_star.mode == SELECT_MODE_WORD
-					     && (mod_mask & MOD_MASK_3CLICK));
-    if (is_click && button == MOUSE_RIGHT)
-    {
-	/* Right mouse button: If there was no selection, start one.
-	 * Otherwise extend the existing selection. */
-	if (clip_star.state == SELECT_CLEARED)
-	    clip_start_selection(mouse_col, mouse_row, FALSE);
-	clip_process_selection(button, mouse_col, mouse_row, repeat);
-    }
-    else if (is_click)
-	clip_start_selection(mouse_col, mouse_row, repeat);
-    else if (is_drag)
-    {
-	/* Don't try extending a selection if there isn't one.  Happens when
-	 * button-down is in the cmdline and them moving mouse upwards. */
-	if (clip_star.state != SELECT_CLEARED)
-	    clip_process_selection(button, mouse_col, mouse_row, repeat);
-    }
-    else /* release */
-	clip_process_selection(MOUSE_RELEASE, mouse_col, mouse_row, FALSE);
+    /* libvim: NOOP */
 }
 
 /*
@@ -1134,39 +1109,6 @@ clip_process_selection(
     int			diff;
     int			slen = 1;	/* cursor shape width */
 
-    if (button == MOUSE_RELEASE)
-    {
-	/* Check to make sure we have something selected */
-	if (cb->start.lnum == cb->end.lnum && cb->start.col == cb->end.col)
-	{
-#ifdef FEAT_GUI
-	    if (gui.in_use)
-		gui_update_cursor(FALSE, FALSE);
-#endif
-	    cb->state = SELECT_CLEARED;
-	    return;
-	}
-
-#ifdef DEBUG_SELECTION
-	printf("Selection ended: (%u,%u) to (%u,%u)\n", cb->start.lnum,
-		cb->start.col, cb->end.lnum, cb->end.col);
-#endif
-	if (clip_isautosel_star()
-		|| (
-#ifdef FEAT_GUI
-		    gui.in_use ? (vim_strchr(p_go, GO_ASELML) != NULL) :
-#endif
-		    clip_autoselectml))
-	    clip_copy_modeless_selection(FALSE);
-#ifdef FEAT_GUI
-	if (gui.in_use)
-	    gui_update_cursor(FALSE, FALSE);
-#endif
-
-	cb->state = SELECT_DONE;
-	return;
-    }
-
     row = check_row(row);
     col = check_col(col);
     col = mb_fix_col(col, row);
@@ -1178,36 +1120,6 @@ clip_process_selection(
      * When extending the selection with the right mouse button, swap the
      * start and end if the position is before half the selection
      */
-    if (cb->state == SELECT_DONE && button == MOUSE_RIGHT)
-    {
-	/*
-	 * If the click is before the start, or the click is inside the
-	 * selection and the start is the closest side, set the origin to the
-	 * end of the selection.
-	 */
-	if (clip_compare_pos(row, col, (int)cb->start.lnum, cb->start.col) < 0
-		|| (clip_compare_pos(row, col,
-					   (int)cb->end.lnum, cb->end.col) < 0
-		    && (((cb->start.lnum == cb->end.lnum
-			    && cb->end.col - col > col - cb->start.col))
-			|| ((diff = (cb->end.lnum - row) -
-						   (row - cb->start.lnum)) > 0
-			    || (diff == 0 && col < (int)(cb->start.col +
-							 cb->end.col) / 2)))))
-	{
-	    cb->origin_row = (short_u)cb->end.lnum;
-	    cb->origin_start_col = cb->end.col - 1;
-	    cb->origin_end_col = cb->end.col;
-	}
-	else
-	{
-	    cb->origin_row = (short_u)cb->start.lnum;
-	    cb->origin_start_col = cb->start.col;
-	    cb->origin_end_col = cb->start.col;
-	}
-	if (cb->mode == SELECT_MODE_WORD && !repeated_click)
-	    cb->mode = SELECT_MODE_CHAR;
-    }
 
     /* set state, for when using the right mouse button */
     cb->state = SELECT_IN_PROGRESS;

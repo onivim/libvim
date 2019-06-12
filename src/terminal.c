@@ -1082,17 +1082,9 @@ write_to_term(buf_T *buffer, char_u *msg, channel_T *channel)
     static int
 term_send_mouse(VTerm *vterm, int button, int pressed)
 {
-    VTermModifier   mod = VTERM_MOD_NONE;
-
-    vterm_mouse_move(vterm, mouse_row - W_WINROW(curwin),
-					    mouse_col - curwin->w_wincol, mod);
-    if (button != 0)
-	vterm_mouse_button(vterm, button, pressed, mod);
+    /* libvim - noop */
     return TRUE;
 }
-
-static int enter_mouse_col = -1;
-static int enter_mouse_row = -1;
 
 /*
  * Handle a mouse click, drag or release.
@@ -1101,92 +1093,7 @@ static int enter_mouse_row = -1;
     static int
 term_mouse_click(VTerm *vterm, int key)
 {
-#if defined(FEAT_CLIPBOARD)
-    /* For modeless selection mouse drag and release events are ignored, unless
-     * they are preceded with a mouse down event */
-    static int	    ignore_drag_release = TRUE;
-    VTermMouseState mouse_state;
-
-    vterm_state_get_mousestate(vterm_obtain_state(vterm), &mouse_state);
-    if (mouse_state.flags == 0)
-    {
-	/* Terminal is not using the mouse, use modeless selection. */
-	switch (key)
-	{
-	case K_LEFTDRAG:
-	case K_LEFTRELEASE:
-	case K_RIGHTDRAG:
-	case K_RIGHTRELEASE:
-		/* Ignore drag and release events when the button-down wasn't
-		 * seen before. */
-		if (ignore_drag_release)
-		{
-		    int save_mouse_col, save_mouse_row;
-
-		    if (enter_mouse_col < 0)
-			break;
-
-		    /* mouse click in the window gave us focus, handle that
-		     * click now */
-		    save_mouse_col = mouse_col;
-		    save_mouse_row = mouse_row;
-		    mouse_col = enter_mouse_col;
-		    mouse_row = enter_mouse_row;
-		    clip_modeless(MOUSE_LEFT, TRUE, FALSE);
-		    mouse_col = save_mouse_col;
-		    mouse_row = save_mouse_row;
-		}
-		/* FALLTHROUGH */
-	case K_LEFTMOUSE:
-	case K_RIGHTMOUSE:
-		if (key == K_LEFTRELEASE || key == K_RIGHTRELEASE)
-		    ignore_drag_release = TRUE;
-		else
-		    ignore_drag_release = FALSE;
-		/* Should we call mouse_has() here? */
-		if (clip_star.available)
-		{
-		    int	    button, is_click, is_drag;
-
-		    button = get_mouse_button(KEY2TERMCAP1(key),
-							 &is_click, &is_drag);
-		    if (mouse_model_popup() && button == MOUSE_LEFT
-					       && (mod_mask & MOD_MASK_SHIFT))
-		    {
-			/* Translate shift-left to right button. */
-			button = MOUSE_RIGHT;
-			mod_mask &= ~MOD_MASK_SHIFT;
-		    }
-		    clip_modeless(button, is_click, is_drag);
-		}
-		break;
-
-	case K_MIDDLEMOUSE:
-		if (clip_star.available)
-		    insert_reg('*', TRUE);
-		break;
-	}
-	enter_mouse_col = -1;
-	return FALSE;
-    }
-#endif
-    enter_mouse_col = -1;
-
-    switch (key)
-    {
-	case K_LEFTMOUSE:
-	case K_LEFTMOUSE_NM:	term_send_mouse(vterm, 1, 1); break;
-	case K_LEFTDRAG:	term_send_mouse(vterm, 1, 1); break;
-	case K_LEFTRELEASE:
-	case K_LEFTRELEASE_NM:	term_send_mouse(vterm, 1, 0); break;
-	case K_MOUSEMOVE:	term_send_mouse(vterm, 0, 0); break;
-	case K_MIDDLEMOUSE:	term_send_mouse(vterm, 2, 1); break;
-	case K_MIDDLEDRAG:	term_send_mouse(vterm, 2, 1); break;
-	case K_MIDDLERELEASE:	term_send_mouse(vterm, 2, 0); break;
-	case K_RIGHTMOUSE:	term_send_mouse(vterm, 3, 1); break;
-	case K_RIGHTDRAG:	term_send_mouse(vterm, 3, 1); break;
-	case K_RIGHTRELEASE:	term_send_mouse(vterm, 3, 0); break;
-    }
+    /* libvim - noop */
     return TRUE;
 }
 
@@ -1279,34 +1186,6 @@ term_convert_key(term_T *term, int c, char *buf)
 	case K_S_TAB:		mod = VTERM_MOD_SHIFT;
 				key = VTERM_KEY_TAB; break;
 
-	case K_MOUSEUP:		other = term_send_mouse(vterm, 5, 1); break;
-	case K_MOUSEDOWN:	other = term_send_mouse(vterm, 4, 1); break;
-	case K_MOUSELEFT:	/* TODO */ return 0;
-	case K_MOUSERIGHT:	/* TODO */ return 0;
-
-	case K_LEFTMOUSE:
-	case K_LEFTMOUSE_NM:
-	case K_LEFTDRAG:
-	case K_LEFTRELEASE:
-	case K_LEFTRELEASE_NM:
-	case K_MOUSEMOVE:
-	case K_MIDDLEMOUSE:
-	case K_MIDDLEDRAG:
-	case K_MIDDLERELEASE:
-	case K_RIGHTMOUSE:
-	case K_RIGHTDRAG:
-	case K_RIGHTRELEASE:	if (!term_mouse_click(vterm, c))
-				    return 0;
-				other = TRUE;
-				break;
-
-	case K_X1MOUSE:		/* TODO */ return 0;
-	case K_X1DRAG:		/* TODO */ return 0;
-	case K_X1RELEASE:	/* TODO */ return 0;
-	case K_X2MOUSE:		/* TODO */ return 0;
-	case K_X2DRAG:		/* TODO */ return 0;
-	case K_X2RELEASE:	/* TODO */ return 0;
-
 	case K_IGNORE:		return 0;
 	case K_NOP:		return 0;
 	case K_UNDO:		return 0;
@@ -1319,9 +1198,6 @@ term_convert_key(term_T *term, int c, char *buf)
 #ifdef FEAT_GUI
 	case K_VER_SCROLLBAR:	return 0;
 	case K_HOR_SCROLLBAR:	return 0;
-#endif
-#ifdef FEAT_NETBEANS_INTG
-	case K_F21:		key = VTERM_KEY_FUNCTION(21); break;
 #endif
 	case K_CURSORHOLD:	return 0;
 	case K_PS:		vterm_keyboard_start_paste(vterm);
@@ -1874,8 +1750,6 @@ term_vgetc()
     return c;
 }
 
-static int	mouse_was_outside = FALSE;
-
 /*
  * Send keys to terminal.
  * Return FAIL when the key needs to be handled in Normal mode.
@@ -1905,49 +1779,7 @@ send_keys_to_term(term_T *term, int c, int typed)
 	case K_CANCEL:  // used for :normal when running out of chars
 	    return FAIL;
 
-	case K_LEFTDRAG:
-	case K_MIDDLEDRAG:
-	case K_RIGHTDRAG:
-	case K_X1DRAG:
-	case K_X2DRAG:
-	    dragging_outside = mouse_was_outside;
-	    /* FALLTHROUGH */
-	case K_LEFTMOUSE:
-	case K_LEFTMOUSE_NM:
-	case K_LEFTRELEASE:
-	case K_LEFTRELEASE_NM:
-	case K_MOUSEMOVE:
-	case K_MIDDLEMOUSE:
-	case K_MIDDLERELEASE:
-	case K_RIGHTMOUSE:
-	case K_RIGHTRELEASE:
-	case K_X1MOUSE:
-	case K_X1RELEASE:
-	case K_X2MOUSE:
-	case K_X2RELEASE:
-
-	case K_MOUSEUP:
-	case K_MOUSEDOWN:
-	case K_MOUSELEFT:
-	case K_MOUSERIGHT:
-	    if (mouse_row < W_WINROW(curwin)
-		    || mouse_row >= (W_WINROW(curwin) + curwin->w_height)
-		    || mouse_col < curwin->w_wincol
-		    || mouse_col >= W_ENDCOL(curwin)
-		    || dragging_outside)
-	    {
-		/* click or scroll outside the current window or on status line
-		 * or vertical separator */
-		if (typed)
-		{
-		    stuffcharReadbuff(c);
-		    mouse_was_outside = TRUE;
-		}
-		return FAIL;
-	    }
     }
-    if (typed)
-	mouse_was_outside = FALSE;
 
     /* Convert the typed key to a sequence of bytes for the job. */
     len = term_convert_key(term, c, msg);
@@ -2133,9 +1965,6 @@ term_win_entered()
 	    if (State & INSERT)
 		stop_insert_mode = TRUE;
 	}
-	mouse_was_outside = FALSE;
-	enter_mouse_col = mouse_col;
-	enter_mouse_row = mouse_row;
     }
 }
 
