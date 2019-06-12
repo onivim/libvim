@@ -86,6 +86,28 @@ MU_TEST(insert_end) {
   mu_check(strcmp(line, "This is the first line of a test fileabc") == 0);
 }
 
+MU_TEST(insert_changed_ticks) {
+  buf_T *buf = vimBufferOpen("collateral/curswant.txt", 1, 0);
+
+  int initialVersion = vimBufferGetLastChangedTick(buf);
+  int newVersion;
+  vimInput("i");
+  newVersion = vimBufferGetLastChangedTick(buf);
+  mu_check(newVersion == initialVersion);
+
+  vimInput("a");
+  newVersion = vimBufferGetLastChangedTick(buf);
+  mu_check(newVersion == initialVersion + 1);
+
+  vimInput("b");
+  newVersion = vimBufferGetLastChangedTick(buf);
+  mu_check(newVersion == initialVersion + 2);
+
+  vimInput("c");
+  newVersion = vimBufferGetLastChangedTick(buf);
+  mu_check(newVersion == initialVersion + 3);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -95,6 +117,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(insert_beginning);
   MU_RUN_TEST(insert_cr);
   MU_RUN_TEST(insert_end);
+  MU_RUN_TEST(insert_changed_ticks);
 }
 
 int main(int argc, char **argv) {
