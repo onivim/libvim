@@ -22,10 +22,18 @@ MU_TEST(buflist_get_id) {
   mu_check(vimBufferGetById(currentId) == current);
 }
 
+MU_TEST(buffer_load) {
+  buf_T *buf = vimBufferOpen("collateral/curswant.txt", 1, 0);
+  long lines = vimBufferGetLineCount(buf);
+
+  mu_check(lines == 4);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(buflist_get_id);
+  MU_RUN_TEST(buffer_load);
 }
 
 int main(int argc, char **argv) {
