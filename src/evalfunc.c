@@ -5052,14 +5052,6 @@ f_getcmdwintype(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = NULL;
-#ifdef FEAT_CMDWIN
-    rettv->vval.v_string = alloc(2);
-    if (rettv->vval.v_string != NULL)
-    {
-	rettv->vval.v_string[0] = cmdwin_type;
-	rettv->vval.v_string[1] = NUL;
-    }
-#endif
 }
 
 #if defined(FEAT_CMDL_COMPL)
@@ -6535,9 +6527,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef STARTUPTIME
 	"startuptime",
 #endif
-#ifdef FEAT_STL_OPT
-	"statusline",
-#endif
 #ifdef FEAT_NETBEANS_INTG
 	"netbeans_intg",
 #endif
@@ -6573,9 +6562,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TIMERS
 	"timers",
-#endif
-#ifdef FEAT_TITLE
-	"title",
 #endif
 #ifdef FEAT_TOOLBAR
 	"toolbar",

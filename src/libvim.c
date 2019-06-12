@@ -133,7 +133,85 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos) {
 
 pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
 
-char_u *vimSearchGetPattern() { return get_search_pat(); }
+typedef struct shlNode_elem shlNode_T;
+struct shlNode_elem {
+  searchHighlight_T highlight;
+  shlNode_T *next;
+};
+
+void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
+                            int *num_highlights,
+                            searchHighlight_T **highlights) {
+
+  int v = 1;
+  int count = 0;
+
+  pos_T lastPos;
+  pos_T startPos;
+  pos_T endPos;
+
+  startPos.lnum = start_lnum;
+  startPos.col = 0;
+  lastPos = startPos;
+
+  char_u *pattern = get_search_pat();
+
+  if (pattern == NULL) {
+    *num_highlights = 0;
+    *highlights = NULL;
+    return;
+  }
+
+  shlNode_T *head = ALLOC_CLEAR_ONE(shlNode_T);
+  shlNode_T *cur = head;
+
+  while (v == 1) {
+    v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1,
+                 SEARCH_KEEP, RE_SEARCH, end_lnum, NULL, NULL);
+
+    if (v == 0) {
+      break;
+    }
+
+    if (startPos.lnum < lastPos.lnum ||
+        (startPos.lnum == lastPos.lnum && startPos.col <= lastPos.col)) {
+      break;
+    }
+
+    shlNode_T *new = ALLOC_CLEAR_ONE(shlNode_T);
+    cur->next = new;
+    cur = new;
+
+    cur->highlight.start.lnum = startPos.lnum;
+    cur->highlight.start.col = startPos.col;
+    cur->highlight.end.lnum = endPos.lnum;
+    cur->highlight.end.col = endPos.col;
+
+    lastPos = startPos;
+    startPos = endPos;
+    startPos.col = startPos.col + 1;
+    count++;
+  }
+
+  searchHighlight_T *ret = alloc(sizeof(searchHighlight_T) * count);
+
+  cur = head->next;
+  vim_free(head);
+
+  int i = 0;
+  while (cur != NULL) {
+    ret[i] = cur->highlight;
+    shlNode_T *prev = cur;
+    vim_free(prev);
+    cur = cur->next;
+    i++;
+  }
+
+  *num_highlights = i;
+  *highlights = ret;
+}
+
+char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 

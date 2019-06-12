@@ -8081,8 +8081,7 @@ report_re_switch(char_u *pat)
 }
 #endif
 
-#if (defined(FEAT_X11) && (defined(FEAT_TITLE) || defined(FEAT_XCLIPBOARD))) \
-	|| defined(PROTO)
+#if defined(FEAT_XCLIPBOARD)
 /*
  * Return whether "prog" is currently being executed.
  */

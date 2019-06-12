@@ -539,11 +539,6 @@ static char *(features[]) =
 #else
 	"-timers",
 #endif
-#ifdef FEAT_TITLE
-	"+title",
-#else
-	"-title",
-#endif
 #ifdef FEAT_TOOLBAR
 	"+toolbar",
 #else

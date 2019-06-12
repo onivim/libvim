@@ -2612,10 +2612,6 @@ vgetorpeek(int advance)
 
 		if (ex_normal_busy > 0)
 		{
-#ifdef FEAT_CMDWIN
-		    static int tc = 0;
-#endif
-
 		    /* No typeahead left and inside ":normal".  Must return
 		     * something to avoid getting stuck.  When an incomplete
 		     * mapping is present, behave like it timed out. */
@@ -2637,16 +2633,10 @@ vgetorpeek(int advance)
 			c = K_CANCEL;
 #endif
 		    else if ((State & CMDLINE)
-#ifdef FEAT_CMDWIN
-			    || (cmdwin_type > 0 && tc == ESC)
-#endif
 			    )
 			c = Ctrl_C;
 		    else
 			c = ESC;
-#ifdef FEAT_CMDWIN
-		    tc = c;
-#endif
 		    break;
 		}
 
@@ -5211,7 +5201,7 @@ init_mappings(void)
 #endif
 }
 
-#if defined(MSWIN) || defined(FEAT_CMDWIN) || defined(MACOS_X) \
+#if defined(MSWIN) || defined(MACOS_X) \
 							     || defined(PROTO)
 /*
  * Add a mapping "map" for mode "mode".

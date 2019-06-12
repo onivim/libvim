@@ -632,15 +632,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     /* FALLTHROUGH */
 
   case Ctrl_C: /* End input mode */
-#ifdef FEAT_CMDWIN
-    if (c == Ctrl_C && cmdwin_type != 0) {
-      /* Close the cmdline window. */
-      cmdwin_result = K_IGNORE;
-      got_int = FALSE; /* don't stop executing autocommands et al. */
-      context->nomove = TRUE;
-      goto doESCkey;
-    }
-#endif
 #ifdef FEAT_JOB_CHANNEL
     if (c == Ctrl_C && bt_prompt(curbuf)) {
       if (invoke_prompt_interrupt()) {
@@ -931,13 +922,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
       else /* location list window */
         do_cmdline_cmd((char_u *)".ll");
       break;
-    }
-#endif
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0) {
-      /* Execute the command in the cmdline window. */
-      cmdwin_result = CAR;
-      goto doESCkey;
     }
 #endif
 #ifdef FEAT_JOB_CHANNEL
@@ -1691,15 +1675,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       /* FALLTHROUGH */
 
     case Ctrl_C: /* End input mode */
-#ifdef FEAT_CMDWIN
-      if (c == Ctrl_C && cmdwin_type != 0) {
-        /* Close the cmdline window. */
-        cmdwin_result = K_IGNORE;
-        got_int = FALSE; /* don't stop executing autocommands et al. */
-        nomove = TRUE;
-        goto doESCkey;
-      }
-#endif
 #ifdef FEAT_JOB_CHANNEL
       if (c == Ctrl_C && bt_prompt(curbuf)) {
         if (invoke_prompt_interrupt()) {
@@ -2022,13 +1997,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
         else /* location list window */
           do_cmdline_cmd((char_u *)".ll");
         break;
-      }
-#endif
-#ifdef FEAT_CMDWIN
-      if (cmdwin_type != 0) {
-        /* Execute the command in the cmdline window. */
-        cmdwin_result = CAR;
-        goto doESCkey;
       }
 #endif
 #ifdef FEAT_JOB_CHANNEL
@@ -3725,10 +3693,6 @@ int comp_textwidth(int ff) /* force formatting (for "gq" command) */
     /* The width is the window width minus 'wrapmargin' minus all the
      * things that add to the margin. */
     textwidth = curwin->w_width - curbuf->b_p_wm;
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-      textwidth -= 1;
-#endif
 #ifdef FEAT_FOLDING
     textwidth -= curwin->w_p_fdc;
 #endif

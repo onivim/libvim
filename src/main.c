@@ -1072,9 +1072,6 @@ main_loop(
 
     clear_oparg(&oa);
     while (!cmdwin
-#ifdef FEAT_CMDWIN
-	    || cmdwin_result == 0
-#endif
 	    )
     {
 	if (stuff_empty())
@@ -1256,10 +1253,6 @@ main_loop(
 	    else if (redraw_cmdline || clear_cmdline)
 		showmode();
 	    redraw_statuslines();
-#ifdef FEAT_TITLE
-	    if (need_maketitle)
-		maketitle();
-#endif
 #ifdef FEAT_VIMINFO
 	    curbuf->b_last_used = vim_time();
 #endif

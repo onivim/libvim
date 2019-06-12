@@ -93,20 +93,10 @@ static void clip_update(void);
 static void xterm_update(void);
 # endif
 
-# if defined(FEAT_XCLIPBOARD) || defined(FEAT_TITLE)
+# if defined(FEAT_XCLIPBOARD)
 Window	    x11_window = 0;
 # endif
 Display	    *x11_display = NULL;
-#endif
-
-#ifdef FEAT_TITLE
-static int get_x11_title(int);
-
-static char_u	*oldtitle = NULL;
-static volatile sig_atomic_t oldtitle_outdated = FALSE;
-static int	did_set_title = FALSE;
-static char_u	*oldicon = NULL;
-static int	did_set_icon = FALSE;
 #endif
 
 static void may_core_dump(void);
@@ -135,13 +125,6 @@ static RETSIGTYPE catch_sigint SIGPROTOARG;
 #endif
 #if defined(SIGPWR)
 static RETSIGTYPE catch_sigpwr SIGPROTOARG;
-#endif
-#if defined(SIGALRM) && defined(FEAT_X11) \
-	&& defined(FEAT_TITLE) && !defined(FEAT_GUI_GTK)
-# define SET_SIG_ALARM
-static RETSIGTYPE sig_alarm SIGPROTOARG;
-/* volatile because it is used in signal handler sig_alarm(). */
-static volatile sig_atomic_t sig_alarm_called;
 #endif
 static RETSIGTYPE deathtrap SIGPROTOARG;
 
@@ -1073,11 +1056,6 @@ deathtrap SIGDEFARG(sigarg)
     static void
 after_sigcont(void)
 {
-# ifdef FEAT_TITLE
-    // Don't change "oldtitle" in a signal handler, set a flag to obtain it
-    // again later.
-    oldtitle_outdated = TRUE;
-# endif
     settmode(TMODE_RAW);
     need_check_timestamps = TRUE;
     did_check_timestamps = FALSE;
@@ -1477,7 +1455,7 @@ mch_input_isatty(void)
 #ifdef FEAT_X11
 
 # if defined(ELAPSED_TIMEVAL) \
-	&& (defined(FEAT_XCLIPBOARD) || defined(FEAT_TITLE))
+	&& (defined(FEAT_XCLIPBOARD))
 
 /*
  * Give a message about the elapsed time for opening the X window.
@@ -1490,7 +1468,7 @@ xopen_message(long elapsed_msec)
 # endif
 #endif
 
-#if defined(FEAT_X11) && (defined(FEAT_TITLE) || defined(FEAT_XCLIPBOARD))
+#if defined(FEAT_XCLIPBOARD)
 /*
  * A few functions shared by X11 title and clipboard code.
  */
@@ -1613,7 +1591,6 @@ may_restore_clipboard(void)
 # endif
 
 	setup_term_clip();
-	get_x11_title(FALSE);
     }
 }
 
@@ -1663,544 +1640,6 @@ test_x11_window(Display *dpy)
     return (got_x_error ? FAIL : OK);
 }
 #endif
-
-#ifdef FEAT_TITLE
-
-#ifdef FEAT_X11
-
-static int get_x11_thing(int get_title, int test_only);
-
-/*
- * try to get x11 window and display
- *
- * return FAIL for failure, OK otherwise
- */
-    static int
-get_x11_windis(void)
-{
-    char	    *winid;
-    static int	    result = -1;
-#define XD_NONE	 0	/* x11_display not set here */
-#define XD_HERE	 1	/* x11_display opened here */
-#define XD_GUI	 2	/* x11_display used from gui.dpy */
-#define XD_XTERM 3	/* x11_display used from xterm_dpy */
-    static int	    x11_display_from = XD_NONE;
-    static int	    did_set_error_handler = FALSE;
-
-    if (!did_set_error_handler)
-    {
-	/* X just exits if it finds an error otherwise! */
-	(void)XSetErrorHandler(x_error_handler);
-	did_set_error_handler = TRUE;
-    }
-
-#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK)
-    if (gui.in_use)
-    {
-	/*
-	 * If the X11 display was opened here before, for the window where Vim
-	 * was started, close that one now to avoid a memory leak.
-	 */
-	if (x11_display_from == XD_HERE && x11_display != NULL)
-	{
-	    XCloseDisplay(x11_display);
-	    x11_display_from = XD_NONE;
-	}
-	if (gui_get_x11_windis(&x11_window, &x11_display) == OK)
-	{
-	    x11_display_from = XD_GUI;
-	    return OK;
-	}
-	x11_display = NULL;
-	return FAIL;
-    }
-    else if (x11_display_from == XD_GUI)
-    {
-	/* GUI must have stopped somehow, clear x11_display */
-	x11_window = 0;
-	x11_display = NULL;
-	x11_display_from = XD_NONE;
-    }
-#endif
-
-    /* When started with the "-X" argument, don't try connecting. */
-    if (!x_connect_to_server())
-	return FAIL;
-
-    /*
-     * If WINDOWID not set, should try another method to find out
-     * what the current window number is. The only code I know for
-     * this is very complicated.
-     * We assume that zero is invalid for WINDOWID.
-     */
-    if (x11_window == 0 && (winid = getenv("WINDOWID")) != NULL)
-	x11_window = (Window)atol(winid);
-
-#ifdef FEAT_XCLIPBOARD
-    if (xterm_dpy == x11_display)
-	// x11_display may have been set to xterm_dpy elsewhere
-	x11_display_from = XD_XTERM;
-
-    if (xterm_dpy != NULL && x11_window != 0)
-    {
-	/* We may have checked it already, but Gnome terminal can move us to
-	 * another window, so we need to check every time. */
-	if (x11_display_from != XD_XTERM)
-	{
-	    /*
-	     * If the X11 display was opened here before, for the window where
-	     * Vim was started, close that one now to avoid a memory leak.
-	     */
-	    if (x11_display_from == XD_HERE && x11_display != NULL)
-		XCloseDisplay(x11_display);
-	    x11_display = xterm_dpy;
-	    x11_display_from = XD_XTERM;
-	}
-	if (test_x11_window(x11_display) == FAIL)
-	{
-	    /* probably bad $WINDOWID */
-	    x11_window = 0;
-	    x11_display = NULL;
-	    x11_display_from = XD_NONE;
-	    return FAIL;
-	}
-	return OK;
-    }
-#endif
-
-    if (x11_window == 0 || x11_display == NULL)
-	result = -1;
-
-    if (result != -1)	    /* Have already been here and set this */
-	return result;	    /* Don't do all these X calls again */
-
-    if (x11_window != 0 && x11_display == NULL)
-    {
-#ifdef SET_SIG_ALARM
-	RETSIGTYPE (*sig_save)();
-#endif
-#ifdef ELAPSED_FUNC
-	elapsed_T start_tv;
-
-	if (p_verbose > 0)
-	    ELAPSED_INIT(start_tv);
-#endif
-
-#ifdef SET_SIG_ALARM
-	/*
-	 * Opening the Display may hang if the DISPLAY setting is wrong, or
-	 * the network connection is bad.  Set an alarm timer to get out.
-	 */
-	sig_alarm_called = FALSE;
-	sig_save = (RETSIGTYPE (*)())signal(SIGALRM,
-						 (RETSIGTYPE (*)())sig_alarm);
-	alarm(2);
-#endif
-	x11_display = XOpenDisplay(NULL);
-
-#ifdef SET_SIG_ALARM
-	alarm(0);
-	signal(SIGALRM, (RETSIGTYPE (*)())sig_save);
-	if (p_verbose > 0 && sig_alarm_called)
-	    verb_msg(_("Opening the X display timed out"));
-#endif
-	if (x11_display != NULL)
-	{
-# ifdef ELAPSED_FUNC
-	    if (p_verbose > 0)
-	    {
-		verbose_enter();
-		xopen_message(ELAPSED_FUNC(start_tv));
-		verbose_leave();
-	    }
-# endif
-	    if (test_x11_window(x11_display) == FAIL)
-	    {
-		/* Maybe window id is bad */
-		x11_window = 0;
-		XCloseDisplay(x11_display);
-		x11_display = NULL;
-	    }
-	    else
-		x11_display_from = XD_HERE;
-	}
-    }
-    if (x11_window == 0 || x11_display == NULL)
-	return (result = FAIL);
-
-# ifdef FEAT_EVAL
-    set_vim_var_nr(VV_WINDOWID, (long)x11_window);
-# endif
-
-    return (result = OK);
-}
-
-/*
- * Determine original x11 Window Title
- */
-    static int
-get_x11_title(int test_only)
-{
-    return get_x11_thing(TRUE, test_only);
-}
-
-/*
- * Determine original x11 Window icon
- */
-    static int
-get_x11_icon(int test_only)
-{
-    int		retval = FALSE;
-
-    retval = get_x11_thing(FALSE, test_only);
-
-    /* could not get old icon, use terminal name */
-    if (oldicon == NULL && !test_only)
-    {
-	if (STRNCMP(T_NAME, "builtin_", 8) == 0)
-	    oldicon = vim_strsave(T_NAME + 8);
-	else
-	    oldicon = vim_strsave(T_NAME);
-    }
-
-    return retval;
-}
-
-    static int
-get_x11_thing(
-    int		get_title,	/* get title string */
-    int		test_only)
-{
-    XTextProperty	text_prop;
-    int			retval = FALSE;
-    Status		status;
-
-    if (get_x11_windis() == OK)
-    {
-	/* Get window/icon name if any */
-	if (get_title)
-	    status = XGetWMName(x11_display, x11_window, &text_prop);
-	else
-	    status = XGetWMIconName(x11_display, x11_window, &text_prop);
-
-	/*
-	 * If terminal is xterm, then x11_window may be a child window of the
-	 * outer xterm window that actually contains the window/icon name, so
-	 * keep traversing up the tree until a window with a title/icon is
-	 * found.
-	 */
-	/* Previously this was only done for xterm and alikes.  I don't see a
-	 * reason why it would fail for other terminal emulators.
-	 * if (term_is_xterm) */
-	{
-	    Window	    root;
-	    Window	    parent;
-	    Window	    win = x11_window;
-	    Window	   *children;
-	    unsigned int    num_children;
-
-	    while (!status || text_prop.value == NULL)
-	    {
-		if (!XQueryTree(x11_display, win, &root, &parent, &children,
-							       &num_children))
-		    break;
-		if (children)
-		    XFree((void *)children);
-		if (parent == root || parent == 0)
-		    break;
-
-		win = parent;
-		if (get_title)
-		    status = XGetWMName(x11_display, win, &text_prop);
-		else
-		    status = XGetWMIconName(x11_display, win, &text_prop);
-	    }
-	}
-	if (status && text_prop.value != NULL)
-	{
-	    retval = TRUE;
-	    if (!test_only)
-	    {
-		if (text_prop.encoding == XA_STRING && !has_mbyte)
-		{
-		    if (get_title)
-			oldtitle = vim_strsave((char_u *)text_prop.value);
-		    else
-			oldicon = vim_strsave((char_u *)text_prop.value);
-		}
-		else
-		{
-		    char    **cl;
-		    Status  transform_status;
-		    int	    n = 0;
-
-		    transform_status = XmbTextPropertyToTextList(x11_display,
-								 &text_prop,
-								 &cl, &n);
-		    if (transform_status >= Success && n > 0 && cl[0])
-		    {
-			if (get_title)
-			    oldtitle = vim_strsave((char_u *) cl[0]);
-			else
-			    oldicon = vim_strsave((char_u *) cl[0]);
-			XFreeStringList(cl);
-		    }
-		    else
-		    {
-			if (get_title)
-			    oldtitle = vim_strsave((char_u *)text_prop.value);
-			else
-			    oldicon = vim_strsave((char_u *)text_prop.value);
-		    }
-		}
-	    }
-	    XFree((void *)text_prop.value);
-	}
-    }
-    return retval;
-}
-
-/* Xutf8 functions are not available on older systems. Note that on some
- * systems X_HAVE_UTF8_STRING may be defined in a header file but
- * Xutf8SetWMProperties() is not in the X11 library.  Configure checks for
- * that and defines HAVE_XUTF8SETWMPROPERTIES. */
-#if defined(X_HAVE_UTF8_STRING)
-# if X_HAVE_UTF8_STRING && HAVE_XUTF8SETWMPROPERTIES
-#  define USE_UTF8_STRING
-# endif
-#endif
-
-/*
- * Set x11 Window Title
- *
- * get_x11_windis() must be called before this and have returned OK
- */
-    static void
-set_x11_title(char_u *title)
-{
-	/* XmbSetWMProperties() and Xutf8SetWMProperties() should use a STRING
-	 * when possible, COMPOUND_TEXT otherwise.  COMPOUND_TEXT isn't
-	 * supported everywhere and STRING doesn't work for multi-byte titles.
-	 */
-#ifdef USE_UTF8_STRING
-    if (enc_utf8)
-	Xutf8SetWMProperties(x11_display, x11_window, (const char *)title,
-					     NULL, NULL, 0, NULL, NULL, NULL);
-    else
-#endif
-    {
-#if XtSpecificationRelease >= 4
-# ifdef FEAT_XFONTSET
-	XmbSetWMProperties(x11_display, x11_window, (const char *)title,
-					     NULL, NULL, 0, NULL, NULL, NULL);
-# else
-	XTextProperty	text_prop;
-	char		*c_title = (char *)title;
-
-	/* directly from example 3-18 "basicwin" of Xlib Programming Manual */
-	(void)XStringListToTextProperty(&c_title, 1, &text_prop);
-	XSetWMProperties(x11_display, x11_window, &text_prop,
-					     NULL, NULL, 0, NULL, NULL, NULL);
-# endif
-#else
-	XStoreName(x11_display, x11_window, (char *)title);
-#endif
-    }
-    XFlush(x11_display);
-}
-
-/*
- * Set x11 Window icon
- *
- * get_x11_windis() must be called before this and have returned OK
- */
-    static void
-set_x11_icon(char_u *icon)
-{
-    /* See above for comments about using X*SetWMProperties(). */
-#ifdef USE_UTF8_STRING
-    if (enc_utf8)
-	Xutf8SetWMProperties(x11_display, x11_window, NULL, (const char *)icon,
-						   NULL, 0, NULL, NULL, NULL);
-    else
-#endif
-    {
-#if XtSpecificationRelease >= 4
-# ifdef FEAT_XFONTSET
-	XmbSetWMProperties(x11_display, x11_window, NULL, (const char *)icon,
-						   NULL, 0, NULL, NULL, NULL);
-# else
-	XTextProperty	text_prop;
-	char		*c_icon = (char *)icon;
-
-	(void)XStringListToTextProperty(&c_icon, 1, &text_prop);
-	XSetWMProperties(x11_display, x11_window, NULL, &text_prop,
-						   NULL, 0, NULL, NULL, NULL);
-# endif
-#else
-	XSetIconName(x11_display, x11_window, (char *)icon);
-#endif
-    }
-    XFlush(x11_display);
-}
-
-#else  /* FEAT_X11 */
-
-    static int
-get_x11_title(int test_only UNUSED)
-{
-    return FALSE;
-}
-
-    static int
-get_x11_icon(int test_only)
-{
-    if (!test_only)
-    {
-	if (STRNCMP(T_NAME, "builtin_", 8) == 0)
-	    oldicon = vim_strsave(T_NAME + 8);
-	else
-	    oldicon = vim_strsave(T_NAME);
-    }
-    return FALSE;
-}
-
-#endif /* FEAT_X11 */
-
-    int
-mch_can_restore_title(void)
-{
-    return get_x11_title(TRUE);
-}
-
-    int
-mch_can_restore_icon(void)
-{
-    return get_x11_icon(TRUE);
-}
-
-/*
- * Set the window title and icon.
- */
-    void
-mch_settitle(char_u *title, char_u *icon)
-{
-    int		type = 0;
-    static int	recursive = 0;
-
-    if (T_NAME == NULL)	    /* no terminal name (yet) */
-	return;
-    if (title == NULL && icon == NULL)	    /* nothing to do */
-	return;
-
-    /* When one of the X11 functions causes a deadly signal, we get here again
-     * recursively.  Avoid hanging then (something is probably locked). */
-    if (recursive)
-	return;
-    ++recursive;
-
-    /*
-     * if the window ID and the display is known, we may use X11 calls
-     */
-#ifdef FEAT_X11
-    if (get_x11_windis() == OK)
-	type = 1;
-#else
-# if defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_GTK)
-    if (gui.in_use)
-	type = 1;
-# endif
-#endif
-
-    /*
-     * Note: if "t_ts" is set, title is set with escape sequence rather
-     *	     than x11 calls, because the x11 calls don't always work
-     */
-    if ((type || *T_TS != NUL) && title != NULL)
-    {
-	if (oldtitle_outdated)
-	{
-	    oldtitle_outdated = FALSE;
-	    VIM_CLEAR(oldtitle);
-	}
-	if (oldtitle == NULL
-#ifdef FEAT_GUI
-		&& !gui.in_use
-#endif
-		)		/* first call but not in GUI, save title */
-	    (void)get_x11_title(FALSE);
-
-	if (*T_TS != NUL)		/* it's OK if t_fs is empty */
-	    term_settitle(title);
-#ifdef FEAT_X11
-	else
-# ifdef FEAT_GUI_GTK
-	if (!gui.in_use)		/* don't do this if GTK+ is running */
-# endif
-	    set_x11_title(title);		/* x11 */
-#endif
-#if defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC)
-	else
-	    gui_mch_settitle(title, icon);
-#endif
-	did_set_title = TRUE;
-    }
-
-    if ((type || *T_CIS != NUL) && icon != NULL)
-    {
-	if (oldicon == NULL
-#ifdef FEAT_GUI
-		&& !gui.in_use
-#endif
-		)		/* first call, save icon */
-	    get_x11_icon(FALSE);
-
-	if (*T_CIS != NUL)
-	{
-	    out_str(T_CIS);			/* set icon start */
-	    out_str_nf(icon);
-	    out_str(T_CIE);			/* set icon end */
-	    out_flush();
-	}
-#ifdef FEAT_X11
-	else
-# ifdef FEAT_GUI_GTK
-	if (!gui.in_use)		/* don't do this if GTK+ is running */
-# endif
-	    set_x11_icon(icon);			/* x11 */
-#endif
-	did_set_icon = TRUE;
-    }
-    --recursive;
-}
-
-/*
- * Restore the window/icon title.
- * "which" is one of:
- *  SAVE_RESTORE_TITLE only restore title
- *  SAVE_RESTORE_ICON  only restore icon
- *  SAVE_RESTORE_BOTH  restore title and icon
- */
-    void
-mch_restore_title(int which)
-{
-    int	do_push_pop = did_set_title || did_set_icon;
-
-    /* only restore the title or icon when it has been set */
-    mch_settitle(((which & SAVE_RESTORE_TITLE) && did_set_title) ?
-			(oldtitle ? oldtitle : p_titleold) : NULL,
-	       ((which & SAVE_RESTORE_ICON) && did_set_icon) ? oldicon : NULL);
-
-    if (do_push_pop)
-    {
-	// pop and push from/to the stack
-	term_pop_title(which);
-	term_push_title(which);
-    }
-}
-
-#endif /* FEAT_TITLE */
 
 /*
  * Return TRUE if "name" looks like some xterm name.
@@ -3122,10 +2561,6 @@ mch_free_mem(void)
 # if defined(HAVE_SIGALTSTACK) || defined(HAVE_SIGSTACK)
     VIM_CLEAR(signal_stack);
 # endif
-# ifdef FEAT_TITLE
-    vim_free(oldtitle);
-    vim_free(oldicon);
-# endif
 }
 #endif
 
@@ -3172,11 +2607,6 @@ mch_exit(int r)
 #endif
     {
 	settmode(TMODE_COOK);
-#ifdef FEAT_TITLE
-	// restore xterm title and icon name
-	mch_restore_title(SAVE_RESTORE_BOTH);
-	term_pop_title(SAVE_RESTORE_BOTH);
-#endif
 	/*
 	 * When t_ti is not empty but it doesn't cause swapping terminal
 	 * pages, need to output a newline when msg_didout is set.  But when
@@ -4011,9 +3441,6 @@ mch_call_shell_system(
 
     if (tmode == TMODE_RAW)
 	settmode(TMODE_RAW);	/* set to raw mode */
-# ifdef FEAT_TITLE
-    resettitle();
-# endif
 # if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
     restore_clipboard();
 # endif
@@ -4865,9 +4292,6 @@ error:
     if (!did_settmode)
 	if (tmode == TMODE_RAW)
 	    settmode(TMODE_RAW);	/* set to raw mode */
-# ifdef FEAT_TITLE
-    resettitle();
-# endif
     vim_free(argv);
     vim_free(tofree1);
     vim_free(tofree2);

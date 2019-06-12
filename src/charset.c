@@ -312,7 +312,7 @@ trans_characters(
     }
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_TITLE) || defined(FEAT_INS_EXPAND) \
+#if defined(FEAT_EVAL) || defined(FEAT_INS_EXPAND) \
 	|| defined(PROTO)
 /*
  * Translate a string into allocated memory, replacing special chars with

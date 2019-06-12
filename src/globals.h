@@ -206,9 +206,6 @@ EXTERN int	no_wait_return INIT(= 0);   /* don't wait for return for now */
 EXTERN int	need_wait_return INIT(= 0); /* need to wait for return later */
 EXTERN int	did_wait_return INIT(= FALSE);	/* wait_return() was used and
 						   nothing written since then */
-#ifdef FEAT_TITLE
-EXTERN int	need_maketitle INIT(= TRUE); /* call maketitle() soon */
-#endif
 
 EXTERN int	quit_more INIT(= FALSE);    /* 'q' hit at "--more--" msg */
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
@@ -372,18 +369,8 @@ EXTERN int	did_check_timestamps INIT(= FALSE); /* did check timestamps
 EXTERN int	no_check_timestamps INIT(= 0);	/* Don't check timestamps */
 
 EXTERN int	highlight_attr[HLF_COUNT];  /* Highl. attr for each context. */
-#ifdef FEAT_STL_OPT
-# define USER_HIGHLIGHT
-#endif
 #ifdef USER_HIGHLIGHT
 EXTERN int	highlight_user[9];		/* User[1-9] attributes */
-# ifdef FEAT_STL_OPT
-EXTERN int	highlight_stlnc[9];		/* On top of user */
-#  ifdef FEAT_TERMINAL
-EXTERN int	highlight_stlterm[9];		/* On top of user */
-EXTERN int	highlight_stltermnc[9];		/* On top of user */
-#  endif
-# endif
 #endif
 #ifdef FEAT_TERMINAL
 		// When TRUE skip calling terminal_loop() once.  Used when
@@ -575,9 +562,6 @@ EXTERN int	arg_had_last INIT(= FALSE); /* accessed last file in
 					       global_alist */
 
 EXTERN int	ru_col;		/* column for ruler */
-#ifdef FEAT_STL_OPT
-EXTERN int	ru_wid;		/* 'rulerfmt' width of ruler when non-zero */
-#endif
 EXTERN int	sc_col;		/* column for shown command */
 
 #ifdef TEMPDIRNAMES
@@ -1117,12 +1101,6 @@ EXTERN int	disable_fold_update INIT(= 0);
 EXTERN int	km_stopsel INIT(= FALSE);
 EXTERN int	km_startsel INIT(= FALSE);
 
-#ifdef FEAT_CMDWIN
-EXTERN int	cedit_key INIT(= -1);	/* key value of 'cedit' option */
-EXTERN int	cmdwin_type INIT(= 0);	/* type of cmdline window or 0 */
-EXTERN int	cmdwin_result INIT(= 0); /* result of cmdline window or 0 */
-#endif
-
 EXTERN char_u no_lines_msg[]	INIT(= N_("--No lines in buffer--"));
 
 /*
@@ -1135,13 +1113,6 @@ EXTERN linenr_T	sub_nlines;	/* total number of lines changed */
 
 /* table to store parsed 'wildmode' */
 EXTERN char_u	wim_flags[4];
-
-#if defined(FEAT_TITLE) && defined(FEAT_STL_OPT)
-/* whether titlestring and iconstring contains statusline syntax */
-# define STL_IN_ICON	1
-# define STL_IN_TITLE	2
-EXTERN int      stl_syntax INIT(= 0);
-#endif
 
 #ifdef FEAT_SEARCH_EXTRA
 /* don't use 'hlsearch' temporarily */
@@ -1250,9 +1221,6 @@ EXTERN int netbeansSuppressNoLines INIT(= 0); /* skip "No lines in buffer" */
 EXTERN char e_abort[]		INIT(= N_("E470: Command aborted"));
 EXTERN char e_argreq[]	INIT(= N_("E471: Argument required"));
 EXTERN char e_backslash[]	INIT(= N_("E10: \\ should be followed by /, ? or &"));
-#ifdef FEAT_CMDWIN
-EXTERN char e_cmdwin[]	INIT(= N_("E11: Invalid in command-line window; <CR> executes, CTRL-C quits"));
-#endif
 EXTERN char e_curdir[]	INIT(= N_("E12: Command not allowed from exrc/vimrc in current dir or tag search"));
 #ifdef FEAT_EVAL
 EXTERN char e_endif[]		INIT(= N_("E171: Missing :endif"));

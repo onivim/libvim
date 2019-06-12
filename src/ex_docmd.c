@@ -5689,13 +5689,6 @@ ex_quit(exarg_T *eap)
 {
     win_T	*wp;
 
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-    {
-	cmdwin_result = Ctrl_C;
-	return;
-    }
-#endif
     /* Don't quit while editing the command line. */
     if (text_locked())
     {
@@ -5775,17 +5768,6 @@ ex_cquit(exarg_T *eap UNUSED)
     static void
 ex_quit_all(exarg_T *eap)
 {
-# ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-    {
-	if (eap->forceit)
-	    cmdwin_result = K_XF1;	/* ex_window() takes care of this */
-	else
-	    cmdwin_result = K_XF2;
-	return;
-    }
-# endif
-
     /* Don't quit while editing the command line. */
     if (text_locked())
     {
@@ -5810,11 +5792,6 @@ ex_close(exarg_T *eap)
 {
     win_T	*win;
     int		winnr = 0;
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-	cmdwin_result = Ctrl_C;
-    else
-#endif
 	if (!text_locked() && !curbuf_locked())
 	{
 	    if (eap->addr_count == 0)
@@ -6009,11 +5986,6 @@ ex_tabclose(exarg_T *eap)
     tabpage_T	*tp;
     int		tab_number;
 
-# ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-	cmdwin_result = K_IGNORE;
-    else
-# endif
 	if (first_tabpage->tp_next == NULL)
 	    emsg(_("E784: Cannot close last tab page"));
 	else
@@ -6048,11 +6020,6 @@ ex_tabonly(exarg_T *eap)
     int		done;
     int		tab_number;
 
-# ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-	cmdwin_result = K_IGNORE;
-    else
-# endif
 	if (first_tabpage->tp_next == NULL)
 	    msg(_("Already only one tab page"));
 	else
@@ -6217,14 +6184,7 @@ ex_stop(exarg_T *eap)
 	out_flush();
 	stoptermcap();
 	out_flush();		/* needed for SUN to restore xterm buffer */
-#ifdef FEAT_TITLE
-	mch_restore_title(SAVE_RESTORE_BOTH);	/* restore window titles */
-#endif
 	ui_suspend();		/* call machine specific function */
-#ifdef FEAT_TITLE
-	maketitle();
-	resettitle();		/* force updating the title */
-#endif
 	starttermcap();
 	scroll_start();		/* scroll screen before redrawing */
 	redraw_later_clear();
@@ -6238,13 +6198,6 @@ ex_stop(exarg_T *eap)
     static void
 ex_exit(exarg_T *eap)
 {
-#ifdef FEAT_CMDWIN
-    if (cmdwin_type != 0)
-    {
-	cmdwin_result = Ctrl_C;
-	return;
-    }
-#endif
     /* Don't quit while editing the command line. */
     if (text_locked())
     {
@@ -7242,14 +7195,7 @@ do_exedit(
     {
 	if (eap->do_ecmd_cmd != NULL)
 	    do_cmdline_cmd(eap->do_ecmd_cmd);
-#ifdef FEAT_TITLE
-	n = curwin->w_arg_idx_invalid;
-#endif
 	check_arg_idx(curwin);
-#ifdef FEAT_TITLE
-	if (n != curwin->w_arg_idx_invalid)
-	    maketitle();
-#endif
     }
 
     /*
@@ -8276,10 +8222,6 @@ ex_redraw(exarg_T *eap)
     validate_cursor();
     update_topline();
     update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
-#ifdef FEAT_TITLE
-    if (need_maketitle)
-	maketitle();
-#endif
 #if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
 # ifdef VIMDLL
     if (!gui.in_use)
