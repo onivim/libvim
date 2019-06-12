@@ -112,7 +112,6 @@ MU_TEST(test_cmdline_substitution) {
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
 
-
   vimInput(":");
   vimInput("s");
   vimInput("!");
@@ -128,17 +127,17 @@ MU_TEST(test_cmdline_substitution) {
 }
 
 MU_TEST(test_cmdline_get_type) {
-    vimInput(":");
-    mu_check(vimCommandLineGetType() == ':');
-    vimInput("<esc>");
+  vimInput(":");
+  mu_check(vimCommandLineGetType() == ':');
+  vimInput("<esc>");
 
-    vimInput("/");
-    mu_check(vimCommandLineGetType() == '/');
-    vimInput("<esc>");
+  vimInput("/");
+  mu_check(vimCommandLineGetType() == '/');
+  vimInput("<esc>");
 
-    vimInput("?");
-    mu_check(vimCommandLineGetType() == '?');
-    vimInput("<esc>");
+  vimInput("?");
+  mu_check(vimCommandLineGetType() == '?');
+  vimInput("<esc>");
 }
 
 MU_TEST_SUITE(test_suite) {
@@ -151,6 +150,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);
   MU_RUN_TEST(test_cmdline_substitution);
+  MU_RUN_TEST(test_cmdline_get_type);
 }
 
 int main(int argc, char **argv) {
