@@ -193,9 +193,6 @@ update_topline(void)
     int		check_topline = FALSE;
     int		check_botline = FALSE;
     long        *so_ptr = curwin->w_p_so >= 0 ? &curwin->w_p_so : &p_so;
-#ifdef FEAT_MOUSE
-    int		save_so = *so_ptr;
-#endif
 
     /* If there is no valid screen and when the window height is zero just use
      * the cursor line. */
@@ -211,12 +208,6 @@ update_topline(void)
     check_cursor_moved(curwin);
     if (curwin->w_valid & VALID_TOPLINE)
 	return;
-
-#ifdef FEAT_MOUSE
-    /* When dragging with the mouse, don't scroll that quickly */
-    if (mouse_dragging > 0)
-	*so_ptr = mouse_dragging - 1;
-#endif
 
     old_topline = curwin->w_topline;
 #ifdef FEAT_DIFF
@@ -420,10 +411,6 @@ update_topline(void)
 	if (curwin->w_cursor.lnum == curwin->w_topline)
 	    validate_cursor();
     }
-
-#ifdef FEAT_MOUSE
-    *so_ptr = save_so;
-#endif
 }
 
 /*
@@ -1671,11 +1658,6 @@ scroll_cursor_top(int min_scroll, int always)
     linenr_T	new_topline;
     int		off = get_scrolloff_value();
 
-#ifdef FEAT_MOUSE
-    if (mouse_dragging > 0)
-	off = mouse_dragging - 1;
-#endif
-
     /*
      * Decrease topline until:
      * - it has become 1
@@ -1925,9 +1907,6 @@ scroll_cursor_bot(int min_scroll, int set_topbot)
 	 * context for 'scrolloff' and counted all lines below the window. */
 	if ((((scrolled <= 0 || scrolled >= min_scroll)
 			&& extra >= (
-#ifdef FEAT_MOUSE
-			    mouse_dragging > 0 ? mouse_dragging - 1 :
-#endif
 			    so))
 		    || boff.lnum + 1 > curbuf->b_ml.ml_line_count)
 		&& loff.lnum <= curwin->w_botline
@@ -1971,9 +1950,6 @@ scroll_cursor_bot(int min_scroll, int set_topbot)
 	    if (used > curwin->w_height)
 		break;
 	    if (extra < (
-#ifdef FEAT_MOUSE
-			mouse_dragging > 0 ? mouse_dragging - 1 :
-#endif
 			so) || scrolled < min_scroll)
 	    {
 		extra += boff.height;
@@ -2150,13 +2126,6 @@ cursor_correct(void)
      */
     above_wanted = so;
     below_wanted = so;
-#ifdef FEAT_MOUSE
-    if (mouse_dragging > 0)
-    {
-	above_wanted = mouse_dragging - 1;
-	below_wanted = mouse_dragging - 1;
-    }
-#endif
     if (curwin->w_topline == 1)
     {
 	above_wanted = 0;
@@ -2166,9 +2135,6 @@ cursor_correct(void)
     }
     validate_botline();
     if (curwin->w_botline == curbuf->b_ml.ml_line_count + 1
-#ifdef FEAT_MOUSE
-	    && mouse_dragging == 0
-#endif
 	    )
     {
 	below_wanted = 0;

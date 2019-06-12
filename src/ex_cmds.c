@@ -5316,9 +5316,6 @@ do_sub(exarg_T *eap)
 		     * properly */
 		    save_State = State;
 		    State = CONFIRM;
-#ifdef FEAT_MOUSE
-		    setmouse();		/* disable mouse in xterm */
-#endif
 		    curwin->w_cursor.col = regmatch.startpos[0].col;
 		    if (curwin->w_p_crb)
 			do_check_cursorbind();
@@ -5491,9 +5488,6 @@ do_sub(exarg_T *eap)
 #endif
 		    }
 		    State = save_State;
-#ifdef FEAT_MOUSE
-		    setmouse();
-#endif
 		    if (vim_strchr(p_cpo, CPO_UNDO) != NULL)
 			--no_u_sync;
 

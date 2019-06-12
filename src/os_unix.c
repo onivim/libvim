@@ -61,37 +61,6 @@ static int selinux_enabled = -1;
 # endif
 #endif
 
-#ifdef FEAT_MOUSE_GPM
-# include <gpm.h>
-/* <linux/keyboard.h> contains defines conflicting with "keymap.h",
- * I just copied relevant defines here. A cleaner solution would be to put gpm
- * code into separate file and include there linux/keyboard.h
- */
-/* #include <linux/keyboard.h> */
-# define KG_SHIFT	0
-# define KG_CTRL	2
-# define KG_ALT		3
-# define KG_ALTGR	1
-# define KG_SHIFTL	4
-# define KG_SHIFTR	5
-# define KG_CTRLL	6
-# define KG_CTRLR	7
-# define KG_CAPSSHIFT	8
-
-static void gpm_close(void);
-static int gpm_open(void);
-static int mch_gpm_process(void);
-#endif
-
-#ifdef FEAT_SYSMOUSE
-# include <sys/consio.h>
-# include <sys/fbio.h>
-
-static int sysmouse_open(void);
-static void sysmouse_close(void);
-static RETSIGTYPE sig_sysmouse SIGPROTOARG;
-#endif
-
 /*
  * end of autoconf section. To be extended...
  */
@@ -2251,48 +2220,6 @@ vim_is_xterm(char_u *name)
 		|| STRCMP(name, "builtin_xterm") == 0);
 }
 
-#if defined(FEAT_MOUSE_XTERM) || defined(PROTO)
-/*
- * Return TRUE if "name" appears to be that of a terminal
- * known to support the xterm-style mouse protocol.
- * Relies on term_is_xterm having been set to its correct value.
- */
-    int
-use_xterm_like_mouse(char_u *name)
-{
-    return (name != NULL
-	    && (term_is_xterm
-		|| STRNICMP(name, "screen", 6) == 0
-		|| STRNICMP(name, "tmux", 4) == 0
-		|| STRICMP(name, "st") == 0
-		|| STRNICMP(name, "st-", 3) == 0
-		|| STRNICMP(name, "stterm", 6) == 0));
-}
-#endif
-
-#if defined(FEAT_MOUSE_TTY) || defined(PROTO)
-/*
- * Return non-zero when using an xterm mouse, according to 'ttymouse'.
- * Return 1 for "xterm".
- * Return 2 for "xterm2".
- * Return 3 for "urxvt".
- * Return 4 for "sgr".
- */
-    int
-use_xterm_mouse(void)
-{
-    if (ttym_flags == TTYM_SGR)
-	return 4;
-    if (ttym_flags == TTYM_URXVT)
-	return 3;
-    if (ttym_flags == TTYM_XTERM2)
-	return 2;
-    if (ttym_flags == TTYM_XTERM)
-	return 1;
-    return 0;
-}
-#endif
-
     int
 vim_is_iris(char_u *name)
 {
@@ -3524,345 +3451,6 @@ get_tty_info(int fd, ttyinfo_T *info)
 #endif
     return FAIL;
 }
-
-#if defined(FEAT_MOUSE_TTY) || defined(PROTO)
-static int	mouse_ison = FALSE;
-
-/*
- * Set mouse clicks on or off.
- */
-    void
-mch_setmouse(int on)
-{
-# ifdef FEAT_BEVAL_TERM
-    static int	bevalterm_ison = FALSE;
-# endif
-    int		xterm_mouse_vers;
-
-# if defined(FEAT_X11) && defined(FEAT_XCLIPBOARD)
-    if (!on)
-	// Make sure not tracing mouse movements.  Important when a button-down
-	// was received but no release yet.
-	stop_xterm_trace();
-# endif
-
-    if (on == mouse_ison
-# ifdef FEAT_BEVAL_TERM
-	    && p_bevalterm == bevalterm_ison
-# endif
-	    )
-	/* return quickly if nothing to do */
-	return;
-
-    xterm_mouse_vers = use_xterm_mouse();
-
-# ifdef FEAT_MOUSE_URXVT
-    if (ttym_flags == TTYM_URXVT)
-    {
-	out_str_nf((char_u *)
-		   (on
-		   ? IF_EB("\033[?1015h", ESC_STR "[?1015h")
-		   : IF_EB("\033[?1015l", ESC_STR "[?1015l")));
-	mouse_ison = on;
-    }
-# endif
-
-    if (ttym_flags == TTYM_SGR)
-    {
-	/* SGR mode supports columns above 223 */
-	out_str_nf((char_u *)
-		   (on
-		   ? IF_EB("\033[?1006h", ESC_STR "[?1006h")
-		   : IF_EB("\033[?1006l", ESC_STR "[?1006l")));
-	mouse_ison = on;
-    }
-
-# ifdef FEAT_BEVAL_TERM
-    if (bevalterm_ison != (p_bevalterm && on))
-    {
-	bevalterm_ison = (p_bevalterm && on);
-	if (xterm_mouse_vers > 1 && !bevalterm_ison)
-	    /* disable mouse movement events, enabling is below */
-	    out_str_nf((char_u *)
-			(IF_EB("\033[?1003l", ESC_STR "[?1003l")));
-    }
-# endif
-
-    if (xterm_mouse_vers > 0)
-    {
-	if (on)	/* enable mouse events, use mouse tracking if available */
-	    out_str_nf((char_u *)
-		       (xterm_mouse_vers > 1
-			? (
-# ifdef FEAT_BEVAL_TERM
-			    bevalterm_ison
-			       ? IF_EB("\033[?1003h", ESC_STR "[?1003h") :
-# endif
-			      IF_EB("\033[?1002h", ESC_STR "[?1002h"))
-			: IF_EB("\033[?1000h", ESC_STR "[?1000h")));
-	else	/* disable mouse events, could probably always send the same */
-	    out_str_nf((char_u *)
-		       (xterm_mouse_vers > 1
-			? IF_EB("\033[?1002l", ESC_STR "[?1002l")
-			: IF_EB("\033[?1000l", ESC_STR "[?1000l")));
-	mouse_ison = on;
-    }
-
-# ifdef FEAT_MOUSE_DEC
-    else if (ttym_flags == TTYM_DEC)
-    {
-	if (on)	/* enable mouse events */
-	    out_str_nf((char_u *)"\033[1;2'z\033[1;3'{");
-	else	/* disable mouse events */
-	    out_str_nf((char_u *)"\033['z");
-	mouse_ison = on;
-    }
-# endif
-
-# ifdef FEAT_MOUSE_GPM
-    else
-    {
-	if (on)
-	{
-	    if (gpm_open())
-		mouse_ison = TRUE;
-	}
-	else
-	{
-	    gpm_close();
-	    mouse_ison = FALSE;
-	}
-    }
-# endif
-
-# ifdef FEAT_SYSMOUSE
-    else
-    {
-	if (on)
-	{
-	    if (sysmouse_open() == OK)
-		mouse_ison = TRUE;
-	}
-	else
-	{
-	    sysmouse_close();
-	    mouse_ison = FALSE;
-	}
-    }
-# endif
-
-# ifdef FEAT_MOUSE_JSB
-    else
-    {
-	if (on)
-	{
-	    /* D - Enable Mouse up/down messages
-	     * L - Enable Left Button Reporting
-	     * M - Enable Middle Button Reporting
-	     * R - Enable Right Button Reporting
-	     * K - Enable SHIFT and CTRL key Reporting
-	     * + - Enable Advanced messaging of mouse moves and up/down messages
-	     * Q - Quiet No Ack
-	     * # - Numeric value of mouse pointer required
-	     *	  0 = Multiview 2000 cursor, used as standard
-	     *	  1 = Windows Arrow
-	     *	  2 = Windows I Beam
-	     *	  3 = Windows Hour Glass
-	     *	  4 = Windows Cross Hair
-	     *	  5 = Windows UP Arrow
-	     */
-#  ifdef JSBTERM_MOUSE_NONADVANCED
-	    /* Disables full feedback of pointer movements */
-	    out_str_nf((char_u *)IF_EB("\033[0~ZwLMRK1Q\033\\",
-					 ESC_STR "[0~ZwLMRK1Q" ESC_STR "\\"));
-#  else
-	    out_str_nf((char_u *)IF_EB("\033[0~ZwLMRK+1Q\033\\",
-					ESC_STR "[0~ZwLMRK+1Q" ESC_STR "\\"));
-#  endif
-	    mouse_ison = TRUE;
-	}
-	else
-	{
-	    out_str_nf((char_u *)IF_EB("\033[0~ZwQ\033\\",
-					      ESC_STR "[0~ZwQ" ESC_STR "\\"));
-	    mouse_ison = FALSE;
-	}
-    }
-# endif
-# ifdef FEAT_MOUSE_PTERM
-    else
-    {
-	/* 1 = button press, 6 = release, 7 = drag, 1h...9l = right button */
-	if (on)
-	    out_str_nf("\033[>1h\033[>6h\033[>7h\033[>1h\033[>9l");
-	else
-	    out_str_nf("\033[>1l\033[>6l\033[>7l\033[>1l\033[>9h");
-	mouse_ison = on;
-    }
-# endif
-}
-
-#if defined(FEAT_BEVAL_TERM) || defined(PROTO)
-/*
- * Called when 'balloonevalterm' changed.
- */
-    void
-mch_bevalterm_changed(void)
-{
-    mch_setmouse(mouse_ison);
-}
-#endif
-
-/*
- * Set the mouse termcode, depending on the 'term' and 'ttymouse' options.
- */
-    void
-check_mouse_termcode(void)
-{
-# ifdef FEAT_MOUSE_XTERM
-    if (use_xterm_mouse()
-# ifdef FEAT_MOUSE_URXVT
-	    && use_xterm_mouse() != 3
-# endif
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-    {
-	set_mouse_termcode(KS_MOUSE, (char_u *)(term_is_8bit(T_NAME)
-		    ? IF_EB("\233M", CSI_STR "M")
-		    : IF_EB("\033[M", ESC_STR "[M")));
-	if (*p_mouse != NUL)
-	{
-	    /* force mouse off and maybe on to send possibly new mouse
-	     * activation sequence to the xterm, with(out) drag tracing. */
-	    mch_setmouse(FALSE);
-	    setmouse();
-	}
-    }
-    else
-	del_mouse_termcode(KS_MOUSE);
-# endif
-
-# ifdef FEAT_MOUSE_GPM
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_GPM_MOUSE,
-				      (char_u *)IF_EB("\033MG", ESC_STR "MG"));
-    else
-	del_mouse_termcode(KS_GPM_MOUSE);
-# endif
-
-# ifdef FEAT_SYSMOUSE
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_MOUSE, (char_u *)IF_EB("\033MS", ESC_STR "MS"));
-# endif
-
-# ifdef FEAT_MOUSE_JSB
-    /* Conflicts with xterm mouse: "\033[" and "\033[M" ??? */
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_JSBTERM_MOUSE,
-			       (char_u *)IF_EB("\033[0~zw", ESC_STR "[0~zw"));
-    else
-	del_mouse_termcode(KS_JSBTERM_MOUSE);
-# endif
-
-# ifdef FEAT_MOUSE_NET
-    /* There is no conflict, but one may type "ESC }" from Insert mode.  Don't
-     * define it in the GUI or when using an xterm. */
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_NETTERM_MOUSE,
-				       (char_u *)IF_EB("\033}", ESC_STR "}"));
-    else
-	del_mouse_termcode(KS_NETTERM_MOUSE);
-# endif
-
-# ifdef FEAT_MOUSE_DEC
-    /* Conflicts with xterm mouse: "\033[" and "\033[M" */
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_DEC_MOUSE, (char_u *)(term_is_8bit(T_NAME)
-		     ? IF_EB("\233", CSI_STR) : IF_EB("\033[", ESC_STR "[")));
-    else
-	del_mouse_termcode(KS_DEC_MOUSE);
-# endif
-# ifdef FEAT_MOUSE_PTERM
-    /* same conflict as the dec mouse */
-    if (!use_xterm_mouse()
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-	set_mouse_termcode(KS_PTERM_MOUSE,
-				      (char_u *) IF_EB("\033[", ESC_STR "["));
-    else
-	del_mouse_termcode(KS_PTERM_MOUSE);
-# endif
-# ifdef FEAT_MOUSE_URXVT
-    if (use_xterm_mouse() == 3
-#  ifdef FEAT_GUI
-	    && !gui.in_use
-#  endif
-	    )
-    {
-	set_mouse_termcode(KS_URXVT_MOUSE, (char_u *)(term_is_8bit(T_NAME)
-		    ? IF_EB("\233*M", CSI_STR "*M")
-		    : IF_EB("\033[*M", ESC_STR "[*M")));
-
-	if (*p_mouse != NUL)
-	{
-	    mch_setmouse(FALSE);
-	    setmouse();
-	}
-    }
-    else
-	del_mouse_termcode(KS_URXVT_MOUSE);
-# endif
-    if (use_xterm_mouse() == 4
-# ifdef FEAT_GUI
-	    && !gui.in_use
-# endif
-	    )
-    {
-	set_mouse_termcode(KS_SGR_MOUSE, (char_u *)(term_is_8bit(T_NAME)
-		    ? IF_EB("\233<*M", CSI_STR "<*M")
-		    : IF_EB("\033[<*M", ESC_STR "[<*M")));
-
-	set_mouse_termcode(KS_SGR_MOUSE_RELEASE, (char_u *)(term_is_8bit(T_NAME)
-		    ? IF_EB("\233<*m", CSI_STR "<*m")
-		    : IF_EB("\033[<*m", ESC_STR "[<*m")));
-
-	if (*p_mouse != NUL)
-	{
-	    mch_setmouse(FALSE);
-	    setmouse();
-	}
-    }
-    else
-    {
-	del_mouse_termcode(KS_SGR_MOUSE);
-	del_mouse_termcode(KS_SGR_MOUSE_RELEASE);
-    }
-}
-#endif
 
 /*
  * set screen mode, always fails.
@@ -5888,9 +5476,6 @@ WaitForChar(long msec, int *interrupted, int ignore_input)
     static int
 WaitForCharOrMouse(long msec, int *interrupted, int ignore_input)
 {
-#ifdef FEAT_MOUSE_GPM
-    int		gpm_process_wanted;
-#endif
 #ifdef FEAT_XCLIPBOARD
     int		rest;
 #endif
@@ -5899,21 +5484,11 @@ WaitForCharOrMouse(long msec, int *interrupted, int ignore_input)
     if (!ignore_input && input_available())	    /* something in inbuf[] */
 	return 1;
 
-#if defined(FEAT_MOUSE_DEC)
-    /* May need to query the mouse position. */
-    if (WantQueryMouse)
-    {
-	WantQueryMouse = FALSE;
-	if (!no_query_mouse_for_testing)
-	    mch_write((char_u *)IF_EB("\033[1'|", ESC_STR "[1'|"), 5);
-    }
-#endif
-
     /*
      * For FEAT_MOUSE_GPM and FEAT_XCLIPBOARD we loop here to process mouse
      * events.  This is a bit complicated, because they might both be defined.
      */
-#if defined(FEAT_MOUSE_GPM) || defined(FEAT_XCLIPBOARD)
+#if defined(FEAT_XCLIPBOARD)
 # ifdef FEAT_XCLIPBOARD
     rest = 0;
     if (do_xterm_trace())
@@ -5931,13 +5506,7 @@ WaitForCharOrMouse(long msec, int *interrupted, int ignore_input)
 		rest -= msec;
 	}
 # endif
-# ifdef FEAT_MOUSE_GPM
-	gpm_process_wanted = 0;
-	avail = RealWaitForChar(read_cmd_fd, msec,
-					     &gpm_process_wanted, interrupted);
-# else
 	avail = RealWaitForChar(read_cmd_fd, msec, NULL, interrupted);
-# endif
 	if (!avail)
 	{
 	    if (!ignore_input && input_available())
@@ -5949,9 +5518,6 @@ WaitForCharOrMouse(long msec, int *interrupted, int ignore_input)
 	}
     }
     while (FALSE
-# ifdef FEAT_MOUSE_GPM
-	   || (gpm_process_wanted && mch_gpm_process() == 0)
-# endif
 # ifdef FEAT_XCLIPBOARD
 	   || (!avail && rest != 0)
 # endif
@@ -6023,14 +5589,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 # ifdef FEAT_XCLIPBOARD
 	int		xterm_idx = -1;
 # endif
-# ifdef FEAT_MOUSE_GPM
-	int		gpm_idx = -1;
-# endif
-# ifdef USE_XSMP
-	int		xsmp_idx = -1;
-# endif
-	int		towait = (int)msec;
-
 # ifdef FEAT_MZSCHEME
 	mzvim_check_threads();
 	if (mzthreads_allowed() && p_mzq > 0 && (msec < 0 || msec > p_mzq))
@@ -6049,15 +5607,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 	{
 	    xterm_idx = nfd;
 	    fds[nfd].fd = ConnectionNumber(xterm_dpy);
-	    fds[nfd].events = POLLIN;
-	    nfd++;
-	}
-# endif
-# ifdef FEAT_MOUSE_GPM
-	if (check_for_gpm != NULL && gpm_flag && gpm_fd >= 0)
-	{
-	    gpm_idx = nfd;
-	    fds[nfd].fd = gpm_fd;
 	    fds[nfd].events = POLLIN;
 	    nfd++;
 	}
@@ -6097,10 +5646,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 		/* Try again */
 		finished = FALSE;
 	}
-# endif
-# ifdef FEAT_MOUSE_GPM
-	if (gpm_idx >= 0 && (fds[gpm_idx].revents & POLLIN))
-	    *check_for_gpm = 1;
 # endif
 # ifdef USE_XSMP
 	if (xsmp_idx >= 0 && (fds[xsmp_idx].revents & (POLLIN | POLLHUP)))
@@ -6182,15 +5727,6 @@ select_eintr:
 	    xterm_update();
 	}
 # endif
-# ifdef FEAT_MOUSE_GPM
-	if (check_for_gpm != NULL && gpm_flag && gpm_fd >= 0)
-	{
-	    FD_SET(gpm_fd, &rfds);
-	    FD_SET(gpm_fd, &efds);
-	    if (maxfd < gpm_fd)
-		maxfd = gpm_fd;
-	}
-# endif
 # ifdef USE_XSMP
 	if (xsmp_icefd != -1)
 	{
@@ -6255,15 +5791,6 @@ select_eintr:
 		/* Try again */
 		finished = FALSE;
 	    }
-	}
-# endif
-# ifdef FEAT_MOUSE_GPM
-	if (ret > 0 && gpm_flag && check_for_gpm != NULL && gpm_fd >= 0)
-	{
-	    if (FD_ISSET(gpm_fd, &efds))
-		gpm_close();
-	    else if (FD_ISSET(gpm_fd, &rfds))
-		*check_for_gpm = 1;
 	}
 # endif
 # ifdef USE_XSMP
@@ -6977,255 +6504,6 @@ mch_rename(const char *src, const char *dest)
     return -1;
 }
 #endif /* !HAVE_RENAME */
-
-#if defined(FEAT_MOUSE_GPM) || defined(PROTO)
-/*
- * Initializes connection with gpm (if it isn't already opened)
- * Return 1 if succeeded (or connection already opened), 0 if failed
- */
-    static int
-gpm_open(void)
-{
-    static Gpm_Connect gpm_connect; /* Must it be kept till closing ? */
-
-    if (!gpm_flag)
-    {
-	gpm_connect.eventMask = (GPM_UP | GPM_DRAG | GPM_DOWN);
-	gpm_connect.defaultMask = ~GPM_HARD;
-	/* Default handling for mouse move*/
-	gpm_connect.minMod = 0; /* Handle any modifier keys */
-	gpm_connect.maxMod = 0xffff;
-	if (Gpm_Open(&gpm_connect, 0) > 0)
-	{
-	    /* gpm library tries to handling TSTP causes
-	     * problems. Anyways, we close connection to Gpm whenever
-	     * we are going to suspend or starting an external process
-	     * so we shouldn't  have problem with this
-	     */
-# ifdef SIGTSTP
-	    signal(SIGTSTP, restricted ? SIG_IGN : SIG_DFL);
-# endif
-	    return 1; /* succeed */
-	}
-	if (gpm_fd == -2)
-	    Gpm_Close(); /* We don't want to talk to xterm via gpm */
-	return 0;
-    }
-    return 1; /* already open */
-}
-
-/*
- * Returns TRUE if the GPM mouse is enabled.
- */
-    int
-gpm_enabled(void)
-{
-    return gpm_flag && gpm_fd >= 0;
-}
-
-/*
- * Closes connection to gpm
- */
-    static void
-gpm_close(void)
-{
-    if (gpm_enabled())
-	Gpm_Close();
-}
-
-/*
- * Reads gpm event and adds special keys to input buf. Returns length of
- * generated key sequence.
- * This function is styled after gui_send_mouse_event().
- */
-    static int
-mch_gpm_process(void)
-{
-    int			button;
-    static Gpm_Event	gpm_event;
-    char_u		string[6];
-    int_u		vim_modifiers;
-    int			row,col;
-    unsigned char	buttons_mask;
-    unsigned char	gpm_modifiers;
-    static unsigned char old_buttons = 0;
-
-    Gpm_GetEvent(&gpm_event);
-
-#ifdef FEAT_GUI
-    /* Don't put events in the input queue now. */
-    if (hold_gui_events)
-	return 0;
-#endif
-
-    row = gpm_event.y - 1;
-    col = gpm_event.x - 1;
-
-    string[0] = ESC; /* Our termcode */
-    string[1] = 'M';
-    string[2] = 'G';
-    switch (GPM_BARE_EVENTS(gpm_event.type))
-    {
-	case GPM_DRAG:
-	    string[3] = MOUSE_DRAG;
-	    break;
-	case GPM_DOWN:
-	    buttons_mask = gpm_event.buttons & ~old_buttons;
-	    old_buttons = gpm_event.buttons;
-	    switch (buttons_mask)
-	    {
-		case GPM_B_LEFT:
-		    button = MOUSE_LEFT;
-		    break;
-		case GPM_B_MIDDLE:
-		    button = MOUSE_MIDDLE;
-		    break;
-		case GPM_B_RIGHT:
-		    button = MOUSE_RIGHT;
-		    break;
-		default:
-		    return 0;
-		    /*Don't know what to do. Can more than one button be
-		     * reported in one event? */
-	    }
-	    string[3] = (char_u)(button | 0x20);
-	    SET_NUM_MOUSE_CLICKS(string[3], gpm_event.clicks + 1);
-	    break;
-	case GPM_UP:
-	    string[3] = MOUSE_RELEASE;
-	    old_buttons &= ~gpm_event.buttons;
-	    break;
-	default:
-	    return 0;
-    }
-    /*This code is based on gui_x11_mouse_cb in gui_x11.c */
-    gpm_modifiers = gpm_event.modifiers;
-    vim_modifiers = 0x0;
-    /* I ignore capslock stats. Aren't we all just hate capslock mixing with
-     * Vim commands ? Besides, gpm_event.modifiers is unsigned char, and
-     * K_CAPSSHIFT is defined 8, so it probably isn't even reported
-     */
-    if (gpm_modifiers & ((1 << KG_SHIFT) | (1 << KG_SHIFTR) | (1 << KG_SHIFTL)))
-	vim_modifiers |= MOUSE_SHIFT;
-
-    if (gpm_modifiers & ((1 << KG_CTRL) | (1 << KG_CTRLR) | (1 << KG_CTRLL)))
-	vim_modifiers |= MOUSE_CTRL;
-    if (gpm_modifiers & ((1 << KG_ALT) | (1 << KG_ALTGR)))
-	vim_modifiers |= MOUSE_ALT;
-    string[3] |= vim_modifiers;
-    string[4] = (char_u)(col + ' ' + 1);
-    string[5] = (char_u)(row + ' ' + 1);
-    add_to_input_buf(string, 6);
-    return 6;
-}
-#endif /* FEAT_MOUSE_GPM */
-
-#ifdef FEAT_SYSMOUSE
-/*
- * Initialize connection with sysmouse.
- * Let virtual console inform us with SIGUSR2 for pending sysmouse
- * output, any sysmouse output than will be processed via sig_sysmouse().
- * Return OK if succeeded, FAIL if failed.
- */
-    static int
-sysmouse_open(void)
-{
-    struct mouse_info   mouse;
-
-    mouse.operation = MOUSE_MODE;
-    mouse.u.mode.mode = 0;
-    mouse.u.mode.signal = SIGUSR2;
-    if (ioctl(1, CONS_MOUSECTL, &mouse) != -1)
-    {
-	signal(SIGUSR2, (RETSIGTYPE (*)())sig_sysmouse);
-	mouse.operation = MOUSE_SHOW;
-	ioctl(1, CONS_MOUSECTL, &mouse);
-	return OK;
-    }
-    return FAIL;
-}
-
-/*
- * Stop processing SIGUSR2 signals, and also make sure that
- * virtual console do not send us any sysmouse related signal.
- */
-    static void
-sysmouse_close(void)
-{
-    struct mouse_info	mouse;
-
-    signal(SIGUSR2, restricted ? SIG_IGN : SIG_DFL);
-    mouse.operation = MOUSE_MODE;
-    mouse.u.mode.mode = 0;
-    mouse.u.mode.signal = 0;
-    ioctl(1, CONS_MOUSECTL, &mouse);
-}
-
-/*
- * Gets info from sysmouse and adds special keys to input buf.
- */
-    static RETSIGTYPE
-sig_sysmouse SIGDEFARG(sigarg)
-{
-    struct mouse_info	mouse;
-    struct video_info	video;
-    char_u		string[6];
-    int			row, col;
-    int			button;
-    int			buttons;
-    static int		oldbuttons = 0;
-
-#ifdef FEAT_GUI
-    /* Don't put events in the input queue now. */
-    if (hold_gui_events)
-	return;
-#endif
-
-    mouse.operation = MOUSE_GETINFO;
-    if (ioctl(1, FBIO_GETMODE, &video.vi_mode) != -1
-	    && ioctl(1, FBIO_MODEINFO, &video) != -1
-	    && ioctl(1, CONS_MOUSECTL, &mouse) != -1
-	    && video.vi_cheight > 0 && video.vi_cwidth > 0)
-    {
-	row = mouse.u.data.y / video.vi_cheight;
-	col = mouse.u.data.x / video.vi_cwidth;
-	buttons = mouse.u.data.buttons;
-	string[0] = ESC; /* Our termcode */
-	string[1] = 'M';
-	string[2] = 'S';
-	if (oldbuttons == buttons && buttons != 0)
-	{
-	    button = MOUSE_DRAG;
-	}
-	else
-	{
-	    switch (buttons)
-	    {
-		case 0:
-		    button = MOUSE_RELEASE;
-		    break;
-		case 1:
-		    button = MOUSE_LEFT;
-		    break;
-		case 2:
-		    button = MOUSE_MIDDLE;
-		    break;
-		case 4:
-		    button = MOUSE_RIGHT;
-		    break;
-		default:
-		    return;
-	    }
-	    oldbuttons = buttons;
-	}
-	string[3] = (char_u)(button);
-	string[4] = (char_u)(col + ' ' + 1);
-	string[5] = (char_u)(row + ' ' + 1);
-	add_to_input_buf(string, 6);
-    }
-    return;
-}
-#endif /* FEAT_SYSMOUSE */
 
 #if defined(FEAT_LIBCALL) || defined(PROTO)
 typedef char_u * (*STRPROCSTR)(char_u *);

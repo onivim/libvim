@@ -425,46 +425,6 @@ EXTERN bufref_T	au_new_curbuf INIT(= {NULL COMMA 0 COMMA 0});
 EXTERN buf_T	*au_pending_free_buf INIT(= NULL);
 EXTERN win_T	*au_pending_free_win INIT(= NULL);
 
-#ifdef FEAT_MOUSE
-/*
- * Mouse coordinates, set by check_termcode()
- */
-EXTERN int	mouse_row;
-EXTERN int	mouse_col;
-EXTERN int	mouse_past_bottom INIT(= FALSE);/* mouse below last line */
-EXTERN int	mouse_past_eol INIT(= FALSE);	/* mouse right of line */
-EXTERN int	mouse_dragging INIT(= 0);	/* extending Visual area with
-						   mouse dragging */
-# if defined(FEAT_MOUSE_DEC)
-/*
- * When the DEC mouse has been pressed but not yet released we enable
- * automatic queries for the mouse position.
- */
-EXTERN int	WantQueryMouse INIT(= FALSE);
-# endif
-
-# ifdef FEAT_GUI
-/* When the window layout is about to be changed, need_mouse_correct is set,
- * so that gui_mouse_correct() is called afterwards, to correct the mouse
- * pointer when focus-follow-mouse is being used. */
-EXTERN int	need_mouse_correct INIT(= FALSE);
-
-/* When double clicking, topline must be the same */
-EXTERN linenr_T gui_prev_topline INIT(= 0);
-#  ifdef FEAT_DIFF
-EXTERN int	gui_prev_topfill INIT(= 0);
-#  endif
-# endif
-
-# ifdef FEAT_MOUSESHAPE
-EXTERN int	drag_status_line INIT(= FALSE);	/* dragging the status line */
-EXTERN int	postponed_mouseshape INIT(= FALSE); /* postponed updating the
-						       mouse pointer shape */
-EXTERN int	drag_sep_line INIT(= FALSE);	/* dragging vert separator */
-# endif
-
-#endif
-
 #ifdef FEAT_DIFF
 /* Value set from 'diffopt'. */
 EXTERN int	diff_context INIT(= 6);		/* context for folds */
@@ -698,14 +658,6 @@ EXTERN int	VIsual_mode INIT(= 'v');
 
 EXTERN int	redo_VIsual_busy INIT(= FALSE);
 				/* TRUE when redoing Visual */
-
-#ifdef FEAT_MOUSE
-/*
- * When pasting text with the middle mouse button in visual mode with
- * restart_edit set, remember where it started so we can set Insstart.
- */
-EXTERN pos_T	where_paste_started;
-#endif
 
 /*
  * This flag is used to make auto-indent work right on lines where only a

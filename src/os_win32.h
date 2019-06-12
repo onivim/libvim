@@ -62,9 +62,6 @@
 #endif
 
 #define USE_FNAME_CASE		/* adjust case of file names */
-#if !defined(FEAT_CLIPBOARD) && defined(FEAT_MOUSE)
-# define FEAT_CLIPBOARD		/* include clipboard support */
-#endif
 #if defined(__DATE__) && defined(__TIME__)
 # define HAVE_DATE_TIME
 #endif

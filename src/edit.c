@@ -58,10 +58,6 @@ static void ins_ctrl_o(void);
 static void ins_shift(int c, int lastc);
 static void ins_del(void);
 static int ins_bs(int c, int mode, int *inserted_space_p);
-#ifdef FEAT_MOUSE
-static void ins_mouse(int c);
-static void ins_mousescroll(int dir);
-#endif
 static void ins_left(void);
 static void ins_home(int c);
 static void ins_end(int c);
@@ -327,9 +323,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_MOUSE
-  where_paste_started.lnum = 0;
-#endif
 #ifdef FEAT_CINDENT
   can_cindent = TRUE;
 #endif
@@ -813,44 +806,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     context->inserted_space = FALSE;
     break;
 
-#ifdef FEAT_MOUSE
-  case K_LEFTMOUSE: /* mouse keys */
-  case K_LEFTMOUSE_NM:
-  case K_LEFTDRAG:
-  case K_LEFTRELEASE:
-  case K_LEFTRELEASE_NM:
-  case K_MOUSEMOVE:
-  case K_MIDDLEMOUSE:
-  case K_MIDDLEDRAG:
-  case K_MIDDLERELEASE:
-  case K_RIGHTMOUSE:
-  case K_RIGHTDRAG:
-  case K_RIGHTRELEASE:
-  case K_X1MOUSE:
-  case K_X1DRAG:
-  case K_X1RELEASE:
-  case K_X2MOUSE:
-  case K_X2DRAG:
-  case K_X2RELEASE:
-    ins_mouse(c);
-    break;
-
-  case K_MOUSEDOWN: /* Default action for scroll wheel up: scroll up */
-    ins_mousescroll(MSCR_DOWN);
-    break;
-
-  case K_MOUSEUP: /* Default action for scroll wheel down: scroll down */
-    ins_mousescroll(MSCR_UP);
-    break;
-
-  case K_MOUSELEFT: /* Scroll wheel left */
-    ins_mousescroll(MSCR_LEFT);
-    break;
-
-  case K_MOUSERIGHT: /* Scroll wheel right */
-    ins_mousescroll(MSCR_RIGHT);
-    break;
-#endif
   case K_PS:
     bracketed_paste(PASTE_INSERT, FALSE, NULL);
     if (context->cmdchar == K_PS)
@@ -1247,15 +1202,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   conceal_check_cursor_line();
 #endif
 
-#ifdef FEAT_MOUSE
-  /*
-   * When doing a paste with the middle mouse button, Insstart is set to
-   * where the paste started.
-   */
-  if (where_paste_started.lnum != 0)
-    Insstart = where_paste_started;
-  else
-#endif
   {
     Insstart = curwin->w_cursor;
     if (startln)
@@ -1315,10 +1261,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
 #endif
 
-#ifdef FEAT_MOUSE
-  setmouse();
-#endif
-
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
   revins_on = (State == INSERT && p_ri);
@@ -1339,15 +1281,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    * here with something in the stuff buffer.
    */
   if (restart_edit != 0 && stuff_empty()) {
-#ifdef FEAT_MOUSE
-    /*
-     * After a paste we consider text typed to be part of the insert for
-     * the pasted text. You can backspace over the pasted text too.
-     */
-    if (where_paste_started.lnum)
-      arrow_used = FALSE;
-    else
-#endif
       arrow_used = TRUE;
     restart_edit = 0;
 
@@ -1381,9 +1314,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_MOUSE
-  where_paste_started.lnum = 0;
-#endif
 #ifdef FEAT_CINDENT
   can_cindent = TRUE;
 #endif
@@ -5103,9 +5033,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
   /* need to position cursor again (e.g. when on a TAB ) */
   changed_cline_bef_curs();
 
-#ifdef FEAT_MOUSE
-  setmouse();
-#endif
   if (!p_ek)
     /* Re-enable bracketed paste mode. */
     out_str(T_BE);
@@ -5678,125 +5605,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
 
   return did_backspace;
 }
-
-#ifdef FEAT_MOUSE
-static void ins_mouse(int c) {
-  pos_T tpos;
-  win_T *old_curwin = curwin;
-
-#ifdef FEAT_GUI
-  /* When GUI is active, also move/paste when 'mouse' is empty */
-  if (!gui.in_use)
-#endif
-    if (!mouse_has(MOUSE_INSERT))
-      return;
-
-  undisplay_dollar();
-  tpos = curwin->w_cursor;
-  if (do_mouse(NULL, c, BACKWARD, 1L, 0)) {
-    win_T *new_curwin = curwin;
-
-    if (curwin != old_curwin && win_valid(old_curwin)) {
-      /* Mouse took us to another window.  We need to go back to the
-       * previous one to stop insert there properly. */
-      curwin = old_curwin;
-      curbuf = curwin->w_buffer;
-#ifdef FEAT_JOB_CHANNEL
-      if (bt_prompt(curbuf))
-        // Restart Insert mode when re-entering the prompt buffer.
-        curbuf->b_prompt_insert = 'A';
-#endif
-    }
-    start_arrow(curwin == old_curwin ? &tpos : NULL);
-    if (curwin != new_curwin && win_valid(new_curwin)) {
-      curwin = new_curwin;
-      curbuf = curwin->w_buffer;
-    }
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
-  }
-
-  /* redraw status lines (in case another window became active) */
-  redraw_statuslines();
-}
-
-static void ins_mousescroll(int dir) {
-  pos_T tpos;
-  win_T *old_curwin = curwin, *wp;
-#ifdef FEAT_INS_EXPAND
-  int did_scroll = FALSE;
-#endif
-
-  tpos = curwin->w_cursor;
-
-  if (mouse_row >= 0 && mouse_col >= 0) {
-    int row, col;
-
-    row = mouse_row;
-    col = mouse_col;
-
-    /* find the window at the pointer coordinates */
-    wp = mouse_find_win(&row, &col);
-    if (wp == NULL)
-      return;
-    curwin = wp;
-    curbuf = curwin->w_buffer;
-  }
-  if (curwin == old_curwin)
-    undisplay_dollar();
-
-#ifdef FEAT_INS_EXPAND
-  /* Don't scroll the window in which completion is being done. */
-  if (!pum_visible() || curwin != old_curwin)
-#endif
-  {
-    if (dir == MSCR_DOWN || dir == MSCR_UP) {
-      if (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))
-        scroll_redraw(dir, (long)(curwin->w_botline - curwin->w_topline));
-      else
-        scroll_redraw(dir, 3L);
-    }
-#ifdef FEAT_GUI
-    else {
-      int val, step = 6;
-
-      if (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))
-        step = curwin->w_width;
-      val = curwin->w_leftcol + (dir == MSCR_RIGHT ? -step : step);
-      if (val < 0)
-        val = 0;
-      gui_do_horiz_scroll(val, TRUE);
-    }
-#endif
-#ifdef FEAT_INS_EXPAND
-    did_scroll = TRUE;
-#endif
-  }
-
-  curwin->w_redr_status = TRUE;
-
-  curwin = old_curwin;
-  curbuf = curwin->w_buffer;
-
-#ifdef FEAT_INS_EXPAND
-  /* The popup menu may overlay the window, need to redraw it.
-   * TODO: Would be more efficient to only redraw the windows that are
-   * overlapped by the popup menu. */
-  if (pum_visible() && did_scroll) {
-    redraw_all_later(NOT_VALID);
-    ins_compl_show_pum();
-  }
-#endif
-
-  if (!EQUAL_POS(curwin->w_cursor, tpos)) {
-    start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
-  }
-}
-#endif
 
 /*
  * Handle receiving P_PS: start paste mode.  Inserts the following text up to

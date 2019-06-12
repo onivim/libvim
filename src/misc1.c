@@ -1153,9 +1153,6 @@ ask_yesno(char_u *str, int direct)
 	settmode(TMODE_RAW);
     ++no_wait_return;
     State = CONFIRM;		/* mouse behaves like with :confirm */
-#ifdef FEAT_MOUSE
-    setmouse();			/* disables mouse for xterm */
-#endif
     ++no_mapping;
     ++allow_keys;		/* no mapping here, but recognize keys */
 
@@ -1174,46 +1171,11 @@ ask_yesno(char_u *str, int direct)
     }
     --no_wait_return;
     State = save_State;
-#ifdef FEAT_MOUSE
-    setmouse();
-#endif
     --no_mapping;
     --allow_keys;
 
     return r;
 }
-
-#if defined(FEAT_MOUSE) || defined(PROTO)
-/*
- * Return TRUE if "c" is a mouse key.
- */
-    int
-is_mouse_key(int c)
-{
-    return c == K_LEFTMOUSE
-	|| c == K_LEFTMOUSE_NM
-	|| c == K_LEFTDRAG
-	|| c == K_LEFTRELEASE
-	|| c == K_LEFTRELEASE_NM
-	|| c == K_MOUSEMOVE
-	|| c == K_MIDDLEMOUSE
-	|| c == K_MIDDLEDRAG
-	|| c == K_MIDDLERELEASE
-	|| c == K_RIGHTMOUSE
-	|| c == K_RIGHTDRAG
-	|| c == K_RIGHTRELEASE
-	|| c == K_MOUSEDOWN
-	|| c == K_MOUSEUP
-	|| c == K_MOUSELEFT
-	|| c == K_MOUSERIGHT
-	|| c == K_X1MOUSE
-	|| c == K_X1DRAG
-	|| c == K_X1RELEASE
-	|| c == K_X2MOUSE
-	|| c == K_X2DRAG
-	|| c == K_X2RELEASE;
-}
-#endif
 
 /*
  * Get a key stroke directly from the user.
@@ -1304,9 +1266,6 @@ get_keystroke(void)
 	    n = TO_SPECIAL(buf[1], buf[2]);
 	    if (buf[1] == KS_MODIFIER
 		    || n == K_IGNORE
-#ifdef FEAT_MOUSE
-		    || (is_mouse_key(n) && n != K_LEFTMOUSE)
-#endif
 #ifdef FEAT_GUI
 		    || n == K_VER_SCROLLBAR
 		    || n == K_HOR_SCROLLBAR
@@ -1383,14 +1342,6 @@ get_number(
 	    }
 	    n /= 10;
 	}
-#ifdef FEAT_MOUSE
-	else if (mouse_used != NULL && c == K_LEFTMOUSE)
-	{
-	    *mouse_used = TRUE;
-	    n = mouse_row + 1;
-	    break;
-	}
-#endif
 	else if (n == 0 && c == ':' && colon)
 	{
 	    stuffcharReadbuff(':');
@@ -1433,10 +1384,6 @@ prompt_for_number(int *mouse_used)
     cmdline_row = 0;
     save_State = State;
     State = CMDLINE;
-#ifdef FEAT_MOUSE
-    // May show different mouse shape.
-    setmouse();
-#endif
 
     i = get_number(TRUE, mouse_used);
     if (KeyTyped)
@@ -1451,11 +1398,6 @@ prompt_for_number(int *mouse_used)
     else
 	cmdline_row = save_cmdline_row;
     State = save_State;
-#ifdef FEAT_MOUSE
-    // May need to restore mouse shape.
-    setmouse();
-#endif
-
     return i;
 }
 

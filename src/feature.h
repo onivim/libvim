@@ -885,75 +885,6 @@
 #endif
 
 /*
- * +mouse_xterm		Unix only: Include code for xterm mouse handling.
- * +mouse_dec		idem, for Dec mouse handling.
- * +mouse_jsbterm	idem, for Jsbterm mouse handling.
- * +mouse_netterm	idem, for Netterm mouse handling.
- * (none)		MS-DOS mouse support.
- * +mouse_gpm		Unix only: Include code for Linux console mouse
- *			handling.
- * +mouse_pterm		PTerm mouse support for QNX
- * +mouse_sgr		Unix only: Include code for for SGR-styled mouse.
- * +mouse_sysmouse	Unix only: Include code for FreeBSD and DragonFly
- *			console mouse handling.
- * +mouse_urxvt		Unix only: Include code for for urxvt mosue handling.
- * +mouse		Any mouse support (any of the above enabled).
- */
-/* OS/2 and Amiga console have no mouse support */
-# ifdef FEAT_NORMAL
-#  define FEAT_MOUSE_XTERM
-# endif
-# ifdef FEAT_BIG
-#  define FEAT_MOUSE_NET
-# endif
-# ifdef FEAT_BIG
-#  define FEAT_MOUSE_DEC
-# endif
-# ifdef FEAT_BIG
-#  define FEAT_MOUSE_URXVT
-# endif
-# if defined(FEAT_NORMAL) && defined(MSWIN)
-#  define DOS_MOUSE
-# endif
-
-/*
- * Note: Only one of the following may be defined:
- * FEAT_MOUSE_GPM
- * FEAT_SYSMOUSE
- * FEAT_MOUSE_JSB
- * FEAT_MOUSE_PTERM
- */
-#if defined(FEAT_NORMAL) && defined(HAVE_GPM)
-# define FEAT_MOUSE_GPM
-#endif
-
-#if defined(FEAT_NORMAL) && defined(HAVE_SYSMOUSE)
-# define FEAT_SYSMOUSE
-#endif
-
-/* urxvt is a small variation of mouse_xterm, and shares its code */
-#if defined(FEAT_MOUSE_URXVT) && !defined(FEAT_MOUSE_XTERM)
-# define FEAT_MOUSE_XTERM
-#endif
-
-/* Define FEAT_MOUSE when any of the above is defined or FEAT_GUI. */
-#if !defined(FEAT_MOUSE_TTY) \
-	&& (defined(FEAT_MOUSE_XTERM) \
-	    || defined(FEAT_MOUSE_NET) \
-	    || defined(FEAT_MOUSE_DEC) \
-	    || defined(DOS_MOUSE) \
-	    || defined(FEAT_MOUSE_GPM) \
-	    || defined(FEAT_MOUSE_JSB) \
-	    || defined(FEAT_MOUSE_PTERM) \
-	    || defined(FEAT_SYSMOUSE) \
-	    || defined(FEAT_MOUSE_URXVT))
-# define FEAT_MOUSE_TTY		/* include non-GUI mouse support */
-#endif
-#if !defined(FEAT_MOUSE) && (defined(FEAT_MOUSE_TTY) || defined(FEAT_GUI))
-# define FEAT_MOUSE		/* include generic mouse support */
-#endif
-
-/*
  * +clipboard		Clipboard support.  Always used for the GUI.
  * +xterm_clipboard	Unix only: Include code for handling the clipboard
  *			in an xterm like in the GUI.
@@ -1015,7 +946,7 @@
  *			to check if mouse dragging can be used and if term
  *			codes can be obtained.
  */
-#if (defined(FEAT_NORMAL) || defined(FEAT_MOUSE)) && defined(HAVE_TGETENT)
+#if (defined(FEAT_NORMAL)) && defined(HAVE_TGETENT)
 # define FEAT_TERMRESPONSE
 #endif
 

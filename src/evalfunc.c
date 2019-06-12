@@ -448,9 +448,6 @@ static void f_test_null_string(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_GUI
 static void f_test_scrollbar(typval_T *argvars, typval_T *rettv);
 #endif
-#ifdef FEAT_MOUSE
-static void f_test_setmouse(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_test_settime(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
 static void f_tan(typval_T *argvars, typval_T *rettv);
@@ -997,9 +994,6 @@ static struct fst
     {"test_refcount",	1, 1, f_test_refcount},
 #ifdef FEAT_GUI
     {"test_scrollbar",	3, 3, f_test_scrollbar},
-#endif
-#ifdef FEAT_MOUSE
-    {"test_setmouse",	2, 2, f_test_setmouse},
 #endif
     {"test_settime",	1, 1, f_test_settime},
 #ifdef FEAT_TIMERS
@@ -4988,33 +4982,6 @@ f_getchar(typval_T *argvars, typval_T *rettv)
 	rettv->v_type = VAR_STRING;
 	rettv->vval.v_string = vim_strsave(temp);
 
-#ifdef FEAT_MOUSE
-	if (is_mouse_key(n))
-	{
-	    int		row = mouse_row;
-	    int		col = mouse_col;
-	    win_T	*win;
-	    linenr_T	lnum;
-	    win_T	*wp;
-	    int		winnr = 1;
-
-	    if (row >= 0 && col >= 0)
-	    {
-		/* Find the window at the mouse coordinates and compute the
-		 * text position. */
-		win = mouse_find_win(&row, &col);
-		if (win == NULL)
-		    return;
-		(void)mouse_comp_pos(win, &row, &col, &lnum);
-		for (wp = firstwin; wp != win; wp = wp->w_next)
-		    ++winnr;
-		set_vim_var_nr(VV_MOUSE_WIN, winnr);
-		set_vim_var_nr(VV_MOUSE_WINID, win->w_id);
-		set_vim_var_nr(VV_MOUSE_LNUM, lnum);
-		set_vim_var_nr(VV_MOUSE_COL, col + 1);
-	    }
-	}
-#endif
     }
 }
 
@@ -6495,41 +6462,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_MODIFY_FNAME
 	"modify_fname",
 #endif
-#ifdef FEAT_MOUSE
-	"mouse",
-#endif
-#ifdef FEAT_MOUSESHAPE
-	"mouseshape",
-#endif
-#if defined(UNIX) || defined(VMS)
-# ifdef FEAT_MOUSE_DEC
-	"mouse_dec",
-# endif
-# ifdef FEAT_MOUSE_GPM
-	"mouse_gpm",
-# endif
-# ifdef FEAT_MOUSE_JSB
-	"mouse_jsbterm",
-# endif
-# ifdef FEAT_MOUSE_NET
-	"mouse_netterm",
-# endif
-# ifdef FEAT_MOUSE_PTERM
-	"mouse_pterm",
-# endif
-# ifdef FEAT_MOUSE_XTERM
-	"mouse_sgr",
-# endif
-# ifdef FEAT_SYSMOUSE
-	"mouse_sysmouse",
-# endif
-# ifdef FEAT_MOUSE_URXVT
-	"mouse_urxvt",
-# endif
-# ifdef FEAT_MOUSE_XTERM
-	"mouse_xterm",
-# endif
-#endif
 	"multi_byte",
 #ifdef FEAT_MBYTE_IME
 	"multi_byte_ime",
@@ -6814,10 +6746,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_NETBEANS_INTG
 	else if (STRICMP(name, "netbeans_enabled") == 0)
 	    n = netbeans_active();
-#endif
-#ifdef FEAT_MOUSE_GPM
-	else if (STRICMP(name, "mouse_gpm_enabled") == 0)
-	    n = gpm_enabled();
 #endif
 #if defined(FEAT_TERMINAL) && defined(MSWIN)
 	else if (STRICMP(name, "terminal") == 0)
@@ -14301,15 +14229,6 @@ f_test_scrollbar(typval_T *argvars, typval_T *rettv UNUSED)
     gui_drag_scrollbar(sb, value, dragging);
     // need to loop through normal_cmd() to handle the scroll events
     exec_normal(FALSE, TRUE, FALSE);
-}
-#endif
-
-#ifdef FEAT_MOUSE
-    static void
-f_test_setmouse(typval_T *argvars, typval_T *rettv UNUSED)
-{
-    mouse_row = (time_t)tv_get_number(&argvars[0]) - 1;
-    mouse_col = (time_t)tv_get_number(&argvars[1]) - 1;
 }
 #endif
 

@@ -1864,13 +1864,8 @@ static struct vimoption options[] =
 #endif
 				(char_u *)0L} SCTX_INIT},
     {"mouseshape",  "mouses",  P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_MOUSESHAPE
-			    (char_u *)&p_mouseshape, PV_NONE,
-			    {(char_u *)"i-r:beam,s:updown,sd:udsizing,vs:leftright,vd:lrsizing,m:no,ml:up-arrow,v:rightup-arrow", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"mousetime",   "mouset",	P_NUM|P_VI_DEF,
 			    (char_u *)&p_mouset, PV_NONE,
@@ -2722,11 +2717,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_tf, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"ttymouse",    "ttym", P_STRING|P_NODEFAULT|P_NO_MKRC|P_VI_DEF,
-#if defined(FEAT_MOUSE) && (defined(UNIX) || defined(VMS))
-			    (char_u *)&p_ttym, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"ttyscroll",   "tsl",  P_NUM|P_VI_DEF,
 			    (char_u *)&p_ttyscroll, PV_NONE,
@@ -5465,9 +5456,6 @@ didset_options(void)
     (void)opt_strings_flags(p_dy, p_dy_values, &dy_flags, TRUE);
     (void)opt_strings_flags(p_tc, p_tc_values, &tc_flags, FALSE);
     (void)opt_strings_flags(p_ve, p_ve_values, &ve_flags, TRUE);
-#if defined(FEAT_MOUSE) && (defined(UNIX) || defined(VMS))
-    (void)opt_strings_flags(p_ttym, p_ttym_values, &ttym_flags, FALSE);
-#endif
 #ifdef FEAT_SPELL
     (void)spell_check_msm();
     (void)spell_check_sps();
@@ -6932,22 +6920,6 @@ did_set_string_option(
     }
 #endif
 
-#if defined(FEAT_MOUSE_TTY) && (defined(UNIX) || defined(VMS))
-    /* 'ttymouse' */
-    else if (varp == &p_ttym)
-    {
-	/* Switch the mouse off before changing the escape sequences used for
-	 * that. */
-	mch_setmouse(FALSE);
-	if (opt_strings_flags(p_ttym, p_ttym_values, &ttym_flags, FALSE) != OK)
-	    errmsg = e_invarg;
-	else
-	    check_mouse_termcode();
-	if (termcap_active)
-	    setmouse();		/* may switch it on again */
-    }
-#endif
-
     /* 'selection' */
     else if (varp == &p_sel)
     {
@@ -7535,9 +7507,6 @@ did_set_string_option(
 #endif
 	else if (varp == &p_mouse) /* 'mouse' */
 	{
-#ifdef FEAT_MOUSE
-	    p = (char_u *)MOUSE_ALL;
-#else
 	    if (*p_mouse != NUL)
 		errmsg = N_("E538: No mouse support");
 #endif
@@ -7678,18 +7647,6 @@ did_set_string_option(
 	}
 #endif
     }
-
-#ifdef FEAT_MOUSE
-    if (varp == &p_mouse)
-    {
-# ifdef FEAT_MOUSE_TTY
-	if (*p_mouse == NUL)
-	    mch_setmouse(FALSE);    /* switch mouse off */
-	else
-# endif
-	    setmouse();		    /* in case 'mouse' changed */
-    }
-#endif
 
     if (curwin->w_curswant != MAXCOL
 		     && (options[opt_idx].flags & (P_CURSWANT | P_RALL)) != 0)
@@ -10363,9 +10320,6 @@ clear_termoptions(void)
      * outputting a few things that the terminal doesn't understand, but the
      * screen will be cleared later, so this is OK.
      */
-#ifdef FEAT_MOUSE_TTY
-    mch_setmouse(FALSE);	    /* switch mouse off */
-#endif
 #ifdef FEAT_TITLE
     mch_restore_title(SAVE_RESTORE_BOTH);    /* restore window titles */
 #endif
