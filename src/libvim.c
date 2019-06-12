@@ -85,7 +85,6 @@ pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
 colnr_T vimCursorGetDesiredColumn(void) { return curwin->w_curswant; };
 
 void vimInput(char_u *input) {
-  printf("libvim - vimInput\n");
   char_u *ptr = NULL;
   char_u *cpo_save = p_cpo;
 
@@ -102,10 +101,7 @@ void vimInput(char_u *input) {
 
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
-    printf("libvim: sm_execute_normal2: %s\n", input);
-    printf("- STATE: %d\n", State);
     sm_execute_normal(input);
-    printf("libvim: sm_execute_normal -- DONE\n");
   }
   vim_free((char_u *)ptr);
   /* Trigger CursorMoved if the cursor moved. */
