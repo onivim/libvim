@@ -2019,8 +2019,9 @@ getcmdline_int(
 		    else
 		    {
 			alloc_cmdbuff((int)STRLEN(p));
-			if (ccline.cmdbuff == NULL)
+			if (ccline.cmdbuff == NULL) {
 			    goto returncmd;
+			}
 			STRCPY(ccline.cmdbuff, p);
 		    }
 
@@ -2086,6 +2087,7 @@ getcmdline_int(
 		{
 		    gotesc = TRUE;	/* will free ccline.cmdbuff after
 					   putting it in history */
+		    printf("goto returncmd: 30!!\n");
 		    goto returncmd;	/* back to Normal mode */
 		}
 #endif
@@ -2473,6 +2475,8 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	context->b_im_ptr = NULL;
 	context->did_save_ccline = FALSE;
 
+    printf("state_cmdline_initialize: 1\n");
+
     if (ccline.cmdbuff != NULL)
     {
 	// Being called recursively.  Since ccline is global, we need to save
@@ -2480,6 +2484,8 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	save_cmdline(&context->save_ccline);
 	context->did_save_ccline = TRUE;
     }
+
+    printf("state_cmdline_initialize: 2\n");
 
     /* TODO: Where does init_ccline come from? When is it not TRUE? */
     /* if (init_ccline) */
@@ -2512,6 +2518,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     ccline.cmdindent = (context->firstc > 0 ? context->indent : 0);
 
     /* alloc initial ccline.cmdbuff */
+    printf("state_cmdline_initialize: 3\n");
     alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
     if (ccline.cmdbuff == NULL) {
 	    // out of memory
@@ -2561,6 +2568,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 #endif
 
     State = CMDLINE;
+    printf("state_cmdline_initialize: 4\n");
 
     if (context->firstc == '/' || context->firstc == '?' || context->firstc == '@')
     {
@@ -2590,6 +2598,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     context->histype = hist_char2type(context->firstc);
 #endif
 
+    printf("state_cmdline_initialize: 5\n");
 #ifdef FEAT_DIGRAPHS
     do_digraph(-1);		/* init digraph typeahead */
 #endif
@@ -2597,12 +2606,14 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     got_int = FALSE;
 
 theend:
+    printf("state_cmdline_initialize - the_end\n");
 	return context;
 };
 
 executionStatus_T state_cmdline_execute(void *ctx, int c) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
 
+    printf("state_cmdline_executing character: %d\n", c);
     if (context->bail_immediately == TRUE) {
 	    return COMPLETED_UNHANDLED;
     }
@@ -3003,6 +3014,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		    windgoto(msg_row, 0);
 		    out_flush();
 		}
+		    printf("goto returncmd: 40!!\n");
 		goto returncmd;
 	    }
 	}
@@ -3233,6 +3245,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 			context->is_state.search_start = context->is_state.save_cursor;
 #endif
 		    redraw_cmdline = TRUE;
+		    printf("goto returncmd: 50!!\n");
 		    goto returncmd;		/* back to cmd mode */
 		}
 		goto cmdline_changed;
@@ -3323,14 +3336,17 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 
 	case ESC:	/* get here if p_wc != ESC or when ESC typed twice */
 	case Ctrl_C:
+		printf("escape key handler\n");
 		/* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
 		if (exmode_active
 			       && (ex_normal_busy == 0 || typebuf.tb_len > 0))
 		    goto cmdline_not_changed;
 
+		printf("Setting gotesc to TRUE\n");
 		context->gotesc = TRUE;		/* will free ccline.cmdbuff after
 					   putting it in history */
+		    printf("goto returncmd: 60!!\n");
 		goto returncmd;		/* back to cmd mode */
 
 	case Ctrl_R:			/* insert register */
@@ -3373,6 +3389,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		    {
 			context->gotesc = TRUE;  /* will free ccline.cmdbuff after
 					   putting it in history */
+		    printf("goto returncmd: 70!!\n");
 			goto returncmd; /* back to cmd mode */
 		    }
 #endif
@@ -3615,8 +3632,10 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 			    if (context->i == 0)
 			    {
 				alloc_cmdbuff(len);
-				if (ccline.cmdbuff == NULL)
+				if (ccline.cmdbuff == NULL) {
+		    printf("goto returncmd: 80!!\n");
 				    goto returncmd;
+				}
 			    }
 			}
 			ccline.cmdbuff[len] = NUL;
@@ -3624,8 +3643,10 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		    else
 		    {
 			alloc_cmdbuff((int)STRLEN(p));
-			if (ccline.cmdbuff == NULL)
+			if (ccline.cmdbuff == NULL) {
+		    printf("goto returncmd: 90!!\n");
 			    goto returncmd;
+			}
 			STRCPY(ccline.cmdbuff, p);
 		    }
 
@@ -3690,6 +3711,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		{
 		    context->gotesc = TRUE;	/* will free ccline.cmdbuff after
 					   putting it in history */
+		    printf("goto returncmd: 100!!\n");
 		    goto returncmd;	/* back to Normal mode */
 		}
 #endif
@@ -3737,12 +3759,17 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	goto cmdline_changed;
 
 returncmd:
+	printf("got to returncmd\n");
+	printf("gotesc: %d\n", context->gotesc);
 	if (context->gotesc == TRUE) {
-	    abandon_cmdline();
+	printf("before abandon\n");
+	printf("after abandon\n");
 	} else {
+	    printf("ELSE\n");
 	    if (context->firstc == ':')
 		do_cmdline_cmd(ccline.cmdbuff);
 	}
+	printf("returning unhandled!");
 
   return COMPLETED_UNHANDLED;
 
@@ -3789,6 +3816,8 @@ void state_cmdline_cleanup(void *ctx) {
     /* Trigger CmdlineLeave autocommands. */
     trigger_cmd_autocmd(context->cmdline_type, EVENT_CMDLINELEAVE);
 
+    abandon_cmdline();
+    vim_memset(&ccline, 0, sizeof(struct cmdline_info));
 	  /* ccline.cmdbuff = NULL; */
     State = context->save_State;
     vim_free(context);
