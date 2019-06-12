@@ -3739,6 +3739,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 returncmd:
 	if (context->gotesc == TRUE) {
 	    abandon_cmdline();
+            vim_memset(&ccline, 0, sizeof(struct cmdline_info));
 	} else {
 	    if (context->firstc == ':')
 		do_cmdline_cmd(ccline.cmdbuff);
