@@ -127,6 +127,20 @@ MU_TEST(test_cmdline_substitution) {
                   "Ahis is the first line of a test file") == 0);
 }
 
+MU_TEST(test_cmdline_get_type) {
+    vimInput(":");
+    mu_check(vimCommandLineGetType() == ':');
+    vimInput("<esc>");
+
+    vimInput("/");
+    mu_check(vimCommandLineGetType() == '/');
+    vimInput("<esc>");
+
+    vimInput("?");
+    mu_check(vimCommandLineGetType() == '?');
+    vimInput("<esc>");
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
