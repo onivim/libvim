@@ -7283,7 +7283,6 @@ did_set_string_option(
 	{
 	    if (*p_mouse != NUL)
 		errmsg = N_("E538: No mouse support");
-#endif
 	}
 #if defined(FEAT_GUI)
 	else if (varp == &p_go) /* 'guioptions' */
