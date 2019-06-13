@@ -3210,12 +3210,10 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	case Ctrl_C:
 		/* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
-		printf("Got escape key!\n");
 		if (exmode_active
 			       && (ex_normal_busy == 0 || typebuf.tb_len > 0))
 		    goto cmdline_not_changed;
 
-		printf("Setting gotesc to true\n");
 		context->gotesc = TRUE;		/* will free ccline.cmdbuff after
 					   putting it in history */
 		goto returncmd;		/* back to cmd mode */
