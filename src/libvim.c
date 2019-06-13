@@ -21,7 +21,6 @@ void vimInit(int argc, char **argv) {
 
   mch_early_init();
   common_init(&params);
-  init_normal_cmds();
 
   win_setwidth(80);
   win_setheight(40);
