@@ -3013,122 +3013,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	 * - wildcard expansion is only done when the 'wildchar' key is really
 	 *   typed, not when it comes from a macro
 	 */
-	if ((c == p_wc && !context->gotesc && KeyTyped) || c == p_wcm)
-	{
-	    if (context->xpc.xp_numfiles > 0)   /* typed p_wc at least twice */
-	    {
-		/* if 'wildmode' contains "list" may still need to list */
-		if (context->xpc.xp_numfiles > 1
-			&& !context->did_wild_list
-			&& (wim_flags[context->wim_index] & WIM_LIST))
-		{
-		    (void)showmatches(&context->xpc, FALSE);
-		    /* redrawcmd(); */
-		    context->did_wild_list = TRUE;
-		}
-		if (wim_flags[context->wim_index] & WIM_LONGEST)
-		    context->res = nextwild(&context->xpc, WILD_LONGEST, WILD_NO_BEEP,
-							       context->firstc != '@');
-		else if (wim_flags[context->wim_index] & WIM_FULL)
-		    context->res = nextwild(&context->xpc, WILD_NEXT, WILD_NO_BEEP,
-							       context->firstc != '@');
-		else
-		    context->res = OK;	    /* don't insert 'wildchar' now */
-	    }
-	    else		    /* typed p_wc first time */
-	    {
-		context->wim_index = 0;
-		context->j = ccline.cmdpos;
-		/* if 'wildmode' first contains "longest", get longest
-		 * common part */
-		if (wim_flags[0] & WIM_LONGEST)
-		    context->res = nextwild(&context->xpc, WILD_LONGEST, WILD_NO_BEEP,
-							       context->firstc != '@');
-		else
-		    context->res = nextwild(&context->xpc, WILD_EXPAND_KEEP, WILD_NO_BEEP,
-							       context->firstc != '@');
-
-// TODO: Needed?
-//		/* if interrupted while completing, behave like it failed */
-//		if (got_int)
-//		{
-//		    (void)vpeekc();	/* remove <C-C> from input stream */
-//		    got_int = FALSE;	/* don't abandon the command line */
-//		    (void)ExpandOne(&xpc, NULL, NULL, 0, WILD_FREE);
-//#ifdef FEAT_WILDMENU
-//		    xpc.xp_context = EXPAND_NOTHING;
-//#endif
-//		    goto cmdline_changed;
-//		}
-
-		/* when more than one match, and 'wildmode' first contains
-		 * "list", or no change and 'wildmode' contains "longest,list",
-		 * list all matches */
-		if (context->res == OK && context->xpc.xp_numfiles > 1)
-		{
-		    /* a "longest" that didn't do anything is skipped (but not
-		     * "list:longest") */
-		    if (wim_flags[0] == WIM_LONGEST && ccline.cmdpos == context->j)
-			context->wim_index = 1;
-		    if ((wim_flags[context->wim_index] & WIM_LIST)
-#ifdef FEAT_WILDMENU
-			    || (p_wmnu && (wim_flags[context->wim_index] & WIM_FULL) != 0)
-#endif
-			    )
-		    {
-			if (!(wim_flags[0] & WIM_LONGEST))
-			{
-#ifdef FEAT_WILDMENU
-			    int p_wmnu_save = p_wmnu;
-			    p_wmnu = 0;
-#endif
-			    /* remove match */
-			    nextwild(&context->xpc, WILD_PREV, 0, context->firstc != '@');
-#ifdef FEAT_WILDMENU
-			    p_wmnu = p_wmnu_save;
-#endif
-			}
-#ifdef FEAT_WILDMENU
-			(void)showmatches(&context->xpc, p_wmnu
-				&& ((wim_flags[context->wim_index] & WIM_LIST) == 0));
-#else
-			(void)showmatches(&context->xpc, FALSE);
-#endif
-			redrawcmd();
-			context->did_wild_list = TRUE;
-			if (wim_flags[context->wim_index] & WIM_LONGEST)
-			    nextwild(&context->xpc, WILD_LONGEST, WILD_NO_BEEP,
-							       context->firstc != '@');
-			else if (wim_flags[context->wim_index] & WIM_FULL)
-			    nextwild(&context->xpc, WILD_NEXT, WILD_NO_BEEP,
-							       context->firstc != '@');
-		    }
-		    else
-			vim_beep(BO_WILD);
-		}
-#ifdef FEAT_WILDMENU
-		else if (context->xpc.xp_numfiles == -1)
-		    context->xpc.xp_context = EXPAND_NOTHING;
-#endif
-	    }
-	    if (context->wim_index < 3)
-		++context->wim_index;
-	    if (c == ESC)
-		context->gotesc = TRUE;
-	    if (context->res == OK)
-		goto cmdline_changed;
-	}
-
-	context->gotesc = FALSE;
-
-	/* <S-Tab> goes to last match, in a clumsy way */
-	if (c == K_S_TAB && KeyTyped)
-	{
-	    if (nextwild(&context->xpc, WILD_EXPAND_KEEP, 0, context->firstc != '@') == OK
-		    && nextwild(&context->xpc, WILD_PREV, 0, context->firstc != '@') == OK
-		    && nextwild(&context->xpc, WILD_PREV, 0, context->firstc != '@') == OK)
-		goto cmdline_changed;
-	}
+	/* context->gotesc = FALSE; */
 
 	if (c == NUL || c == K_ZERO)	    /* NUL is stored as NL */
 	    c = NL;
@@ -3325,10 +3210,12 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 	case Ctrl_C:
 		/* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
+		printf("Got escape key!\n");
 		if (exmode_active
 			       && (ex_normal_busy == 0 || typebuf.tb_len > 0))
 		    goto cmdline_not_changed;
 
+		printf("Setting gotesc to true\n");
 		context->gotesc = TRUE;		/* will free ccline.cmdbuff after
 					   putting it in history */
 		goto returncmd;		/* back to cmd mode */

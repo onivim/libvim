@@ -562,15 +562,17 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 			    start_normal_mode(context);
 			    break;
 		    case CMDLINE: ;
+		      printf("Came back from cmdline!\n");
 			    // If we're coming back from command line, the command
 		      // hasn't been executed yet.
 			    char_u *cmd = ccline.cmdbuff;
 			    char_u cmdc = ccline.cmdfirstc;
-			    if (cmdc == '/' || cmdc == '?') {
+				    printf("RETURNING from search - cmd is: %s\n", cmd);
 				    if (cmd == NULL) {
+					      printf("Command null, restarting\n");
 						    curwin->w_cursor = context->returnPriorPosition;
 						    clearop(context->oap);
-				    } else {
+				    } else if (cmdc == '/' || cmdc == '?') {
 					    context->ca.searchbuf = cmd;
 					    /* Seed the search - bump it forward and back so everything is set for N and n */
 			      (void)normal_search(&context->ca, cmdc, cmd, 0);
@@ -582,7 +584,6 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
 				      /*                         ? 0 */
 				      /*                         : SEARCH_MARK); */
 				    }
-			    }
 			    start_normal_mode(context);
 			    return HANDLED;
 			    break;
