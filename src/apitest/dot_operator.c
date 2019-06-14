@@ -1,9 +1,7 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
-  vimExecute("new");
-}
+void test_setup(void) { vimExecute("new"); }
 
 void test_teardown(void) {}
 
