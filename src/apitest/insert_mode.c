@@ -5,6 +5,10 @@ void test_setup(void) {
   vimInput("<Esc>");
   vimInput("<Esc>");
   vimExecute("e!");
+
+  vimInput("g");
+  vimInput("g");
+  vimInput("0");
 }
 
 void test_teardown(void) {}
@@ -29,6 +33,7 @@ MU_TEST(insert_beginning) {
   vimInput("c");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "abcThis is the first line of a test file") == 0);
 }
 
