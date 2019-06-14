@@ -39,10 +39,41 @@ MU_TEST(test_multiple_undo) {
     mu_check(strcmp(vimBufferGetLine(cur, 1), "This is the first line of a test file") == 0);
 }
 
+MU_TEST(test_multiple_undo_redo) {
+    // Delete first line
+    vimInput("d");
+    vimInput("d");
+
+    // Delete second line
+    vimInput("d");
+    vimInput("d");
+
+    buf_T *cur = vimBufferGetCurrent();
+    int count = vimBufferGetLineCount(cur);
+    mu_check(count == 1);
+
+    // Undo twice
+    vimInput("u");
+    vimInput("u");
+
+    // Redo the last change
+    vimInput("<C-r>");
+
+    count = vimBufferGetLineCount(cur);
+    mu_check(count == 2);
+
+    // Redo again
+    vimInput("<C-r>");
+
+    count = vimBufferGetLineCount(cur);
+    mu_check(count == 1);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_multiple_undo);
+  MU_RUN_TEST(test_multiple_undo_redo);
 }
 
 int main(int argc, char **argv) {
