@@ -12,61 +12,63 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(test_multiple_undo) {
-    // Delete first line
-    vimInput("d");
-    vimInput("d");
+  // Delete first line
+  vimInput("d");
+  vimInput("d");
 
-    // Delete second line
-    vimInput("d");
-    vimInput("d");
+  // Delete second line
+  vimInput("d");
+  vimInput("d");
 
-    buf_T *cur = vimBufferGetCurrent();
-    int count = vimBufferGetLineCount(cur);
-    mu_check(count == 1);
+  buf_T *cur = vimBufferGetCurrent();
+  int count = vimBufferGetLineCount(cur);
+  mu_check(count == 1);
 
-    // Undo last change - the second line should be back
-    vimInput("u");
+  // Undo last change - the second line should be back
+  vimInput("u");
 
-    count = vimBufferGetLineCount(cur);
-    mu_check(count == 2);
-    mu_check(strcmp(vimBufferGetLine(cur, 1), "This is the second line of a test file") == 0);
+  count = vimBufferGetLineCount(cur);
+  mu_check(count == 2);
+  mu_check(strcmp(vimBufferGetLine(cur, 1),
+                  "This is the second line of a test file") == 0);
 
-    // Undo again - the first line should be back
-    vimInput("u");
+  // Undo again - the first line should be back
+  vimInput("u");
 
-    count = vimBufferGetLineCount(cur);
-    mu_check(count == 3);
-    mu_check(strcmp(vimBufferGetLine(cur, 1), "This is the first line of a test file") == 0);
+  count = vimBufferGetLineCount(cur);
+  mu_check(count == 3);
+  mu_check(strcmp(vimBufferGetLine(cur, 1),
+                  "This is the first line of a test file") == 0);
 }
 
 MU_TEST(test_multiple_undo_redo) {
-    // Delete first line
-    vimInput("d");
-    vimInput("d");
+  // Delete first line
+  vimInput("d");
+  vimInput("d");
 
-    // Delete second line
-    vimInput("d");
-    vimInput("d");
+  // Delete second line
+  vimInput("d");
+  vimInput("d");
 
-    buf_T *cur = vimBufferGetCurrent();
-    int count = vimBufferGetLineCount(cur);
-    mu_check(count == 1);
+  buf_T *cur = vimBufferGetCurrent();
+  int count = vimBufferGetLineCount(cur);
+  mu_check(count == 1);
 
-    // Undo twice
-    vimInput("u");
-    vimInput("u");
+  // Undo twice
+  vimInput("u");
+  vimInput("u");
 
-    // Redo the last change
-    vimInput("<C-r>");
+  // Redo the last change
+  vimInput("<C-r>");
 
-    count = vimBufferGetLineCount(cur);
-    mu_check(count == 2);
+  count = vimBufferGetLineCount(cur);
+  mu_check(count == 2);
 
-    // Redo again
-    vimInput("<C-r>");
+  // Redo again
+  vimInput("<C-r>");
 
-    count = vimBufferGetLineCount(cur);
-    mu_check(count == 1);
+  count = vimBufferGetLineCount(cur);
+  mu_check(count == 1);
 }
 
 MU_TEST_SUITE(test_suite) {
