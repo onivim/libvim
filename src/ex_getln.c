@@ -4624,7 +4624,7 @@ redrawcmd(void)
     /*if (cmd_silent)*/
 	/*return;*/
 
-    /*/* when 'incsearch' is set there may be no command line while redrawing */*/
+    /* when 'incsearch' is set there may be no command line while redrawing */
     /*if (ccline.cmdbuff == NULL)*/
     /*{*/
 	/*windgoto(cmdline_row, 0);*/
@@ -4635,7 +4635,7 @@ redrawcmd(void)
     /*msg_start();*/
     /*redrawcmdprompt();*/
 
-    /*/* Don't use more prompt, truncate the cmdline if it doesn't fit. */*/
+    /* Don't use more prompt, truncate the cmdline if it doesn't fit. */
     /*msg_no_more = TRUE;*/
     /*draw_cmdline(0, ccline.cmdlen);*/
     /*msg_clr_eos();*/
@@ -4645,14 +4645,14 @@ redrawcmd(void)
     /*if (extra_char != NUL)*/
 	/*putcmdline(extra_char, extra_char_shift);*/
 
-    /*/**/
-    /* * An emsg() before may have set msg_scroll. This is used in normal mode,*/
-    /* * in cmdline mode we can reset them now.*/
-    /* */*/
-    /*msg_scroll = FALSE;		/* next message overwrites cmdline */*/
+    /*
+    / An emsg() before may have set msg_scroll. This is used in normal mode,*/
+    /* in cmdline mode we can reset them now.*/
+    /* */
+    /*msg_scroll = FALSE;		 next message overwrites cmdline */
 
-    /*/* Typing ':' at the more prompt may set skip_redraw.  We don't want this*/
-    /* * in cmdline mode */*/
+    /* Typing ':' at the more prompt may set skip_redraw.  We don't want this*/
+    /* in cmdline mode */
     /*skip_redraw = FALSE;*/
 }
 
