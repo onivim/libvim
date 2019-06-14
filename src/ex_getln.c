@@ -4580,38 +4580,13 @@ redrawcmdline(void)
 redrawcmdline_ex(int do_compute_cmdrow)
 {
     // libvim - noop
-    
-    /* if (cmd_silent) */
-	/* return; */
-    /* need_wait_return = FALSE; */
-    /* if (do_compute_cmdrow) */
-	/* compute_cmdrow(); */
-    /* redrawcmd(); */
-    /* cursorcmd(); */
 }
 
     static void
 redrawcmdprompt(void)
 {
     // libvim - noop
-    /* int		i; */
-
-    /* if (cmd_silent) */
-	/* return; */
-    /* if (ccline.cmdfirstc != NUL) */
-	/* msg_putchar(ccline.cmdfirstc); */
-    /* if (ccline.cmdprompt != NULL) */
-    /* { */
-	/* msg_puts_attr((char *)ccline.cmdprompt, ccline.cmdattr); */
-	/* ccline.cmdindent = msg_col + (msg_row - cmdline_row) * Columns; */
-	/* /1* do the reverse of set_cmdspos() *1/ */
-	/* if (ccline.cmdfirstc != NUL) */
-	    /* --ccline.cmdindent; */
-    /* } */
-    /* else */
-	/* for (i = ccline.cmdindent; i > 0; --i) */
-	    /* msg_putchar(' '); */
-/* } */
+}
 
 /*
  * Redraw what is currently on the command line.
@@ -4620,40 +4595,6 @@ redrawcmdprompt(void)
 redrawcmd(void)
 {
     // libvim - noop
-
-    /*if (cmd_silent)*/
-	/*return;*/
-
-    /* when 'incsearch' is set there may be no command line while redrawing */
-    /*if (ccline.cmdbuff == NULL)*/
-    /*{*/
-	/*windgoto(cmdline_row, 0);*/
-	/*msg_clr_eos();*/
-	/*return;*/
-    /*}*/
-
-    /*msg_start();*/
-    /*redrawcmdprompt();*/
-
-    /* Don't use more prompt, truncate the cmdline if it doesn't fit. */
-    /*msg_no_more = TRUE;*/
-    /*draw_cmdline(0, ccline.cmdlen);*/
-    /*msg_clr_eos();*/
-    /*msg_no_more = FALSE;*/
-
-    /*set_cmdspos_cursor();*/
-    /*if (extra_char != NUL)*/
-	/*putcmdline(extra_char, extra_char_shift);*/
-
-    /*
-    / An emsg() before may have set msg_scroll. This is used in normal mode,*/
-    /* in cmdline mode we can reset them now.*/
-    /* */
-    /*msg_scroll = FALSE;		 next message overwrites cmdline */
-
-    /* Typing ':' at the more prompt may set skip_redraw.  We don't want this*/
-    /* in cmdline mode */
-    /*skip_redraw = FALSE;*/
 }
 
     void
