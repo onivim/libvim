@@ -22,6 +22,11 @@ void vimInit(int argc, char **argv) {
   mch_early_init();
   common_init(&params);
 
+  // Set to 'nocompatible' so we get the expected Vim undo / redo behavior,
+  // rather than Vi's behavior.
+  // See :help cpoptions and :help compatible for details
+  change_compatible(FALSE);
+
   win_setwidth(80);
   win_setheight(40);
 }
