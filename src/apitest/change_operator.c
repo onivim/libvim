@@ -19,7 +19,8 @@ MU_TEST(test_change_word) {
   vimInput("c");
   vimInput("<esc>");
 
-  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc is the first line of a test file") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1),
+                  "abc is the first line of a test file") == 0);
 }
 
 MU_TEST(test_change_line_C) {
