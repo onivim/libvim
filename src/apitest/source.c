@@ -21,7 +21,6 @@ MU_TEST(test_simple_viml) {
   mu_check(vimCursorGetLine() == 2);
 }
 
-
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
