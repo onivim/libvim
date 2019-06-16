@@ -2,6 +2,9 @@
 #include "minunit.h"
 
 void test_setup(void) {
+  vimInput("<esc>");
+  vimInput("<esc>");
+
   vimExecute("e!");
 
   vimInput("g");
@@ -17,8 +20,9 @@ MU_TEST(test_change_word) {
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<esc>");
+  vimInput("<c-c>");
 
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1),
                   "abc is the first line of a test file") == 0);
 }
@@ -28,8 +32,9 @@ MU_TEST(test_change_line_C) {
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<esc>");
+  vimInput("<c-c>");
 
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 }
 
@@ -39,8 +44,9 @@ MU_TEST(test_change_line_c$) {
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<esc>");
+  vimInput("<c-c>");
 
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 }
 
