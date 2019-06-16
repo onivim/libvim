@@ -423,65 +423,10 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   }
 #endif
 
-  /*
-   * If we inserted a character at the last position of the last line in
-   * the window, scroll the window one line up. This avoids an extra
-   * redraw.
-   * This is detected when the cursor column is smaller after inserting
-   * something.
-   * Don't do this when the topline changed already, it has
-   * already been adjusted (by insertchar() calling open_line())).
-   */
-  if (curbuf->b_mod_set && curwin->w_p_wrap && !context->did_backspace &&
-      curwin->w_topline == context->old_topline
-#ifdef FEAT_DIFF
-      && curwin->w_topfill == context->old_topfill
-#endif
-  ) {
-    context->mincol = curwin->w_wcol;
-    validate_cursor_col();
-
-    if (
-#ifdef FEAT_VARTABS
-        (int)curwin->w_wcol <
-            context->mincol - tabstop_at(get_nolist_virtcol(), curbuf->b_p_ts,
-                                         curbuf->b_p_vts_array)
-#else
-        (int)curwin->w_wcol < context->mincol - curbuf->b_p_ts
-#endif
-        && curwin->w_wrow == W_WINROW(curwin) + curwin->w_height - 1 -
-                                 get_scrolloff_value() &&
-        (curwin->w_cursor.lnum != curwin->w_topline
-#ifdef FEAT_DIFF
-         || curwin->w_topfill > 0
-#endif
-         )) {
-#ifdef FEAT_DIFF
-      if (curwin->w_topfill > 0)
-        --curwin->w_topfill;
-      else
-#endif
-#ifdef FEAT_FOLDING
-          if (hasFolding(curwin->w_topline, NULL, &context->old_topline))
-        set_topline(curwin, context->old_topline + 1);
-      else
-#endif
-        set_topline(curwin, curwin->w_topline + 1);
-    }
-  }
-
-  /* May need to adjust w_topline to show the cursor. */
-  update_topline();
 
   context->did_backspace = FALSE;
 
   validate_cursor(); /* may set must_redraw */
-
-  /*
-   * Redraw the display when no characters are waiting.
-   * Also shows mode, ruler and positions cursor.
-   */
-  ins_redraw(TRUE);
 
   if (curwin->w_p_scb)
     do_check_scrollbind(TRUE);
