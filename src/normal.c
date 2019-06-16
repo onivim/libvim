@@ -1951,19 +1951,19 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
 #endif
         /* Reset finish_op now, don't want it set inside edit(). */
         finish_op = FALSE;
+
+        // TODO: Libvim?
         /* if (op_change(oap)) /1* will call edit() *1/ */
         /*   cap->retval |= CA_COMMAND_BUSY; */
 
+        sm_push_change(oap);
+        restart_edit = 0;
 
-	      sm_push_change(oap);
-	      restart_edit = 0;
-
-	      /* TODO: Set this on return? */
+        // TODO: Libvim?
+        /* TODO: Set this on return? */
         /* if (restart_edit == 0) */
         /*   restart_edit = restart_edit_save; */
-	      /* sm_push_insert(cap->cmdchar, 1, 1); */
-
-	      return;
+        return;
 
       }
       break;
