@@ -804,6 +804,18 @@ restart_state:
 	     do_pending_operator(&context->ca, context->old_col, FALSE);
     }
 
+    /*
+     * Some operators, like 'change', will cause a transition to a new mode.
+     * If that's the case, we need to switch gears here and record state state
+     * for when we transition back.
+     */
+    stateMode = sm_get_current_mode();
+    if (stateMode != NORMAL) {
+	    context->returnState = stateMode;
+	    context->returnPriorPosition = curwin->w_cursor;
+	    return HANDLED;
+    }
+
     if (finish_op || oap->op_type == OP_NOP) {
       return COMPLETED;
     } else {
@@ -1939,10 +1951,20 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
 #endif
         /* Reset finish_op now, don't want it set inside edit(). */
         finish_op = FALSE;
-        if (op_change(oap)) /* will call edit() */
-          cap->retval |= CA_COMMAND_BUSY;
-        if (restart_edit == 0)
-          restart_edit = restart_edit_save;
+        /* if (op_change(oap)) /1* will call edit() *1/ */
+        /*   cap->retval |= CA_COMMAND_BUSY; */
+
+
+	      sm_push_change(oap);
+	      restart_edit = 0;
+
+	      /* TODO: Set this on return? */
+        /* if (restart_edit == 0) */
+        /*   restart_edit = restart_edit_save; */
+	      /* sm_push_insert(cap->cmdchar, 1, 1); */
+
+	      return;
+
       }
       break;
 

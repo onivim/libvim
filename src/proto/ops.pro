@@ -1,4 +1,8 @@
 /* ops.c */
+void *state_change_initialize(oparg_T *oap);
+executionStatus_T state_change_execute(void *ctx, int c);
+void state_change_cleanup(void *ctx);
+
 int get_op_type(int char1, int char2);
 int op_on_lines(int op);
 int op_is_change(int op);
@@ -31,7 +35,6 @@ int op_replace(oparg_T *oap, int c);
 void op_tilde(oparg_T *oap);
 int swapchar(int op_type, pos_T *pos);
 void op_insert(oparg_T *oap, long count1);
-int op_change(oparg_T *oap);
 void init_yank(void);
 void clear_registers(void);
 int op_yank(oparg_T *oap, int deleting, int mess);

@@ -2452,26 +2452,33 @@ void op_insert(oparg_T *oap, long count1) {
   }
 }
 
-/*
- * op_change - handle a change operation
- *
- * return TRUE if edit() returns because of a CTRL-O command
- */
-int op_change(oparg_T *oap) {
-  colnr_T l;
-  int retval;
-  long offset;
-  linenr_T linenr;
-  long ins_len;
-  long pre_textlen = 0;
-  long pre_indent = 0;
-  char_u *firstline;
-  char_u *ins_text, *newp, *oldp;
-  struct block_def bd;
+typedef struct {
+    oparg_T* oap;
+    void* editContext;
+    colnr_T l;
+    int retval;
+    long offset;
+    linenr_T linenr;
+    long ins_len;
+    long pre_textlen;
+    long pre_indent;
+    char_u *firstline;
+    char_u *ins_text;
+    char_u *newp;
+    char_u *oldp;
+    struct block_def bd;
+} changeState_T;
 
-  l = oap->start.col;
+void *state_change_initialize(oparg_T *oap) {
+  changeState_T *context = (changeState_T *)alloc(sizeof(changeState_T));
+
+  context->pre_textlen = 0;
+  context->pre_indent = 0;
+  context->oap = oap;
+
+  context->l = oap->start.col;
   if (oap->motion_type == MLINE) {
-    l = 0;
+    context->l = 0;
 #ifdef FEAT_SMARTINDENT
     if (!p_paste && curbuf->b_p_si
 #ifdef FEAT_CINDENT
@@ -2490,7 +2497,7 @@ int op_change(oparg_T *oap) {
   } else if (op_delete(oap) == FAIL)
     return FALSE;
 
-  if ((l > curwin->w_cursor.col) && !LINEEMPTY(curwin->w_cursor.lnum) &&
+  if ((context->l > curwin->w_cursor.col) && !LINEEMPTY(curwin->w_cursor.lnum) &&
       !virtual_op)
     inc_cursor();
 
@@ -2500,10 +2507,10 @@ int op_change(oparg_T *oap) {
     /* Add spaces before getting the current line length. */
     if (virtual_op && (curwin->w_cursor.coladd > 0 || gchar_cursor() == NUL))
       coladvance_force(getviscol());
-    firstline = ml_get(oap->start.lnum);
-    pre_textlen = (long)STRLEN(firstline);
-    pre_indent = (long)getwhitecols(firstline);
-    bd.textcol = curwin->w_cursor.col;
+    context->firstline = ml_get(context->oap->start.lnum);
+    context->pre_textlen = (long)STRLEN(context->firstline);
+    context->pre_indent = (long)getwhitecols(context->firstline);
+    context->bd.textcol = curwin->w_cursor.col;
   }
 
 #if defined(FEAT_LISP) || defined(FEAT_CINDENT)
@@ -2511,67 +2518,81 @@ int op_change(oparg_T *oap) {
     fix_indent();
 #endif
 
-  retval = edit(NUL, FALSE, (linenr_T)1);
+  context->editContext = state_edit_initialize(NUL, FALSE, (linenr_T)1);
+
+  return (void *)context;
+};
+
+executionStatus_T state_change_execute(void *ctx, int c) {
+  changeState_T *context = (changeState_T *)ctx;
+
+  return state_edit_execute(context->editContext, c);
+};
+
+void state_change_cleanup(void *ctx) {
+  changeState_T *context = (changeState_T *)ctx;
+
+  state_edit_cleanup(context->editContext);
 
   /*
    * In Visual block mode, handle copying the new text to all lines of the
    * block.
    * Don't repeat the insert when Insert mode ended with CTRL-C.
    */
-  if (oap->block_mode && oap->start.lnum != oap->end.lnum && !got_int) {
+  if (context->oap->block_mode && context->oap->start.lnum != context->oap->end.lnum && !got_int) {
     /* Auto-indenting may have changed the indent.  If the cursor was past
      * the indent, exclude that indent change from the inserted text. */
-    firstline = ml_get(oap->start.lnum);
-    if (bd.textcol > (colnr_T)pre_indent) {
-      long new_indent = (long)getwhitecols(firstline);
+    context->firstline = ml_get(context->oap->start.lnum);
+    if (context->bd.textcol > (colnr_T)context->pre_indent) {
+      long new_indent = (long)getwhitecols(context->firstline);
 
-      pre_textlen += new_indent - pre_indent;
-      bd.textcol += new_indent - pre_indent;
+      context->pre_textlen += new_indent - context->pre_indent;
+      context->bd.textcol += new_indent - context->pre_indent;
     }
 
-    ins_len = (long)STRLEN(firstline) - pre_textlen;
-    if (ins_len > 0) {
+    context->ins_len = (long)STRLEN(context->firstline) - context->pre_textlen;
+    if (context->ins_len > 0) {
       /* Subsequent calls to ml_get() flush the firstline data - take a
        * copy of the inserted text.  */
-      if ((ins_text = alloc(ins_len + 1)) != NULL) {
-        vim_strncpy(ins_text, firstline + bd.textcol, (size_t)ins_len);
-        for (linenr = oap->start.lnum + 1; linenr <= oap->end.lnum; linenr++) {
-          block_prep(oap, &bd, linenr, TRUE);
-          if (!bd.is_short || virtual_op) {
+      if ((context->ins_text = alloc(context->ins_len + 1)) != NULL) {
+        vim_strncpy(context->ins_text, context->firstline + context->bd.textcol, (size_t)context->ins_len);
+        for (context->linenr = context->oap->start.lnum + 1; context->linenr <= context->oap->end.lnum; context->linenr++) {
+          block_prep(context->oap, &context->bd, context->linenr, TRUE);
+          if (!context->bd.is_short || virtual_op) {
             pos_T vpos;
 
             /* If the block starts in virtual space, count the
              * initial coladd offset as part of "startspaces" */
-            if (bd.is_short) {
-              vpos.lnum = linenr;
-              (void)getvpos(&vpos, oap->start_vcol);
+            if (context->bd.is_short) {
+              vpos.lnum = context->linenr;
+              (void)getvpos(&vpos, context->oap->start_vcol);
             } else
               vpos.coladd = 0;
-            oldp = ml_get(linenr);
-            newp = alloc(STRLEN(oldp) + vpos.coladd + ins_len + 1);
-            if (newp == NULL)
+            context->oldp = ml_get(context->linenr);
+            context->newp = alloc(STRLEN(context->oldp) + vpos.coladd + context->ins_len + 1);
+            if (context->newp == NULL)
               continue;
             /* copy up to block start */
-            mch_memmove(newp, oldp, (size_t)bd.textcol);
-            offset = bd.textcol;
-            vim_memset(newp + offset, ' ', (size_t)vpos.coladd);
-            offset += vpos.coladd;
-            mch_memmove(newp + offset, ins_text, (size_t)ins_len);
-            offset += ins_len;
-            oldp += bd.textcol;
-            STRMOVE(newp + offset, oldp);
-            ml_replace(linenr, newp, FALSE);
+            mch_memmove(context->newp, context->oldp, (size_t)context->bd.textcol);
+            context->offset = context->bd.textcol;
+            vim_memset(context->newp + context->offset, ' ', (size_t)vpos.coladd);
+            context->offset += vpos.coladd;
+            mch_memmove(context->newp + context->offset, context->ins_text, (size_t)context->ins_len);
+            context->offset += context->ins_len;
+            context->oldp += context->bd.textcol;
+            STRMOVE(context->newp + context->offset, context->oldp);
+            ml_replace(context->linenr, context->newp, FALSE);
           }
         }
         check_cursor();
 
-        changed_lines(oap->start.lnum + 1, 0, oap->end.lnum + 1, 0L);
+        changed_lines(context->oap->start.lnum + 1, 0, context->oap->end.lnum + 1, 0L);
       }
-      vim_free(ins_text);
+      vim_free(context->ins_text);
     }
   }
 
-  return retval;
+  vim_free(context);
 }
 
 /*

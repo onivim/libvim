@@ -50,12 +50,50 @@ MU_TEST(test_change_line_c$) {
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 }
 
+MU_TEST(test_change_redo) {
+  vimInput("c");
+  vimInput("w");
+  vimInput("a");
+  vimInput("b");
+  vimInput("c");
+  vimInput("<c-c>");
+  vimInput("j");
+  vimInput("_");
+  vimInput(".");
+
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 2));
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "abc is the second line of a test file") == 0);
+}
+
+MU_TEST(test_change_macro) {
+  vimInput("q");
+  vimInput("a");
+
+  vimInput("0");
+  vimInput("C");
+  vimInput("1");
+  vimInput("2");
+  vimInput("3");
+  vimInput("<c-c>");
+  vimInput("q");
+
+
+  vimInput("j");
+  vimInput("@");
+  vimInput("a");
+
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 2));
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "123") == 0);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_change_word);
   MU_RUN_TEST(test_change_line_C);
   MU_RUN_TEST(test_change_line_c$);
+  MU_RUN_TEST(test_change_redo);
+  MU_RUN_TEST(test_change_macro);
 }
 
 int main(int argc, char **argv) {
