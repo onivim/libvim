@@ -42,6 +42,10 @@ void sm_push_cmdline(int cmdchar, long count, int indent) {
   sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent), state_cmdline_execute, state_cmdline_cleanup);
 }
 
+void sm_push_change(oparg_T *oap) {
+    sm_push(INSERT, state_change_initialize(oap), state_change_execute, state_change_cleanup);
+}
+
 /*
  * sm_execute_normal
  *
