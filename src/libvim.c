@@ -219,21 +219,19 @@ char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
-int vimWindowGetWidth(void) { return curwin->w_frame->fr_width; }
-int vimWindowGetHeight(void) { return curwin->w_frame->fr_height; }
+int vimWindowGetWidth(void) { return curwin->w_width; }
+int vimWindowGetHeight(void) { return curwin->w_height; }
 int vimWindowGetTopLine(void) { return curwin->w_topline; }
 
 void vimWindowSetWidth(int width) {
-  Columns = width;
-  win_setwidth(Columns);
+  Columns = max(Columns, width);
+  win_new_width(curwin, width);
 }
 
 void vimWindowSetHeight(int height) {
-  // Set to height + 1 to account for line
-  // reserved for cmdline
-  Rows = height + 1;
+  Rows = max(Rows, height);
 
-  win_setheight(Rows);
+  win_new_height(curwin, height);
 }
 
 int vimGetMode(void) { return get_real_state(); }

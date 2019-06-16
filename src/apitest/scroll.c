@@ -15,6 +15,26 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
+MU_TEST(test_set_get_metrics) {
+  vimWindowSetWidth(80);
+  vimWindowSetHeight(10);
+
+  mu_check(vimWindowGetWidth() == 80);
+  mu_check(vimWindowGetHeight() == 10);
+
+  vimWindowSetWidth(20);
+  vimWindowSetHeight(21);
+
+  mu_check(vimWindowGetWidth() == 20);
+  mu_check(vimWindowGetHeight() == 21);
+
+  vimWindowSetWidth(1000);
+  vimWindowSetHeight(2000);
+
+  mu_check(vimWindowGetWidth() == 1000);
+  mu_check(vimWindowGetHeight() == 2000);
+}
+
 MU_TEST(test_simple_scroll) {
   vimWindowSetWidth(80);
   vimWindowSetHeight(40);
@@ -62,6 +82,7 @@ MU_TEST(test_small_screen_scroll) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+  MU_RUN_TEST(test_set_get_metrics);
   MU_RUN_TEST(test_simple_scroll);
   MU_RUN_TEST(test_small_screen_scroll);
 }
