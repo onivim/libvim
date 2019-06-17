@@ -14,21 +14,21 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(test_delete_operator_pending) {
-    vimInput("d");
+  vimInput("d");
 
-    // Pressing 'd' should bring us to operator-pending state
-    mu_check((vimGetMode() & OP_PENDING) == OP_PENDING);
+  // Pressing 'd' should bring us to operator-pending state
+  mu_check((vimGetMode() & OP_PENDING) == OP_PENDING);
 
-    vimInput("2");
+  vimInput("2");
 
-    // Should still be in op_pending since this didn't finish the motion...
-    mu_check((vimGetMode() & OP_PENDING) == OP_PENDING);
+  // Should still be in op_pending since this didn't finish the motion...
+  mu_check((vimGetMode() & OP_PENDING) == OP_PENDING);
 
-    // Should now be back to normal
-    vimInput("j");
+  // Should now be back to normal
+  vimInput("j");
 
-    mu_check((vimGetMode() & OP_PENDING) != OP_PENDING);
-    mu_check((vimGetMode() & NORMAL) == NORMAL);
+  mu_check((vimGetMode() & OP_PENDING) != OP_PENDING);
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
 MU_TEST_SUITE(test_suite) {
