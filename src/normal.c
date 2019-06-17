@@ -759,22 +759,15 @@ restart_state:
 
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL) {
-	    context->returnState = stateMode;
-	    context->returnPriorPosition = curwin->w_cursor;
-	    return HANDLED;
+      context->returnState = stateMode;
+      context->returnPriorPosition = curwin->w_cursor;
+      return HANDLED;
     }
 
     if (finish_op && !previous_finish_op && !VIsual_active) {
-	    context->state = NORMAL_START_COUNT;
-	    return HANDLED;
+      context->state = NORMAL_START_COUNT;
+      return HANDLED;
     }
-
-    /* if (!finish_op && context->should_finish_op) { */
-    /*   finish_op = TRUE; */
-    /* } else if (!finish_op && oap->op_type != OP_NOP) { */
-    /*   context->should_finish_op = TRUE; */
-    /*   context->state = NORMAL_START_COUNT; */
-    /* } */
 
     /*
      * If we didn't start or finish an operator, reset oap->regname, unless we
