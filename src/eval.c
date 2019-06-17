@@ -5599,9 +5599,6 @@ garbage_collect(int testing)
     abort = abort || set_ref_in_channel(copyID);
     abort = abort || set_ref_in_job(copyID);
 #endif
-#ifdef FEAT_NETBEANS_INTG
-    abort = abort || set_ref_in_nb_channel(copyID);
-#endif
 
 #ifdef FEAT_TIMERS
     abort = abort || set_ref_in_timer(copyID);

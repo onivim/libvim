@@ -2202,14 +2202,8 @@ typedef enum {
 # endif
 #endif
 
-#ifndef FEAT_NETBEANS_INTG
 # undef NBDEBUG
-#endif
-#ifdef NBDEBUG /* Netbeans debugging. */
-# include "nbdebug.h"
-#else
 # define nbdebug(a)
-#endif
 
 #ifdef IN_PERL_FILE
   /*
