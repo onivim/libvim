@@ -224,12 +224,17 @@ int vimWindowGetHeight(void) { return curwin->w_height; }
 int vimWindowGetTopLine(void) { return curwin->w_topline; }
 
 void vimWindowSetWidth(int width) {
-  Columns = max(Columns, width);
+  if (width > Columns) {
+      Columns = width;
+  }
+
   win_new_width(curwin, width);
 }
 
 void vimWindowSetHeight(int height) {
-  Rows = max(Rows, height);
+  if (height > Rows) {
+      Rows = height;
+  }
 
   win_new_height(curwin, height);
 }
