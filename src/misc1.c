@@ -1488,19 +1488,6 @@ vim_beep(
 			)
 		{
 		    out_str_cf(T_VB);
-#ifdef FEAT_VTP
-		    /* No restore color information, refresh the screen. */
-		    if (has_vtp_working() != 0
-# ifdef FEAT_TERMGUICOLORS
-			    && (p_tgc || (!p_tgc && t_colors >= 256))
-# endif
-			)
-		    {
-			redraw_later(CLEAR);
-			update_screen(0);
-			redrawcmd();
-		    }
-#endif
 		}
 		else
 		    out_char(BELL);

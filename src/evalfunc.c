@@ -6582,9 +6582,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"visual",
 	"visualextra",
 	"vreplace",
-#ifdef FEAT_VTP
-	"vtp",
-#endif
 #ifdef FEAT_WILDIGN
 	"wildignore",
 #endif
@@ -6721,10 +6718,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_SYN_HL
 	else if (STRICMP(name, "syntax_items") == 0)
 	    n = syntax_present(curwin);
-#endif
-#ifdef FEAT_VTP
-	else if (STRICMP(name, "vcon") == 0)
-	    n = is_term_win32() && has_vtp_working();
 #endif
 #ifdef FEAT_NETBEANS_INTG
 	else if (STRICMP(name, "netbeans_enabled") == 0)

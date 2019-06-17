@@ -939,7 +939,6 @@
  * +perl		Perl interface: "--enable-perlinterp"
  * +python		Python interface: "--enable-pythoninterp"
  * +tcl			TCL interface: "--enable-tclinterp"
- * +netbeans_intg	Netbeans integration
  * +channel		Inter process communication
  */
 
@@ -948,12 +947,6 @@
  * +terminfo
  * +tgetent
  */
-
-/*
- * The Netbeans feature requires +eval.
- */
-	/* TODO: Remove completely */
-# undef FEAT_NETBEANS_INTG
 
 /*
  * The +channel feature requires +eval.
@@ -983,14 +976,6 @@
 # define FEAT_GUI_X11
 #endif
 
-#if 0
-/*
- * +footer		Motif only: Add a message area at the bottom of the
- *			main window area.
- */
-# define FEAT_FOOTER
-#endif
-
 /*
  * +autochdir		'autochdir' option.
  */
@@ -1014,18 +999,25 @@
 # define FEAT_FILTERPIPE
 #endif
 
-/*
- * +vtp: Win32 virtual console.
- */
-#if (!defined(FEAT_GUI) || defined(VIMDLL)) && defined(MSWIN)
-# define FEAT_VTP
-#endif
-
+// ------------------------------------------------
 // Features in the process of removing for 'libvim'
+// ------------------------------------------------
 #undef FEAT_AUTOSERVERNAME
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
 #undef FEAT_CRYPT
+/*
+ * +footer		Motif only: Add a message area at the bottom of the
+ *			main window area.
+ */
 #undef FEAT_FOOTER
+/*
+ * The Netbeans feature
+ */
+#undef FEAT_NETBEANS_INTG
 #undef FEAT_STL_OPT
 #undef FEAT_TITLE
+/*
+ * +vtp: Win32 virtual console.
+ */
+#undef FEAT_VTP

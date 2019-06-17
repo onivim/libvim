@@ -556,13 +556,6 @@ static char *(features[]) =
 	"-viminfo",
 #endif
 	"+vreplace",
-#ifdef MSWIN
-# ifdef FEAT_VTP
-	"+vtp",
-# else
-	"-vtp",
-# endif
-#endif
 #ifdef FEAT_WILDIGN
 	"+wildignore",
 #else
