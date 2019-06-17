@@ -67,7 +67,7 @@ void sm_execute(char_u *keys) {
 
   if (state_current != NULL) {
     while (vpeekc() != NUL) {
-      char_u c = vgetc();
+      int c = vgetc();
 
       if (state_current == NULL) {
         sm_push_normal();
