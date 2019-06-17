@@ -92,8 +92,6 @@ void vimInput(char_u *input) {
   char_u *ptr = NULL;
   char_u *cpo_save = p_cpo;
 
-  printf("vimInput - string is: %s\n", input);
-
   /* Set 'cpoptions' the way we want it.
    *    B set - backslashes are *not* treated specially
    *    k set - keycodes are *not* reverse-engineered
@@ -108,11 +106,6 @@ void vimInput(char_u *input) {
 
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
-    printf("strlen ptr is: %d (input is: %d)\n", strlen(ptr), strlen(input));
-    for (int i = 0; i < strlen(input); i++) {
-	    printf ("vimInput - character %d is: %d (%c)\n", i, ptr[i], ptr[i]);
-    }
-    printf("vimInput - after processing: %s\n", input);
     sm_execute_normal(input);
     vim_free((char_u *)ptr);
   }
