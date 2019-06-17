@@ -800,7 +800,7 @@ restart_state:
     /*
      * If an operation is pending, handle it...
      */
-    if (finish_op) {
+    if (finish_op || VIsual_active) {
 	     do_pending_operator(&context->ca, context->old_col, FALSE);
     }
 
