@@ -464,8 +464,6 @@ typedef struct {
   int c;
   int ctrl_w;
   int old_col;
-  int should_finish_op; /* Set to true if the next command should be able to
-                           finish the operation */
   pos_T old_pos;
   int mapped_len;
   int idx;
@@ -496,7 +494,6 @@ void start_normal_mode(normalCmd_T *context) {
   ca.opcount = opcount;
 
   context->ca = ca;
-  context->should_finish_op = FALSE;
 
   finish_op = FALSE;
 
@@ -748,8 +745,9 @@ restart_state:
     goto restart_state;
     break;
 
-  case NORMAL_EXECUTE_COMMAND:
+  case NORMAL_EXECUTE_COMMAND: ;
 
+    int previous_finish_op = finish_op;
     /*
      * Execute the command!
      * Call the command function found in the commands table.
@@ -757,18 +755,18 @@ restart_state:
     context->ca.arg = nv_cmds[context->idx].cmd_arg;
     (nv_cmds[context->idx].cmd_func)(&context->ca);
 
+    finish_op = (oap->op_type != OP_NOP);
+
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL) {
-	    context->returnState = stateMode;
-	    context->returnPriorPosition = curwin->w_cursor;
-	    return HANDLED;
+      context->returnState = stateMode;
+      context->returnPriorPosition = curwin->w_cursor;
+      return HANDLED;
     }
 
-    if (!finish_op && context->should_finish_op) {
-      finish_op = TRUE;
-    } else if (!finish_op && oap->op_type != OP_NOP) {
-      context->should_finish_op = TRUE;
+    if (finish_op && !previous_finish_op && !VIsual_active) {
       context->state = NORMAL_START_COUNT;
+      return HANDLED;
     }
 
     /*
@@ -817,6 +815,7 @@ restart_state:
     }
 
     if (finish_op || oap->op_type == OP_NOP) {
+      finish_op = FALSE;
       return COMPLETED;
     } else {
       return HANDLED;
