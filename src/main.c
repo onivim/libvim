@@ -3662,18 +3662,6 @@ prepare_server(mparm_T *parmp)
      * When running as root --servername is also required.
      */
     if (X_DISPLAY != NULL && parmp->servername != NULL && (
-#  if defined(FEAT_AUTOSERVERNAME) || defined(FEAT_GUI)
-		(
-#   if defined(FEAT_AUTOSERVERNAME)
-		    1
-#   else
-		    gui.in_use
-#   endif
-#   ifdef UNIX
-		 && getuid() != ROOT_UID
-#   endif
-		) ||
-#  endif
 		parmp->serverName_arg != NULL))
     {
 	(void)serverRegisterName(X_DISPLAY, parmp->servername);
