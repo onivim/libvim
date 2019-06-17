@@ -609,6 +609,7 @@ OBJ = \
 	$(OUTDIR)/ops.o \
 	$(OUTDIR)/option.o \
 	$(OUTDIR)/os_mswin.o \
+	$(OUTDIR)/os_win32.o \
 	$(OUTDIR)/pathdef.o \
 	$(OUTDIR)/popupmnu.o \
 	$(OUTDIR)/popupwin.o \
@@ -896,7 +897,7 @@ endif
 
 ###########################################################################
 INCL =	vim.h alloc.h ascii.h ex_cmds.h feature.h globals.h \
-	keymap.h macros.h option.h os_dos.h proto.h regexp.h \
+	keymap.h macros.h option.h os_dos.h os_win32.h proto.h regexp.h \
 	structs.h term.h $(NBDEBUG_INCL)
 GUI_INCL = gui.h
 ifeq ($(DIRECTX),yes)
@@ -979,6 +980,9 @@ $(OUTDIR)/os_w32exec.o:	os_w32exe.c $(INCL)
 
 $(OUTDIR)/os_w32exeg.o:	os_w32exe.c $(INCL)
 	$(CC) -c $(CFLAGS) os_w32exe.c -o $@
+
+$(OUTDIR)/os_win32.o:	os_win32.c $(INCL) $(MZSCHEME_INCL)
+	$(CC) -c $(CFLAGS) os_win32.c -o $@
 
 $(OUTDIR)/regexp.o:	regexp.c regexp_nfa.c $(INCL)
 	$(CC) -c $(CFLAGS) regexp.c -o $@
