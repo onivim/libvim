@@ -2640,10 +2640,6 @@ mch_exit(int r)
     mac_conv_cleanup();
 #endif
 
-#ifdef FEAT_NETBEANS_INTG
-    netbeans_send_disconnect();
-#endif
-
 #ifdef EXITFREE
     free_all_mem();
 #endif

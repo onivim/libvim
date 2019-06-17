@@ -3232,7 +3232,6 @@ same_directory(char_u *f1, char_u *f2)
 
 #if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) \
 	|| defined(MSWIN) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_NETBEANS_INTG) \
 	|| defined(PROTO)
 /*
  * Change to a file's directory.
@@ -3916,10 +3915,6 @@ parse_queued_messages(void)
 	channel_handle_events(FALSE);
 # endif
 
-# ifdef FEAT_NETBEANS_INTG
-	// Process the queued netbeans messages.
-	netbeans_parse_messages();
-# endif
 # ifdef FEAT_JOB_CHANNEL
 	// Write any buffer lines still to be written.
 	channel_write_any_lines();

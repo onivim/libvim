@@ -6524,9 +6524,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef STARTUPTIME
 	"startuptime",
 #endif
-#ifdef FEAT_NETBEANS_INTG
-	"netbeans_intg",
-#endif
 #ifdef FEAT_SYN_HL
 	"syntax",
 #endif
@@ -6718,10 +6715,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_SYN_HL
 	else if (STRICMP(name, "syntax_items") == 0)
 	    n = syntax_present(curwin);
-#endif
-#ifdef FEAT_NETBEANS_INTG
-	else if (STRICMP(name, "netbeans_enabled") == 0)
-	    n = netbeans_active();
 #endif
 #if defined(FEAT_TERMINAL) && defined(MSWIN)
 	else if (STRICMP(name, "terminal") == 0)
