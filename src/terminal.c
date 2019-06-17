@@ -3240,10 +3240,6 @@ init_default_colors(term_T *term)
 # endif
 # ifdef FEAT_TERMGUICOLORS
 	    || p_tgc
-#  ifdef FEAT_VTP
-	    /* Finally get INVALCOLOR on this execution path */
-	    || (!p_tgc && t_colors >= 256)
-#  endif
 # endif
        )
     {

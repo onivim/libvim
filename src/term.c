@@ -2670,9 +2670,6 @@ term_color(char_u *s, int n)
     /* Also accept CSI instead of <Esc>[ */
     if (n >= 8 && t_colors >= 16
 	      && ((s[0] == ESC && s[1] == '[')
-#if defined(FEAT_VTP) && defined(FEAT_TERMGUICOLORS)
-		  || (s[0] == ESC && s[1] == '|')
-#endif
 	          || (s[0] == CSI && (i = 1) == 1))
 	      && s[i] != NUL
 	      && (STRCMP(s + i + 1, "%p1%dm") == 0
@@ -2685,9 +2682,6 @@ term_color(char_u *s, int n)
 	char *format = "%s%s%%dm";
 #endif
 	char *lead = i == 2 ? (
-#if defined(FEAT_VTP) && defined(FEAT_TERMGUICOLORS)
-		    s[1] == '|' ? IF_EB("\033|", ESC_STR "|") :
-#endif
 		    IF_EB("\033[", ESC_STR "[")) : "\233";
 	char *tail = s[i] == '3' ? (n >= 16 ? "38;5;" : "9")
 				 : (n >= 16 ? "48;5;" : "10");
