@@ -17,8 +17,8 @@ MU_TEST(backspace_beyond_insert) {
   // Go to end of 'This'
   vimInput("e");
 
-  // Enter insert
-  vimInput("i");
+  // Enter insert after 'This'
+  vimInput("a");
 
   // Backspace a couple of times...
   // This verifies we have the correct backspace settings
