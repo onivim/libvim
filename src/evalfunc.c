@@ -6278,9 +6278,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_AUTOCHDIR
 	"autochdir",
 #endif
-#ifdef FEAT_AUTOSERVERNAME
-	"autoservername",
-#endif
 #if defined(SOME_BUILTIN_TCAPS) || defined(ALL_BUILTIN_TCAPS)
 	"builtin_terms",
 # ifdef ALL_BUILTIN_TCAPS
