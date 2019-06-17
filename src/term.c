@@ -4901,7 +4901,6 @@ replace_termcodes(
 	    slen = trans_special(&src, result + dlen, TRUE, FALSE);
 	    if (slen)
 	    {
-			    printf("GOT slen: %d src: %s\n", slen, src);
 		dlen += slen;
 		continue;
 	    }

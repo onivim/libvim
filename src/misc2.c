@@ -2586,7 +2586,6 @@ get_special_key_name(int c, int modifiers)
 
     /* try to find the key in the special key table */
     table_idx = find_special_key_in_table(c);
-    printf("GOT SPECIAL KEY: %d\n", table_idx);
 
     /*
      * When not a known special key, and not a printable character, try to
@@ -2734,7 +2733,6 @@ find_special_key(
     int		keep_x_key,  /* don't translate xHome to Home key */
     int		in_string)   /* TRUE in string, double quote is escaped */
 {
-    printf("find_special_key: SRC - %s\n", *srcp);
     char_u	*last_dash;
     char_u	*end_of_name;
     char_u	*src;
