@@ -25,6 +25,20 @@ MU_TEST(test_visual_linewise_delete) {
   mu_check(strcmp(line, "This is the second line of a test file") == 0);
 }
 
+MU_TEST(test_visual_linewise_motion_delete) {
+  vimInput("V");
+
+  vimInput("2");
+  vimInput("j");
+
+  vimInput("d");
+
+  mu_check(vimBufferGetLineCount(curbuf) == 1);
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "") == 0);
+}
+
 MU_TEST(test_visual_character_delete) {
     vimInput("v");
     vimInput("l");
@@ -39,6 +53,7 @@ MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_visual_linewise_delete);
+  MU_RUN_TEST(test_visual_linewise_motion_delete);
   MU_RUN_TEST(test_visual_character_delete);
 }
 
