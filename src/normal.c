@@ -822,7 +822,7 @@ restart_state:
     }
 
     if (finish_op || oap->op_type == OP_NOP) {
-	    finish_op = FALSE;
+      finish_op = FALSE;
       return COMPLETED;
     } else {
       return HANDLED;
