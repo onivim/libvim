@@ -344,6 +344,10 @@ static void	ex_folddo(exarg_T *eap);
 # define ex_sign		ex_ni
 #endif
 
+# define ex_nbclose		ex_ni	
+# define ex_nbkey		ex_ni	
+# define ex_nbstart		ex_ni
+
 #ifndef FEAT_EVAL
 # define ex_debug		ex_ni
 # define ex_breakadd		ex_ni
