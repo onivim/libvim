@@ -6301,9 +6301,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_CINDENT
 	"cindent",
 #endif
-#ifdef FEAT_CLIENTSERVER
-	"clientserver",
-#endif
 #ifdef FEAT_CLIPBOARD
 	"clipboard",
 #endif
@@ -9522,103 +9519,6 @@ f_reltimestr(typval_T *argvars UNUSED, typval_T *rettv)
 #endif
 }
 
-#if defined(FEAT_CLIENTSERVER) && defined(FEAT_X11)
-    static void
-make_connection(void)
-{
-    if (X_DISPLAY == NULL
-# ifdef FEAT_GUI
-	    && !gui.in_use
-# endif
-	    )
-    {
-	x_force_connect = TRUE;
-	setup_term_clip();
-	x_force_connect = FALSE;
-    }
-}
-
-    static int
-check_connection(void)
-{
-    make_connection();
-    if (X_DISPLAY == NULL)
-    {
-	emsg(_("E240: No connection to the X server"));
-	return FAIL;
-    }
-    return OK;
-}
-#endif
-
-#ifdef FEAT_CLIENTSERVER
-    static void
-remote_common(typval_T *argvars, typval_T *rettv, int expr)
-{
-    char_u	*server_name;
-    char_u	*keys;
-    char_u	*r = NULL;
-    char_u	buf[NUMBUFLEN];
-    int		timeout = 0;
-# ifdef MSWIN
-    HWND	w;
-# else
-    Window	w;
-# endif
-
-    if (check_restricted() || check_secure())
-	return;
-
-# ifdef FEAT_X11
-    if (check_connection() == FAIL)
-	return;
-# endif
-    if (argvars[2].v_type != VAR_UNKNOWN
-	    && argvars[3].v_type != VAR_UNKNOWN)
-	timeout = tv_get_number(&argvars[3]);
-
-    server_name = tv_get_string_chk(&argvars[0]);
-    if (server_name == NULL)
-	return;		/* type error; errmsg already given */
-    keys = tv_get_string_buf(&argvars[1], buf);
-# ifdef MSWIN
-    if (serverSendToVim(server_name, keys, &r, &w, expr, timeout, TRUE) < 0)
-# else
-    if (serverSendToVim(X_DISPLAY, server_name, keys, &r, &w, expr, timeout,
-								  0, TRUE) < 0)
-# endif
-    {
-	if (r != NULL)
-	{
-	    emsg((char *)r);	// sending worked but evaluation failed
-	    vim_free(r);
-	}
-	else
-	    semsg(_("E241: Unable to send to %s"), server_name);
-	return;
-    }
-
-    rettv->vval.v_string = r;
-
-    if (argvars[2].v_type != VAR_UNKNOWN)
-    {
-	dictitem_T	v;
-	char_u		str[30];
-	char_u		*idvar;
-
-	idvar = tv_get_string_chk(&argvars[2]);
-	if (idvar != NULL && *idvar != NUL)
-	{
-	    sprintf((char *)str, PRINTF_HEX_LONG_U, (long_u)w);
-	    v.di_tv.v_type = VAR_STRING;
-	    v.di_tv.vval.v_string = vim_strsave(str);
-	    set_var(idvar, &v.di_tv, FALSE);
-	    vim_free(v.di_tv.vval.v_string);
-	}
-    }
-}
-#endif
-
 /*
  * "remote_expr()" function
  */
@@ -9627,9 +9527,6 @@ f_remote_expr(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = NULL;
-#ifdef FEAT_CLIENTSERVER
-    remote_common(argvars, rettv, TRUE);
-#endif
 }
 
 /*
@@ -9638,115 +9535,19 @@ f_remote_expr(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_remote_foreground(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_CLIENTSERVER
-# ifdef MSWIN
-    /* On Win32 it's done in this application. */
-    {
-	char_u	*server_name = tv_get_string_chk(&argvars[0]);
-
-	if (server_name != NULL)
-	    serverForeground(server_name);
-    }
-# else
-    /* Send a foreground() expression to the server. */
-    argvars[1].v_type = VAR_STRING;
-    argvars[1].vval.v_string = vim_strsave((char_u *)"foreground()");
-    argvars[2].v_type = VAR_UNKNOWN;
-    rettv->v_type = VAR_STRING;
-    rettv->vval.v_string = NULL;
-    remote_common(argvars, rettv, TRUE);
-    vim_free(argvars[1].vval.v_string);
-# endif
-#endif
+    // Libvim: noop
 }
 
     static void
 f_remote_peek(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_CLIENTSERVER
-    dictitem_T	v;
-    char_u	*s = NULL;
-# ifdef MSWIN
-    long_u	n = 0;
-# endif
-    char_u	*serverid;
-
-    if (check_restricted() || check_secure())
-    {
-	rettv->vval.v_number = -1;
-	return;
-    }
-    serverid = tv_get_string_chk(&argvars[0]);
-    if (serverid == NULL)
-    {
-	rettv->vval.v_number = -1;
-	return;		/* type error; errmsg already given */
-    }
-# ifdef MSWIN
-    sscanf((const char *)serverid, SCANF_HEX_LONG_U, &n);
-    if (n == 0)
-	rettv->vval.v_number = -1;
-    else
-    {
-	s = serverGetReply((HWND)n, FALSE, FALSE, FALSE, 0);
-	rettv->vval.v_number = (s != NULL);
-    }
-# else
-    if (check_connection() == FAIL)
-	return;
-
-    rettv->vval.v_number = serverPeekReply(X_DISPLAY,
-						serverStrToWin(serverid), &s);
-# endif
-
-    if (argvars[1].v_type != VAR_UNKNOWN && rettv->vval.v_number > 0)
-    {
-	char_u		*retvar;
-
-	v.di_tv.v_type = VAR_STRING;
-	v.di_tv.vval.v_string = vim_strsave(s);
-	retvar = tv_get_string_chk(&argvars[1]);
-	if (retvar != NULL)
-	    set_var(retvar, &v.di_tv, FALSE);
-	vim_free(v.di_tv.vval.v_string);
-    }
-#else
     rettv->vval.v_number = -1;
-#endif
 }
 
     static void
 f_remote_read(typval_T *argvars UNUSED, typval_T *rettv)
 {
     char_u	*r = NULL;
-
-#ifdef FEAT_CLIENTSERVER
-    char_u	*serverid = tv_get_string_chk(&argvars[0]);
-
-    if (serverid != NULL && !check_restricted() && !check_secure())
-    {
-	int timeout = 0;
-# ifdef MSWIN
-	/* The server's HWND is encoded in the 'id' parameter */
-	long_u		n = 0;
-# endif
-
-	if (argvars[1].v_type != VAR_UNKNOWN)
-	    timeout = tv_get_number(&argvars[1]);
-
-# ifdef MSWIN
-	sscanf((char *)serverid, SCANF_HEX_LONG_U, &n);
-	if (n != 0)
-	    r = serverGetReply((HWND)n, FALSE, TRUE, TRUE, timeout);
-	if (r == NULL)
-# else
-	if (check_connection() == FAIL
-		|| serverReadReply(X_DISPLAY, serverStrToWin(serverid),
-						       &r, FALSE, timeout) < 0)
-# endif
-	    emsg(_("E277: Unable to read a server reply"));
-    }
-#endif
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = r;
 }
@@ -9759,9 +9560,6 @@ f_remote_send(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = NULL;
-#ifdef FEAT_CLIENTSERVER
-    remote_common(argvars, rettv, FALSE);
-#endif
 }
 
 /*
@@ -9770,25 +9568,7 @@ f_remote_send(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_remote_startserver(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_CLIENTSERVER
-    char_u	*server = tv_get_string_chk(&argvars[0]);
-
-    if (server == NULL)
-	return;		/* type error; errmsg already given */
-    if (serverName != NULL)
-	emsg(_("E941: already started a server"));
-    else
-    {
-# ifdef FEAT_X11
-	if (check_connection() == OK)
-	    serverRegisterName(X_DISPLAY, server);
-# else
-	serverSetName(server);
-# endif
-    }
-#else
     emsg(_("E942: +clientserver feature not available"));
-#endif
 }
 
 /*
@@ -10958,30 +10738,7 @@ f_searchpos(typval_T *argvars, typval_T *rettv)
     static void
 f_server2client(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_CLIENTSERVER
-    char_u	buf[NUMBUFLEN];
-    char_u	*server = tv_get_string_chk(&argvars[0]);
-    char_u	*reply = tv_get_string_buf_chk(&argvars[1], buf);
-
     rettv->vval.v_number = -1;
-    if (server == NULL || reply == NULL)
-	return;
-    if (check_restricted() || check_secure())
-	return;
-# ifdef FEAT_X11
-    if (check_connection() == FAIL)
-	return;
-# endif
-
-    if (serverSendReply(server, reply) < 0)
-    {
-	emsg(_("E258: Unable to send to client"));
-	return;
-    }
-    rettv->vval.v_number = 0;
-#else
-    rettv->vval.v_number = -1;
-#endif
 }
 
     static void
@@ -10989,15 +10746,6 @@ f_serverlist(typval_T *argvars UNUSED, typval_T *rettv)
 {
     char_u	*r = NULL;
 
-#ifdef FEAT_CLIENTSERVER
-# ifdef MSWIN
-    r = serverGetVimNames();
-# else
-    make_connection();
-    if (X_DISPLAY != NULL)
-	r = serverGetVimNames(X_DISPLAY);
-# endif
-#endif
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = r;
 }

@@ -260,7 +260,7 @@
 # define PLINES_NOFILL(x) plines(x)
 #endif
 
-#if defined(FEAT_JOB_CHANNEL) || defined(FEAT_CLIENTSERVER)
+#if defined(FEAT_JOB_CHANNEL)
 # define MESSAGE_QUEUE
 #endif
 

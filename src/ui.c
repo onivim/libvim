@@ -405,9 +405,6 @@ inchar_loop(
 #endif
 
 	if ((resize_func != NULL && resize_func(TRUE))
-#if defined(FEAT_CLIENTSERVER) && defined(UNIX)
-		|| server_waiting()
-#endif
 #ifdef MESSAGE_QUEUE
 		|| interrupted
 #endif
@@ -1751,7 +1748,7 @@ clip_gen_owner_exists(VimClipboard *cbd UNUSED)
  * descriptions which would otherwise overflow.  The buffer is considered full
  * when only this extra space (or part of it) remains.
  */
-#if defined(FEAT_JOB_CHANNEL) || defined(FEAT_CLIENTSERVER)
+#if defined(FEAT_JOB_CHANNEL)
    /*
     * NetBeans stuffs debugger commands into the input buffer.
     * This requires a larger buffer...

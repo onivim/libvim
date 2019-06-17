@@ -54,12 +54,6 @@ static void check_swap_exists_action(void);
 # ifdef FEAT_EVAL
 static void set_progpath(char_u *argv0);
 # endif
-# if defined(FEAT_CLIENTSERVER) || defined(PROTO)
-static void exec_on_server(mparm_T *parmp);
-static void prepare_server(mparm_T *parmp);
-static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg, char_u **serverStr);
-static char_u *serverMakeName(char_u *arg, char *cmd);
-# endif
 #endif
 
 

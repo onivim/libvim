@@ -901,28 +901,6 @@
 #endif
 
 /*
- * +clientserver	Remote control via the remote_send() function
- *			and the --remote argument
- */
-#if (defined(MSWIN) || defined(FEAT_XCLIPBOARD)) && defined(FEAT_EVAL)
-# define FEAT_CLIENTSERVER
-#endif
-
-/*
- * +autoservername	Automatically generate a servername for clientserver
- *			when --servername is not passed on the command line.
- */
-#if defined(FEAT_CLIENTSERVER) && !defined(FEAT_AUTOSERVERNAME)
-# ifdef MSWIN
-    /* Always enabled on MS-Windows. */
-#  define FEAT_AUTOSERVERNAME
-# else
-    /* Enable here if you don't use configure. */
-/* # define FEAT_AUTOSERVERNAME */
-# endif
-#endif
-
-/*
  * +termresponse	send t_RV to obtain terminal response.  Used for xterm
  *			to check if mouse dragging can be used and if term
  *			codes can be obtained.
@@ -1043,8 +1021,11 @@
 # define FEAT_VTP
 #endif
 
-// Features in the process of removing
+// Features in the process of removing for 'libvim'
+#undef FEAT_AUTOSERVERNAME
+#undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
 #undef FEAT_CRYPT
+#undef FEAT_FOOTER
 #undef FEAT_STL_OPT
 #undef FEAT_TITLE

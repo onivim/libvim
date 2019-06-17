@@ -231,9 +231,6 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 # ifdef FEAT_OLE
 #  include "if_ole.pro"
 # endif
-# if defined(FEAT_CLIENTSERVER) && defined(FEAT_X11)
-#  include "if_xcmdsrv.pro"
-# endif
 
 #ifdef MACOS_CONVERT
 # include "os_mac_conv.pro"

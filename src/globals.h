@@ -214,11 +214,6 @@ EXTERN int	intr_char INIT(= 0);	    /* extra interrupt character */
 #endif
 #if (defined(UNIX) || defined(VMS)) && defined(FEAT_X11)
 EXTERN int	x_no_connect INIT(= FALSE); /* don't connect to X server */
-# if defined(FEAT_CLIENTSERVER)
-EXTERN int	x_force_connect INIT(= FALSE); /* Do connect to X server.
-						  Overrules x_no_connect and
-						  "exclude" in 'clipboard'. */
-# endif
 #endif
 EXTERN int	ex_keep_indent INIT(= FALSE); /* getexmodeline(): keep indent */
 EXTERN int	vgetc_busy INIT(= 0);	    /* when inside vgetc() then > 0 */
@@ -1152,24 +1147,9 @@ EXTERN int	echo_wid_arg INIT(= FALSE);	/* --echo-wid argument */
 EXTERN long_u	win_socket_id INIT(= 0);
 #endif
 
-#if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
 EXTERN int	typebuf_was_filled INIT(= FALSE); /* received text from client
 						     or from feedkeys() */
-#endif
-
-#ifdef FEAT_CLIENTSERVER
-EXTERN char_u	*serverName INIT(= NULL);	/* name of the server */
-# ifdef FEAT_X11
-EXTERN Window	commWindow INIT(= None);
-EXTERN Window	clientWindow INIT(= None);
-EXTERN Atom	commProperty INIT(= None);
-EXTERN char_u	*serverDelayedStartName INIT(= NULL);
-# else
-#  ifdef PROTO
-typedef int HWND;
-#  endif
-EXTERN HWND	clientWindow INIT(= 0);
-# endif
 #endif
 
 #if defined(UNIX) || defined(VMS)
@@ -1308,9 +1288,6 @@ EXTERN char e_noprev[]	INIT(= N_("E34: No previous command"));
 EXTERN char e_noprevre[]	INIT(= N_("E35: No previous regular expression"));
 EXTERN char e_norange[]	INIT(= N_("E481: No range allowed"));
 EXTERN char e_noroom[]	INIT(= N_("E36: Not enough room"));
-#ifdef FEAT_CLIENTSERVER
-EXTERN char e_noserver[]	INIT(= N_("E247: no registered server named \"%s\""));
-#endif
 EXTERN char e_notcreate[]	INIT(= N_("E482: Can't create file %s"));
 EXTERN char e_notmp[]		INIT(= N_("E483: Can't get temp file name"));
 EXTERN char e_notopen[]	INIT(= N_("E484: Can't open file %s"));
@@ -1388,13 +1365,6 @@ EXTERN char e_write[]		INIT(= N_("E80: Error while writing"));
 EXTERN char e_zerocount[]	INIT(= N_("E939: Positive count required"));
 #ifdef FEAT_EVAL
 EXTERN char e_usingsid[]	INIT(= N_("E81: Using <SID> not in a script context"));
-#endif
-#ifdef FEAT_CLIENTSERVER
-EXTERN char e_invexprmsg[]	INIT(= N_("E449: Invalid expression received"));
-#endif
-#ifdef FEAT_NETBEANS_INTG
-EXTERN char e_guarded[]	INIT(= N_("E463: Region is guarded, cannot modify"));
-EXTERN char e_nbreadonly[]	INIT(= N_("E744: NetBeans does not allow changes in read-only files"));
 #endif
 EXTERN char e_maxmempat[]	INIT(= N_("E363: pattern uses more memory than 'maxmempattern'"));
 EXTERN char e_emptybuf[]	INIT(= N_("E749: empty buffer"));

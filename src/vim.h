@@ -175,9 +175,6 @@
 # ifdef FEAT_XIM
 #  undef FEAT_XIM
 # endif
-# ifdef FEAT_CLIENTSERVER
-#  undef FEAT_CLIENTSERVER
-# endif
 #endif
 
 /* The Mac conversion stuff doesn't work under X11. */
@@ -1666,8 +1663,7 @@ typedef void	    *vim_acl_T;		// dummy to pass an ACL to a function
 void *vim_memset(void *, int, size_t);
 #endif
 
-#if defined(UNIX) || defined(FEAT_GUI) || defined(VMS) \
-	|| defined(FEAT_CLIENTSERVER)
+#if defined(UNIX) || defined(FEAT_GUI) || defined(VMS)
 # define USE_INPUT_BUF
 #endif
 

@@ -458,7 +458,7 @@ flush_buffers(flush_buffers_T flush_typeahead)
 		;
 	typebuf.tb_off = MAXMAPLEN;
 	typebuf.tb_len = 0;
-#if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
 	/* Reset the flag that text received from a client or from feedkeys()
 	 * was inserted in the typeahead buffer. */
 	typebuf_was_filled = FALSE;
@@ -1101,7 +1101,7 @@ typebuf_changed(
     int		tb_change_cnt)	/* old value of typebuf.tb_change_cnt */
 {
     return (tb_change_cnt != 0 && (typebuf.tb_change_cnt != tb_change_cnt
-#if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
 	    || typebuf_was_filled
 #endif
 	   ));
@@ -1194,7 +1194,7 @@ del_typebuf(int len, int offset)
 	    typebuf.tb_no_abbr_cnt -= len;
     }
 
-#if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
     /* Reset the flag that text received from a client or from feedkeys()
      * was inserted in the typeahead buffer. */
     typebuf_was_filled = FALSE;
@@ -3026,7 +3026,7 @@ fix_input_buffer(char_u *buf, int len)
 input_available(void)
 {
     return (!vim_is_input_buf_empty()
-# if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+# if defined(FEAT_EVAL)
 	    || typebuf_was_filled
 # endif
 	    );

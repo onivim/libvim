@@ -1456,7 +1456,6 @@ BASIC_SRC = \
 	fold.c \
 	getchar.c \
 	hashtab.c \
-	if_xcmdsrv.c \
 	indent.c \
 	insexpand.c \
 	json.c \
@@ -1568,7 +1567,6 @@ OBJ_COMMON = \
 	objects/getchar.o \
 	objects/hashtab.o \
 	$(HANGULIN_OBJ) \
-	objects/if_xcmdsrv.o \
 	objects/indent.o \
 	objects/insexpand.o \
 	objects/libvim.o \
@@ -1697,7 +1695,6 @@ PRO_AUTO = \
 	if_python.pro \
 	if_python3.pro \
 	if_ruby.pro \
-	if_xcmdsrv.pro \
 	indent.pro \
 	insexpand.pro \
 	json.pro \
@@ -2842,9 +2839,6 @@ objects/hashtab.o: hashtab.c
 objects/hangulin.o: hangulin.c
 	$(CCC) -o $@ hangulin.c
 
-objects/if_xcmdsrv.o: if_xcmdsrv.c
-	$(CCC) -o $@ if_xcmdsrv.c
-
 objects/if_lua.o: if_lua.c
 	$(CCC_NF) $(LUA_CFLAGS) $(ALL_CFLAGS) -o $@ if_lua.c
 
@@ -3250,10 +3244,6 @@ objects/hashtab.o: hashtab.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/if_xcmdsrv.o: if_xcmdsrv.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h version.h
 objects/indent.o: indent.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
