@@ -39,11 +39,13 @@ void sm_push_insert(int cmdchar, int startln, long count) {
 }
 
 void sm_push_cmdline(int cmdchar, long count, int indent) {
-  sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent), state_cmdline_execute, state_cmdline_cleanup);
+  sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent),
+          state_cmdline_execute, state_cmdline_cleanup);
 }
 
 void sm_push_change(oparg_T *oap) {
-    sm_push(INSERT, state_change_initialize(oap), state_change_execute, state_change_cleanup);
+  sm_push(INSERT, state_change_initialize(oap), state_change_execute,
+          state_change_cleanup);
 }
 
 /*
@@ -67,7 +69,7 @@ void sm_execute(char_u *keys) {
 
   if (state_current != NULL) {
     while (vpeekc() != NUL) {
-      char_u c = vgetc();
+      int c = vgetc();
 
       if (state_current == NULL) {
         sm_push_normal();

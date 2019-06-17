@@ -103,11 +103,12 @@ void vimInput(char_u *input) {
   input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
   p_cpo = cpo_save;
 
+
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
     sm_execute_normal(input);
+    vim_free((char_u *)ptr);
   }
-  vim_free((char_u *)ptr);
   /* Trigger CursorMoved if the cursor moved. */
   if (!finish_op && (has_cursormoved()) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
