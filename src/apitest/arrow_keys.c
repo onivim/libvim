@@ -17,30 +17,19 @@ MU_TEST(test_arrow_keys_normal) {
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
 
-  char leftArrow[50];
-  char rightArrow[50];
-  char upArrow[50];
-  char downArrow[50];
-  sprintf(leftArrow, "%c", K_LEFT);
-  sprintf(rightArrow, "%c", K_RIGHT);
-  sprintf(upArrow, "%c", K_UP);
-  sprintf(downArrow, "%c", K_DOWN);
-
-  vimInput("<left>");
-
-  /* printf("K_LEFT: %c", K_LEFT); */
+  vimInput("<Right>");
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 1);
 
-  vimInput(downArrow);
+  vimInput("<Down>");
   mu_check(vimCursorGetLine() == 2);
   mu_check(vimCursorGetColumn() == 1);
 
-  vimInput(leftArrow);
+  vimInput("<Left>");
   mu_check(vimCursorGetLine() == 2);
   mu_check(vimCursorGetColumn() == 0);
 
-  vimInput(upArrow);
+  vimInput("<Up>");
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
 }
