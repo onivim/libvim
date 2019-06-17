@@ -554,6 +554,10 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
 
+  printf("NORMAL - c: %d\n", c);
+  printf(" -- key right is: %d\n", K_RIGHT);
+  printf(" -- key special is: %d\n", K_SPECIAL);
+
   if (context->returnState != NORMAL) {
       
       switch (context->returnState) {
