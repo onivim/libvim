@@ -115,7 +115,9 @@ pos_T *vimSearchGetMatchingPair(int initc);
  *
  * Get highlights for the current search
  */
-void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_highlights, searchHighlight_T **highlights);
+void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
+                            int *num_highlights,
+                            searchHighlight_T **highlights);
 
 /*
  * vimSearchGetPattern
@@ -123,6 +125,17 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_hig
  * Get the current search pattern
  */
 char_u *vimSearchGetPattern();
+
+/***
+ * Window
+ */
+
+int vimWindowGetWidth(void);
+int vimWindowGetHeight(void);
+int vimWindowGetTopLine(void);
+
+void vimWindowSetWidth(int width);
+void vimWindowSetHeight(int height);
 
 /***
  * Misc

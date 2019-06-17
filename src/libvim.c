@@ -219,6 +219,26 @@ char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
+int vimWindowGetWidth(void) { return curwin->w_width; }
+int vimWindowGetHeight(void) { return curwin->w_height; }
+int vimWindowGetTopLine(void) { return curwin->w_topline; }
+
+void vimWindowSetWidth(int width) {
+  if (width > Columns) {
+      Columns = width;
+  }
+
+  win_new_width(curwin, width);
+}
+
+void vimWindowSetHeight(int height) {
+  if (height > Rows) {
+      Rows = height;
+  }
+
+  win_new_height(curwin, height);
+}
+
 int vimGetMode(void) { return get_real_state(); }
 
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines) {
