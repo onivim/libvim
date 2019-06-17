@@ -3370,13 +3370,6 @@ typedef struct
     int		window_count;		/* number of windows to use */
     int		window_layout;		/* 0, WIN_HOR, WIN_VER or WIN_TABS */
 
-#ifdef FEAT_CLIENTSERVER
-    int		serverArg;		/* TRUE when argument for a server */
-    char_u	*serverName_arg;	/* cmdline arg for server name */
-    char_u	*serverStr;		/* remote server command */
-    char_u	*serverStrEnc;		/* encoding of serverStr */
-    char_u	*servername;		/* allocated name for our server */
-#endif
 #if !defined(UNIX)
 # define EXPAND_FILENAMES
     int		literal;		/* don't expand file names */

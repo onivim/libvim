@@ -1195,10 +1195,6 @@ free_all_mem(void)
     ResetRedobuff();
     ResetRedobuff();
 
-# if defined(FEAT_CLIENTSERVER) && defined(FEAT_X11)
-    vim_free(serverDelayedStartName);
-# endif
-
     /* highlight info */
     free_highlight();
 
@@ -3930,10 +3926,6 @@ parse_queued_messages(void)
 
 	// Process the messages queued on channels.
 	channel_parse_messages();
-# endif
-# if defined(FEAT_CLIENTSERVER) && defined(FEAT_X11)
-	// Process the queued clientserver messages.
-	server_parse_messages();
 # endif
 # ifdef FEAT_JOB_CHANNEL
 	// Check if any jobs have ended.  If so, repeat the above to handle

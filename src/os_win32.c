@@ -364,23 +364,6 @@ peek_console_input(
     return read_console_input(hInput, lpBuffer, -1, lpEvents);
 }
 
-# ifdef FEAT_CLIENTSERVER
-    static DWORD
-msg_wait_for_multiple_objects(
-    DWORD    nCount,
-    LPHANDLE pHandles,
-    BOOL     fWaitAll,
-    DWORD    dwMilliseconds,
-    DWORD    dwWakeMask)
-{
-    if (read_console_input(NULL, NULL, -2, NULL))
-	return WAIT_OBJECT_0;
-    return MsgWaitForMultipleObjects(nCount, pHandles, fWaitAll,
-				     dwMilliseconds, dwWakeMask);
-}
-# endif
-
-# ifndef FEAT_CLIENTSERVER
     static DWORD
 wait_for_single_object(
     HANDLE hHandle,
@@ -390,7 +373,6 @@ wait_for_single_object(
 	return WAIT_OBJECT_0;
     return WaitForSingleObject(hHandle, dwMilliseconds);
 }
-# endif
 #endif
 
     static void
@@ -1170,15 +1152,9 @@ WaitForChar(long msec, int ignore_input)
 #ifdef FEAT_MZSCHEME
 	    mzvim_check_threads();
 #endif
-#ifdef FEAT_CLIENTSERVER
-	    serverProcessPendingMessages();
-#endif
 	}
 
 	if (0
-#ifdef FEAT_CLIENTSERVER
-		|| (!ignore_input && input_available())
-#endif
 	   )
 	    return TRUE;
 
@@ -1235,15 +1211,8 @@ WaitForChar(long msec, int ignore_input)
 	    }
 #endif
 	    if (
-#ifdef FEAT_CLIENTSERVER
-		    // Wait for either an event on the console input or a
-		    // message in the client-server window.
-		    msg_wait_for_multiple_objects(1, &g_hConIn, FALSE,
-				  dwWaitTime, QS_SENDMESSAGE) != WAIT_OBJECT_0
-#else
 		    wait_for_single_object(g_hConIn, dwWaitTime)
 							      != WAIT_OBJECT_0
-#endif
 		    )
 		continue;
 	}
@@ -1313,12 +1282,6 @@ WaitForChar(long msec, int ignore_input)
 	    break;
     }
 
-#ifdef FEAT_CLIENTSERVER
-    /* Something might have been received while we were waiting. */
-    if (input_available())
-	return TRUE;
-#endif
-
     return FALSE;
 }
 
@@ -1376,11 +1339,6 @@ tgetch(int *pmodifiers, WCHAR *pch2)
 	INPUT_RECORD ir;
 	DWORD cRecords = 0;
 
-#ifdef FEAT_CLIENTSERVER
-	(void)WaitForChar(-1L, FALSE);
-	if (input_available())
-	    return 0;
-#endif
 	if (read_console_input(g_hConIn, &ir, 1, &cRecords) == 0)
 	{
 	    if (did_create_conin)
@@ -1504,9 +1462,6 @@ mch_inchar(
 
 	    if (c == Ctrl_C && ctrl_c_interrupts)
 	    {
-#if defined(FEAT_CLIENTSERVER)
-		trash_input_buf();
-#endif
 		got_int = TRUE;
 	    }
 
@@ -4420,55 +4375,6 @@ win32_build_env(dict_T *env, garray_T *gap, int is_terminal)
 	    }
 	}
     }
-
-# if defined(FEAT_CLIENTSERVER) || defined(FEAT_TERMINAL)
-    {
-#  ifdef FEAT_CLIENTSERVER
-	char_u	*servername = get_vim_var_str(VV_SEND_SERVER);
-	size_t	servername_len = STRLEN(servername);
-#  endif
-#  ifdef FEAT_TERMINAL
-	char_u	*version = get_vim_var_str(VV_VERSION);
-	size_t	version_len = STRLEN(version);
-#  endif
-	// size of "VIM_SERVERNAME=" and value,
-	// plus "VIM_TERMINAL=" and value,
-	// plus two terminating NULs
-	size_t	n = 0
-#  ifdef FEAT_CLIENTSERVER
-		    + 15 + servername_len
-#  endif
-#  ifdef FEAT_TERMINAL
-		    + 13 + version_len + 2
-#  endif
-		    ;
-
-	if (ga_grow(gap, (int)n) == OK)
-	{
-#  ifdef FEAT_CLIENTSERVER
-	    for (n = 0; n < 15; n++)
-		*((WCHAR*)gap->ga_data + gap->ga_len++) =
-		    (WCHAR)"VIM_SERVERNAME="[n];
-	    for (n = 0; n < servername_len; n++)
-		*((WCHAR*)gap->ga_data + gap->ga_len++) =
-		    (WCHAR)servername[n];
-	    *((WCHAR*)gap->ga_data + gap->ga_len++) = L'\0';
-#  endif
-#  ifdef FEAT_TERMINAL
-	    if (is_terminal)
-	    {
-		for (n = 0; n < 13; n++)
-		    *((WCHAR*)gap->ga_data + gap->ga_len++) =
-			(WCHAR)"VIM_TERMINAL="[n];
-		for (n = 0; n < version_len; n++)
-		    *((WCHAR*)gap->ga_data + gap->ga_len++) =
-			(WCHAR)version[n];
-		*((WCHAR*)gap->ga_data + gap->ga_len++) = L'\0';
-	    }
-#  endif
-	}
-    }
-# endif
 }
 
 /*

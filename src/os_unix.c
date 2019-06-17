@@ -1512,10 +1512,6 @@ x_connect_to_server(void)
     if (exiting || v_dying)
 	return FALSE;
 
-#if defined(FEAT_CLIENTSERVER)
-    if (x_force_connect)
-	return TRUE;
-#endif
     if (x_no_connect)
 	return FALSE;
 
@@ -3110,9 +3106,6 @@ set_child_environment(
 #  ifdef FEAT_TERMINAL
     static char	envbuf_Version[20];
 #  endif
-#  ifdef FEAT_CLIENTSERVER
-    static char	envbuf_Servername[60];
-#  endif
 # endif
     long	colors =
 #  ifdef FEAT_GUI
@@ -3136,9 +3129,6 @@ set_child_environment(
 	sprintf((char *)envbuf, "%ld",  (long)get_vim_var_nr(VV_VERSION));
 	setenv("VIM_TERMINAL", (char *)envbuf, 1);
     }
-#  endif
-#  ifdef FEAT_CLIENTSERVER
-    setenv("VIM_SERVERNAME", serverName == NULL ? "" : (char *)serverName, 1);
 #  endif
 # else
     /*
@@ -3164,11 +3154,6 @@ set_child_environment(
 			 "VIM_TERMINAL=%ld", (long)get_vim_var_nr(VV_VERSION));
 	putenv(envbuf_Version);
     }
-#  endif
-#  ifdef FEAT_CLIENTSERVER
-    vim_snprintf(envbuf_Servername, sizeof(envbuf_Servername),
-	    "VIM_SERVERNAME=%s", serverName == NULL ? "" : (char *)serverName);
-    putenv(envbuf_Servername);
 #  endif
 # endif
 }
@@ -5250,11 +5235,6 @@ select_eintr:
 	if (finished || msec == 0)
 	    break;
 
-# ifdef FEAT_CLIENTSERVER
-	if (server_waiting())
-	    break;
-# endif
-
 	/* We're going to loop around again, find out for how long */
 	if (msec > 0)
 	{
@@ -6317,15 +6297,6 @@ xterm_update(void)
 	{
 	    /* There is an event to process. */
 	    XtAppNextEvent(app_context, &event);
-#ifdef FEAT_CLIENTSERVER
-	    {
-		XPropertyEvent *e = (XPropertyEvent *)&event;
-
-		if (e->type == PropertyNotify && e->window == commWindow
-		   && e->atom == commProperty && e->state == PropertyNewValue)
-		    serverEventProc(xterm_dpy, &event, 0);
-	    }
-#endif
 	    XtDispatchEvent(&event);
 	}
 	else

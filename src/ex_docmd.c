@@ -9097,10 +9097,6 @@ find_cmdline_var(char_u *src, int *usedlen)
 #define SPEC_AMATCH (SPEC_ABUF + 1)
 		    "<sflnum>",		/* script file line number */
 #define SPEC_SFLNUM  (SPEC_AMATCH + 1)
-#ifdef FEAT_CLIENTSERVER
-		    "<client>"
-# define SPEC_CLIENT (SPEC_SFLNUM + 1)
-#endif
     };
 
     for (i = 0; i < (int)(sizeof(spec_str) / sizeof(char *)); ++i)
@@ -9375,14 +9371,6 @@ eval_vars(
 		}
 		sprintf((char *)strbuf, "%ld",
 				 (long)(current_sctx.sc_lnum + sourcing_lnum));
-		result = strbuf;
-		break;
-#endif
-
-#ifdef FEAT_CLIENTSERVER
-	case SPEC_CLIENT:	/* Source of last submitted input */
-		sprintf((char *)strbuf, PRINTF_HEX_LONG_U,
-							(long_u)clientWindow);
 		result = strbuf;
 		break;
 #endif
