@@ -343,11 +343,10 @@ static void	ex_folddo(exarg_T *eap);
 #ifndef FEAT_SIGNS
 # define ex_sign		ex_ni
 #endif
-#ifndef FEAT_NETBEANS_INTG
-# define ex_nbclose		ex_ni
-# define ex_nbkey		ex_ni
+
+# define ex_nbclose		ex_ni	
+# define ex_nbkey		ex_ni	
 # define ex_nbstart		ex_ni
-#endif
 
 #ifndef FEAT_EVAL
 # define ex_debug		ex_ni
@@ -5705,10 +5704,6 @@ ex_quit(exarg_T *eap)
     /* Trigger QuitPre and maybe ExitPre */
     if (before_quit_autocmds(wp, FALSE, eap->forceit))
 	return;
-
-#ifdef FEAT_NETBEANS_INTG
-    netbeansForcedQuit = eap->forceit;
-#endif
 
     /*
      * If there are more files or windows we won't exit.

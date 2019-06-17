@@ -2328,13 +2328,7 @@ failed:
 	/* need to delete the last line, which comes from the empty buffer */
 	if (newfile && wasempty && !(curbuf->b_ml.ml_flags & ML_EMPTY))
 	{
-#ifdef FEAT_NETBEANS_INTG
-	    netbeansFireChanges = 0;
-#endif
 	    ml_delete(curbuf->b_ml.ml_line_count, FALSE);
-#ifdef FEAT_NETBEANS_INTG
-	    netbeansFireChanges = 1;
-#endif
 	    --linecnt;
 	}
 	linecnt = curbuf->b_ml.ml_line_count - linecnt;
@@ -3357,40 +3351,6 @@ buf_write(
 	if (buf_fname_s)
 	    fname = buf->b_sfname;
     }
-
-#ifdef FEAT_NETBEANS_INTG
-    if (netbeans_active() && isNetbeansBuffer(buf))
-    {
-	if (whole)
-	{
-	    /*
-	     * b_changed can be 0 after an undo, but we still need to write
-	     * the buffer to NetBeans.
-	     */
-	    if (buf->b_changed || isNetbeansModified(buf))
-	    {
-		--no_wait_return;		/* may wait for return now */
-		msg_scroll = msg_save;
-		netbeans_save_buffer(buf);	/* no error checking... */
-		return retval;
-	    }
-	    else
-	    {
-		errnum = (char_u *)"E656: ";
-		errmsg = (char_u *)_("NetBeans disallows writes of unmodified buffers");
-		buffer = NULL;
-		goto fail;
-	    }
-	}
-	else
-	{
-	    errnum = (char_u *)"E657: ";
-	    errmsg = (char_u *)_("Partial writes disallowed for NetBeans buffers");
-	    buffer = NULL;
-	    goto fail;
-	}
-    }
-#endif
 
     if (shortmess(SHM_OVER) && !exiting)
 	msg_scroll = FALSE;	    /* overwrite previous file message */
@@ -6683,9 +6643,6 @@ buf_check_timestamp(
 	    || !bt_normal(buf)
 	    || buf->b_saving
 	    || busy
-#ifdef FEAT_NETBEANS_INTG
-	    || isNetbeansBuffer(buf)
-#endif
 #ifdef FEAT_TERMINAL
 	    || buf->b_term != NULL
 #endif

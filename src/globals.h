@@ -1186,14 +1186,6 @@ EXTERN garray_T error_ga
 	;
 #endif
 
-#ifdef FEAT_NETBEANS_INTG
-EXTERN char *netbeansArg INIT(= NULL);	/* the -nb[:host:port:passwd] arg */
-EXTERN int netbeansFireChanges INIT(= 1); /* send buffer changes if != 0 */
-EXTERN int netbeansForcedQuit INIT(= 0);/* don't write modified files */
-EXTERN int netbeansReadFile INIT(= 1);	/* OK to read from disk if != 0 */
-EXTERN int netbeansSuppressNoLines INIT(= 0); /* skip "No lines in buffer" */
-#endif
-
 /*
  * The error messages that can be shared are included here.
  * Excluded are errors that are only used once and debugging messages.

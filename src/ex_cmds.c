@@ -4397,16 +4397,6 @@ do_ecmd(
     }
 #endif
 
-#if defined(FEAT_NETBEANS_INTG)
-    if (curbuf->b_ffname != NULL)
-    {
-# ifdef FEAT_NETBEANS_INTG
-	if ((flags & ECMD_SET_HELP) != ECMD_SET_HELP)
-	    netbeans_file_opened(curbuf);
-# endif
-    }
-#endif
-
 theend:
     if (did_inc_redrawing_disabled)
 	--RedrawingDisabled;

@@ -849,7 +849,7 @@ update_screen(int type_arg)
     return OK;
 }
 
-#if defined(FEAT_NETBEANS_INTG) || defined(FEAT_GUI)
+#if defined(FEAT_GUI)
 /*
  * Prepare for updating one or more windows.
  * Caller must check for "updating_screen" already set to avoid recursiveness.
@@ -935,57 +935,6 @@ conceal_check_cursor_line(void)
 	 * without concealing. */
 	curs_columns(TRUE);
     }
-}
-#endif
-
-#if defined(FEAT_NETBEANS_INTG) || defined(PROTO)
-    void
-update_debug_sign(buf_T *buf, linenr_T lnum)
-{
-    win_T	*wp;
-    int		doit = FALSE;
-
-# ifdef FEAT_FOLDING
-    win_foldinfo.fi_level = 0;
-# endif
-
-    // update/delete a specific sign
-    redraw_buf_line_later(buf, lnum);
-
-    // check if it resulted in the need to redraw a window
-    FOR_ALL_WINDOWS(wp)
-	if (wp->w_redr_type != 0)
-	    doit = TRUE;
-
-    /* Return when there is nothing to do, screen updating is already
-     * happening (recursive call), messages on the screen or still starting up.
-     */
-    if (!doit || updating_screen
-	    || State == ASKMORE || State == HITRETURN
-	    || msg_scrolled
-#ifdef FEAT_GUI
-	    || gui.starting
-#endif
-	    || starting)
-	return;
-
-    /* update all windows that need updating */
-    update_prepare();
-
-    FOR_ALL_WINDOWS(wp)
-    {
-	if (wp->w_redr_type != 0)
-	    win_update(wp);
-	if (wp->w_redr_status)
-	    win_redr_status(wp, FALSE);
-    }
-
-#ifdef FEAT_TEXT_PROP
-    // Display popup windows on top of the others.
-    update_popups();
-#endif
-
-    update_finish();
 }
 #endif
 
@@ -3999,13 +3948,6 @@ win_line(
 			    /* Use the image in this position. */
 			    c_extra = SIGN_BYTE;
 			    c_final = NUL;
-#  ifdef FEAT_NETBEANS_INTG
-			    if (buf_signcount(wp->w_buffer, lnum) > 1)
-			    {
-				c_extra = MULTISIGN_BYTE;
-				c_final = NUL;
-			    }
-#  endif
 			    char_attr = icon_sign;
 			}
 			else

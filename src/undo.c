@@ -406,25 +406,6 @@ u_savecommon(
 	if (!undo_allowed())
 	    return FAIL;
 
-#ifdef FEAT_NETBEANS_INTG
-	/*
-	 * Netbeans defines areas that cannot be modified.  Bail out here when
-	 * trying to change text in a guarded area.
-	 */
-	if (netbeans_active())
-	{
-	    if (netbeans_is_guarded(top, bot))
-	    {
-		emsg(_(e_guarded));
-		return FAIL;
-	    }
-	    if (curbuf->b_p_ro)
-	    {
-		emsg(_(e_nbreadonly));
-		return FAIL;
-	    }
-	}
-#endif
 #ifdef FEAT_TERMINAL
 	/* A change in a terminal buffer removes the highlighting. */
 	term_change_in_curbuf();
@@ -2801,10 +2782,6 @@ u_undoredo(int undo)
     if (old_flags & UH_CHANGED)
 	changed();
     else
-#ifdef FEAT_NETBEANS_INTG
-	/* per netbeans undo rules, keep it as modified */
-	if (!isNetbeansModified(curbuf))
-#endif
 	unchanged(curbuf, FALSE);
 
     /*

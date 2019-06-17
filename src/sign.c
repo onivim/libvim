@@ -236,10 +236,6 @@ insert_sign(
 
 	    // first sign in signlist
 	    buf->b_signlist = newsign;
-#ifdef FEAT_NETBEANS_INTG
-	    if (netbeans_active())
-		buf->b_has_sign_column = TRUE;
-#endif
 	}
 	else
 	    prev->next = newsign;
@@ -520,46 +516,6 @@ buf_findsign_id(
 
     return 0;
 }
-
-# if defined(FEAT_NETBEANS_INTG) || defined(PROTO)
-/*
- * See if a given type of sign exists on a specific line.
- */
-    int
-buf_findsigntype_id(
-    buf_T	*buf,		// buffer whose sign we are searching for
-    linenr_T	lnum,		// line number of sign
-    int		typenr)		// sign type number
-{
-    signlist_T	*sign;		// a sign in the signlist
-
-    FOR_ALL_SIGNS_IN_BUF(buf, sign)
-	if (sign->lnum == lnum && sign->typenr == typenr)
-	    return sign->id;
-
-    return 0;
-}
-
-
-#  if defined(FEAT_SIGN_ICONS) || defined(PROTO)
-/*
- * Return the number of icons on the given line.
- */
-    int
-buf_signcount(buf_T *buf, linenr_T lnum)
-{
-    signlist_T	*sign;		// a sign in the signlist
-    int		count = 0;
-
-    FOR_ALL_SIGNS_IN_BUF(buf, sign)
-	if (sign->lnum == lnum)
-	    if (sign_get_image(sign->typenr) != NULL)
-		count++;
-
-    return count;
-}
-#  endif /* FEAT_SIGN_ICONS */
-# endif /* FEAT_NETBEANS_INTG */
 
 /*
  * Delete signs in group 'group' in buffer "buf". If 'group' is '*', then

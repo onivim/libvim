@@ -6088,12 +6088,6 @@ static int ins_tab(void) {
         curbuf->b_ml.ml_line_len -= i;
 #endif
       }
-#ifdef FEAT_NETBEANS_INTG
-      if (netbeans_active()) {
-        netbeans_removed(curbuf, fpos.lnum, cursor->col, (long)(i + 1));
-        netbeans_inserted(curbuf, fpos.lnum, cursor->col, (char_u *)"\t", 1);
-      }
-#endif
       cursor->col -= i;
 
       /*
