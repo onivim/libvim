@@ -40,13 +40,13 @@ MU_TEST(test_visual_linewise_motion_delete) {
 }
 
 MU_TEST(test_visual_character_delete) {
-    vimInput("v");
-    vimInput("l");
-    vimInput("d");
+  vimInput("v");
+  vimInput("l");
+  vimInput("d");
 
-    char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-    printf("LINE: %s\n", line);
-    mu_check(strcmp(line, "is is the first line of a test file") == 0);
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "is is the first line of a test file") == 0);
 }
 
 MU_TEST_SUITE(test_suite) {
