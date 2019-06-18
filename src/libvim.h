@@ -58,6 +58,7 @@ void vimCommandLineGetCompletions(char ***completions, int *count);
 colnr_T vimCursorGetColumn(void);
 linenr_T vimCursorGetLine(void);
 pos_T vimCursorGetPosition(void);
+void vimCursorSetPosition(pos_T pos);
 
 /***
  * vimCursorGetDesiredColumn
