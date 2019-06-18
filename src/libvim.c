@@ -11,26 +11,6 @@
 
 #include "vim.h"
 
-void vimInit(int argc, char **argv) {
-  mparm_T params;
-  vim_memset(&params, 0, sizeof(params));
-  params.argc = argc;
-  params.argv = argv;
-  params.want_full_screen = TRUE;
-  params.window_count = -1;
-
-  mch_early_init();
-  common_init(&params);
-
-  // Set to 'nocompatible' so we get the expected Vim undo / redo behavior,
-  // rather than Vi's behavior.
-  // See :help cpoptions and :help compatible for details
-  change_compatible(FALSE);
-
-  win_setwidth(80);
-  win_setheight(40);
-}
-
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags) {
   buf_T *buffer = buflist_new(ffname_arg, NULL, lnum, flags);
   set_curbuf(buffer, DOBUF_SPLIT);
@@ -244,4 +224,26 @@ int vimGetMode(void) { return get_real_state(); }
 
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines) {
   get_yank_register_value(reg_name, num_lines, lines);
+}
+
+void vimInit(int argc, char **argv) {
+  mparm_T params;
+  vim_memset(&params, 0, sizeof(params));
+  params.argc = argc;
+  params.argv = argv;
+  params.want_full_screen = TRUE;
+  params.window_count = -1;
+
+  mch_early_init();
+  common_init(&params);
+
+  // Set to 'nocompatible' so we get the expected Vim undo / redo behavior,
+  // rather than Vi's behavior.
+  // See :help cpoptions and :help compatible for details
+  change_compatible(FALSE);
+
+  full_screen = TRUE;
+  screenalloc(FALSE);
+  vimWindowSetWidth(80);
+  vimWindowSetHeight(40);
 }
