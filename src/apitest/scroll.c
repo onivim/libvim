@@ -31,7 +31,9 @@ MU_TEST(test_set_get_metrics) {
   vimWindowSetWidth(1000);
   vimWindowSetHeight(2000);
 
+
   mu_check(vimWindowGetWidth() == 1000);
+  printf("ACTUAL HEIGHT VALUE: %d\n", vimWindowGetHeight());
   mu_check(vimWindowGetHeight() == 2000);
 }
 
