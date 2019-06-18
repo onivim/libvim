@@ -88,6 +88,13 @@ colnr_T vimCursorGetColumn(void) { return curwin->w_cursor.col; };
 pos_T vimCursorGetPosition(void) { return curwin->w_cursor; };
 colnr_T vimCursorGetDesiredColumn(void) { return curwin->w_curswant; };
 
+void vimCursorSetPosition(pos_T pos) {
+  curwin->w_cursor.lnum = pos.lnum;
+  curwin->w_cursor.col = pos.col;
+  /* TODO: coladd? */
+  check_cursor();
+}
+
 void vimInput(char_u *input) {
   char_u *ptr = NULL;
   char_u *cpo_save = p_cpo;
@@ -102,7 +109,6 @@ void vimInput(char_u *input) {
   p_cpo = (char_u *)"Bk";
   input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
   p_cpo = cpo_save;
-
 
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
@@ -226,7 +232,7 @@ int vimWindowGetTopLine(void) { return curwin->w_topline; }
 
 void vimWindowSetWidth(int width) {
   if (width > Columns) {
-      Columns = width;
+    Columns = width;
   }
 
   win_new_width(curwin, width);
@@ -234,7 +240,7 @@ void vimWindowSetWidth(int width) {
 
 void vimWindowSetHeight(int height) {
   if (height > Rows) {
-      Rows = height;
+    Rows = height;
   }
 
   win_new_height(curwin, height);
