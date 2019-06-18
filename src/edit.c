@@ -910,6 +910,7 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   default:
 
   normalchar:
+    printf("normalchar? %c\n", c);
     /*
      * Insert a normal character.
      */
@@ -926,8 +927,10 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
             c = PTR2CHAR(p);
             if (c == CAR || c == K_KENTER || c == NL)
               ins_eol(c);
-            else
+            else  {
               ins_char(c);
+			printf("ins_char? %c\n", c);
+				    }
           }
           AppendToRedobuffLit(str, -1);
         }
@@ -966,7 +969,17 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
              // what check_abbr() expects.
              (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
          c != Ctrl_RSB)) {
+	    printf("insert special? %c\n", c); 
       insert_special(c, FALSE, FALSE);
+		    /* if (c == '{') { */
+			  
+        /* insert_special('}', FALSE, FALSE); */
+	      /* ins_left(); */
+	      /* } */
+		    /* else if (c == '[') { */
+        /* insert_special(']', FALSE, FALSE); */
+	      /* ins_left(); */
+	      /* } */
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
       revins_chars++;
@@ -2050,6 +2063,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
     normalchar:
+	printf("normal char?\n");
       /*
        * Insert a normal character.
        */
@@ -2066,8 +2080,10 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
               c = PTR2CHAR(p);
               if (c == CAR || c == K_KENTER || c == NL)
                 ins_eol(c);
-              else
+              else {
                 ins_char(c);
+						    printf("ins_char: %c\n", c);
+						    }
             }
             AppendToRedobuffLit(str, -1);
           }
@@ -2106,6 +2122,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
                // what check_abbr() expects.
                (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
            c != Ctrl_RSB)) {
+		    printf("insert_special: %c\n", c);
         insert_special(c, FALSE, FALSE);
 #ifdef FEAT_RIGHTLEFT
         revins_legal++;
@@ -3045,6 +3062,7 @@ void insertchar(int c,             /* character to insert or NUL */
   can_si_back = FALSE;
 #endif
 
+  /* LIBVIM todo - this breaks auto-closing pairs */
   /*
    * If there's any pending input, grab up to INPUT_BUFLEN at once.
    * This speeds up normal text input considerably.
@@ -5398,6 +5416,21 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
        * happen when using 'sts' and 'linebreak'. */
       if (vcol >= start_vcol)
         ins_bs_one(&vcol);
+    } else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0) {
+
+	    char_u charBefore = *(ml_get_cursor() - 1);
+	    char_u charAfter = *(ml_get_cursor());
+
+
+	    printf("charBefore: %c\n", charBefore);
+	    printf("charAfter: %c\n", charAfter);
+		
+      colnr_T vcol;
+      getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
+      printf("vcol: %d\n", vcol);
+      ins_bs_one(&vcol);
+      ins_del();
+      printf("vcol after: %d\n", vcol);
     }
 
     /*
