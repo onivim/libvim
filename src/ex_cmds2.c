@@ -3188,6 +3188,7 @@ ex_source(exarg_T *eap)
     static void
 cmd_source(char_u *fname, exarg_T *eap)
 {
+    printf("Trying to source: %s\n", fname);
     if (*fname == NUL)
 	emsg(_(e_argreq));
 
@@ -3282,6 +3283,7 @@ do_source(
     int		check_other,	    /* check for .vimrc and _vimrc */
     int		is_vimrc)	    /* DOSO_ value */
 {
+    printf("DO SOURCE: %s\n", fname);
     struct source_cookie    cookie;
     char_u		    *save_sourcing_name;
     linenr_T		    save_sourcing_lnum;
@@ -3374,18 +3376,22 @@ do_source(
 
     if (cookie.fp == NULL)
     {
-	if (p_verbose > 0)
-	{
+	/* if (p_verbose > 0) */
+	/* { */
 	    verbose_enter();
-	    if (sourcing_name == NULL)
+	    if (sourcing_name == NULL) {
+    printf("could not source %s\n");
 		smsg(_("could not source \"%s\""), fname);
-	    else
+	    }
+	    else {
+    printf("could not source %s\n");
 		smsg(_("line %ld: could not source \"%s\""),
-							sourcing_lnum, fname);
+							sourcing_lnum, fname); }
 	    verbose_leave();
-	}
+	/* } */
 	goto theend;
     }
+    printf("file exists\n");
 
     /*
      * The file exists.

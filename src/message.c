@@ -68,7 +68,7 @@ static int  verbose_did_open = FALSE;
  *		    Set: When any message is written to the screen.
  * msg_nowait	    No extra delay for the last drawn message.
  *		    Used in normal_cmd() before the mode message is drawn.
- * emsg_on_display  There was an error message recently.  Indicates that there
+ * emsg_on_displa  There was an error message recently.  Indicates that there
  *		    should be a delay before redrawing.
  * msg_scroll	    The next message should not overwrite the current one.
  * msg_scrolled	    How many lines the screen has been scrolled (because of
@@ -359,6 +359,7 @@ int vim_snprintf(char *str, size_t str_m, const char *fmt, ...);
     int
 smsg(const char *s, ...)
 {
+    printf("SMSG: %s\n", s);
     va_list arglist;
 
     va_start(arglist, s);
@@ -601,6 +602,7 @@ emsg_core(char_u *s)
     int
 emsg(char *s)
 {
+    printf("EMSG: %s\n", s);
     /* Skip this if not giving error messages at the moment. */
     if (!emsg_not_now())
 	return emsg_core((char_u *)s);

@@ -9419,6 +9419,7 @@ prepare_assert_error(garray_T *gap)
     void
 assert_error(garray_T *gap)
 {
+    printf("ASSERT ERROR!\n");
     struct vimvar   *vp = &vimvars[VV_ERRORS];
 
     if (vp->vv_type != VAR_LIST || vimvars[VV_ERRORS].vv_list == NULL)
