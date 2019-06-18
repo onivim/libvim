@@ -29,9 +29,7 @@ MU_TEST(test_set_get_metrics) {
   mu_check(vimWindowGetHeight() == 21);
 
   vimWindowSetWidth(100);
-  printf("-- vimWindowSetHeight START --\n");
   vimWindowSetHeight(101);
-  printf("-- vimWindowSetHeight END --\n");
 
   mu_check(vimWindowGetWidth() == 100);
   mu_check(vimWindowGetHeight() == 101);
