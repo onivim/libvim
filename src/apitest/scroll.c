@@ -28,13 +28,13 @@ MU_TEST(test_set_get_metrics) {
   mu_check(vimWindowGetWidth() == 20);
   mu_check(vimWindowGetHeight() == 21);
 
-  vimWindowSetWidth(1000);
-  vimWindowSetHeight(2000);
+  vimWindowSetWidth(100);
+  printf("-- vimWindowSetHeight START --\n");
+  vimWindowSetHeight(101);
+  printf("-- vimWindowSetHeight END --\n");
 
-
-  mu_check(vimWindowGetWidth() == 1000);
-  printf("ACTUAL HEIGHT VALUE: %d\n", vimWindowGetHeight());
-  mu_check(vimWindowGetHeight() == 2000);
+  mu_check(vimWindowGetWidth() == 100);
+  mu_check(vimWindowGetHeight() == 101);
 }
 
 MU_TEST(test_simple_scroll) {

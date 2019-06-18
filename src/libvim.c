@@ -242,7 +242,7 @@ void vimInit(int argc, char **argv) {
   change_compatible(FALSE);
 
   full_screen = TRUE;
-  screenalloc(FALSE);
   vimWindowSetWidth(80);
   vimWindowSetHeight(40);
+  screenalloc(FALSE);
 }
