@@ -2941,7 +2941,6 @@ frame_new_height(
     int		extra_lines;
     int		h;
 
-    printf("frame_new_height - 1\n");
     if (topfrp->fr_win != NULL)
     {
 	/* Simple case: just one window. */
@@ -5097,8 +5096,6 @@ win_setheight_win(int height, win_T *win)
 {
     int		row;
 
-    printf("win_setheight_win: %d\n", height);
-
     if (win == curwin)
     {
 	/* Always keep current window at least one line high, even when
@@ -5109,11 +5106,8 @@ win_setheight_win(int height, win_T *win)
 	    height = 1;
 	height += WINBAR_HEIGHT(curwin);
     }
-    printf("win_setheight_win - 1: %d\n", height);
 
-    printf("win_setheight_win - 2: %d\n", win->w_height);
     frame_setheight(win->w_frame, height + win->w_status_height);
-    printf("win_setheight_win - 2.5: %d\n", win->w_height);
 
     /* recompute the window positions */
     row = win_comp_pos();
@@ -5129,9 +5123,6 @@ win_setheight_win(int height, win_T *win)
     msg_col = 0;
 
     redraw_all_later(NOT_VALID);
-
-    printf("win_setheight_win - 3: %d\n", win->w_height);
-
 }
 
 /*
@@ -5798,8 +5789,6 @@ win_new_height(win_T *wp, int height)
 {
     int		prev_height = wp->w_height;
 
-    printf("win_new_height - 1: %d\n", wp->w_height);
-
     /* Don't want a negative height.  Happens when splitting a tiny window.
      * Will equalize heights soon to fix it. */
     if (height < 0)
@@ -5807,7 +5796,6 @@ win_new_height(win_T *wp, int height)
     if (wp->w_height == height)
 	return;	    /* nothing to do */
 
-    printf("win_new_height - 2: %d\n", wp->w_height);
     if (wp->w_height > 0)
     {
 	if (wp == curwin)
@@ -5821,12 +5809,8 @@ win_new_height(win_T *wp, int height)
 	    set_fraction(wp);
     }
 
-    printf("win_new_height - 3: %d\n", wp->w_height);
-
     wp->w_height = height;
     wp->w_skipcol = 0;
-
-    printf("win_new_height - 4: %d\n", wp->w_height);
 
     /* There is no point in adjusting the scroll position when exiting.  Some
      * values might be invalid. */
@@ -5839,7 +5823,6 @@ win_new_height(win_T *wp, int height)
     void
 scroll_to_fraction(win_T *wp, int prev_height)
 {
-    printf("scroll_to_fraction - 1\n");
     linenr_T	lnum;
     int		sline, line_size;
     int		height = wp->w_height;
@@ -5876,8 +5859,6 @@ scroll_to_fraction(win_T *wp, int prev_height)
 		wp->w_wrow -= rows - line_size;
 	    }
 	}
-
-	printf("scroll_to_fraction - 2\n");
 
 	if (sline < 0)
 	{
@@ -5947,28 +5928,19 @@ scroll_to_fraction(win_T *wp, int prev_height)
 	set_topline(wp, lnum);
     }
 
-	printf("scroll_to_fraction - 3\n");
     if (wp == curwin)
     {
-	printf("scroll_to_fraction - 3.1\n");
 	if (get_scrolloff_value())
 	    update_topline();
-	printf("scroll_to_fraction - 3.2\n");
 	curs_columns(FALSE);	/* validate w_wrow */
-	printf("scroll_to_fraction - 3.3\n");
     }
     if (prev_height > 0)
 	wp->w_prev_fraction_row = wp->w_wrow;
 
-	printf("scroll_to_fraction - 4\n");
     win_comp_scroll(wp);
-	printf("scroll_to_fraction - 5\n");
     redraw_win_later(wp, SOME_VALID);
-	printf("scroll_to_fraction - 6\n");
     wp->w_redr_status = TRUE;
-	printf("scroll_to_fraction - 7\n");
     invalidate_botline_win(wp);
-    printf("scroll_to_fraction - done\n");
 }
 
 /*
@@ -6103,7 +6075,6 @@ last_status(
     static void
 last_status_rec(frame_T *fr, int statusline)
 {
-    printf("last_status_rec - 1\n");
     frame_T	*fp;
     win_T	*wp;
 
