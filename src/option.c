@@ -2888,7 +2888,7 @@ static struct vimoption options[] =
 			    {(char_u *)20L, (char_u *)0L} SCTX_INIT},
     {"wrap",	    NULL,   P_BOOL|P_VI_DEF|P_RWIN,
 			    (char_u *)VAR_WIN, PV_WRAP,
-			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
+			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"wrapmargin",  "wm",   P_NUM|P_VI_DEF,
 			    (char_u *)&p_wm, PV_WM,
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},

@@ -28,11 +28,11 @@ MU_TEST(test_set_get_metrics) {
   mu_check(vimWindowGetWidth() == 20);
   mu_check(vimWindowGetHeight() == 21);
 
-  vimWindowSetWidth(1000);
-  vimWindowSetHeight(2000);
+  vimWindowSetWidth(100);
+  vimWindowSetHeight(101);
 
-  mu_check(vimWindowGetWidth() == 1000);
-  mu_check(vimWindowGetHeight() == 2000);
+  mu_check(vimWindowGetWidth() == 100);
+  mu_check(vimWindowGetHeight() == 101);
 }
 
 MU_TEST(test_simple_scroll) {
@@ -98,6 +98,33 @@ MU_TEST(test_h_m_l) {
   mu_check(vimCursorGetLine() == 50);
 }
 
+MU_TEST(test_only_scroll_at_boundary) {
+
+  vimWindowSetWidth(80);
+  vimWindowSetHeight(63);
+
+  vimInput("g");
+  vimInput("g");
+  vimInput("z");
+  vimInput("t");
+
+  mu_check(vimWindowGetTopLine() == 1);
+
+  // Verify viewport doesn't scroll even when cursor moves down
+  vimInput("6");
+  vimInput("2");
+  vimInput("j");
+  mu_check(vimWindowGetTopLine() == 1);
+
+  // Should scroll now
+  vimInput("j");
+  mu_check(vimWindowGetTopLine() == 2);
+
+  // Shouldn't scroll moving a single line up
+  vimInput("k");
+  mu_check(vimWindowGetTopLine() == 2);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -105,13 +132,11 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_simple_scroll);
   MU_RUN_TEST(test_small_screen_scroll);
   MU_RUN_TEST(test_h_m_l);
+  MU_RUN_TEST(test_only_scroll_at_boundary);
 }
 
 int main(int argc, char **argv) {
   vimInit(argc, argv);
-
-  win_setwidth(80);
-  win_setheight(40);
 
   buf_T *buf = vimBufferOpen("collateral/lines_100.txt", 1, 0);
 

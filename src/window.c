@@ -5814,7 +5814,9 @@ win_new_height(win_T *wp, int height)
 
     /* There is no point in adjusting the scroll position when exiting.  Some
      * values might be invalid. */
-    if (!exiting)
+    if (!exiting && 
+		    // libvim: Only reset scroll fraction if height was smaller than new height
+		    prev_height > wp->w_height)
 	scroll_to_fraction(wp, prev_height);
 }
 
