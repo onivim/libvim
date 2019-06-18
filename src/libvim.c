@@ -83,7 +83,6 @@ void vimInput(char_u *input) {
   input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
   p_cpo = cpo_save;
 
-
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
     sm_execute_normal(input);
@@ -206,7 +205,7 @@ int vimWindowGetTopLine(void) { return curwin->w_topline; }
 
 void vimWindowSetWidth(int width) {
   if (width > Columns) {
-      Columns = width;
+    Columns = width;
   }
 
   win_new_width(curwin, width);
@@ -214,7 +213,7 @@ void vimWindowSetWidth(int width) {
 
 void vimWindowSetHeight(int height) {
   if (height > Rows) {
-      Rows = height;
+    Rows = height;
   }
 
   win_new_height(curwin, height);
