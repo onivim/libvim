@@ -2484,20 +2484,6 @@ f_chdir(typval_T *argvars, typval_T *rettv)
     static void
 f_cindent(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_CINDENT
-    pos_T	pos;
-    linenr_T	lnum;
-
-    pos = curwin->w_cursor;
-    lnum = tv_get_lnum(argvars);
-    if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
-    {
-	curwin->w_cursor.lnum = lnum;
-	rettv->vval.v_number = get_c_indent();
-	curwin->w_cursor = pos;
-    }
-    else
-#endif
 	rettv->vval.v_number = -1;
 }
 
@@ -6294,9 +6280,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_JOB_CHANNEL
 	"channel",
-#endif
-#ifdef FEAT_CINDENT
-	"cindent",
 #endif
 #ifdef FEAT_CLIPBOARD
 	"clipboard",

@@ -2037,21 +2037,10 @@ ins_compl_prep(int c)
 		ins_compl_fixRedoBufForLeader(ptr);
 	    }
 
-#ifdef FEAT_CINDENT
-	    want_cindent = (can_cindent_get() && cindent_on());
-#endif
 	    // When completing whole lines: fix indent for 'cindent'.
 	    // Otherwise, break line if it's too long.
 	    if (compl_cont_mode == CTRL_X_WHOLE_LINE)
 	    {
-#ifdef FEAT_CINDENT
-		// re-indent the current line
-		if (want_cindent)
-		{
-		    do_c_expr_indent();
-		    want_cindent = FALSE;	// don't do it again
-		}
-#endif
 	    }
 	    else
 	    {
@@ -2103,11 +2092,6 @@ ins_compl_prep(int c)
 		showmode();
 	    }
 
-#ifdef FEAT_CINDENT
-	    // Indent now if a key was typed that is in 'cinkeys'.
-	    if (want_cindent && in_cinkeys(KEY_COMPLETE, ' ', inindent(0)))
-		do_c_expr_indent();
-#endif
 	    // Trigger the CompleteDone event to give scripts a chance to act
 	    // upon the completion.
 	    ins_apply_autocmds(EVENT_COMPLETEDONE);

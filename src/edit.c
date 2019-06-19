@@ -90,10 +90,6 @@ static int last_insert_skip;       /* nr of chars in front of previous insert */
 static int new_insert_skip;        /* nr of chars in front of current insert */
 static int did_restart_edit;       /* "restart_edit" when calling edit() */
 
-#ifdef FEAT_CINDENT
-static int can_cindent; /* may do cindenting on this line */
-#endif
-
 static int old_indent = 0; /* for ^^D command in insert mode */
 
 #ifdef FEAT_RIGHTLEFT
@@ -323,9 +319,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* The cursor line is not in a closed fold, unless 'insertmode' is set or
    * restarting. */
@@ -519,21 +512,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     context->c = Ctrl_V; /* pretend CTRL-V is last typed character */
     return HANDLED;
   }
-
-#ifdef FEAT_CINDENT
-  if (cindent_on()) {
-    /* A key name preceded by a bang means this key is not to be
-     * inserted.  Skip ahead to the re-indenting below.
-     * A key name preceded by a star means that indenting has to be
-     * done before inserting the key. */
-    context->line_is_white = inindent(0);
-    if (in_cinkeys(c, '!', context->line_is_white))
-      goto force_cindent;
-    if (can_cindent && in_cinkeys(c, '*', context->line_is_white) &&
-        stop_arrow() == OK)
-      do_c_expr_indent();
-  }
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   if (curwin->w_p_rl)
@@ -948,10 +926,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 
     if (c == ' ') {
       context->inserted_space = TRUE;
-#ifdef FEAT_CINDENT
-      if (inindent(0))
-        can_cindent = FALSE;
-#endif
       if (Insstart_blank_vcol == MAXCOL &&
           curwin->w_cursor.lnum == Insstart.lnum)
         Insstart_blank_vcol = get_nolist_virtcol();
@@ -996,20 +970,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   if (arrow_used)
     context->inserted_space = FALSE;
 
-#ifdef FEAT_CINDENT
-  if (can_cindent && cindent_on()) {
-  force_cindent:
-    /*
-     * Indent now if a key was typed that is in 'cinkeys'.
-     */
-    if (in_cinkeys(c, ' ', context->line_is_white)) {
-      if (stop_arrow() == OK)
-        /* re-indent the current line */
-        do_c_expr_indent();
-    }
-  }
-#endif /* FEAT_CINDENT */
-
   return HANDLED;
 };
 
@@ -1040,9 +1000,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   int mincol;
   int i;
   int did_backspace = TRUE; /* previous char was backspace */
-#ifdef FEAT_CINDENT
-  int line_is_white = FALSE; /* line is empty before insert */
-#endif
   linenr_T old_topline = 0; /* topline before insertion */
 #ifdef FEAT_DIFF
   int old_topfill = -1;
@@ -1243,9 +1200,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* The cursor line is not in a closed fold, unless 'insertmode' is set or
    * restarting. */
@@ -1558,25 +1512,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       c = Ctrl_V; /* pretend CTRL-V is last typed character */
       continue;
     }
-
-#ifdef FEAT_CINDENT
-    if (cindent_on()
-#ifdef FEAT_INS_EXPAND
-        && ctrl_x_mode_none()
-#endif
-    ) {
-      /* A key name preceded by a bang means this key is not to be
-       * inserted.  Skip ahead to the re-indenting below.
-       * A key name preceded by a star means that indenting has to be
-       * done before inserting the key. */
-      line_is_white = inindent(0);
-      if (in_cinkeys(c, '!', line_is_white))
-        goto force_cindent;
-      if (can_cindent && in_cinkeys(c, '*', line_is_white) &&
-          stop_arrow() == OK)
-        do_c_expr_indent();
-    }
-#endif
 
 #ifdef FEAT_RIGHTLEFT
     if (curwin->w_p_rl)
@@ -2088,10 +2023,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 
       if (c == ' ') {
         inserted_space = TRUE;
-#ifdef FEAT_CINDENT
-        if (inindent(0))
-          can_cindent = FALSE;
-#endif
         if (Insstart_blank_vcol == MAXCOL &&
             curwin->w_cursor.lnum == Insstart.lnum)
           Insstart_blank_vcol = get_nolist_virtcol();
@@ -2131,24 +2062,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     /* If the cursor was moved we didn't just insert a space */
     if (arrow_used)
       inserted_space = FALSE;
-
-#ifdef FEAT_CINDENT
-    if (can_cindent && cindent_on()
-#ifdef FEAT_INS_EXPAND
-        && ctrl_x_mode_normal()
-#endif
-    ) {
-    force_cindent:
-      /*
-       * Indent now if a key was typed that is in 'cinkeys'.
-       */
-      if (in_cinkeys(c, ' ', line_is_white)) {
-        if (stop_arrow() == OK)
-          /* re-indent the current line */
-          do_c_expr_indent();
-      }
-    }
-#endif /* FEAT_CINDENT */
 
   } /* for (;;) */
     /* NOTREACHED */
@@ -3058,9 +2971,6 @@ void insertchar(int c,             /* character to insert or NUL */
    */
   if (!ISSPECIAL(c) && (!has_mbyte || (*mb_char2len)(c) == 1) &&
       !has_insertcharpre() && vpeekc() != NUL && !(State & REPLACE_FLAG)
-#ifdef FEAT_CINDENT
-      && !cindent_on()
-#endif
 #ifdef FEAT_RIGHTLEFT
       && !p_ri
 #endif
@@ -3464,9 +3374,6 @@ static void internal_format(int textwidth, int second_indent, int flags,
     }
 
     haveto_redraw = TRUE;
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
     /* moved the cursor, don't autoindent or cindent now */
     did_ai = FALSE;
 #ifdef FEAT_SMARTINDENT
@@ -5102,9 +5009,6 @@ static void ins_shift(int c, int lastc) {
   can_si = FALSE;
   can_si_back = FALSE;
 #endif
-#ifdef FEAT_CINDENT
-  can_cindent = FALSE; /* no cindenting after ^D or ^T */
-#endif
 }
 
 static void ins_del(void) {
@@ -5193,10 +5097,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
   if (stop_arrow() == FAIL)
     return FALSE;
   in_indent = inindent(0);
-#ifdef FEAT_CINDENT
-  if (in_indent)
-    can_cindent = FALSE;
-#endif
 #ifdef FEAT_COMMENTS
   end_comment_pending = NUL; /* After BS, don't auto-end comment */
 #endif
@@ -5316,9 +5216,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
     /* keep indent */
     if (mode == BACKSPACE_LINE &&
         (curbuf->b_p_ai
-#ifdef FEAT_CINDENT
-         || cindent_on()
-#endif
              )
 #ifdef FEAT_RIGHTLEFT
         && !revins_on
@@ -5615,9 +5512,6 @@ void ins_scroll(void) {
   tpos = curwin->w_cursor;
   if (gui_do_scroll()) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   }
 }
 
@@ -5628,9 +5522,6 @@ void ins_horscroll(void) {
   tpos = curwin->w_cursor;
   if (gui_do_horiz_scroll(scrollbar_value, FALSE)) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   }
 }
 #endif
@@ -5811,9 +5702,6 @@ static void ins_up(int startcol) /* when TRUE move to Insstart.col */
     )
       redraw_later(VALID);
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5835,9 +5723,6 @@ static void ins_pageup(void) {
   tpos = curwin->w_cursor;
   if (onepage(BACKWARD, 1L) == OK) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5862,9 +5747,6 @@ static void ins_down(int startcol) /* when TRUE move to Insstart.col */
     )
       redraw_later(VALID);
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5886,9 +5768,6 @@ static void ins_pagedown(void) {
   tpos = curwin->w_cursor;
   if (onepage(FORWARD, 1L) == OK) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5908,10 +5787,6 @@ static int ins_tab(void) {
     return FALSE;
 
   ind = inindent(0);
-#ifdef FEAT_CINDENT
-  if (ind)
-    can_cindent = FALSE;
-#endif
 
   /*
    * When nothing special, insert TAB like a normal character.
@@ -6161,9 +6036,6 @@ int ins_eol(int c) {
                                                0,
                 old_indent);
   old_indent = 0;
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* When inserting a line the cursor line must never be in a closed fold. */
   foldOpenCursor();
@@ -6455,10 +6327,6 @@ static char_u *do_insert_char_pre(int c) {
 
   return res;
 }
-#endif
-
-#if defined(FEAT_CINDENT) || defined(PROTO)
-int can_cindent_get(void) { return can_cindent; }
 #endif
 
 /*

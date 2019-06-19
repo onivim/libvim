@@ -68,12 +68,7 @@
 #define PV_BL		OPT_BUF(BV_BL)
 #define PV_BOMB		OPT_BUF(BV_BOMB)
 #define PV_CI		OPT_BUF(BV_CI)
-#ifdef FEAT_CINDENT
-# define PV_CIN		OPT_BUF(BV_CIN)
-# define PV_CINK	OPT_BUF(BV_CINK)
-# define PV_CINO	OPT_BUF(BV_CINO)
-#endif
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
 # define PV_CINW	OPT_BUF(BV_CINW)
 #endif
 #define PV_CM		OPT_BOTH(OPT_BUF(BV_CM))
@@ -110,10 +105,6 @@
 #define PV_FT		OPT_BUF(BV_FT)
 #define PV_IMI		OPT_BUF(BV_IMI)
 #define PV_IMS		OPT_BUF(BV_IMS)
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-# define PV_INDE	OPT_BUF(BV_INDE)
-# define PV_INDK	OPT_BUF(BV_INDK)
-#endif
 #if defined(FEAT_FIND_ID) && defined(FEAT_EVAL)
 # define PV_INEX	OPT_BUF(BV_INEX)
 #endif
@@ -277,12 +268,7 @@ static char_u	*p_bh;
 static char_u	*p_bt;
 static int	p_bl;
 static int	p_ci;
-#ifdef FEAT_CINDENT
-static int	p_cin;
-static char_u	*p_cink;
-static char_u	*p_cino;
-#endif
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
 static char_u	*p_cinw;
 #endif
 #ifdef FEAT_COMMENTS
@@ -309,10 +295,6 @@ static long	p_iminsert;
 static long	p_imsearch;
 #if defined(FEAT_FIND_ID) && defined(FEAT_EVAL)
 static char_u	*p_inex;
-#endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-static char_u	*p_inde;
-static char_u	*p_indk;
 #endif
 #if defined(FEAT_EVAL)
 static char_u	*p_fex;
@@ -739,30 +721,17 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"cindent",	    "cin",  P_BOOL|P_VI_DEF|P_VIM,
-#ifdef FEAT_CINDENT
-			    (char_u *)&p_cin, PV_CIN,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"cinkeys",	    "cink", P_STRING|P_ALLOCED|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_CINDENT
-			    (char_u *)&p_cink, PV_CINK,
-			    {INDENTKEYS_DEFAULT, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"cinoptions",  "cino", P_STRING|P_ALLOCED|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_CINDENT
-			    (char_u *)&p_cino, PV_CINO,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"cinwords",    "cinw", P_STRING|P_ALLOCED|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
 			    (char_u *)&p_cinw, PV_CINW,
 			    {(char_u *)"if,else,while,do,for,switch",
 				(char_u *)0L}
@@ -1478,22 +1447,12 @@ static struct vimoption options[] =
 			    (char_u *)&p_is, PV_NONE,
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"indentexpr", "inde",  P_STRING|P_ALLOCED|P_VI_DEF|P_VIM|P_MLE,
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-			    (char_u *)&p_inde, PV_INDE,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"indentkeys", "indk",  P_STRING|P_ALLOCED|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-			    (char_u *)&p_indk, PV_INDK,
-			    {INDENTKEYS_DEFAULT, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"infercase",   "inf",  P_BOOL|P_VI_DEF,
 			    (char_u *)&p_inf, PV_INF,
@@ -3653,9 +3612,6 @@ set_options_default(
     /* The 'scroll' option must be computed for all windows. */
     FOR_ALL_TAB_WINDOWS(tp, wp)
 	win_comp_scroll(wp);
-#ifdef FEAT_CINDENT
-    parse_cino(curbuf);
-#endif
 }
 
 /*
@@ -5394,10 +5350,6 @@ check_buf_options(buf_T *buf)
     check_string_option(&buf->b_p_inex);
 # endif
 #endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-    check_string_option(&buf->b_p_inde);
-    check_string_option(&buf->b_p_indk);
-#endif
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
     check_string_option(&buf->b_p_bexpr);
 #endif
@@ -5438,13 +5390,8 @@ check_buf_options(buf_T *buf)
 #ifdef FEAT_SEARCHPATH
     check_string_option(&buf->b_p_sua);
 #endif
-#ifdef FEAT_CINDENT
-    check_string_option(&buf->b_p_cink);
-    check_string_option(&buf->b_p_cino);
-    parse_cino(buf);
-#endif
     check_string_option(&buf->b_p_ft);
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
     check_string_option(&buf->b_p_cinw);
 #endif
 #ifdef FEAT_INS_EXPAND
@@ -5576,9 +5523,6 @@ insecure_flag(int opt_idx, int opt_flags)
 # endif
 # ifdef FEAT_BEVAL
 	    case PV_BEXPR:	return &curbuf->b_p_bexpr_flags;
-# endif
-# if defined(FEAT_CINDENT)
-	    case PV_INDE:	return &curbuf->b_p_inde_flags;
 # endif
 	    case PV_FEX:	return &curbuf->b_p_fex_flags;
 # ifdef FEAT_FIND_ID
@@ -7093,15 +7037,6 @@ did_set_string_option(
 	}
     }
 
-#ifdef FEAT_CINDENT
-    /* 'cinoptions' */
-    else if (gvarp == &p_cino)
-    {
-	/* TODO: recognize errors */
-	parse_cino(curbuf);
-    }
-#endif
-
 #if defined(FEAT_RENDER_OPTIONS)
     /* 'renderoptions' */
     else if (varp == &p_rop)
@@ -8545,19 +8480,13 @@ set_num_option(
     }
 #endif /* FEAT_FOLDING */
 
-#if defined(FEAT_FOLDING) || defined(FEAT_CINDENT)
+#if defined(FEAT_FOLDING)
     /* 'shiftwidth' or 'tabstop' */
     else if (pp == &curbuf->b_p_sw || pp == &curbuf->b_p_ts)
     {
 # ifdef FEAT_FOLDING
 	if (foldmethodIsIndent(curwin))
 	    foldUpdateAll(curwin);
-# endif
-# ifdef FEAT_CINDENT
-	/* When 'shiftwidth' changes, or it's zero and 'tabstop' changes:
-	 * parse 'cinoptions'. */
-	if (pp == &curbuf->b_p_sw || curbuf->b_p_sw == 0)
-	    parse_cino(curbuf);
 # endif
     }
 #endif
@@ -10331,12 +10260,7 @@ get_varp(struct vimoption *p)
 	case PV_BT:	return (char_u *)&(curbuf->b_p_bt);
 	case PV_BL:	return (char_u *)&(curbuf->b_p_bl);
 	case PV_CI:	return (char_u *)&(curbuf->b_p_ci);
-#ifdef FEAT_CINDENT
-	case PV_CIN:	return (char_u *)&(curbuf->b_p_cin);
-	case PV_CINK:	return (char_u *)&(curbuf->b_p_cink);
-	case PV_CINO:	return (char_u *)&(curbuf->b_p_cino);
-#endif
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
 	case PV_CINW:	return (char_u *)&(curbuf->b_p_cinw);
 #endif
 #ifdef FEAT_COMMENTS
@@ -10367,10 +10291,6 @@ get_varp(struct vimoption *p)
 # ifdef FEAT_EVAL
 	case PV_INEX:	return (char_u *)&(curbuf->b_p_inex);
 # endif
-#endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-	case PV_INDE:	return (char_u *)&(curbuf->b_p_inde);
-	case PV_INDK:	return (char_u *)&(curbuf->b_p_indk);
 #endif
 #ifdef FEAT_EVAL
 	case PV_FEX:	return (char_u *)&(curbuf->b_p_fex);
@@ -10758,15 +10678,10 @@ buf_copy_options(buf_T *buf, int flags)
 	    buf->b_p_si = p_si;
 #endif
 	    buf->b_p_ci = p_ci;
-#ifdef FEAT_CINDENT
-	    buf->b_p_cin = p_cin;
-	    buf->b_p_cink = vim_strsave(p_cink);
-	    buf->b_p_cino = vim_strsave(p_cino);
-#endif
 	    /* Don't copy 'filetype', it must be detected */
 	    buf->b_p_ft = empty_option;
 	    buf->b_p_pi = p_pi;
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
 	    buf->b_p_cinw = vim_strsave(p_cinw);
 #endif
 #ifdef FEAT_LISP
@@ -10783,10 +10698,6 @@ buf_copy_options(buf_T *buf, int flags)
 	    (void)compile_cap_prog(&buf->b_s);
 	    buf->b_s.b_p_spf = vim_strsave(p_spf);
 	    buf->b_s.b_p_spl = vim_strsave(p_spl);
-#endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-	    buf->b_p_inde = vim_strsave(p_inde);
-	    buf->b_p_indk = vim_strsave(p_indk);
 #endif
 	    buf->b_p_fp = empty_option;
 #if defined(FEAT_EVAL)

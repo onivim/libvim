@@ -240,9 +240,6 @@ open_buffer(
     {
 
 	(void)buf_init_chartab(curbuf, FALSE);
-#ifdef FEAT_CINDENT
-	parse_cino(curbuf);
-#endif
     }
 
     /*
@@ -2093,10 +2090,6 @@ free_buf_options(
     clear_string_option(&buf->b_p_inex);
 # endif
 #endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-    clear_string_option(&buf->b_p_inde);
-    clear_string_option(&buf->b_p_indk);
-#endif
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
     clear_string_option(&buf->b_p_bexpr);
 #endif
@@ -2144,11 +2137,7 @@ free_buf_options(
     clear_string_option(&buf->b_p_sua);
 #endif
     clear_string_option(&buf->b_p_ft);
-#ifdef FEAT_CINDENT
-    clear_string_option(&buf->b_p_cink);
-    clear_string_option(&buf->b_p_cino);
-#endif
-#if defined(FEAT_CINDENT) || defined(FEAT_SMARTINDENT)
+#if defined(FEAT_SMARTINDENT)
     clear_string_option(&buf->b_p_cinw);
 #endif
 #ifdef FEAT_INS_EXPAND

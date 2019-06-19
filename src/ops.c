@@ -223,7 +223,7 @@ void op_shift(oparg_T *oap, int curs_top, int amount) {
     else
     /* Move the line right if it doesn't start with '#', 'smartindent'
      * isn't set or 'cindent' isn't set or '#' isn't in 'cino'. */
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
         if (first_char != '#' || !preprocs_left())
 #endif
       shift_line(oap->op_type == OP_LSHIFT, p_sr, amount, FALSE);
@@ -614,7 +614,7 @@ static void block_insert(oparg_T *oap, char_u *s, int b_insert,
   State = oldstate;
 }
 
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT) || defined(PROTO)
+#if defined(FEAT_LISP) || defined(PROTO)
 /*
  * op_reindent - handle reindenting a block of lines.
  */
@@ -688,7 +688,7 @@ void op_reindent(oparg_T *oap, int (*how)(void)) {
   curbuf->b_op_start = oap->start;
   curbuf->b_op_end = oap->end;
 }
-#endif /* defined(FEAT_LISP) || defined(FEAT_CINDENT) */
+#endif /* defined(FEAT_LISP)  */
 
 #if defined(FEAT_EVAL) || defined(PROTO)
 /*
@@ -2452,9 +2452,6 @@ void *state_change_initialize(oparg_T *oap) {
     context->l = 0;
 #ifdef FEAT_SMARTINDENT
     if (!p_paste && curbuf->b_p_si
-#ifdef FEAT_CINDENT
-        && !curbuf->b_p_cin
-#endif
     )
       can_si = TRUE; /* It's like opening a new line, do si */
 #endif
@@ -2484,7 +2481,7 @@ void *state_change_initialize(oparg_T *oap) {
     context->bd.textcol = curwin->w_cursor.col;
   }
 
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
+#if defined(FEAT_LISP)
   if (oap->motion_type == MLINE)
     fix_indent();
 #endif
@@ -3459,7 +3456,7 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
             ptr = ml_get(lnum);
             if (cnt == count && i == y_size - 1)
               lendiff = (int)STRLEN(ptr);
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
             if (*ptr == '#' && preprocs_left())
               indent = 0; /* Leave # lines at start */
             else
@@ -3578,22 +3575,14 @@ void adjust_cursor_eol(void) {
   }
 }
 
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT) || defined(PROTO)
+#if defined(FEAT_SMARTINDENT) ||  defined(PROTO)
 /*
  * Return TRUE if lines starting with '#' should be left aligned.
  */
 int preprocs_left(void) {
   return
 #ifdef FEAT_SMARTINDENT
-#ifdef FEAT_CINDENT
-      (curbuf->b_p_si && !curbuf->b_p_cin) ||
-#else
       curbuf->b_p_si
-#endif
-#endif
-#ifdef FEAT_CINDENT
-      (curbuf->b_p_cin && in_cinkeys('#', ' ', TRUE) &&
-       curbuf->b_ind_hash_comment == 0)
 #endif
           ;
 }

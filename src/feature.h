@@ -462,17 +462,12 @@
 
 /*
  * +lispindent		lisp indenting (From Eric Fischer).
- * +cindent		C code indenting (From Eric Fischer).
  * +smartindent		smart C code indenting when the 'si' option is set.
  *
  * These two need to be defined when making prototypes.
  */
 #if defined(FEAT_NORMAL) || defined(PROTO)
 # define FEAT_LISP
-#endif
-
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_CINDENT
 #endif
 
 #ifdef FEAT_NORMAL
