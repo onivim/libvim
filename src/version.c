@@ -127,11 +127,7 @@ static char *(features[]) =
 #else
 	"-channel",
 #endif
-#ifdef FEAT_CINDENT
-	"+cindent",
-#else
 	"-cindent",
-#endif
 	"-clientserver",
 #ifdef FEAT_CLIPBOARD
 	"+clipboard",

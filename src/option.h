@@ -893,12 +893,7 @@ enum
     , BV_BL
     , BV_BOMB
     , BV_CI
-#ifdef FEAT_CINDENT
-    , BV_CIN
-    , BV_CINK
-    , BV_CINO
-#endif
-#if defined(FEAT_SMARTINDENT) || defined(FEAT_CINDENT)
+#if defined(FEAT_SMARTINDENT)
     , BV_CINW
 #endif
     , BV_CM
@@ -933,7 +928,7 @@ enum
     , BV_FT
     , BV_IMI
     , BV_IMS
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
     , BV_INDE
     , BV_INDK
 #endif

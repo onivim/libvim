@@ -4889,7 +4889,7 @@ is_one_char(char_u *pattern, int move, pos_T *cur, int direction)
     return result;
 }
 
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT) || defined(FEAT_TEXTOBJ) \
+#if defined(FEAT_LISP) || defined(FEAT_TEXTOBJ) \
 	|| defined(PROTO)
 /*
  * return TRUE if line 'lnum' is empty or has white chars only.
