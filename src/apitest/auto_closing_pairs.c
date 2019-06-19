@@ -33,20 +33,32 @@ MU_TEST(test_backspace_matching_pair) {
 MU_TEST(test_backspace_matching_macro_insert) {
     /* vimInput("q"); */
     /* vimInput("a"); */
-    vimInput("I");
+    vimInput("A");
     vimInput("a");
     vimInput("b");
     vimInput("c");
+    vimInput("{");
+    vimInput("[");
+    vimInput("{");
+    vimInput("d");
+    /* vimInput("<bs>"); */
+    /* vimInput("<bs>"); */
+    /* vimInput("<bs>"); */
     vimInput("<esc>");
     /* vimInput("q"); */
+
+    printf("REDO BUFFER: |%s|\n", get_inserted());
 
     printf("dot!\n");
     vimInput("j");
     vimInput(".");
     /* vimInput("a"); */
+    vimInput("j");
+    vimInput(".");
 
     printf("First line: %s\n", vimBufferGetLine(curbuf, 1));
     printf("Second line: %s\n", vimBufferGetLine(curbuf, 2));
+    printf("Third line: %s\n", vimBufferGetLine(curbuf, 3));
 }
 
 MU_TEST_SUITE(test_suite) {
