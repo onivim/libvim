@@ -61,7 +61,7 @@ static pos_T *find_start_rawstring(int ind_maxcomment);
     static pos_T *
 ind_find_start_comment(void)	    // XXX
 {
-    return find_start_comment(curbuf->b_ind_maxcomment);
+    return NULL;
 }
 
     pos_T *
@@ -106,30 +106,7 @@ find_start_comment(int ind_maxcomment)	// XXX
     static pos_T *
 ind_find_start_CORS(linenr_T *is_raw)	    // XXX
 {
-    static pos_T comment_pos_copy;
-    pos_T	*comment_pos;
-    pos_T	*rs_pos;
-
-    comment_pos = find_start_comment(curbuf->b_ind_maxcomment);
-    if (comment_pos != NULL)
-    {
-	// Need to make a copy of the static pos in findmatchlimit(),
-	// calling find_start_rawstring() may change it.
-	comment_pos_copy = *comment_pos;
-	comment_pos = &comment_pos_copy;
-    }
-    rs_pos = find_start_rawstring(curbuf->b_ind_maxcomment);
-
-    // If comment_pos is before rs_pos the raw string is inside the comment.
-    // If rs_pos is before comment_pos the comment is inside the raw string.
-    if (comment_pos == NULL || (rs_pos != NULL
-					     && LT_POS(*rs_pos, *comment_pos)))
-    {
-	if (is_raw != NULL && rs_pos != NULL)
-	    *is_raw = rs_pos->lnum;
-	return rs_pos;
-    }
-    return comment_pos;
+    return NULL;
 }
 
 /*
@@ -140,32 +117,7 @@ ind_find_start_CORS(linenr_T *is_raw)	    // XXX
     static pos_T *
 find_start_rawstring(int ind_maxcomment)	// XXX
 {
-    pos_T	*pos;
-    char_u	*line;
-    char_u	*p;
-    int		cur_maxcomment = ind_maxcomment;
-
-    for (;;)
-    {
-	pos = findmatchlimit(NULL, 'R', FM_BACKWARD, cur_maxcomment);
-	if (pos == NULL)
-	    break;
-
-	// Check if the raw string start we found is inside a string.
-	// If it is then restrict the search to below this line and try again.
-	line = ml_get(pos->lnum);
-	for (p = line; *p && (colnr_T)(p - line) < pos->col; ++p)
-	    p = skip_string(p);
-	if ((colnr_T)(p - line) <= pos->col)
-	    break;
-	cur_maxcomment = curwin->w_cursor.lnum - pos->lnum - 1;
-	if (cur_maxcomment <= 0)
-	{
-	    pos = NULL;
-	    break;
-	}
-    }
-    return pos;
+    return NULL;
 }
 
 /*
