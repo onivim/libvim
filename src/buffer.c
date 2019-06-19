@@ -98,8 +98,10 @@ read_buffer(
     {
 	/* Set or reset 'modified' before executing autocommands, so that
 	 * it can be changed there. */
-	if (!readonlymode && !BUFEMPTY())
-	    changed();
+	if (!readonlymode && !BUFEMPTY()) {
+	    printf("buffer - changed - 1\n");
+	    changed(TRUE);
+	}
 	else if (retval == OK)
 	    unchanged(curbuf, FALSE);
 
@@ -149,6 +151,7 @@ open_buffer(
 	 * There MUST be a memfile, otherwise we can't do anything
 	 * If we can't create one for the current buffer, take another buffer
 	 */
+	printf("open_buffer - closing current buffer\n");
 	close_buffer(NULL, curbuf, 0, FALSE);
 	FOR_ALL_BUFFERS(curbuf)
 	    if (curbuf->b_ml.ml_mfp != NULL)
@@ -201,6 +204,8 @@ open_buffer(
 #endif
 	if (shortmess(SHM_FILEINFO))
 	    msg_silent = 1;
+
+	printf("open_buffer - reading file\n");
 	retval = readfile(curbuf->b_ffname, curbuf->b_fname,
 		  (linenr_T)0, (linenr_T)0, (linenr_T)MAXLNUM, eap,
 		  flags | READ_NEW | (read_fifo ? READ_FIFO : 0));
@@ -255,8 +260,10 @@ open_buffer(
 #ifdef FEAT_EVAL
 		|| (aborting() && vim_strchr(p_cpo, CPO_INTMOD) != NULL)
 #endif
-       )
-	changed();
+       ) {
+	    printf("buffer - changed - 2\n");
+	changed(TRUE);
+    }
     else if (retval == OK && !read_stdin && !read_fifo)
 	unchanged(curbuf, FALSE);
     save_file_ff(curbuf);		/* keep this fileformat */
@@ -1659,6 +1666,7 @@ set_curbuf(buf_T *buf, int action)
     void
 enter_buffer(buf_T *buf)
 {
+    printf("enter buffer: %d\n", buf->b_fnum);
     /* Copy buffer and window local option values.  Not for a help buffer. */
     buf_copy_options(buf, BCO_ENTER | BCO_NOHELP);
     if (!buf->b_help)

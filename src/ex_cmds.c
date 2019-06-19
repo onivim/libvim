@@ -3748,6 +3748,8 @@ do_ecmd(
     int		flags,
     win_T	*oldwin)
 {
+
+	    printf("do_ecmd - 1\n");
     int		other_file;		/* TRUE if editing another file */
     int		oldbuf;			/* TRUE if using existing buffer */
     int		auto_buf = FALSE;	/* TRUE if autocommands brought us
@@ -3819,6 +3821,7 @@ do_ecmd(
 	    fname_case(sfname, 0);   /* set correct case for sfname */
 #endif
 
+	    printf("do_ecmd - 2\n");
 	if ((flags & ECMD_ADDBUF) && (ffname == NULL || *ffname == NUL))
 	    goto theend;
 
@@ -3841,6 +3844,7 @@ do_ecmd(
 	}
     }
 
+	    printf("do_ecmd - 3\n");
     /*
      * if the file was changed we may not be allowed to abandon it
      * - if we are going to re-edit the same file
@@ -3872,6 +3876,7 @@ do_ecmd(
 	int	len;
 	char_u	*p;
 
+	    printf("do_ecmd - 4\n");
 	/* Set v:swapcommand for the SwapExists autocommands. */
 	if (command != NULL)
 	    len = (int)STRLEN(command) + 3;
@@ -4124,6 +4129,7 @@ do_ecmd(
  */
     if (!other_file && !oldbuf)		/* re-use the buffer */
     {
+	    printf("reusing buffer on edit\n");
 	set_last_cursor(curwin);	/* may set b_last_cursor */
 	if (newlnum == ECMD_LAST || newlnum == ECMD_LASTL)
 	{
@@ -4236,6 +4242,8 @@ do_ecmd(
 #else
 	    (void)open_buffer(FALSE, eap, readfile_flags);
 #endif
+
+	    printf("opened buffer!\n");
 
 	    if (swap_exists_action == SEA_QUIT)
 		retval = FAIL;
@@ -4398,6 +4406,7 @@ do_ecmd(
 #endif
 
 theend:
+	    printf("do_ecmd - the_end\n");
     if (did_inc_redrawing_disabled)
 	--RedrawingDisabled;
 #if defined(FEAT_EVAL)

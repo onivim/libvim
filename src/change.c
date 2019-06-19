@@ -76,8 +76,9 @@ change_warning(int col)
  * Careful: may trigger autocommands that reload the buffer.
  */
     void
-changed(void)
+changed(int send_full_update)
 {
+    printf("changed - send_full_update: %d\n", send_full_update);
 #if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
     if (p_imst == IM_ON_THE_SPOT)
     {
@@ -126,6 +127,18 @@ changed(void)
 		need_wait_return = save_need_wait_return;
 	}
 	changed_internal();
+
+	printf("send_full_update: %d\n (TRUE: %d\n)", send_full_update, TRUE);
+	    if (send_full_update == TRUE) {
+	if (bufferUpdateCallback != NULL) {
+		bufferUpdate_T bufferUpdate;
+		bufferUpdate.buf = curbuf;
+		bufferUpdate.lnum = 1;
+		bufferUpdate.lnume = -1;
+		bufferUpdate.xtra = 0;
+		bufferUpdateCallback(bufferUpdate);
+	}
+	    }
     }
     ++CHANGEDTICK(curbuf);
 
@@ -463,7 +476,7 @@ changed_common(
 
 
     // mark the buffer as modified
-    changed();
+    changed(FALSE);
 
 #ifdef FEAT_EVAL
     may_record_change(lnum, col, lnume, xtra);

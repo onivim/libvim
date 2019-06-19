@@ -916,7 +916,7 @@ ex_rubydo(exarg_T *eap)
 		    return;
 		}
 		ml_replace(i, (char_u *) StringValuePtr(line), 1);
-		changed();
+		changed(FALSE);
 #ifdef SYNTAX_HL
 		syn_changed(i); /* recompute syntax hl. for this line */
 #endif
@@ -1405,7 +1405,7 @@ set_buffer_line(buf_T *buf, linenr_T n, VALUE str)
 	if (u_savesub(n) == OK)
 	{
 	    ml_replace(n, (char_u *)line, TRUE);
-	    changed();
+	    changed(FALSE);
 #ifdef SYNTAX_HL
 	    syn_changed(n); /* recompute syntax hl. for this line */
 #endif
@@ -1454,7 +1454,7 @@ buffer_delete(VALUE self, VALUE num)
 	     *   SegPhault - 01/09/05 */
 	    deleted_lines_mark(n, 1L);
 
-	    changed();
+	    changed(FALSE);
 	}
 
 	/* restore curwin/curbuf and a few other things */

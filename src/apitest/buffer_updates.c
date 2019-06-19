@@ -6,6 +6,7 @@ static int lastLnum = 0;
 static int lastLnume = 0;
 static long lastXtra = 0;
 
+
 void onBufferUpdate(bufferUpdate_T update) {
   lastLnum = update.lnum;
   lastLnume = update.lnume;
@@ -91,15 +92,36 @@ MU_TEST(test_insert) {
   mu_check(lastXtra == 0);
 }
 
+MU_TEST(test_reload_buffer) {
+  vimInput("i");
+  vimInput("a");
+  vimInput("b");
+
+  // Reset updateCount
+  updateCount = 0;
+  printf ("!!BEFORE EDIT!!\n");
+  vimExecute("edit!");
+
+  printf("update count: %d\n", updateCount);
+  mu_check(updateCount == 1);
+  mu_check(lastLnum == 1);
+  mu_check(lastLnum == -1);
+  mu_check(lastXtra == 3);
+  /* mu_check(lastLnum == 1); */
+  /* mu_check(lastLnume == 2); */
+  /* mu_check(lastXtra == 0); */
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  MU_RUN_TEST(test_single_line_update);
-  MU_RUN_TEST(test_add_line);
-  MU_RUN_TEST(test_add_multiple_lines);
-  MU_RUN_TEST(test_delete_line);
-  MU_RUN_TEST(test_delete_multiple_lines);
-  MU_RUN_TEST(test_insert);
+  /* MU_RUN_TEST(test_single_line_update); */
+  /* MU_RUN_TEST(test_add_line); */
+  /* MU_RUN_TEST(test_add_multiple_lines); */
+  /* MU_RUN_TEST(test_delete_line); */
+  /* MU_RUN_TEST(test_delete_multiple_lines); */
+  /* MU_RUN_TEST(test_insert); */
+  MU_RUN_TEST(test_reload_buffer);
 }
 
 int main(int argc, char **argv) {

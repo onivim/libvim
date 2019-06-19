@@ -1,6 +1,6 @@
 /* change.c */
 void change_warning(int col);
-void changed(void);
+void changed(int send_full_update);
 void changed_internal(void);
 void f_listener_add(typval_T *argvars, typval_T *rettv);
 void f_listener_flush(typval_T *argvars, typval_T *rettv);

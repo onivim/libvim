@@ -2641,7 +2641,7 @@ u_undoredo(int undo)
 	{
 	    unblock_autocmds();
 	    iemsg(_("E438: u_undo: line numbers wrong"));
-	    changed();		/* don't want UNCHANGED now */
+	    changed(FALSE);		/* don't want UNCHANGED now */
 	    return;
 	}
 
@@ -2780,7 +2780,7 @@ u_undoredo(int undo)
     if ((old_flags & UH_EMPTYBUF) && BUFEMPTY())
 	curbuf->b_ml.ml_flags |= ML_EMPTY;
     if (old_flags & UH_CHANGED)
-	changed();
+	changed(FALSE);
     else
 	unchanged(curbuf, FALSE);
 
