@@ -7,15 +7,18 @@ void test_setup(void) {
   vimInput("g");
   vimInput("g");
   vimInput("0");
+
+  vim_mem_profile_reset();
 }
 
-void test_teardown(void) {}
+void test_teardown(void) {
+    vim_mem_profile_dump();
+}
 
 MU_TEST(test_set_cursor) {
   pos_T pos;
   pos.lnum = 5;
   pos.col = 4;
-  vimCursorSetPosition(pos);
 
   mu_check(vimCursorGetLine() == 5);
   mu_check(vimCursorGetColumn() == 4);

@@ -695,7 +695,7 @@ leftcol_changed(void)
 
 #if defined(MEM_PROFILE) || defined(PROTO)
 
-# define MEM_SIZES  8200
+# define MEM_SIZES  82000
 static long_u mem_allocs[MEM_SIZES];
 static long_u mem_frees[MEM_SIZES];
 static long_u mem_allocated;
@@ -704,16 +704,33 @@ static long_u mem_peak;
 static long_u num_alloc;
 static long_u num_freed;
 
+
+    void
+vim_mem_profile_reset()
+{
+    printf("mem profile reset");
+    for (int i = 0; i < MEM_SIZES; i++) {
+	    mem_allocs[i] = 0;
+	    mem_frees[i] = 0;
+    }
+
+    mem_allocated = 0;
+    mem_freed = 0;
+    mem_peak = 0;
+    num_alloc = 0;
+    num_freed = 0;
+}
+
     static void
 mem_pre_alloc_s(size_t *sizep)
 {
-    *sizep += sizeof(size_t);
+    /* *sizep += sizeof(size_t); */
 }
 
     static void
 mem_pre_alloc_l(size_t *sizep)
 {
-    *sizep += sizeof(size_t);
+    /* *sizep += sizeof(size_t); */
 }
 
     static void
@@ -721,19 +738,19 @@ mem_post_alloc(
     void **pp,
     size_t size)
 {
-    if (*pp == NULL)
-	return;
-    size -= sizeof(size_t);
-    *(long_u *)*pp = size;
-    if (size <= MEM_SIZES-1)
-	mem_allocs[size-1]++;
-    else
-	mem_allocs[MEM_SIZES-1]++;
-    mem_allocated += size;
-    if (mem_allocated - mem_freed > mem_peak)
-	mem_peak = mem_allocated - mem_freed;
+    /* if (*pp == NULL) */
+	/* return; */
+    /* size -= sizeof(size_t); */
+    /* *(long_u *)*pp = size; */
+    /* if (size <= MEM_SIZES-1) */
+	/* mem_allocs[size-1]++; */
+    /* else */
+	/* mem_allocs[MEM_SIZES-1]++; */
+    /* mem_allocated += size; */
+    /* if (mem_allocated - mem_freed > mem_peak) */
+	/* mem_peak = mem_allocated - mem_freed; */
     num_alloc++;
-    *pp = (void *)((char *)*pp + sizeof(size_t));
+    /* *pp = (void *)((char *)*pp + sizeof(size_t)); */
 }
 
     static void
@@ -741,25 +758,26 @@ mem_pre_free(void **pp)
 {
     long_u size;
 
-    *pp = (void *)((char *)*pp - sizeof(size_t));
-    size = *(size_t *)*pp;
-    if (size <= MEM_SIZES-1)
-	mem_frees[size-1]++;
-    else
-	mem_frees[MEM_SIZES-1]++;
-    mem_freed += size;
+    /* *pp = (void *)((char *)*pp - sizeof(size_t)); */
+    /* size = *(size_t *)*pp; */
+    /* if (size <= MEM_SIZES-1) */
+	/* mem_frees[size-1]++; */
+    /* else */
+	/* mem_frees[MEM_SIZES-1]++; */
+    /* mem_freed += size; */
     num_freed++;
 }
 
 /*
  * called on exit via atexit()
  */
-    void
+    int
 vim_mem_profile_dump(void)
 {
     int i, j;
 
     printf("\r\n");
+    printf("-- Memory allocation report --");
     j = 0;
     for (i = 0; i < MEM_SIZES - 1; i++)
     {
@@ -790,6 +808,14 @@ vim_mem_profile_dump(void)
 	    mem_allocated, mem_freed, mem_allocated - mem_freed, mem_peak);
     printf(_("[calls] total re/malloc()'s %lu, total free()'s %lu\n\n"),
 	    num_alloc, num_freed);
+
+    if (num_alloc > num_freed) {
+	      printf("[FAIL] Leak detected.\n");
+		    mch_exit(1);
+    } else {
+	      printf("No leaks detected.\n");
+    }
+    return mem_allocated - mem_freed;
 }
 
 #endif /* MEM_PROFILE */
@@ -906,6 +932,7 @@ lalloc(size_t size, int message)
 
 #ifdef MEM_PROFILE
     mem_pre_alloc_l(&size);
+    /* printf("mem_pre_alloc_l\n"); */
 #endif
 
     /*
@@ -994,13 +1021,19 @@ mem_realloc(void *ptr, size_t size)
 {
     void *p;
 
+    printf("meM_realloc - start\n");
+
     mem_pre_free(&ptr);
+    printf("meM_realloc - 1\n");
     mem_pre_alloc_s(&size);
+    printf("meM_realloc - 2\n");
 
     p = realloc(ptr, size);
+    printf("meM_realloc - 3\n");
 
     mem_post_alloc(&p, size);
 
+    printf("meM_realloc - finish\n");
     return p;
 }
 #endif

@@ -9,15 +9,18 @@ void test_setup(void) {
   vimInput("g");
   vimInput("g");
   vimInput("0");
+
+  /* vim_mem_profile_reset(); */
 }
 
-void test_teardown(void) {}
+void test_teardown(void) {
+  /* vim_mem_profile_dump(); */
+}
 
 MU_TEST(insert_abbrev_multiple) {
 
   vimExecute("iabbrev waht what");
 
-  vimInput("I");
   vimInput("w");
   vimInput("a");
   vimInput("h");

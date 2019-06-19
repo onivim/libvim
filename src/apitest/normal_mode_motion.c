@@ -4,9 +4,13 @@
 void test_setup(void) {
   vimInput("g");
   vimInput("g");
+
+  vim_mem_profile_reset();
 }
 
-void test_teardown(void) {}
+void test_teardown(void) {
+  vim_mem_profile_dump();
+}
 
 MU_TEST(test_G_gg) {
   mu_check(vimCursorGetLine() == 1);
