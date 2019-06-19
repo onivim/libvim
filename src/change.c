@@ -1448,9 +1448,6 @@ open_line(
 #endif
 #ifdef FEAT_SMARTINDENT
     int		do_si = (!p_paste && curbuf->b_p_si
-# ifdef FEAT_CINDENT
-					&& !curbuf->b_p_cin
-# endif
 # ifdef FEAT_EVAL
 					&& *curbuf->b_p_inde == NUL
 # endif
@@ -1458,7 +1455,7 @@ open_line(
     int		no_si = FALSE;		// reset did_si afterwards
     int		first_char = NUL;	// init for GCC
 #endif
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
+#if defined(FEAT_LISP)
     int		vreplace_mode;
 #endif
     int		did_append;		// appended a new line
@@ -2304,7 +2301,7 @@ open_line(
     curwin->w_cursor.col = newcol;
     curwin->w_cursor.coladd = 0;
 
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
+#if defined(FEAT_LISP)
     // In VREPLACE mode, we are handling the replace stack ourselves, so stop
     // fixthisline() from doing it (via change_indent()) by telling it we're in
     // normal INSERT mode.
@@ -2329,23 +2326,7 @@ open_line(
 	ai_col = (colnr_T)getwhitecols_curline();
     }
 #endif
-#ifdef FEAT_CINDENT
-    // May do indenting after opening a new line.
-    if (!p_paste
-	    && (curbuf->b_p_cin
-#  ifdef FEAT_EVAL
-		    || *curbuf->b_p_inde != NUL
-#  endif
-		)
-	    && in_cinkeys(dir == FORWARD
-		? KEY_OPEN_FORW
-		: KEY_OPEN_BACK, ' ', linewhite(curwin->w_cursor.lnum)))
-    {
-	do_c_expr_indent();
-	ai_col = (colnr_T)getwhitecols_curline();
-    }
-#endif
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
+#if defined(FEAT_LISP)
     if (vreplace_mode != 0)
 	State = vreplace_mode;
 #endif

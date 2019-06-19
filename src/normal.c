@@ -1971,7 +1971,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
     case OP_INDENT:
     case OP_COLON:
 
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
+#if defined(FEAT_LISP)
       /*
        * If 'equalprg' is empty, do the indenting internally.
        */
@@ -1981,14 +1981,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
           op_reindent(oap, get_lisp_indent);
           break;
         }
-#endif
-#ifdef FEAT_CINDENT
-        op_reindent(oap,
-#ifdef FEAT_EVAL
-                    *curbuf->b_p_inde != NUL ? get_expr_indent :
-#endif
-                                             get_c_indent);
-        break;
 #endif
       }
 #endif
@@ -2187,11 +2179,9 @@ static void op_colon(oparg_T *oap) {
   if (oap->op_type != OP_COLON)
     stuffReadbuff((char_u *)"!");
   if (oap->op_type == OP_INDENT) {
-#ifndef FEAT_CINDENT
     if (*get_equalprg() == NUL)
       stuffReadbuff((char_u *)"indent");
     else
-#endif
       stuffReadbuff(get_equalprg());
     stuffReadbuff((char_u *)"\n");
   } else if (oap->op_type == OP_FORMAT) {
