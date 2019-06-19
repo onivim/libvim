@@ -970,6 +970,14 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
              (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
          c != Ctrl_RSB)) {
 	    printf("insert special? %c\n", c); 
+
+	     if (c == '}' && (*ml_get_cursor() == '}')) {
+		 printf("Bouncing right!\n");
+		 AppendToRedobuffLit("}", 1);
+			oneright();
+
+	     } else {
+
       insert_special(c, FALSE, FALSE);
 		    if (c == '{') {
 
@@ -982,6 +990,7 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 	    ins_char(']');
 		  oneleft();
 	      }
+	     }
 		    /* else if (c == '[') { */
         /* insert_special(']', FALSE, FALSE); */
 	      /* ins_left(); */
@@ -6125,6 +6134,12 @@ int ins_eol(int c) {
    * in open_line().
    */
 
+  int prev_indent = get_indent();
+  char_u cur = *ml_get_cursor();
+  printf("CUR is :%c\n", cur);
+  printf("old_indent is: %d\n", old_indent);
+  printf("prev_indent is: %d\n", prev_indent);
+
   /* Put cursor on NUL if on the last char and coladd is 1 (happens after
    * CTRL-O). */
   if (virtual_active() && curwin->w_cursor.coladd > 0)
@@ -6144,6 +6159,23 @@ int ins_eol(int c) {
 #endif
                                                0,
                 old_indent);
+   set_indent(prev_indent, SIN_INSERT);
+
+
+  if (cur == '}') {
+      printf("opening extra line\n");
+  i = open_line(FORWARD,
+#ifdef FEAT_COMMENTS
+                has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
+#endif
+                                               0,
+                old_indent);
+
+    set_indent(prev_indent, SIN_INSERT);
+    cursor_up(1, FALSE);
+    shift_line(FALSE, p_sr, 1, FALSE);
+  }
+
   old_indent = 0;
 #ifdef FEAT_CINDENT
   can_cindent = TRUE;

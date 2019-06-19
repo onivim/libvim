@@ -61,11 +61,67 @@ MU_TEST(test_backspace_matching_macro_insert) {
     printf("Third line: %s\n", vimBufferGetLine(curbuf, 3));
 }
 
+MU_TEST(test_enter_between_pairs) {
+    /* vimInput("q"); */
+    /* vimInput("a"); */
+    vimInput("I");
+    vimInput("{");
+    vimInput("<cr>");
+    vimInput("a");
+    /* vimInput("<bs>"); */
+    /* vimInput("<bs>"); */
+    /* vimInput("<bs>"); */
+    vimInput("b");
+    vimInput("<esc>");
+
+    printf("REDO BUFFER: |%s|\n", get_inserted());
+
+    /* printf("dot!\n"); */
+    /* vimInput("j"); */
+    /* vimInput("."); */
+    /* /1* vimInput("a"); *1/ */
+    /* vimInput("j"); */
+    /* vimInput("."); */
+
+    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
+    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
+
+    vimInput("j");
+    vimInput("j");
+    vimInput(".");
+
+    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
+    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
+    printf("Fourth line: |%s\n", vimBufferGetLine(curbuf, 4));
+    printf("Fifth line: |%s\n", vimBufferGetLine(curbuf, 5));
+    printf("Sixth line: |%s\n", vimBufferGetLine(curbuf, 6));
+}
+
+MU_TEST(test_pass_through_in_pairs) {
+    vimInput("I");
+    vimInput("{");
+    vimInput("}");
+    vimInput("a");
+    vimInput("<esc>");
+
+    printf("REDO BUFFER: |%s|\n", get_inserted());
+
+    vimInput("j");
+    vimInput(".");
+
+    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
+    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_backspace_matching_pair);
   MU_RUN_TEST(test_backspace_matching_macro_insert);
+  MU_RUN_TEST(test_enter_between_pairs);
+  MU_RUN_TEST(test_pass_through_in_pairs);
 }
 
 int main(int argc, char **argv) {
