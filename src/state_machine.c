@@ -67,6 +67,10 @@ void sm_execute(char_u *keys) {
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
 
+  // Reset abbr_cnt after each input here,
+  // to enable correct cabbrev expansions
+  typebuf.tb_no_abbr_cnt = 0;
+
   if (state_current != NULL) {
     while (vpeekc() != NUL) {
       int c = vgetc();
