@@ -10,7 +10,7 @@
     "build": [
         ["bash", "-c", "#{os == 'windows' ? 'build/build-windows.sh' : 'build/build-posix.sh'}"]
     ],
-    "buildsInSource":"_build",
+    "buildsInSource":true,
     "exportedEnv": {
         "LIBVIM_INCLUDE_PATH": {
             "val": "#{self.install / 'include'}",
