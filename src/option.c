@@ -8139,20 +8139,6 @@ set_bool_option(
     }
 #endif
 
-#ifdef HAVE_INPUT_METHOD
-    /* 'imdisable' */
-    else if ((int *)varp == &p_imdisable)
-    {
-	/* Only de-activate it here, it will be enabled when changing mode. */
-	if (p_imdisable)
-	    im_set_active(FALSE);
-	else if (State & INSERT)
-	    /* When the option is set from an autocommand, it may need to take
-	     * effect right away. */
-	    im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
-    }
-#endif
-
 #ifdef FEAT_SPELL
     /* 'spell' */
     else if ((int *)varp == &curwin->w_p_spell)

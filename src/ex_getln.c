@@ -910,14 +910,7 @@ getcmdline_int(
 	    b_im_ptr = &curbuf->b_p_imsearch;
 	if (*b_im_ptr == B_IMODE_LMAP)
 	    State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-	im_set_active(*b_im_ptr == B_IMODE_IM);
-#endif
     }
-#ifdef HAVE_INPUT_METHOD
-    else if (p_imcmdline)
-	im_set_active(TRUE);
-#endif
 
     /* When inside an autocommand for writing "exiting" may be set and
      * terminal mode set to cooked.  Need to set raw mode here then. */
@@ -1607,9 +1600,6 @@ getcmdline_int(
 		{
 		    /* ":lmap" mappings exists, toggle use of mappings. */
 		    State ^= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-		    im_set_active(FALSE);	/* Disable input method */
-#endif
 		    if (b_im_ptr != NULL)
 		    {
 			if (State & LANGMAP)
@@ -1618,27 +1608,6 @@ getcmdline_int(
 			    *b_im_ptr = B_IMODE_NONE;
 		    }
 		}
-#ifdef HAVE_INPUT_METHOD
-		else
-		{
-		    /* There are no ":lmap" mappings, toggle IM.  When
-		     * 'imdisable' is set don't try getting the status, it's
-		     * always off. */
-		    if ((p_imdisable && b_im_ptr != NULL)
-			    ? *b_im_ptr == B_IMODE_IM : im_get_status())
-		    {
-			im_set_active(FALSE);	/* Disable input method */
-			if (b_im_ptr != NULL)
-			    *b_im_ptr = B_IMODE_NONE;
-		    }
-		    else
-		    {
-			im_set_active(TRUE);	/* Enable input method */
-			if (b_im_ptr != NULL)
-			    *b_im_ptr = B_IMODE_IM;
-		    }
-		}
-#endif
 		if (b_im_ptr != NULL)
 		{
 		    if (b_im_ptr == &curbuf->b_p_iminsert)
@@ -2222,11 +2191,6 @@ returncmd:
     trigger_cmd_autocmd(cmdline_type, EVENT_CMDLINELEAVE);
 
     State = save_State;
-#ifdef HAVE_INPUT_METHOD
-    if (b_im_ptr != NULL && *b_im_ptr != B_IMODE_LMAP)
-	im_save_status(b_im_ptr);
-    im_set_active(FALSE);
-#endif
     sb_text_end_cmdline();
 
 theend:
@@ -2571,14 +2535,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	    context->b_im_ptr = &curbuf->b_p_imsearch;
 	if (*context->b_im_ptr == B_IMODE_LMAP)
 	    State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-	im_set_active(*context->b_im_ptr == B_IMODE_IM);
-#endif
     }
-#ifdef HAVE_INPUT_METHOD
-    else if (p_imcmdline)
-	im_set_active(TRUE);
-#endif
 
     /* Trigger CmdlineEnter autocommands. */
     context->cmdline_type = context->firstc == NUL ? '-' : context->firstc;
@@ -3132,9 +3089,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		{
 		    /* ":lmap" mappings exists, toggle use of mappings. */
 		    State ^= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-		    im_set_active(FALSE);	/* Disable input method */
-#endif
 		    if (context->b_im_ptr != NULL)
 		    {
 			if (State & LANGMAP)
@@ -3143,27 +3097,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 			    *context->b_im_ptr = B_IMODE_NONE;
 		    }
 		}
-#ifdef HAVE_INPUT_METHOD
-		else
-		{
-		    /* There are no ":lmap" mappings, toggle IM.  When
-		     * 'imdisable' is set don't try getting the status, it's
-		     * always off. */
-		    if ((p_imdisable && context->b_im_ptr != NULL)
-			    ? *context->b_im_ptr == B_IMODE_IM : im_get_status())
-		    {
-			im_set_active(FALSE);	/* Disable input method */
-			if (context->b_im_ptr != NULL)
-			    *context->b_im_ptr = B_IMODE_NONE;
-		    }
-		    else
-		    {
-			im_set_active(TRUE);	/* Enable input method */
-			if (context->b_im_ptr != NULL)
-			    *context->b_im_ptr = B_IMODE_IM;
-		    }
-		}
-#endif
 		if (context->b_im_ptr != NULL)
 		{
 		    if (context->b_im_ptr == &curbuf->b_p_iminsert)
