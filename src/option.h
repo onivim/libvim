@@ -534,9 +534,6 @@ EXTERN int	p_lrm;		/* 'langremap' */
 #ifdef FEAT_GUI
 EXTERN long	p_linespace;	/* 'linespace' */
 #endif
-#ifdef FEAT_LISP
-EXTERN char_u	*p_lispwords;	/* 'lispwords' */
-#endif
 EXTERN long	p_ls;		/* 'laststatus' */
 EXTERN long	p_stal;		/* 'showtabline' */
 EXTERN char_u	*p_lcs;		/* 'listchars' */
@@ -944,10 +941,6 @@ enum
     , BV_KMAP
 #endif
     , BV_KP
-#ifdef FEAT_LISP
-    , BV_LISP
-    , BV_LW
-#endif
     , BV_MENC
     , BV_MA
     , BV_ML

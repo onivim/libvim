@@ -460,16 +460,6 @@
 # endif
 #endif
 
-/*
- * +lispindent		lisp indenting (From Eric Fischer).
- * +smartindent		smart C code indenting when the 'si' option is set.
- *
- * These two need to be defined when making prototypes.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_LISP
-#endif
-
 #ifdef FEAT_NORMAL
 # define FEAT_SMARTINDENT
 #endif
@@ -1006,6 +996,7 @@
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_LISP
 /*
  * The Netbeans feature
  */

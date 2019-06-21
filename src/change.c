@@ -1455,9 +1455,6 @@ open_line(
     int		no_si = FALSE;		// reset did_si afterwards
     int		first_char = NUL;	// init for GCC
 #endif
-#if defined(FEAT_LISP)
-    int		vreplace_mode;
-#endif
     int		did_append;		// appended a new line
     int		saved_pi = curbuf->b_p_pi; // copy of preserveindent setting
 
@@ -2300,36 +2297,6 @@ open_line(
 
     curwin->w_cursor.col = newcol;
     curwin->w_cursor.coladd = 0;
-
-#if defined(FEAT_LISP)
-    // In VREPLACE mode, we are handling the replace stack ourselves, so stop
-    // fixthisline() from doing it (via change_indent()) by telling it we're in
-    // normal INSERT mode.
-    if (State & VREPLACE_FLAG)
-    {
-	vreplace_mode = State;	// So we know to put things right later
-	State = INSERT;
-    }
-    else
-	vreplace_mode = 0;
-#endif
-#ifdef FEAT_LISP
-    // May do lisp indenting.
-    if (!p_paste
-# ifdef FEAT_COMMENTS
-	    && leader == NULL
-# endif
-	    && curbuf->b_p_lisp
-	    && curbuf->b_p_ai)
-    {
-	fixthisline(get_lisp_indent);
-	ai_col = (colnr_T)getwhitecols_curline();
-    }
-#endif
-#if defined(FEAT_LISP)
-    if (vreplace_mode != 0)
-	State = vreplace_mode;
-#endif
 
     // Finally, VREPLACE gets the stuff on the new line, then puts back the
     // original line, and inserts the new stuff char by char, pushing old stuff

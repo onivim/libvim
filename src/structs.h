@@ -2372,9 +2372,6 @@ struct file_buffer
     long_u	b_p_fex_flags;	/* flags for 'formatexpr' */
 #endif
     char_u	*b_p_kp;	/* 'keywordprg' */
-#ifdef FEAT_LISP
-    int		b_p_lisp;	/* 'lisp' */
-#endif
     char_u	*b_p_menc;	/* 'makeencoding' */
     char_u	*b_p_mps;	/* 'matchpairs' */
     int		b_p_ml;		/* 'modeline' */
@@ -2439,9 +2436,6 @@ struct file_buffer
     long	b_p_ul;		/* 'undolevels' local value */
 #ifdef FEAT_PERSISTENT_UNDO
     int		b_p_udf;	/* 'undofile' */
-#endif
-#ifdef FEAT_LISP
-    char_u	*b_p_lw;	/* 'lispwords' local value */
 #endif
 #ifdef FEAT_TERMINAL
     long	b_p_twsl;	/* 'termwinscroll' */
