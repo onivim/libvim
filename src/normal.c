@@ -1954,21 +1954,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
 
     case OP_INDENT:
     case OP_COLON:
-
-#if defined(FEAT_LISP)
-      /*
-       * If 'equalprg' is empty, do the indenting internally.
-       */
-      if (oap->op_type == OP_INDENT && *get_equalprg() == NUL) {
-#ifdef FEAT_LISP
-        if (curbuf->b_p_lisp) {
-          op_reindent(oap, get_lisp_indent);
-          break;
-        }
-#endif
-      }
-#endif
-
       op_colon(oap);
       break;
 

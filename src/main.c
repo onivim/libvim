@@ -1995,10 +1995,6 @@ command_line_scan(mparm_T *parmp)
 		break;
 
 	    case 'l':		/* "-l" lisp mode, 'lisp' and 'showmatch' on */
-#ifdef FEAT_LISP
-		set_option_value((char_u *)"lisp", 1L, NULL, 0);
-		p_sm = TRUE;
-#endif
 		break;
 
 	    case 'M':		/* "-M"  no changes or writing of files */
@@ -3265,9 +3261,6 @@ usage(void)
     main_msg(_("-m\t\t\tModifications (writing files) not allowed"));
     main_msg(_("-M\t\t\tModifications in text not allowed"));
     main_msg(_("-b\t\t\tBinary mode"));
-#ifdef FEAT_LISP
-    main_msg(_("-l\t\t\tLisp mode"));
-#endif
     main_msg(_("-C\t\t\tCompatible with Vi: 'compatible'"));
     main_msg(_("-N\t\t\tNot fully Vi compatible: 'nocompatible'"));
     main_msg(_("-V[N][fname]\t\tBe verbose [level N] [log messages to fname]"));

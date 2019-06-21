@@ -6407,9 +6407,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_LINEBREAK
 	"linebreak",
 #endif
-#ifdef FEAT_LISP
-	"lispindent",
-#endif
 	"listcmds",
 #ifdef FEAT_LOCALMAP
 	"localmap",
@@ -7724,20 +7721,6 @@ f_line2byte(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_lispindent(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_LISP
-    pos_T	pos;
-    linenr_T	lnum;
-
-    pos = curwin->w_cursor;
-    lnum = tv_get_lnum(argvars);
-    if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
-    {
-	curwin->w_cursor.lnum = lnum;
-	rettv->vval.v_number = get_lisp_indent();
-	curwin->w_cursor = pos;
-    }
-    else
-#endif
 	rettv->vval.v_number = -1;
 }
 

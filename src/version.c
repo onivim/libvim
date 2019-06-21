@@ -309,11 +309,6 @@ static char *(features[]) =
 #else
 	"-linebreak",
 #endif
-#ifdef FEAT_LISP
-	"+lispindent",
-#else
-	"-lispindent",
-#endif
 	"+listcmds",
 #ifdef FEAT_LOCALMAP
 	"+localmap",

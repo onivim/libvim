@@ -117,10 +117,6 @@
 # define PV_KMAP	OPT_BUF(BV_KMAP)
 #endif
 #define PV_KP		OPT_BOTH(OPT_BUF(BV_KP))
-#ifdef FEAT_LISP
-# define PV_LISP	OPT_BUF(BV_LISP)
-# define PV_LW		OPT_BOTH(OPT_BUF(BV_LW))
-#endif
 #define PV_MENC		OPT_BOTH(OPT_BUF(BV_MENC))
 #define PV_MA		OPT_BUF(BV_MA)
 #define PV_ML		OPT_BUF(BV_ML)
@@ -303,9 +299,6 @@ static int	p_inf;
 static char_u	*p_isk;
 #ifdef FEAT_CRYPT
 static char_u	*p_key;
-#endif
-#ifdef FEAT_LISP
-static int	p_lisp;
 #endif
 static int	p_ml;
 static int	p_ma;
@@ -1631,20 +1624,11 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"lisp",	    NULL,   P_BOOL|P_VI_DEF,
-#ifdef FEAT_LISP
-			    (char_u *)&p_lisp, PV_LISP,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"lispwords",   "lw",   P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_LISP
-			    (char_u *)&p_lispwords, PV_LW,
-			    {(char_u *)LISPWORD_VALUE, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)"", (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"list",	    NULL,   P_BOOL|P_VI_DEF|P_RWIN,
 			    (char_u *)VAR_WIN, PV_LIST,
@@ -5416,9 +5400,6 @@ check_buf_options(buf_T *buf)
     check_string_option(&buf->b_p_dict);
     check_string_option(&buf->b_p_tsr);
 #endif
-#ifdef FEAT_LISP
-    check_string_option(&buf->b_p_lw);
-#endif
     check_string_option(&buf->b_p_bkc);
     check_string_option(&buf->b_p_menc);
 #ifdef FEAT_VARTABS
@@ -8030,17 +8011,6 @@ set_bool_option(
 						     OPT_FREE | opt_flags, 0);
     }
 
-    /*
-     * When 'lisp' option changes include/exclude '-' in
-     * keyword characters.
-     */
-#ifdef FEAT_LISP
-    else if (varp == (char_u *)&(curbuf->b_p_lisp))
-    {
-	(void)buf_init_chartab(curbuf, FALSE);	    /* ignore errors */
-    }
-#endif
-
     else if ((int *)varp == &curbuf->b_changed)
     {
 	if (!value)
@@ -10036,11 +10006,6 @@ unset_global_local_option(char_u *name, void *from)
 	case PV_UL:
 	    buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
 	    break;
-#ifdef FEAT_LISP
-	case PV_LW:
-	    clear_string_option(&buf->b_p_lw);
-	    break;
-#endif
 	case PV_MENC:
 	    clear_string_option(&buf->b_p_menc);
 	    break;
@@ -10093,9 +10058,6 @@ get_varp_scope(struct vimoption *p, int opt_flags)
 	    case PV_CM:	  return (char_u *)&(curbuf->b_p_cm);
 #endif
 	    case PV_UL:   return (char_u *)&(curbuf->b_p_ul);
-#ifdef FEAT_LISP
-	    case PV_LW:   return (char_u *)&(curbuf->b_p_lw);
-#endif
 	    case PV_BKC:  return (char_u *)&(curbuf->b_p_bkc);
 	    case PV_MENC: return (char_u *)&(curbuf->b_p_menc);
 	}
@@ -10169,10 +10131,6 @@ get_varp(struct vimoption *p)
 #endif
 	case PV_UL:	return curbuf->b_p_ul != NO_LOCAL_UNDOLEVEL
 				    ? (char_u *)&(curbuf->b_p_ul) : p->var;
-#ifdef FEAT_LISP
-	case PV_LW:	return *curbuf->b_p_lw != NUL
-				    ? (char_u *)&(curbuf->b_p_lw) : p->var;
-#endif
 	case PV_MENC:	return *curbuf->b_p_menc != NUL
 				    ? (char_u *)&(curbuf->b_p_menc) : p->var;
 
@@ -10283,9 +10241,6 @@ get_varp(struct vimoption *p)
 #endif
 #ifdef FEAT_CRYPT
 	case PV_KEY:	return (char_u *)&(curbuf->b_p_key);
-#endif
-#ifdef FEAT_LISP
-	case PV_LISP:	return (char_u *)&(curbuf->b_p_lisp);
 #endif
 	case PV_ML:	return (char_u *)&(curbuf->b_p_ml);
 	case PV_MPS:	return (char_u *)&(curbuf->b_p_mps);
@@ -10670,9 +10625,6 @@ buf_copy_options(buf_T *buf, int flags)
 #if defined(FEAT_SMARTINDENT)
 	    buf->b_p_cinw = vim_strsave(p_cinw);
 #endif
-#ifdef FEAT_LISP
-	    buf->b_p_lisp = p_lisp;
-#endif
 #ifdef FEAT_SYN_HL
 	    /* Don't copy 'syntax', it must be set */
 	    buf->b_p_syn = empty_option;
@@ -10746,9 +10698,6 @@ buf_copy_options(buf_T *buf, int flags)
 #endif
 #ifdef FEAT_PERSISTENT_UNDO
 	    buf->b_p_udf = p_udf;
-#endif
-#ifdef FEAT_LISP
-	    buf->b_p_lw = empty_option;
 #endif
 	    buf->b_p_menc = empty_option;
 
