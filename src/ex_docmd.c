@@ -475,6 +475,9 @@ restore_dbg_stuff(struct dbg_stuff *dsp)
 do_exmode(
     int		improved)	    /* TRUE for "improved Ex" mode */
 {
+    /* libvim - disable exmode for now */
+    return;
+
     int		save_msg_scroll;
     int		prev_msg_row;
     linenr_T	prev_line;

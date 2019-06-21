@@ -487,21 +487,6 @@ CFLAGS += -DMZSCHEME_FORCE_GC
  endif
 endif
 
-ifdef RUBY
-CFLAGS += -DFEAT_RUBY $(RUBYINC)
- ifeq (yes, $(DYNAMIC_RUBY))
-CFLAGS += -DDYNAMIC_RUBY -DDYNAMIC_RUBY_DLL=\"$(RUBY_INSTALL_NAME).dll\"
-CFLAGS += -DDYNAMIC_RUBY_VER=$(RUBY_VER)
- endif
- ifeq (no, $(DYNAMIC_RUBY))
-CFLAGS += -DRUBY_VERSION=$(RUBY_VER)
- endif
- ifneq ($(findstring w64-mingw32,$(CC)),)
-# A workaround for MinGW-w64
-CFLAGS += -DHAVE_STRUCT_TIMESPEC -DHAVE_STRUCT_TIMEZONE
- endif
-endif
-
 ifdef PYTHON
 CFLAGS += -DFEAT_PYTHON
  ifeq (yes, $(DYNAMIC_PYTHON))
@@ -661,9 +646,6 @@ OBJ += $(OUTDIR)/if_python.o
 endif
 ifdef PYTHON3
 OBJ += $(OUTDIR)/if_python3.o
-endif
-ifdef RUBY
-OBJ += $(OUTDIR)/if_ruby.o
 endif
 
 ifeq ($(CHANNEL),yes)
@@ -963,11 +945,6 @@ mzscheme_base.c:
 # Remove -D__IID_DEFINED__ for newer versions of the w32api
 $(OUTDIR)/if_ole.o:	if_ole.cpp $(INCL) if_ole.h
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) if_ole.cpp -o $@
-
-$(OUTDIR)/if_ruby.o:	if_ruby.c $(INCL)
-ifeq (16, $(RUBY))
-	$(CC) $(CFLAGS) -U_WIN32 -c -o $@ if_ruby.c
-endif
 
 $(OUTDIR)/iscygpty.o:	iscygpty.c $(CUI_INCL)
 	$(CC) -c $(CFLAGS) iscygpty.c -o $(OUTDIR)/iscygpty.o -U_WIN32_WINNT -D_WIN32_WINNT=0x0600 -DUSE_DYNFILEID -DENABLE_STUB_IMPL

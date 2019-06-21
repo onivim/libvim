@@ -536,7 +536,7 @@ static struct vimoption options[] =
 			    SCTX_INIT},
     {"autoindent",  "ai",   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_ai, PV_AI,
-			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"autoprint",   "ap",   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -8136,20 +8136,6 @@ set_bool_option(
 	if (foldmethodIsDiff(curwin))
 	    foldUpdateAll(curwin);
 # endif
-    }
-#endif
-
-#ifdef HAVE_INPUT_METHOD
-    /* 'imdisable' */
-    else if ((int *)varp == &p_imdisable)
-    {
-	/* Only de-activate it here, it will be enabled when changing mode. */
-	if (p_imdisable)
-	    im_set_active(FALSE);
-	else if (State & INSERT)
-	    /* When the option is set from an autocommand, it may need to take
-	     * effect right away. */
-	    im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
     }
 #endif
 

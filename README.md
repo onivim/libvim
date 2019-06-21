@@ -1,5 +1,3 @@
-![Vim Logo](https://github.com/vim/vim/blob/master/runtime/vimlogo.gif)
-
 [![Build Status](https://dev.azure.com/onivim/oni2/_apis/build/status/onivim.libvim?branchName=master)](https://dev.azure.com/onivim/oni2/_build/latest?definitionId=4&branchName=master)
 
 ## What is `libvim`?
@@ -27,6 +25,7 @@ It is __NOT__ responsible for:
 - Spell Checking
 - Terminal Support
 - Completion
+- Input methods (IME)
 
 All of these are intended to be handled by the consumer of the library - leaving `libvim` to be focused on the job of fast buffer manipulation.
 
