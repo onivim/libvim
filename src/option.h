@@ -584,13 +584,6 @@ EXTERN int	p_mh;		/* 'mousehide' */
 EXTERN char_u	*p_mousem;	/* 'mousemodel' */
 EXTERN long	p_mouset;	/* 'mousetime' */
 EXTERN int	p_more;		/* 'more' */
-#ifdef FEAT_MZSCHEME
-EXTERN long	p_mzq;		/* 'mzquantum */
-# if defined(DYNAMIC_MZSCHEME)
-EXTERN char_u	*p_mzschemedll;	/* 'mzschemedll' */
-EXTERN char_u	*p_mzschemegcdll; /* 'mzschemegcdll' */
-# endif
-#endif
 #if defined(MSWIN)
 EXTERN int	p_odev;		/* 'opendevice' */
 #endif

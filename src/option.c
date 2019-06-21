@@ -1828,11 +1828,7 @@ static struct vimoption options[] =
 #endif
 			    SCTX_INIT},
     {"mzquantum",  "mzq",   P_NUM,
-#ifdef FEAT_MZSCHEME
-			    (char_u *)&p_mzq, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)100L, (char_u *)100L} SCTX_INIT},
     {"novice",	    NULL,   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
@@ -8914,7 +8910,7 @@ findoption(char_u *arg)
     return opt_idx;
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_MZSCHEME)
+#if defined(FEAT_EVAL)
 /*
  * Get the value for an option.
  *

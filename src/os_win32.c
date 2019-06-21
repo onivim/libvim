@@ -22,10 +22,6 @@
 
 #include "vim.h"
 
-#ifdef FEAT_MZSCHEME
-# include "if_mzsch.h"
-#endif
-
 #include <sys/types.h>
 #include <signal.h>
 #include <limits.h>
@@ -1145,9 +1141,6 @@ WaitForChar(long msec, int ignore_input)
 #ifdef MESSAGE_QUEUE
 	    parse_queued_messages();
 #endif
-#ifdef FEAT_MZSCHEME
-	    mzvim_check_threads();
-#endif
 	}
 
 	if (0
@@ -1182,11 +1175,6 @@ WaitForChar(long msec, int ignore_input)
 		/* The 'balloonexpr' may indirectly invoke a callback while
 		 * waiting for a character, need to check often. */
 		dwWaitTime = 100;
-#endif
-#ifdef FEAT_MZSCHEME
-	    if (mzthreads_allowed() && p_mzq > 0
-				    && (msec < 0 || (long)dwWaitTime > p_mzq))
-		dwWaitTime = p_mzq; /* don't wait longer than 'mzquantum' */
 #endif
 #ifdef FEAT_TIMERS
 	    // When waiting very briefly don't trigger timers.
@@ -5688,23 +5676,6 @@ mch_delay(
     }
 # endif
     if (ignoreinput)
-# ifdef FEAT_MZSCHEME
-	if (mzthreads_allowed() && p_mzq > 0 && msec > p_mzq)
-	{
-	    int towait = p_mzq;
-
-	    /* if msec is large enough, wait by portions in p_mzq */
-	    while (msec > 0)
-	    {
-		mzvim_check_threads();
-		if (msec < towait)
-		    towait = msec;
-		Sleep(towait);
-		msec -= towait;
-	    }
-	}
-	else
-# endif
 	    Sleep((int)msec);
     else
 	WaitForChar(msec, FALSE);

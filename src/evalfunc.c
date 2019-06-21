@@ -282,9 +282,6 @@ static void f_min(typval_T *argvars, typval_T *rettv);
 static void f_mkdir(typval_T *argvars, typval_T *rettv);
 #endif
 static void f_mode(typval_T *argvars, typval_T *rettv);
-#ifdef FEAT_MZSCHEME
-static void f_mzeval(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_nextnonblank(typval_T *argvars, typval_T *rettv);
 static void f_nr2char(typval_T *argvars, typval_T *rettv);
 static void f_or(typval_T *argvars, typval_T *rettv);
@@ -774,9 +771,6 @@ static struct fst
     {"mkdir",		1, 3, f_mkdir},
 #endif
     {"mode",		0, 1, f_mode},
-#ifdef FEAT_MZSCHEME
-    {"mzeval",		1, 1, f_mzeval},
-#endif
     {"nextnonblank",	1, 1, f_nextnonblank},
     {"nr2char",		1, 2, f_nr2char},
     {"or",		2, 2, f_or},
@@ -6438,11 +6432,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_MULTI_LANG
 	"multi_lang",
 #endif
-#ifdef FEAT_MZSCHEME
-#ifndef DYNAMIC_MZSCHEME
-	"mzscheme",
-#endif
-#endif
 #ifdef FEAT_NUM64
 	"num64",
 #endif
@@ -8677,36 +8666,6 @@ f_mode(typval_T *argvars, typval_T *rettv)
     rettv->vval.v_string = vim_strsave(buf);
     rettv->v_type = VAR_STRING;
 }
-
-#if defined(FEAT_MZSCHEME) || defined(PROTO)
-/*
- * "mzeval()" function
- */
-    static void
-f_mzeval(typval_T *argvars, typval_T *rettv)
-{
-    char_u	*str;
-    char_u	buf[NUMBUFLEN];
-
-    if (check_restricted() || check_secure())
-	return;
-    str = tv_get_string_buf(&argvars[0], buf);
-    do_mzeval(str, rettv);
-}
-
-    void
-mzscheme_call_vim(char_u *name, typval_T *args, typval_T *rettv)
-{
-    typval_T argvars[3];
-
-    argvars[0].v_type = VAR_STRING;
-    argvars[0].vval.v_string = name;
-    copy_tv(args, &argvars[1]);
-    argvars[2].v_type = VAR_UNKNOWN;
-    f_call(argvars, rettv);
-    clear_tv(&argvars[1]);
-}
-#endif
 
 /*
  * "nextnonblank()" function

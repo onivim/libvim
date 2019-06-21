@@ -816,9 +816,6 @@ free_buffer(buf_T *buf)
 #ifdef FEAT_LUA
     lua_buffer_free(buf);
 #endif
-#ifdef FEAT_MZSCHEME
-    mzscheme_buffer_free(buf);
-#endif
 #ifdef FEAT_PYTHON
     python_buffer_free(buf);
 #endif

@@ -4722,10 +4722,6 @@ win_free(
     lua_window_free(wp);
 #endif
 
-#ifdef FEAT_MZSCHEME
-    mzscheme_window_free(wp);
-#endif
-
 #ifdef FEAT_PYTHON
     python_window_free(wp);
 #endif

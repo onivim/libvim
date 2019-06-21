@@ -20,10 +20,6 @@
 
 #include "vim.h"
 
-#ifdef FEAT_MZSCHEME
-# include "if_mzsch.h"
-#endif
-
 #include "os_unixx.h"	    /* unix includes for os_unix.c only */
 
 #ifdef USE_XSMP
@@ -220,7 +216,7 @@ static struct signalinfo
 #ifdef SIGBUS
     {SIGBUS,	    "BUS",	TRUE},
 #endif
-#if defined(SIGSEGV) && !defined(FEAT_MZSCHEME)
+#if defined(SIGSEGV)
     /* MzScheme uses SEGV in its garbage collector */
     {SIGSEGV,	    "SEGV",	TRUE},
 #endif
@@ -236,7 +232,7 @@ static struct signalinfo
 #if defined(SIGVTALRM) && !defined(FEAT_RUBY)
     {SIGVTALRM,	    "VTALRM",	TRUE},
 #endif
-#if defined(SIGPROF) && !defined(FEAT_MZSCHEME) && !defined(WE_ARE_PROFILING)
+#if defined(SIGPROF) && !defined(WE_ARE_PROFILING)
     /* MzScheme uses SIGPROF for its own needs; On Linux with profiling
      * this makes Vim exit.  WE_ARE_PROFILING is defined in Makefile.  */
     {SIGPROF,	    "PROF",	TRUE},
@@ -525,9 +521,6 @@ mch_total_mem(int special UNUSED)
 mch_delay(long msec, int ignoreinput)
 {
     int		old_tmode;
-#ifdef FEAT_MZSCHEME
-    long	total = msec; /* remember original value */
-#endif
 
     if (ignoreinput)
     {
@@ -544,16 +537,6 @@ mch_delay(long msec, int ignoreinput)
 	 * Prefer nanosleep(), some versions of usleep() can only sleep up to
 	 * one second.
 	 */
-#ifdef FEAT_MZSCHEME
-	do
-	{
-	    /* if total is large enough, wait by portions in p_mzq */
-	    if (total > p_mzq)
-		msec = p_mzq;
-	    else
-		msec = total;
-	    total -= msec;
-#endif
 #ifdef HAVE_NANOSLEEP
 	{
 	    struct timespec ts;
@@ -588,10 +571,6 @@ mch_delay(long msec, int ignoreinput)
 #  endif /* HAVE_SELECT */
 # endif /* HAVE_NANOSLEEP */
 #endif /* HAVE_USLEEP */
-#ifdef FEAT_MZSCHEME
-	}
-	while (total > 0);
-#endif
 
 	settmode(old_tmode);
 	in_mch_delay = FALSE;
@@ -4955,7 +4934,7 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 {
     int		ret;
     int		result;
-#if defined(FEAT_XCLIPBOARD) || defined(USE_XSMP) || defined(FEAT_MZSCHEME)
+#if defined(FEAT_XCLIPBOARD) || defined(USE_XSMP)
     static int	busy = FALSE;
 
     /* May retry getting characters after an event was handled. */
@@ -4983,9 +4962,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
     {
 #ifdef MAY_LOOP
 	int		finished = TRUE; /* default is to 'loop' just once */
-# ifdef FEAT_MZSCHEME
-	int		mzquantum_used = FALSE;
-# endif
 #endif
 #ifndef HAVE_SELECT
 			/* each channel may use in, out and err */
@@ -4993,14 +4969,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 	int		nfd;
 # ifdef FEAT_XCLIPBOARD
 	int		xterm_idx = -1;
-# endif
-# ifdef FEAT_MZSCHEME
-	mzvim_check_threads();
-	if (mzthreads_allowed() && p_mzq > 0 && (msec < 0 || msec > p_mzq))
-	{
-	    towait = (int)p_mzq;    /* don't wait longer than 'mzquantum' */
-	    mzquantum_used = TRUE;
-	}
 # endif
 	fds[0].fd = fd;
 	fds[0].events = POLLIN;
@@ -5036,12 +5004,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 	result = ret > 0 && (fds[0].revents & POLLIN);
 	if (result == 0 && interrupted != NULL && ret > 0)
 	    *interrupted = TRUE;
-
-# ifdef FEAT_MZSCHEME
-	if (ret == 0 && mzquantum_used)
-	    /* MzThreads scheduling is required and timeout occurred */
-	    finished = FALSE;
-# endif
 
 # ifdef FEAT_XCLIPBOARD
 	if (xterm_Shell != (Widget)0 && (fds[xterm_idx].revents & POLLIN))
@@ -5086,15 +5048,6 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 	static fd_set	rfds, wfds, efds;
 	int		maxfd;
 	long		towait = msec;
-
-# ifdef FEAT_MZSCHEME
-	mzvim_check_threads();
-	if (mzthreads_allowed() && p_mzq > 0 && (msec < 0 || msec > p_mzq))
-	{
-	    towait = p_mzq;	/* don't wait longer than 'mzquantum' */
-	    mzquantum_used = TRUE;
-	}
-# endif
 
 	if (towait >= 0)
 	{
@@ -5178,12 +5131,6 @@ select_eintr:
 	    ret = 0;
 	}
 # endif
-# ifdef FEAT_MZSCHEME
-	if (ret == 0 && mzquantum_used)
-	    /* loop if MzThreads must be scheduled and timeout occurred */
-	    finished = FALSE;
-# endif
-
 # ifdef FEAT_XCLIPBOARD
 	if (ret > 0 && xterm_Shell != (Widget)0
 		&& FD_ISSET(ConnectionNumber(xterm_dpy), &rfds))

@@ -421,18 +421,7 @@ main2
     /* Source startup scripts. */
     source_startup_scripts(&params);
 
-#ifdef FEAT_MZSCHEME
-    /*
-     * Newer version of MzScheme (Racket) require earlier (trampolined)
-     * initialisation via scheme_main_setup.
-     * Implement this by initialising it as early as possible
-     * and splitting off remaining Vim main into vim_main2().
-     * Do source startup scripts, so that 'mzschemedll' can be set.
-     */
-    return mzscheme_main();
-#else
     return vim_main2();
-#endif
 }
 #endif /* NO_VIM_MAIN */
 #endif /* PROTO */
@@ -1472,9 +1461,6 @@ getout(int exitval)
 #endif
 #ifdef FEAT_LUA
     lua_end();
-#endif
-#ifdef FEAT_MZSCHEME
-    mzscheme_end();
 #endif
 #ifdef FEAT_TCL
     tcl_end();

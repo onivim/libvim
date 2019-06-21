@@ -2500,9 +2500,6 @@ struct file_buffer
     int		b_prompt_insert;	// value for restart_edit when entering
 					// a prompt buffer window.
 #endif
-#ifdef FEAT_MZSCHEME
-    void	*b_mzscheme_ref; /* The MzScheme reference to this buffer */
-#endif
 
 #ifdef FEAT_PYTHON
     void	*b_python_ref;	/* The Python reference to this buffer */
@@ -3073,11 +3070,6 @@ struct window_S
      * In a non-location list window, w_llist_ref is NULL.
      */
     qf_info_T	*w_llist_ref;
-#endif
-
-
-#ifdef FEAT_MZSCHEME
-    void	*w_mzscheme_ref;	/* The MzScheme value for this window */
 #endif
 
 #ifdef FEAT_PYTHON

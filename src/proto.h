@@ -190,10 +190,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #  include "if_lua.pro"
 # endif
 
-# ifdef FEAT_MZSCHEME
-#  include "if_mzsch.pro"
-# endif
-
 # ifdef FEAT_PYTHON
 #  include "if_python.pro"
 # endif

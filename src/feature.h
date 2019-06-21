@@ -904,12 +904,6 @@
 # define FEAT_TERMRESPONSE
 #endif
 
-#if defined(FEAT_MZSCHEME) && (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)    \
-	|| defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)	\
-	|| defined(FEAT_GUI_MAC))
-# define MZSCHEME_GUI_THREADS
-#endif
-
 /*
  * +ARP			Amiga only. Use arp.library, DOS 2.0 is not required.
  */
@@ -1006,6 +1000,7 @@
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_MZSCHEME
 /*
  * The Netbeans feature
  */
