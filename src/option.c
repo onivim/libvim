@@ -536,7 +536,7 @@ static struct vimoption options[] =
 			    SCTX_INIT},
     {"autoindent",  "ai",   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_ai, PV_AI,
-			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"autoprint",   "ap",   P_BOOL|P_VI_DEF,
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
