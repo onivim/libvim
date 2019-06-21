@@ -645,17 +645,6 @@ endif
 ifdef LUA
 OBJ += $(OUTDIR)/if_lua.o
 endif
-ifdef MZSCHEME
-OBJ += $(OUTDIR)/if_mzsch.o
-MZSCHEME_INCL = if_mzsch.h
- ifeq (yes,$(MZSCHEME_GENERATE_BASE))
-CFLAGS += -DINCLUDE_MZSCHEME_BASE
-MZ_EXTRA_DEP += mzscheme_base.c
- endif
- ifeq (yes,$(MZSCHEME_PRECISE_GC))
-CFLAGS += -DMZ_PRECISE_GC
- endif
-endif
 ifdef PYTHON
 OBJ += $(OUTDIR)/if_python.o
 endif
@@ -953,12 +942,6 @@ $(OUTDIR)/gui_beval.o:	gui_beval.c $(INCL) $(GUI_INCL)
 
 $(OUTDIR)/gui_w32.o:	gui_w32.c $(INCL) $(GUI_INCL)
 	$(CC) -c $(CFLAGS) gui_w32.c -o $@
-
-$(OUTDIR)/if_mzsch.o:	if_mzsch.c $(INCL) $(MZSCHEME_INCL) $(MZ_EXTRA_DEP)
-	$(CC) -c $(CFLAGS) if_mzsch.c -o $@
-
-mzscheme_base.c:
-	$(MZSCHEME)/mzc --c-mods mzscheme_base.c ++lib scheme/base
 
 # Remove -D__IID_DEFINED__ for newer versions of the w32api
 $(OUTDIR)/if_ole.o:	if_ole.cpp $(INCL) if_ole.h

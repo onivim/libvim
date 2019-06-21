@@ -1510,7 +1510,7 @@ SRC =	$(BASIC_SRC) \
 	$(TCL_SRC) \
 	$(RUBY_SRC)
 
-EXTRA_SRC = hangulin.c if_lua.c if_mzsch.c \
+EXTRA_SRC = hangulin.c if_lua.c \
 	    if_python.c if_python3.c if_ruby.c \
 	    channel.c \
 	    $(GRESOURCE_SRC)
@@ -1691,7 +1691,6 @@ PRO_AUTO = \
 	hashtab.pro \
 	hangulin.pro \
 	if_lua.pro \
-	if_mzsch.pro \
 	if_python.pro \
 	if_python3.pro \
 	if_ruby.pro \
@@ -2842,12 +2841,6 @@ objects/hangulin.o: hangulin.c
 objects/if_lua.o: if_lua.c
 	$(CCC_NF) $(LUA_CFLAGS) $(ALL_CFLAGS) -o $@ if_lua.c
 
-objects/if_mzsch.o: if_mzsch.c $(MZSCHEME_EXTRA)
-	$(CCC) -o $@ $(MZSCHEME_CFLAGS_EXTRA) if_mzsch.c
-
-mzscheme_base.c:
-	$(MZSCHEME_MZC) --c-mods mzscheme_base.c ++lib scheme/base
-
 objects/if_python.o: if_python.c if_py_both.h
 	$(CCC_NF) $(PYTHON_CFLAGS) $(PYTHON_CFLAGS_EXTRA) $(ALL_CFLAGS) -o $@ if_python.c
 
@@ -3422,10 +3415,6 @@ objects/if_lua.o: if_lua.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/if_mzsch.o: if_mzsch.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h if_mzsch.h
 objects/if_python.o: if_python.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

@@ -1810,22 +1810,12 @@ static struct vimoption options[] =
 			    (char_u *)&p_mouset, PV_NONE,
 			    {(char_u *)500L, (char_u *)0L} SCTX_INIT},
     {"mzschemedll", NULL,   P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
-#if defined(DYNAMIC_MZSCHEME)
-			    (char_u *)&p_mzschemedll, PV_NONE,
-			    {(char_u *)DYNAMIC_MZSCH_DLL, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)"", (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"mzschemegcdll", NULL, P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
-#if defined(DYNAMIC_MZSCHEME)
-			    (char_u *)&p_mzschemegcdll, PV_NONE,
-			    {(char_u *)DYNAMIC_MZGC_DLL, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)"", (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"mzquantum",  "mzq",   P_NUM,
 			    (char_u *)NULL, PV_NONE,

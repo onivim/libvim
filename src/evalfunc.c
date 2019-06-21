@@ -6636,10 +6636,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	else if (STRICMP(name, "lua") == 0)
 	    n = lua_enabled(FALSE);
 #endif
-#ifdef DYNAMIC_MZSCHEME
-	else if (STRICMP(name, "mzscheme") == 0)
-	    n = mzscheme_enabled(FALSE);
-#endif
 #ifdef DYNAMIC_RUBY
 	else if (STRICMP(name, "ruby") == 0)
 	    n = ruby_enabled(FALSE);
