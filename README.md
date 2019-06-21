@@ -27,6 +27,7 @@ It is __NOT__ responsible for:
 - Spell Checking
 - Terminal Support
 - Completion
+- Input methods (IME)
 
 All of these are intended to be handled by the consumer of the library - leaving `libvim` to be focused on the job of fast buffer manipulation.
 

@@ -1171,12 +1171,6 @@ getcount:
           State = LANGMAP;
         langmap_active = TRUE;
       }
-#ifdef HAVE_INPUT_METHOD
-      save_smd = p_smd;
-      p_smd = FALSE; /* Don't let the IM code show the mode here */
-      if (lang && curbuf->b_p_iminsert == B_IMODE_IM)
-        im_set_active(TRUE);
-#endif
 
       *cp = plain_vgetc();
 
@@ -1186,15 +1180,6 @@ getcount:
         ++allow_keys;
         State = NORMAL_BUSY;
       }
-#ifdef HAVE_INPUT_METHOD
-      if (lang) {
-        if (curbuf->b_p_iminsert != B_IMODE_LMAP)
-          im_save_status(&curbuf->b_p_iminsert);
-        im_set_active(FALSE);
-      }
-
-      p_smd = save_smd;
-#endif
 
       if (!lit) {
 #ifdef FEAT_DIGRAPHS
