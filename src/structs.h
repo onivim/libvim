@@ -2372,9 +2372,6 @@ struct file_buffer
     long_u	b_p_fex_flags;	/* flags for 'formatexpr' */
 #endif
     char_u	*b_p_kp;	/* 'keywordprg' */
-#ifdef FEAT_LISP
-    int		b_p_lisp;	/* 'lisp' */
-#endif
     char_u	*b_p_menc;	/* 'makeencoding' */
     char_u	*b_p_mps;	/* 'matchpairs' */
     int		b_p_ml;		/* 'modeline' */
@@ -2440,9 +2437,6 @@ struct file_buffer
 #ifdef FEAT_PERSISTENT_UNDO
     int		b_p_udf;	/* 'undofile' */
 #endif
-#ifdef FEAT_LISP
-    char_u	*b_p_lw;	/* 'lispwords' local value */
-#endif
 #ifdef FEAT_TERMINAL
     long	b_p_twsl;	/* 'termwinscroll' */
 #endif
@@ -2507,10 +2501,6 @@ struct file_buffer
 
 #ifdef FEAT_PYTHON3
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
-#endif
-
-#ifdef FEAT_RUBY
-    void	*b_ruby_ref;
 #endif
 
 #if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
@@ -3078,10 +3068,6 @@ struct window_S
 
 #ifdef FEAT_PYTHON3
     void	*w_python3_ref;		/* The Python value for this window */
-#endif
-
-#ifdef FEAT_RUBY
-    void	*w_ruby_ref;
 #endif
 };
 

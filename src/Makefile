@@ -1511,7 +1511,7 @@ SRC =	$(BASIC_SRC) \
 	$(RUBY_SRC)
 
 EXTRA_SRC = hangulin.c if_lua.c \
-	    if_python.c if_python3.c if_ruby.c \
+	    if_python.c if_python3.c \
 	    channel.c \
 	    $(GRESOURCE_SRC)
 
@@ -1693,7 +1693,6 @@ PRO_AUTO = \
 	if_lua.pro \
 	if_python.pro \
 	if_python3.pro \
-	if_ruby.pro \
 	indent.pro \
 	insexpand.pro \
 	json.pro \
@@ -2847,9 +2846,6 @@ objects/if_python.o: if_python.c if_py_both.h
 objects/if_python3.o: if_python3.c if_py_both.h
 	$(CCC_NF) $(PYTHON3_CFLAGS) $(PYTHON3_CFLAGS_EXTRA) $(ALL_CFLAGS) -o $@ if_python3.c
 
-objects/if_ruby.o: if_ruby.c
-	$(CCC_NF) $(RUBY_CFLAGS) $(ALL_CFLAGS) -o $@ if_ruby.c
-
 objects/indent.o: indent.c
 	$(CCC) -o $@ indent.c
 
@@ -3423,10 +3419,6 @@ objects/if_python3.o: if_python3.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h if_py_both.h
-objects/if_ruby.o: if_ruby.c protodef.h auto/config.h vim.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h version.h
 objects/channel.o: channel.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

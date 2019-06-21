@@ -822,9 +822,6 @@ free_buffer(buf_T *buf)
 #ifdef FEAT_PYTHON3
     python3_buffer_free(buf);
 #endif
-#ifdef FEAT_RUBY
-    ruby_buffer_free(buf);
-#endif
 #ifdef FEAT_JOB_CHANNEL
     channel_buffer_free(buf);
 #endif
@@ -2161,9 +2158,6 @@ free_buf_options(
 #endif
     buf->b_p_ar = -1;
     buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
-#ifdef FEAT_LISP
-    clear_string_option(&buf->b_p_lw);
-#endif
     clear_string_option(&buf->b_p_bkc);
     clear_string_option(&buf->b_p_menc);
 }

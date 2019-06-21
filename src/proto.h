@@ -198,10 +198,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #  include "if_python3.pro"
 # endif
 
-# ifdef FEAT_RUBY
-#  include "if_ruby.pro"
-# endif
-
 /* Ugly solution for "BalloonEval" not being defined while it's used in some
  * .pro files. */
 #  define BalloonEval int

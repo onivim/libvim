@@ -258,7 +258,6 @@ static const struct nv_cmd {
     {'N', nv_next, 0, SEARCH_REV},
     {'O', nv_open, 0, 0},
     {'P', nv_put, 0, 0},
-    {'Q', nv_exmode, NV_NCW, 0},
     {'R', nv_Replace, 0, FALSE},
     {'S', nv_subst, NV_KEEPREG, 0},
     {'T', nv_csearch, NV_NCH_ALW | NV_LANG, BACKWARD},
@@ -1171,12 +1170,6 @@ getcount:
           State = LANGMAP;
         langmap_active = TRUE;
       }
-#ifdef HAVE_INPUT_METHOD
-      save_smd = p_smd;
-      p_smd = FALSE; /* Don't let the IM code show the mode here */
-      if (lang && curbuf->b_p_iminsert == B_IMODE_IM)
-        im_set_active(TRUE);
-#endif
 
       *cp = plain_vgetc();
 
@@ -1186,15 +1179,6 @@ getcount:
         ++allow_keys;
         State = NORMAL_BUSY;
       }
-#ifdef HAVE_INPUT_METHOD
-      if (lang) {
-        if (curbuf->b_p_iminsert != B_IMODE_LMAP)
-          im_save_status(&curbuf->b_p_iminsert);
-        im_set_active(FALSE);
-      }
-
-      p_smd = save_smd;
-#endif
 
       if (!lit) {
 #ifdef FEAT_DIGRAPHS
@@ -1970,21 +1954,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
 
     case OP_INDENT:
     case OP_COLON:
-
-#if defined(FEAT_LISP)
-      /*
-       * If 'equalprg' is empty, do the indenting internally.
-       */
-      if (oap->op_type == OP_INDENT && *get_equalprg() == NUL) {
-#ifdef FEAT_LISP
-        if (curbuf->b_p_lisp) {
-          op_reindent(oap, get_lisp_indent);
-          break;
-        }
-#endif
-      }
-#endif
-
       op_colon(oap);
       break;
 
@@ -3680,19 +3649,6 @@ static void nv_hor_scrollbar(cmdarg_T *cap) {
   gui_do_horiz_scroll(scrollbar_value, FALSE);
 }
 #endif
-
-/*
- * "Q" command.
- */
-static void nv_exmode(cmdarg_T *cap) {
-  /*
-   * Ignore 'Q' in Visual mode, just give a beep.
-   */
-  if (VIsual_active)
-    vim_beep(BO_EX);
-  else if (!checkclearop(cap->oap))
-    do_exmode(FALSE);
-}
 
 /*
  * Handle a ":" command.
@@ -6204,18 +6160,6 @@ static void nv_g_cmd(cmdarg_T *cap) {
     goto_byte(cap->count0);
     break;
 #endif
-
-  /* "gQ": improved Ex mode */
-  case 'Q':
-    if (text_locked()) {
-      clearopbeep(cap->oap);
-      text_locked_msg();
-      break;
-    }
-
-    if (!checkclearopq(oap))
-      do_exmode(TRUE);
-    break;
 
 #ifdef FEAT_JUMPLIST
   case ',':

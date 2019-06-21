@@ -309,11 +309,6 @@ static char *(features[]) =
 #else
 	"-linebreak",
 #endif
-#ifdef FEAT_LISP
-	"+lispindent",
-#else
-	"-lispindent",
-#endif
 	"+listcmds",
 #ifdef FEAT_LOCALMAP
 	"+localmap",
@@ -419,15 +414,7 @@ static char *(features[]) =
 #else
 	"-rightleft",
 #endif
-#ifdef FEAT_RUBY
-# ifdef DYNAMIC_RUBY
-	"+ruby/dyn",
-# else
-	"+ruby",
-# endif
-#else
 	"-ruby",
-#endif
 	"+scrollbind",
 #ifdef FEAT_SIGNS
 	"+signs",
