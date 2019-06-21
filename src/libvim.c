@@ -207,26 +207,18 @@ char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
 void vimOptionSetTabSize(int tabSize) {
-    p_ts = tabSize;
-    p_sts = tabSize;
-    p_sw = tabSize;
-    curbuf->b_p_ts = tabSize;
-    curbuf->b_p_sts = tabSize;
-    curbuf->b_p_sw = tabSize;
+  curbuf->b_p_ts = tabSize;
+  curbuf->b_p_sts = tabSize;
+  curbuf->b_p_sw = tabSize;
 }
 
 void vimOptionSetInsertSpaces(int insertSpaces) {
-    p_et = insertSpaces;
-    curbuf->b_p_et = insertSpaces;
+  curbuf->b_p_et = insertSpaces;
 }
 
-int vimOptionGetTabSize() {
-    return curbuf->b_p_ts;
-}
+int vimOptionGetTabSize() { return curbuf->b_p_ts; }
 
-int vimOptionGetInsertSpaces(void) {
-    return curbuf->b_p_et;
-}
+int vimOptionGetInsertSpaces(void) { return curbuf->b_p_et; }
 
 int vimWindowGetWidth(void) { return curwin->w_width; }
 int vimWindowGetHeight(void) { return curwin->w_height; }
