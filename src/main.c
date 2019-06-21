@@ -128,13 +128,6 @@ main2
 #endif
     params.window_count = -1;
 
-#ifdef FEAT_RUBY
-    {
-	int ruby_stack_start;
-	vim_ruby_init((void *)&ruby_stack_start);
-    }
-#endif
-
 #ifdef MEM_PROFILE
     atexit(vim_mem_profile_dump);
 #endif
@@ -1478,9 +1471,6 @@ getout(int exitval)
 #endif
 #ifdef FEAT_TCL
     tcl_end();
-#endif
-#ifdef FEAT_RUBY
-    ruby_end();
 #endif
 #ifdef FEAT_PYTHON
     python_end();

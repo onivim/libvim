@@ -2506,10 +2506,6 @@ struct file_buffer
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
 #endif
 
-#ifdef FEAT_RUBY
-    void	*b_ruby_ref;
-#endif
-
 #if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
     synblock_T	b_s;		/* Info related to syntax highlighting.  w_s
 				 * normally points to this, but some windows
@@ -3080,10 +3076,6 @@ struct window_S
 
 #ifdef FEAT_PYTHON3
     void	*w_python3_ref;		/* The Python value for this window */
-#endif
-
-#ifdef FEAT_RUBY
-    void	*w_ruby_ref;
 #endif
 };
 

@@ -262,9 +262,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
    */
   if (curbuf->b_p_iminsert == B_IMODE_LMAP)
     State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-  im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
@@ -1143,9 +1140,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    */
   if (curbuf->b_p_iminsert == B_IMODE_LMAP)
     State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-  im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
@@ -4584,9 +4578,6 @@ static void ins_reg(void) {
   ++no_u_sync;
   if (regname == '=') {
     pos_T curpos = curwin->w_cursor;
-#ifdef HAVE_INPUT_METHOD
-    int im_on = im_get_status();
-#endif
     /* Sync undo when evaluating the expression calls setline() or
      * append(), so that it can be undone separately. */
     u_sync_once = 2;
@@ -4596,11 +4587,6 @@ static void ins_reg(void) {
     // Cursor may be moved back a column.
     curwin->w_cursor = curpos;
     check_cursor();
-#ifdef HAVE_INPUT_METHOD
-    // Restore the Input Method.
-    if (im_on)
-      im_set_active(TRUE);
-#endif
   }
   if (regname == NUL || !valid_yank_reg(regname, FALSE)) {
     vim_beep(BO_REG);
@@ -4710,24 +4696,8 @@ static void ins_ctrl_hat(void) {
     } else {
       curbuf->b_p_iminsert = B_IMODE_LMAP;
       State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-      im_set_active(FALSE);
-#endif
     }
   }
-#ifdef HAVE_INPUT_METHOD
-  else {
-    /* There are no ":lmap" mappings, toggle IM */
-    if (im_get_status()) {
-      curbuf->b_p_iminsert = B_IMODE_NONE;
-      im_set_active(FALSE);
-    } else {
-      curbuf->b_p_iminsert = B_IMODE_IM;
-      State &= ~LANGMAP;
-      im_set_active(TRUE);
-    }
-  }
-#endif
   set_iminsert_global();
   showmode();
 #ifdef FEAT_GUI
@@ -4835,15 +4805,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
         mb_adjust_cursor();
     }
   }
-
-#ifdef HAVE_INPUT_METHOD
-  /* Disable IM to allow typing English directly for Normal mode commands.
-   * When ":lmap" is enabled don't change 'iminsert' (IM can be enabled as
-   * well). */
-  if (!(State & LANGMAP))
-    im_save_status(&curbuf->b_p_iminsert);
-  im_set_active(FALSE);
-#endif
 
   State = NORMAL;
   /* need to position cursor again (e.g. when on a TAB ) */

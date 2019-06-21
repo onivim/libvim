@@ -333,9 +333,6 @@ static void f_reverse(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
 static void f_round(typval_T *argvars, typval_T *rettv);
 #endif
-#ifdef FEAT_RUBY
-static void f_rubyeval(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_screenattr(typval_T *argvars, typval_T *rettv);
 static void f_screenchar(typval_T *argvars, typval_T *rettv);
 static void f_screenchars(typval_T *argvars, typval_T *rettv);
@@ -845,9 +842,6 @@ static struct fst
     {"reverse",		1, 1, f_reverse},
 #ifdef FEAT_FLOAT
     {"round",		1, 1, f_round},
-#endif
-#ifdef FEAT_RUBY
-    {"rubyeval",	1, 1, f_rubyeval},
 #endif
     {"screenattr",	2, 2, f_screenattr},
     {"screenchar",	2, 2, f_screenchar},
@@ -6488,9 +6482,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_RIGHTLEFT
 	"rightleft",
 #endif
-#if defined(FEAT_RUBY) && !defined(DYNAMIC_RUBY)
-	"ruby",
-#endif
 	"scrollbind",
 #ifdef FEAT_SIGNS
 	"signs",
@@ -10177,21 +10168,6 @@ f_round(typval_T *argvars, typval_T *rettv)
 	rettv->vval.v_float = vim_round(f);
     else
 	rettv->vval.v_float = 0.0;
-}
-#endif
-
-#ifdef FEAT_RUBY
-/*
- * "rubyeval()" function
- */
-    static void
-f_rubyeval(typval_T *argvars, typval_T *rettv)
-{
-    char_u	*str;
-    char_u	buf[NUMBUFLEN];
-
-    str = tv_get_string_buf(&argvars[0], buf);
-    do_rubyeval(str, rettv);
 }
 #endif
 

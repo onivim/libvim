@@ -452,6 +452,9 @@ changed_common(
     int		add;
 #endif
 
+    // mark the buffer as modified
+    changed();
+
     if (bufferUpdateCallback != NULL) {
 	    bufferUpdate_T bufferUpdate;
 	    bufferUpdate.buf = curbuf;
@@ -460,10 +463,6 @@ changed_common(
 	    bufferUpdate.xtra = xtra;
 	    bufferUpdateCallback(bufferUpdate);
     }
-
-
-    // mark the buffer as modified
-    changed();
 
 #ifdef FEAT_EVAL
     may_record_change(lnum, col, lnume, xtra);

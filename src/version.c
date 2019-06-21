@@ -423,15 +423,7 @@ static char *(features[]) =
 #else
 	"-rightleft",
 #endif
-#ifdef FEAT_RUBY
-# ifdef DYNAMIC_RUBY
-	"+ruby/dyn",
-# else
-	"+ruby",
-# endif
-#else
 	"-ruby",
-#endif
 	"+scrollbind",
 #ifdef FEAT_SIGNS
 	"+signs",
