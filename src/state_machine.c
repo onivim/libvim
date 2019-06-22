@@ -64,8 +64,11 @@ void sm_execute_normal(char_u *keys) {
 }
 
 void sm_execute(char_u *keys) {
+  printf("sm_execute: 1\n");
+  printf("sm_execute - keys: %s\n", keys);
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
+  printf("sm_execute - 2\n", keys);
 
   // Reset abbr_cnt after each input here,
   // to enable correct cabbrev expansions
@@ -79,6 +82,7 @@ void sm_execute(char_u *keys) {
         sm_push_normal();
       }
 
+      printf("sm_execute - 3 - c is: %c (%d)\n", c, c);
       sm_T *current = state_current;
       executionStatus_T result = current->execute_fn(state_current->context, c);
 
