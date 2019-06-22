@@ -31,6 +31,7 @@ RUN apk add libressl
 RUN apk add libressl-dev
 RUN apk add git
 RUN apk add cmake
+RUN apk add ncurses
 
 # esy uses this
 COPY shasum /usr/bin
