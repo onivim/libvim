@@ -1968,6 +1968,7 @@ vgetorpeek(int advance)
     printf("vgetorpeek - 2\n");
     do
     {
+    printf("vgetorpeek - 3 - resuming loop iteration\n");
 /*
  * get a character: 1. from the stuffbuffer
  */
@@ -1977,10 +1978,14 @@ vgetorpeek(int advance)
 	    if (advance)
 		typeahead_char = 0;
 	}
-	else
+	else {
+	    printf("vgetorpeek - before read_readbuffers\n");
 	    c = read_readbuffers(advance);
+	    printf("vgetorpeek - after read_readbuffers\n");
+	    }
 	if (c != NUL && !got_int)
 	{
+    printf("vgetorpeek - 4\n");
 	    if (advance)
 	    {
 		/* KeyTyped = FALSE;  When the command that stuffed something
@@ -1993,6 +1998,7 @@ vgetorpeek(int advance)
 	}
 	else
 	{
+    printf("vgetorpeek - 5\n");
 	    /*
 	     * Loop until we either find a matching mapped key, or we
 	     * are sure that it is not a mapped key.
@@ -2723,18 +2729,22 @@ vgetorpeek(int advance)
 		    wait_time = 0;
 
 		wait_tb_len = typebuf.tb_len;
+		printf("vgetorpeek - 21\n");
 		c = inchar(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len,
 			typebuf.tb_buflen - typebuf.tb_off - typebuf.tb_len - 1,
 			wait_time);
+		printf("vgetorpeek - 22\n");
 
 		if (c1 == 1)
 		{
+		printf("vgetorpeek - 23\n");
 		    if (State & INSERT)
 			edit_unputchar();
 		    if (State & CMDLINE)
 			unputcmdline();
 		    else
 			setcursor();	/* put cursor back where it belongs */
+		printf("vgetorpeek - 24\n");
 		}
 
 		if (c < 0)
@@ -2756,9 +2766,11 @@ vgetorpeek(int advance)
 			typebuf.tb_noremap[typebuf.tb_off
 						 + typebuf.tb_len++] = RM_YES;
 #ifdef HAVE_INPUT_METHOD
+		printf("vgetorpeek - 25\n");
 		    /* Get IM status right after getting keys, not after the
 		     * timeout for a mapping (focus may be lost by then). */
 		    vgetc_im_active = im_get_status();
+		printf("vgetorpeek - 26\n");
 #endif
 		}
 	    }	    /* for (;;) */
