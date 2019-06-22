@@ -1811,7 +1811,6 @@ plain_vgetc(void)
     int
 vpeekc(void)
 {
-    printf("vpeekc - 1\n");
     if (old_char != -1)
 	return old_char;
     return vgetorpeek(FALSE);
@@ -1950,7 +1949,6 @@ vgetorpeek(int advance)
      * Using ":normal" can also do this, but it saves the typeahead buffer,
      * thus it should be OK.  But don't get a key from the user then.
      */
-    printf("vgetorpeek - 1\n");
     if (vgetc_busy > 0 && ex_normal_busy == 0)
 	return NUL;
 
@@ -1965,10 +1963,8 @@ vgetorpeek(int advance)
     start_stuff();
     if (advance && typebuf.tb_maplen == 0)
 	reg_executing = 0;
-    printf("vgetorpeek - 2\n");
     do
     {
-    printf("vgetorpeek - 3 - resuming loop iteration\n");
 /*
  * get a character: 1. from the stuffbuffer
  */
@@ -1978,14 +1974,10 @@ vgetorpeek(int advance)
 	    if (advance)
 		typeahead_char = 0;
 	}
-	else {
-	    printf("vgetorpeek - before read_readbuffers\n");
+	else
 	    c = read_readbuffers(advance);
-	    printf("vgetorpeek - after read_readbuffers\n");
-	    }
 	if (c != NUL && !got_int)
 	{
-    printf("vgetorpeek - 4\n");
 	    if (advance)
 	    {
 		/* KeyTyped = FALSE;  When the command that stuffed something
@@ -1998,7 +1990,6 @@ vgetorpeek(int advance)
 	}
 	else
 	{
-    printf("vgetorpeek - 5\n");
 	    /*
 	     * Loop until we either find a matching mapped key, or we
 	     * are sure that it is not a mapped key.
@@ -2496,7 +2487,6 @@ vgetorpeek(int advance)
 		    }
 		}
 
-    printf("vgetorpeek - 10\n");
 /*
  * get a character: 3. from the user - handle <Esc> in Insert mode
  */
@@ -2703,7 +2693,6 @@ vgetorpeek(int advance)
 			c1 = 1;
 		    }
 		}
-    printf("vgetorpeek - 20\n");
 
 /*
  * get a character: 3. from the user - get it
@@ -2729,22 +2718,18 @@ vgetorpeek(int advance)
 		    wait_time = 0;
 
 		wait_tb_len = typebuf.tb_len;
-		printf("vgetorpeek - 21\n");
 		c = inchar(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len,
 			typebuf.tb_buflen - typebuf.tb_off - typebuf.tb_len - 1,
 			wait_time);
-		printf("vgetorpeek - 22\n");
 
 		if (c1 == 1)
 		{
-		printf("vgetorpeek - 23\n");
 		    if (State & INSERT)
 			edit_unputchar();
 		    if (State & CMDLINE)
 			unputcmdline();
 		    else
 			setcursor();	/* put cursor back where it belongs */
-		printf("vgetorpeek - 24\n");
 		}
 
 		if (c < 0)
@@ -2766,11 +2751,9 @@ vgetorpeek(int advance)
 			typebuf.tb_noremap[typebuf.tb_off
 						 + typebuf.tb_len++] = RM_YES;
 #ifdef HAVE_INPUT_METHOD
-		printf("vgetorpeek - 25\n");
 		    /* Get IM status right after getting keys, not after the
 		     * timeout for a mapping (focus may be lost by then). */
 		    vgetc_im_active = im_get_status();
-		printf("vgetorpeek - 26\n");
 #endif
 		}
 	    }	    /* for (;;) */
@@ -2779,7 +2762,6 @@ vgetorpeek(int advance)
 	/* if advance is FALSE don't loop on NULs */
     } while ((c < 0 && c != K_CANCEL) || (advance && c == NUL));
 
-    printf("vgetorpeek - 30\n");
     /*
      * The "INSERT" message is taken care of here:
      *	 if we return an ESC to exit insert mode, the message is deleted
@@ -2821,7 +2803,6 @@ vgetorpeek(int advance)
 
     --vgetc_busy;
 
-    printf("vgetorpeek - 100\n");
     return c;
 }
 

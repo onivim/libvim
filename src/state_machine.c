@@ -64,11 +64,8 @@ void sm_execute_normal(char_u *keys) {
 }
 
 void sm_execute(char_u *keys) {
-  printf("sm_execute: 1\n");
-  printf("sm_execute - keys: %s\n", keys);
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
-  printf("sm_execute - 2\n", keys);
 
   // Reset abbr_cnt after each input here,
   // to enable correct cabbrev expansions
@@ -76,41 +73,32 @@ void sm_execute(char_u *keys) {
 
   if (state_current != NULL) {
     while (vpeekc() != NUL) {
-      printf("sm_execute - getting another character...\n");
       int c = vgetc();
 
       if (state_current == NULL) {
         sm_push_normal();
       }
 
-      printf("sm_execute - 3 - c is: %c (%d)\n", c, c);
       sm_T *current = state_current;
-      executionStatus_T result = current->execute_fn(current->context, c);
-      printf("sm_execute - 4\n", c, c);
+      executionStatus_T result = current->execute_fn(state_current->context, c);
 
       switch (result) {
       case HANDLED:
-        printf("sm_execute - HANDLED\n", c, c);
         break;
       case UNHANDLED:
-        printf("sm_execute - UNHANDLED\n", c, c);
         vungetc(c);
         return;
         break;
       case COMPLETED_UNHANDLED:
-        printf("sm_execute - COMPLETED_UNHANDLED\n", c, c);
         vungetc(c);
-        current->cleanup_fn(current->context);
+        current->cleanup_fn(state_current->context);
         state_current = current->prev;
         vim_free(current);
         break;
       case COMPLETED:
-        printf("sm_execute - COMPLETED\n", c, c);
-        current->cleanup_fn(current->context);
-      printf("sm_execute - clean up done\n");
+        current->cleanup_fn(state_current->context);
         state_current = current->prev;
         vim_free(current);
-      printf("sm_execute - freeing current done\n");
         break;
       }
     }

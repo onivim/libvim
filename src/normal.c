@@ -523,13 +523,11 @@ void start_normal_mode(normalCmd_T *context) {
 }
 
 void *state_normal_cmd_initialize() {
-  printf("state_normal_cmd_initialize - begin\n");
   normalCmd_T *context = (normalCmd_T *)alloc(sizeof(normalCmd_T));
   oparg_T *oap = alloc(sizeof(oparg_T));
   context->oap = oap;
 
   start_normal_mode(context);
-  printf("state_normal_cmd_initialize - end\n");
 
   return context;
 }
@@ -543,7 +541,6 @@ void state_normal_cmd_cleanup(void *ctx) {
 static int old_mapped_len = 0;
 
 executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
-  printf("state_normal_cmd_execute - begin\n");
   LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
   normalCmd_T *context = (normalCmd_T *)ctx;
 

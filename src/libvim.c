@@ -76,7 +76,6 @@ void vimCursorSetPosition(pos_T pos) {
 }
 
 void vimInput(char_u *input) {
-  printf("vimInput: 1\n");
   char_u *ptr = NULL;
   char_u *cpo_save = p_cpo;
 
@@ -91,14 +90,10 @@ void vimInput(char_u *input) {
   input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
   p_cpo = cpo_save;
 
-  printf("vimInput: 2\n");
   if (*ptr != NUL) /* trailing CTRL-V results in nothing */
   {
-  printf("vimInput: 3\n");
     sm_execute_normal(input);
-  printf("vimInput: 4\n");
     vim_free((char_u *)ptr);
-  printf("vimInput: 5\n");
   }
   /* Trigger CursorMoved if the cursor moved. */
   if (!finish_op && (has_cursormoved()) &&
@@ -108,9 +103,7 @@ void vimInput(char_u *input) {
     last_cursormoved = curwin->w_cursor;
   }
 
-  printf("vimInput: 6\n");
   update_curswant();
-  printf("vimInput: 7\n");
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }
