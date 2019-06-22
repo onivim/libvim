@@ -3,7 +3,7 @@
 name: $(Build.SourceVersion)
 jobs:
 - job: ArchDocker
-  displayName: "Linux - Ubuntu 18.10"
+  displayName: "Linux - Ubuntu 18.10 (Docker)"
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
