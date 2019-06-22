@@ -4,4 +4,4 @@ RUN apt-get update
 RUN apt-get --yes install nodejs
 RUN apt-get --yes install npm
 
-RUN npm install --global --unsafe-perm=true esy@0.5.7
+RUN npm install --global --unsafe-perm=true esy@0.5.8
