@@ -11,13 +11,13 @@ jobs:
     displayName: 'docker build'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'esy --version'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim && ls'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && ls'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim && pwd'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && pwd'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim && esy @test install'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test install'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim && esy @test run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test run'
     displayName: 'docker run'
 
 - job: Linux
