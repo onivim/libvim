@@ -11,7 +11,7 @@ for file in ./*.exe;
 do
       echo "-- Running test $file"
       echo "- Shared objects:"
-      "ldd ./$file"
+      "ldd $file"
       echo "- Running test:"
       "./$file"
       echo "-- Test complete"
