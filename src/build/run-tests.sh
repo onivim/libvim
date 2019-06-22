@@ -10,6 +10,9 @@ echo "- Starting API tests"
 for file in ./*.exe;
 do
       echo "-- Running test $file"
+      echo "- Shared objects:"
+      "ldd ./$file"
+      echo "- Running test:"
       "./$file"
       echo "-- Test complete"
 done
