@@ -2,7 +2,7 @@
 #include "minunit.h"
 
 void test_setup(void) {
-  printf("test_setup...\n");
+  printf("test_setup - pressing escape...\n");
   vimInput("<Esc>");
   printf("first escape...\n");
   vimInput("<Esc>");
