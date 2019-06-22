@@ -1,6 +1,7 @@
 FROM ubuntu:18.10
 
 RUN apt-get update
+RUN apt-get --yes install ncurses
 RUN apt-get --yes install nodejs
 RUN apt-get --yes install npm
 
