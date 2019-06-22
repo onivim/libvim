@@ -2,7 +2,17 @@
 
 name: $(Build.SourceVersion)
 jobs:
+- job: ArchDocker
+  displayName: "Linux - Arch"
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  steps:
+  - script: docker build -t arch-libvim linux-build
+    displayName: 'docker build'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'echo hello'
+
 - job: Linux
+  displayName: "Linux - Ubuntu 16.04"
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
