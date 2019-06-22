@@ -11,6 +11,14 @@ jobs:
     displayName: 'docker build'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'esy --version'
     displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'ls'
+    displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'pwd'
+    displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'esy @test install'
+    displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'esy @test run
+    displayName: 'docker run'
 
 - job: Linux
   displayName: "Linux - Ubuntu 16.04"
