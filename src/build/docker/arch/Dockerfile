@@ -9,6 +9,8 @@ RUN pacman --noconfirm -S coreutils
 RUN pacman --noconfirm -S grep
 RUN pacman --noconfirm -S tar
 RUN pacman --noconfirm -S sed
+RUN pacman --noconfirm -S gawk
+RUN pacman --noconfirm -S make
 
 RUN node --version
 RUN npm --version
