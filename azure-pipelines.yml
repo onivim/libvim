@@ -7,7 +7,7 @@ jobs:
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
-  - script: docker build -t arch-libvim linux-build
+  - script: docker build -t arch-libvim src/build/docker/arch
     displayName: 'docker build'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'echo hello'
 
