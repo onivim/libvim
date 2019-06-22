@@ -85,7 +85,7 @@ void sm_execute(char_u *keys) {
 
       printf("sm_execute - 3 - c is: %c (%d)\n", c, c);
       sm_T *current = state_current;
-      executionStatus_T result = current->execute_fn(state_current->context, c);
+      executionStatus_T result = current->execute_fn(current->context, c);
       printf("sm_execute - 4\n", c, c);
 
       switch (result) {
@@ -100,13 +100,13 @@ void sm_execute(char_u *keys) {
       case COMPLETED_UNHANDLED:
         printf("sm_execute - COMPLETED_UNHANDLED\n", c, c);
         vungetc(c);
-        current->cleanup_fn(state_current->context);
+        current->cleanup_fn(current->context);
         state_current = current->prev;
         vim_free(current);
         break;
       case COMPLETED:
         printf("sm_execute - COMPLETED\n", c, c);
-        current->cleanup_fn(state_current->context);
+        current->cleanup_fn(current->context);
       printf("sm_execute - clean up done\n");
         state_current = current->prev;
         vim_free(current);
