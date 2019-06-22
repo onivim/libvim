@@ -4,6 +4,7 @@
 void test_setup(void) {
   printf("test_setup...\n");
   vimInput("<Esc>");
+  printf("first escape...\n");
   vimInput("<Esc>");
   vimExecute("e!");
 
