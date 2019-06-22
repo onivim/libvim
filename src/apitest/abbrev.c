@@ -2,25 +2,21 @@
 #include "minunit.h"
 
 void test_setup(void) {
-  printf("test_setup - pressing escape...\n");
   vimInput("<Esc>");
-  printf("first escape...\n");
   vimInput("<Esc>");
   vimExecute("e!");
 
   vimInput("g");
   vimInput("g");
   vimInput("0");
-    printf("test_setup complete...\n");
 }
 
 void test_teardown(void) {}
 
 MU_TEST(insert_abbrev_multiple) {
-  printf("before vimExecute\n");
+
   vimExecute("iabbrev waht what");
-  printf("after vimExecute\n");
-  vimExecute("iabbrev waht what");
+
   vimInput("I");
   vimInput("w");
   vimInput("a");
