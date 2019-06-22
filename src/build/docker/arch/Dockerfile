@@ -4,6 +4,7 @@ RUN pacman --noconfirm -Syu
 
 RUN pacman --noconfirm -S nodejs
 RUN pacman --noconfirm -S npm
+RUN pacman --noconfirm -S gcc
 
 RUN node --version
 RUN npm --version
