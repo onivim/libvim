@@ -52,6 +52,11 @@ This library is in active development and we currently make no guarantees about 
 npm install -g esy@0.5.7
 ```
 
+### Get sources
+
+- `git clone https://github.com/onivim/libvim`
+- `cd src`
+
 ### Installing dependencies
 
 - `esy install`
