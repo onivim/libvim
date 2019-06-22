@@ -6,14 +6,12 @@ echo "The present working directory is `pwd`"
 CWD=`dirname "$0"`
 echo $CWD
 cd $CWD
+ls
 echo "- Starting API tests"
 for file in ./*.exe;
 do
       echo "-- Running test $file"
-      echo "- Shared objects:"
-      "ldd $file"
-      echo "- Running test:"
-      "./$file"
+      "$file"
       echo "-- Test complete"
 done
 echo "- API tests complete!"
