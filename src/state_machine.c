@@ -76,6 +76,7 @@ void sm_execute(char_u *keys) {
 
   if (state_current != NULL) {
     while (vpeekc() != NUL) {
+      printf("sm_execute - getting another character...\n");
       int c = vgetc();
 
       if (state_current == NULL) {
@@ -106,8 +107,10 @@ void sm_execute(char_u *keys) {
       case COMPLETED:
         printf("sm_execute - COMPLETED\n", c, c);
         current->cleanup_fn(state_current->context);
+      printf("sm_execute - clean up done\n");
         state_current = current->prev;
         vim_free(current);
+      printf("sm_execute - freeing current done\n");
         break;
       }
     }
