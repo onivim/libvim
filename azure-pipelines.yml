@@ -17,7 +17,7 @@ jobs:
     displayName: 'docker run'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test install'
     displayName: 'docker run'
-  - script: docker run --rm --mount -i src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
+  - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
     displayName: 'docker run'
 
 - job: Linux
