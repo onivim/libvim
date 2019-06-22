@@ -17,7 +17,7 @@ jobs:
     displayName: 'docker run'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && esy @test install'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
+  - script: docker run --rm -i -t --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
     displayName: 'docker run'
 
 - job: Linux
