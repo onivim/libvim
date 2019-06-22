@@ -1811,6 +1811,7 @@ plain_vgetc(void)
     int
 vpeekc(void)
 {
+    printf("vpeekc - 1\n");
     if (old_char != -1)
 	return old_char;
     return vgetorpeek(FALSE);
@@ -1949,6 +1950,7 @@ vgetorpeek(int advance)
      * Using ":normal" can also do this, but it saves the typeahead buffer,
      * thus it should be OK.  But don't get a key from the user then.
      */
+    printf("vgetorpeek - 1\n");
     if (vgetc_busy > 0 && ex_normal_busy == 0)
 	return NUL;
 
@@ -1963,6 +1965,7 @@ vgetorpeek(int advance)
     start_stuff();
     if (advance && typebuf.tb_maplen == 0)
 	reg_executing = 0;
+    printf("vgetorpeek - 2\n");
     do
     {
 /*
@@ -2487,6 +2490,7 @@ vgetorpeek(int advance)
 		    }
 		}
 
+    printf("vgetorpeek - 10\n");
 /*
  * get a character: 3. from the user - handle <Esc> in Insert mode
  */
@@ -2693,6 +2697,7 @@ vgetorpeek(int advance)
 			c1 = 1;
 		    }
 		}
+    printf("vgetorpeek - 20\n");
 
 /*
  * get a character: 3. from the user - get it
@@ -2762,6 +2767,7 @@ vgetorpeek(int advance)
 	/* if advance is FALSE don't loop on NULs */
     } while ((c < 0 && c != K_CANCEL) || (advance && c == NUL));
 
+    printf("vgetorpeek - 30\n");
     /*
      * The "INSERT" message is taken care of here:
      *	 if we return an ESC to exit insert mode, the message is deleted
@@ -2803,6 +2809,7 @@ vgetorpeek(int advance)
 
     --vgetc_busy;
 
+    printf("vgetorpeek - 100\n");
     return c;
 }
 
