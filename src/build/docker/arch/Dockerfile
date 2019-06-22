@@ -11,6 +11,7 @@ RUN pacman --noconfirm -S tar
 RUN pacman --noconfirm -S sed
 RUN pacman --noconfirm -S gawk
 RUN pacman --noconfirm -S make
+RUN pacman --noconfirm -S diffutils
 
 RUN node --version
 RUN npm --version
