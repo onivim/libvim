@@ -5404,15 +5404,6 @@ f_getmatches(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 	dict_add_string(dict, "group", syn_id2name(cur->hlg_id));
 	dict_add_number(dict, "priority", (long)cur->priority);
 	dict_add_number(dict, "id", (long)cur->id);
-# if defined(FEAT_CONCEAL)
-	if (cur->conceal_char)
-	{
-	    char_u buf[MB_MAXBYTES + 1];
-
-	    buf[(*mb_char2bytes)((int)cur->conceal_char, buf)] = NUL;
-	    dict_add_string(dict, "conceal", (char_u *)&buf);
-	}
-# endif
 	list_append_dict(rettv->vval.v_list, dict);
 	cur = cur->next;
     }
@@ -6195,9 +6186,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_COMMENTS
 	"comments",
-#endif
-#ifdef FEAT_CONCEAL
-	"conceal",
 #endif
 #ifdef FEAT_CRYPT
 	"cryptv",
