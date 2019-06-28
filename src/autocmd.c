@@ -283,23 +283,19 @@ show_autocmd(AutoPat *ap, event_T event)
 {
     AutoCmd *ac;
 
-    printf("show_autocmd - 1\n");
-
     // Check for "got_int" (here and at various places below), which is set
     // when "q" has been hit for the "--more--" prompt
     if (got_int)
 	return;
-    printf("show_autocmd - 2\n");
+    
     if (ap->pat == NULL)		// pattern has been removed
 	return;
-    printf("show_autocmd - 3\n");
 
     if (got_int) 
 	return;
     
     msg_T *msg = msg2_create(MSG_INFO);
     msg2_put("\n", msg);
-    printf("show_autocmd - 4\n");
     if (event != last_event || ap->group != last_group)
     {
 	if (ap->group != AUGROUP_DEFAULT)

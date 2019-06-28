@@ -8506,7 +8506,6 @@ ex_echo(exarg_T *eap)
 
 
     msg_T* msg = msg2_create(MSG_INFO);
-printf("echo - 1\n");
 
     if (eap->skip)
 	++emsg_skip;
@@ -8516,11 +8515,9 @@ printf("echo - 1\n");
 	 * still need to be cleared. E.g., "echo 22,44". */
 	need_clr_eos = needclr;
 
-printf("echo - 2\n");
 	p = arg;
 	if (eval1(&arg, &rettv, !eap->skip) == FAIL)
 	{
-printf("echo - 3\n");
 	    /*
 	     * Report the invalid expression unless the expression evaluation
 	     * has been cancelled due to an aborting error, an interrupt, or an
@@ -8536,10 +8533,8 @@ printf("echo - 3\n");
 
 	if (!eap->skip)
 	{
-printf("echo - 4\n");
 	    p = echo_string(&rettv, &tofree, numbuf, get_copyID());
 	    if (p != NULL) {
-        printf("ECHO STRING? %s\n", p);
         msg2_put(p, msg);
 		for ( ; *p != NUL && !got_int; ++p)
 		{

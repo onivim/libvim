@@ -701,8 +701,6 @@ emsg_core(char_u *s)
     msg_nowait = FALSE;			/* wait for this msg */
     r = msg_attr((char *)s, attr);
 
-    printf("EMSG print: %s\n", s);
-
 #ifdef FEAT_JOB_CHANNEL
     emsg_to_channel_log = FALSE;
 #endif
@@ -1184,8 +1182,6 @@ msg_outtrans(char_u *str)
     int
 msg_outtrans_attr(char_u *str, int attr)
 {
-    printf("msg_outtrans_attr: %s\n", str);
-
     return msg_outtrans_len_attr(str, (int)STRLEN(str), attr);
 }
 
@@ -1724,8 +1720,6 @@ msg_puts_attr_len(char *str, int maxlen, int attr)
      * If redirection is on, also write to the redirection file.
      */
     redir_write((char_u *)str, maxlen);
-
-    printf("msg_puts_attr: %s\n", str);
 
     /*
      * Don't print anything when using ":silent cmd".
@@ -2411,288 +2405,9 @@ msg_puts_printf(char_u *str, int maxlen)
     static int
 do_more_prompt(int typed_char)
 {
-    static int	entered = FALSE;
-    int		used_typed_char = typed_char;
-    int		oldState = State;
-    int		c;
-#ifdef FEAT_CON_DIALOG
-    int		retval = FALSE;
-#endif
-    int		toscroll;
-    msgchunk_T	*mp_last = NULL;
-    msgchunk_T	*mp;
-    int		i;
-
-    /* We get called recursively when a timer callback outputs a message. In
-     * that case don't show another prompt. Also when at the hit-Enter prompt
-     * and nothing was typed. */
-    if (entered || (State == HITRETURN && typed_char == 0))
-	return FALSE;
-    entered = TRUE;
-
-    if (typed_char == 'G')
-    {
-	/* "g<": Find first line on the last page. */
-	mp_last = msg_sb_start(last_msgchunk);
-	for (i = 0; i < Rows - 2 && mp_last != NULL
-					     && mp_last->sb_prev != NULL; ++i)
-	    mp_last = msg_sb_start(mp_last->sb_prev);
-    }
-
-    State = ASKMORE;
-#ifdef FEAT_MOUSE
-    setmouse();
-#endif
-    if (typed_char == NUL)
-	msg_moremsg(FALSE);
-    for (;;)
-    {
-	/*
-	 * Get a typed character directly from the user.
-	 */
-	if (used_typed_char != NUL)
-	{
-	    c = used_typed_char;	/* was typed at hit-enter prompt */
-	    used_typed_char = NUL;
-	}
-	else
-	    c = get_keystroke();
-
-	toscroll = 0;
-	switch (c)
-	{
-	case BS:		/* scroll one line back */
-	case K_BS:
-	case 'k':
-	case K_UP:
-	    toscroll = -1;
-	    break;
-
-	case CAR:		/* one extra line */
-	case NL:
-	case 'j':
-	case K_DOWN:
-	    toscroll = 1;
-	    break;
-
-	case 'u':		/* Up half a page */
-	    toscroll = -(Rows / 2);
-	    break;
-
-	case 'd':		/* Down half a page */
-	    toscroll = Rows / 2;
-	    break;
-
-	case 'b':		/* one page back */
-	case K_PAGEUP:
-	    toscroll = -(Rows - 1);
-	    break;
-
-	case ' ':		/* one extra page */
-	case 'f':
-	case K_PAGEDOWN:
-	case K_LEFTMOUSE:
-	    toscroll = Rows - 1;
-	    break;
-
-	case 'g':		/* all the way back to the start */
-	    toscroll = -999999;
-	    break;
-
-	case 'G':		/* all the way to the end */
-	    toscroll = 999999;
-	    lines_left = 999999;
-	    break;
-
-	case ':':		/* start new command line */
-#ifdef FEAT_CON_DIALOG
-	    if (!confirm_msg_used)
-#endif
-	    {
-		/* Since got_int is set all typeahead will be flushed, but we
-		 * want to keep this ':', remember that in a special way. */
-		typeahead_noflush(':');
-#ifdef FEAT_TERMINAL
-		skip_term_loop = TRUE;
-#endif
-		cmdline_row = Rows - 1;		/* put ':' on this line */
-		skip_redraw = TRUE;		/* skip redraw once */
-		need_wait_return = FALSE;	/* don't wait in main() */
-	    }
-	    /* FALLTHROUGH */
-	case 'q':		/* quit */
-	case Ctrl_C:
-	case ESC:
-#ifdef FEAT_CON_DIALOG
-	    if (confirm_msg_used)
-	    {
-		/* Jump to the choices of the dialog. */
-		retval = TRUE;
-	    }
-	    else
-#endif
-	    {
-		got_int = TRUE;
-		quit_more = TRUE;
-	    }
-	    /* When there is some more output (wrapping line) display that
-	     * without another prompt. */
-	    lines_left = Rows - 1;
-	    break;
-
-#ifdef FEAT_CLIPBOARD
-	case Ctrl_Y:
-	    /* Strange way to allow copying (yanking) a modeless
-	     * selection at the more prompt.  Use CTRL-Y,
-	     * because the same is used in Cmdline-mode and at the
-	     * hit-enter prompt.  However, scrolling one line up
-	     * might be expected... */
-	    if (clip_star.state == SELECT_DONE)
-		clip_copy_modeless_selection(TRUE);
-	    continue;
-#endif
-	default:		/* no valid response */
-	    msg_moremsg(TRUE);
-	    continue;
-	}
-
-	if (toscroll != 0)
-	{
-	    if (toscroll < 0)
-	    {
-		/* go to start of last line */
-		if (mp_last == NULL)
-		    mp = msg_sb_start(last_msgchunk);
-		else if (mp_last->sb_prev != NULL)
-		    mp = msg_sb_start(mp_last->sb_prev);
-		else
-		    mp = NULL;
-
-		/* go to start of line at top of the screen */
-		for (i = 0; i < Rows - 2 && mp != NULL && mp->sb_prev != NULL;
-									  ++i)
-		    mp = msg_sb_start(mp->sb_prev);
-
-		if (mp != NULL && mp->sb_prev != NULL)
-		{
-		    /* Find line to be displayed at top. */
-		    for (i = 0; i > toscroll; --i)
-		    {
-			if (mp == NULL || mp->sb_prev == NULL)
-			    break;
-			mp = msg_sb_start(mp->sb_prev);
-			if (mp_last == NULL)
-			    mp_last = msg_sb_start(last_msgchunk);
-			else
-			    mp_last = msg_sb_start(mp_last->sb_prev);
-		    }
-
-		    if (toscroll == -1 && screen_ins_lines(0, 0, 1,
-						     (int)Rows, 0, NULL) == OK)
-		    {
-			/* display line at top */
-			(void)disp_sb_line(0, mp);
-		    }
-		    else
-		    {
-			/* redisplay all lines */
-			screenclear();
-			for (i = 0; mp != NULL && i < Rows - 1; ++i)
-			{
-			    mp = disp_sb_line(i, mp);
-			    ++msg_scrolled;
-			}
-		    }
-		    toscroll = 0;
-		}
-	    }
-	    else
-	    {
-		/* First display any text that we scrolled back. */
-		while (toscroll > 0 && mp_last != NULL)
-		{
-		    /* scroll up, display line at bottom */
-		    msg_scroll_up();
-		    inc_msg_scrolled();
-		    screen_fill((int)Rows - 2, (int)Rows - 1, 0,
-						   (int)Columns, ' ', ' ', 0);
-		    mp_last = disp_sb_line((int)Rows - 2, mp_last);
-		    --toscroll;
-		}
-	    }
-
-	    if (toscroll <= 0)
-	    {
-		/* displayed the requested text, more prompt again */
-		screen_fill((int)Rows - 1, (int)Rows, 0,
-						   (int)Columns, ' ', ' ', 0);
-		msg_moremsg(FALSE);
-		continue;
-	    }
-
-	    /* display more text, return to caller */
-	    lines_left = toscroll;
-	}
-
-	break;
-    }
-
-    /* clear the --more-- message */
-    screen_fill((int)Rows - 1, (int)Rows, 0, (int)Columns, ' ', ' ', 0);
-    State = oldState;
-#ifdef FEAT_MOUSE
-    setmouse();
-#endif
-    if (quit_more)
-    {
-	msg_row = Rows - 1;
-	msg_col = 0;
-    }
-#ifdef FEAT_RIGHTLEFT
-    else if (cmdmsg_rl)
-	msg_col = Columns - 1;
-#endif
-
-    entered = FALSE;
-#ifdef FEAT_CON_DIALOG
-    return retval;
-#else
+    /* libvim - no-op */
     return FALSE;
-#endif
 }
-
-#if defined(USE_MCH_ERRMSG) || defined(PROTO)
-
-#ifdef mch_errmsg
-# undef mch_errmsg
-#endif
-#ifdef mch_msg
-# undef mch_msg
-#endif
-
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
-    static void
-mch_errmsg_c(char *str)
-{
-    int	    len = (int)STRLEN(str);
-    DWORD   nwrite = 0;
-    DWORD   mode = 0;
-    HANDLE  h = GetStdHandle(STD_ERROR_HANDLE);
-
-    if (GetConsoleMode(h, &mode) && enc_codepage >= 0
-	    && (int)GetConsoleCP() != enc_codepage)
-    {
-	WCHAR	*w = enc_to_utf16((char_u *)str, &len);
-
-	WriteConsoleW(h, w, len, &nwrite, NULL);
-	vim_free(w);
-    }
-    else
-    {
-	fprintf(stderr, "%s", str);
-    }
-}
-#endif
 
 /*
  * Give an error message.  To be used when the screen hasn't been initialized
@@ -2702,104 +2417,11 @@ mch_errmsg_c(char *str)
     void
 mch_errmsg(char *str)
 {
-#if !defined(MSWIN) || defined(FEAT_GUI_MSWIN)
-    int		len;
-#endif
-
-#if (defined(UNIX) || defined(FEAT_GUI)) && !defined(ALWAYS_USE_GUI) && !defined(VIMDLL)
-    /* On Unix use stderr if it's a tty.
-     * When not going to start the GUI also use stderr.
-     * On Mac, when started from Finder, stderr is the console. */
-    if (
-# ifdef UNIX
-#  ifdef MACOS_X
-	    (isatty(2) && strcmp("/dev/console", ttyname(2)) != 0)
-#  else
-	    isatty(2)
-#  endif
-#  ifdef FEAT_GUI
-	    ||
-#  endif
-# endif
-# ifdef FEAT_GUI
-	    !(gui.in_use || gui.starting)
-# endif
-	    )
-    {
-	fprintf(stderr, "%s", str);
-	return;
-    }
-#endif
-
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
-# ifdef VIMDLL
-    if (!(gui.in_use || gui.starting))
-# endif
-    {
-	mch_errmsg_c(str);
-	return;
-    }
-#endif
-
-#if !defined(MSWIN) || defined(FEAT_GUI_MSWIN)
-    /* avoid a delay for a message that isn't there */
-    emsg_on_display = FALSE;
-
-    len = (int)STRLEN(str) + 1;
-    if (error_ga.ga_growsize == 0)
-    {
-	error_ga.ga_growsize = 80;
-	error_ga.ga_itemsize = 1;
-    }
-    if (ga_grow(&error_ga, len) == OK)
-    {
-	mch_memmove((char_u *)error_ga.ga_data + error_ga.ga_len,
-							  (char_u *)str, len);
-# ifdef UNIX
-	/* remove CR characters, they are displayed */
-	{
-	    char_u	*p;
-
-	    p = (char_u *)error_ga.ga_data + error_ga.ga_len;
-	    for (;;)
-	    {
-		p = vim_strchr(p, '\r');
-		if (p == NULL)
-		    break;
-		*p = ' ';
-	    }
-	}
-# endif
-	--len;		/* don't count the NUL at the end */
-	error_ga.ga_len += len;
-    }
-#endif
+    msg_T *msg = msg2_create(MSG_ERROR);
+    msg2_put(str, msg);
+    msg2_send(msg);
+    msg2_free(msg);
 }
-
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
-    static void
-mch_msg_c(char *str)
-{
-    int	    len = (int)STRLEN(str);
-    DWORD   nwrite = 0;
-    DWORD   mode;
-    HANDLE  h = GetStdHandle(STD_OUTPUT_HANDLE);
-
-
-    if (GetConsoleMode(h, &mode) && enc_codepage >= 0
-	    && (int)GetConsoleCP() != enc_codepage)
-    {
-	WCHAR	*w = enc_to_utf16((char_u *)str, &len);
-
-	WriteConsoleW(h, w, len, &nwrite, NULL);
-	vim_free(w);
-    }
-    else
-    {
-	printf("%s", str);
-    }
-}
-#endif
 
 /*
  * Give a message.  To be used when the screen hasn't been initialized yet.
@@ -2809,46 +2431,11 @@ mch_msg_c(char *str)
     void
 mch_msg(char *str)
 {
-#if (defined(UNIX) || defined(FEAT_GUI)) && !defined(ALWAYS_USE_GUI) && !defined(VIMDLL)
-    /* On Unix use stdout if we have a tty.  This allows "vim -h | more" and
-     * uses mch_errmsg() when started from the desktop.
-     * When not going to start the GUI also use stdout.
-     * On Mac, when started from Finder, stderr is the console. */
-    if (
-# ifdef UNIX
-#  ifdef MACOS_X
-	    (isatty(2) && strcmp("/dev/console", ttyname(2)) != 0)
-#  else
-	    isatty(2)
-#  endif
-#  ifdef FEAT_GUI
-	    ||
-#  endif
-# endif
-# ifdef FEAT_GUI
-	    !(gui.in_use || gui.starting)
-# endif
-	    )
-    {
-	printf("%s", str);
-	return;
-    }
-#endif
-
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
-# ifdef VIMDLL
-    if (!(gui.in_use || gui.starting))
-# endif
-    {
-	mch_msg_c(str);
-	return;
-    }
-#endif
-#if !defined(MSWIN) || defined(FEAT_GUI_MSWIN)
-    mch_errmsg(str);
-#endif
+    msg_T *msg = msg2_create(MSG_INFO);
+    msg2_put(str, msg);
+    msg2_send(msg);
+    msg2_free(msg);
 }
-#endif /* USE_MCH_ERRMSG */
 
 /*
  * Put a character on the screen at the current message position and advance
