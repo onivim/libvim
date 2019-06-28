@@ -1006,7 +1006,6 @@ msg_end_prompt(void)
     void
 wait_return(int redraw UNUSED) {
     /* libvim - noop */
-    return -1;
 }
 
 /*
