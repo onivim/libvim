@@ -450,11 +450,7 @@ static char *(features[]) =
 #endif
 	"-tag_old_static",
 	"-tag_any_white",
-#ifdef FEAT_TERMGUICOLORS
-	"+termguicolors",
-#else
 	"-termguicolors",
-#endif
 #ifdef FEAT_TERMINAL
 	"+terminal",
 #else
@@ -468,11 +464,7 @@ static char *(features[]) =
 	"-terminfo",
 # endif
 #endif
-#ifdef FEAT_TERMRESPONSE
-	"+termresponse",
-#else
 	"-termresponse",
-#endif
 #ifdef FEAT_TEXTOBJ
 	"+textobjects",
 #else

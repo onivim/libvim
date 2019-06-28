@@ -736,9 +736,6 @@ EXTERN char_u	*p_tcldll;	/* 'tcldll' */
 EXTERN int	p_tbidi;	/* 'termbidi' */
 #endif
 EXTERN char_u	*p_tenc;	/* 'termencoding' */
-#ifdef FEAT_TERMGUICOLORS
-EXTERN int	p_tgc;		/* 'termguicolors' */
-#endif
 #if defined(MSWIN) && defined(FEAT_TERMINAL)
 EXTERN char_u	*p_twt;		// 'termwintype'
 #endif

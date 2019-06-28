@@ -197,11 +197,6 @@ static guicolor_T save_console_fg_rgb;
 static int g_color_index_bg = 0;
 static int g_color_index_fg = 7;
 
-# ifdef FEAT_TERMGUICOLORS
-static int default_console_color_bg = 0x000000; // black
-static int default_console_color_fg = 0xc0c0c0; // white
-# endif
-
 #  define USE_VTP		0
 
 static void set_console_color_rgb(void);
@@ -3015,13 +3010,7 @@ mch_settmode(int tmode)
 	cmodein &= ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT |
 		     ENABLE_ECHO_INPUT);
 	cmodeout &= ~(
-#ifdef FEAT_TERMGUICOLORS
-	    /* Do not turn off the ENABLE_PROCESSED_OUTPUT flag when using
-	     * VTP. */
-	    ((vtp_working) ? 0 : ENABLE_PROCESSED_OUTPUT) |
-#else
 	    ENABLE_PROCESSED_OUTPUT |
-#endif
 	    ENABLE_WRAP_AT_EOL_OUTPUT);
 	bEnableHandler = TRUE;
     }
@@ -5230,9 +5219,6 @@ mch_set_normal_colors(void)
     cterm_normal_fg_color = (g_attrDefault & 0xf) + 1;
     cterm_normal_bg_color = ((g_attrDefault >> 4) & 0xf) + 1;
     if (
-#ifdef FEAT_TERMGUICOLORS
-	!p_tgc &&
-#endif
 	T_ME[0] == ESC && T_ME[1] == '|')
     {
 	p = T_ME + 2;
@@ -5243,10 +5229,6 @@ mch_set_normal_colors(void)
 	    cterm_normal_bg_color = ((n >> 4) & 0xf) + 1;
 	}
     }
-#ifdef FEAT_TERMGUICOLORS
-    cterm_normal_fg_gui_color = INVALCOLOR;
-    cterm_normal_bg_gui_color = INVALCOLOR;
-#endif
 }
 
 
@@ -6579,9 +6561,6 @@ vtp_init(void)
 {
     HMODULE hKerneldll;
     DYN_CONSOLE_SCREEN_BUFFER_INFOEX csbi;
-# ifdef FEAT_TERMGUICOLORS
-    COLORREF fg, bg;
-# endif
 
     /* Use functions supported from Vista */
     hKerneldll = GetModuleHandle("kernel32.dll");
@@ -6604,14 +6583,6 @@ vtp_init(void)
     save_console_bg_rgb = (guicolor_T)csbi.ColorTable[g_color_index_bg];
     save_console_fg_rgb = (guicolor_T)csbi.ColorTable[g_color_index_fg];
 
-# ifdef FEAT_TERMGUICOLORS
-    bg = (COLORREF)csbi.ColorTable[g_color_index_bg];
-    fg = (COLORREF)csbi.ColorTable[g_color_index_fg];
-    bg = (GetRValue(bg) << 16) | (GetGValue(bg) << 8) | GetBValue(bg);
-    fg = (GetRValue(fg) << 16) | (GetGValue(fg) << 8) | GetBValue(fg);
-    default_console_color_bg = bg;
-    default_console_color_fg = fg;
-# endif
 
     set_console_color_rgb();
 }
@@ -6674,86 +6645,15 @@ vtp_sgr_bulks(
     vtp_printf((char *)buf);
 }
 
-# ifdef FEAT_TERMGUICOLORS
-    static int
-ctermtoxterm(
-    int cterm)
-{
-    char_u r, g, b, idx;
-
-    cterm_color2rgb(cterm, &r, &g, &b, &idx);
-    return (((int)r << 16) | ((int)g << 8) | (int)b);
-}
-# endif
 
     static void
 set_console_color_rgb(void)
 {
-# ifdef FEAT_TERMGUICOLORS
-    DYN_CONSOLE_SCREEN_BUFFER_INFOEX csbi;
-    int id;
-    guicolor_T fg = INVALCOLOR;
-    guicolor_T bg = INVALCOLOR;
-    int ctermfg;
-    int ctermbg;
-
-    if (!USE_VTP)
-	return;
-
-    id = syn_name2id((char_u *)"Normal");
-    if (id > 0 && p_tgc)
-	syn_id2colors(id, &fg, &bg);
-    if (fg == INVALCOLOR)
-    {
-	ctermfg = -1;
-	if (id > 0)
-	    syn_id2cterm_bg(id, &ctermfg, &ctermbg);
-	fg = ctermfg != -1 ? ctermtoxterm(ctermfg) : default_console_color_fg;
-	cterm_normal_fg_gui_color = fg;
-    }
-    if (bg == INVALCOLOR)
-    {
-	ctermbg = -1;
-	if (id > 0)
-	    syn_id2cterm_bg(id, &ctermfg, &ctermbg);
-	bg = ctermbg != -1 ? ctermtoxterm(ctermbg) : default_console_color_bg;
-	cterm_normal_bg_gui_color = bg;
-    }
-    fg = (GetRValue(fg) << 16) | (GetGValue(fg) << 8) | GetBValue(fg);
-    bg = (GetRValue(bg) << 16) | (GetGValue(bg) << 8) | GetBValue(bg);
-
-    csbi.cbSize = sizeof(csbi);
-    if (has_csbiex)
-	pGetConsoleScreenBufferInfoEx(g_hConOut, &csbi);
-
-    csbi.cbSize = sizeof(csbi);
-    csbi.srWindow.Right += 1;
-    csbi.srWindow.Bottom += 1;
-    csbi.ColorTable[g_color_index_bg] = (COLORREF)bg;
-    csbi.ColorTable[g_color_index_fg] = (COLORREF)fg;
-    if (has_csbiex)
-	pSetConsoleScreenBufferInfoEx(g_hConOut, &csbi);
-# endif
 }
 
     static void
 reset_console_color_rgb(void)
 {
-# ifdef FEAT_TERMGUICOLORS
-    DYN_CONSOLE_SCREEN_BUFFER_INFOEX csbi;
-
-    csbi.cbSize = sizeof(csbi);
-    if (has_csbiex)
-	pGetConsoleScreenBufferInfoEx(g_hConOut, &csbi);
-
-    csbi.cbSize = sizeof(csbi);
-    csbi.srWindow.Right += 1;
-    csbi.srWindow.Bottom += 1;
-    csbi.ColorTable[g_color_index_bg] = (COLORREF)save_console_bg_rgb;
-    csbi.ColorTable[g_color_index_fg] = (COLORREF)save_console_fg_rgb;
-    if (has_csbiex)
-	pSetConsoleScreenBufferInfoEx(g_hConOut, &csbi);
-# endif
 }
 
     void

@@ -2367,13 +2367,8 @@ static struct vimoption options[] =
 			    {(char_u *)"", (char_u *)0L}
 			    SCTX_INIT},
     {"termguicolors", "tgc", P_BOOL|P_VI_DEF|P_VIM|P_RCLR,
-#ifdef FEAT_TERMGUICOLORS
-			    (char_u *)&p_tgc, PV_NONE,
-			    {(char_u *)FALSE, (char_u *)FALSE}
-#else
 			    (char_u*)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)FALSE}
-#endif
 			    SCTX_INIT},
     {"termwinkey", "twk",   P_STRING|P_ALLOCED|P_RWIN|P_VI_DEF,
 #ifdef FEAT_TERMINAL
@@ -7692,17 +7687,6 @@ set_bool_option(
 	}
     }
 
-#endif
-
-#ifdef FEAT_TERMGUICOLORS
-    /* 'termguicolors' */
-    else if ((int *)varp == &p_tgc)
-    {
-# ifdef FEAT_GUI
-	if (!gui.in_use && !gui.starting)
-# endif
-	    highlight_gui_started();
-    }
 #endif
 
     /*

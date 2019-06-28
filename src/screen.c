@@ -285,138 +285,6 @@ redraw_buf_and_status_later(buf_T *buf, int type)
 }
 #endif
 
-#if defined(FEAT_TERMRESPONSE) || defined(PROTO)
-/*
- * Redraw as soon as possible.  When the command line is not scrolled redraw
- * right away and restore what was on the command line.
- * Return a code indicating what happened.
- */
-    int
-redraw_asap(int type)
-{
-    int		rows;
-    int		cols = screen_Columns;
-    int		r;
-    int		ret = 0;
-    schar_T	*screenline;	/* copy from ScreenLines[] */
-    sattr_T	*screenattr;	/* copy from ScreenAttrs[] */
-    int		i;
-    u8char_T	*screenlineUC = NULL;	/* copy from ScreenLinesUC[] */
-    u8char_T	*screenlineC[MAX_MCO];	/* copy from ScreenLinesC[][] */
-    schar_T	*screenline2 = NULL;	/* copy from ScreenLines2[] */
-
-    redraw_later(type);
-    if (msg_scrolled || (State != NORMAL && State != NORMAL_BUSY) || exiting)
-	return ret;
-
-    /* Allocate space to save the text displayed in the command line area. */
-    rows = screen_Rows - cmdline_row;
-    screenline = LALLOC_MULT(schar_T, rows * cols);
-    screenattr = LALLOC_MULT(sattr_T, rows * cols);
-    if (screenline == NULL || screenattr == NULL)
-	ret = 2;
-    if (enc_utf8)
-    {
-	screenlineUC = LALLOC_MULT(u8char_T, rows * cols);
-	if (screenlineUC == NULL)
-	    ret = 2;
-	for (i = 0; i < p_mco; ++i)
-	{
-	    screenlineC[i] = LALLOC_MULT(u8char_T, rows * cols);
-	    if (screenlineC[i] == NULL)
-		ret = 2;
-	}
-    }
-    if (enc_dbcs == DBCS_JPNU)
-    {
-	screenline2 = LALLOC_MULT(schar_T, rows * cols);
-	if (screenline2 == NULL)
-	    ret = 2;
-    }
-
-    if (ret != 2)
-    {
-	/* Save the text displayed in the command line area. */
-	for (r = 0; r < rows; ++r)
-	{
-	    mch_memmove(screenline + r * cols,
-			ScreenLines + LineOffset[cmdline_row + r],
-			(size_t)cols * sizeof(schar_T));
-	    mch_memmove(screenattr + r * cols,
-			ScreenAttrs + LineOffset[cmdline_row + r],
-			(size_t)cols * sizeof(sattr_T));
-	    if (enc_utf8)
-	    {
-		mch_memmove(screenlineUC + r * cols,
-			    ScreenLinesUC + LineOffset[cmdline_row + r],
-			    (size_t)cols * sizeof(u8char_T));
-		for (i = 0; i < p_mco; ++i)
-		    mch_memmove(screenlineC[i] + r * cols,
-				ScreenLinesC[i] + LineOffset[cmdline_row + r],
-				(size_t)cols * sizeof(u8char_T));
-	    }
-	    if (enc_dbcs == DBCS_JPNU)
-		mch_memmove(screenline2 + r * cols,
-			    ScreenLines2 + LineOffset[cmdline_row + r],
-			    (size_t)cols * sizeof(schar_T));
-	}
-
-	update_screen(0);
-	ret = 3;
-
-	if (must_redraw == 0)
-	{
-	    int	off = (int)(current_ScreenLine - ScreenLines);
-
-	    /* Restore the text displayed in the command line area. */
-	    for (r = 0; r < rows; ++r)
-	    {
-		mch_memmove(current_ScreenLine,
-			    screenline + r * cols,
-			    (size_t)cols * sizeof(schar_T));
-		mch_memmove(ScreenAttrs + off,
-			    screenattr + r * cols,
-			    (size_t)cols * sizeof(sattr_T));
-		if (enc_utf8)
-		{
-		    mch_memmove(ScreenLinesUC + off,
-				screenlineUC + r * cols,
-				(size_t)cols * sizeof(u8char_T));
-		    for (i = 0; i < p_mco; ++i)
-			mch_memmove(ScreenLinesC[i] + off,
-				    screenlineC[i] + r * cols,
-				    (size_t)cols * sizeof(u8char_T));
-		}
-		if (enc_dbcs == DBCS_JPNU)
-		    mch_memmove(ScreenLines2 + off,
-				screenline2 + r * cols,
-				(size_t)cols * sizeof(schar_T));
-		screen_line(cmdline_row + r, 0, cols, cols, 0);
-	    }
-	    ret = 4;
-	}
-    }
-
-    vim_free(screenline);
-    vim_free(screenattr);
-    if (enc_utf8)
-    {
-	vim_free(screenlineUC);
-	for (i = 0; i < p_mco; ++i)
-	    vim_free(screenlineC[i]);
-    }
-    if (enc_dbcs == DBCS_JPNU)
-	vim_free(screenline2);
-
-    /* Show the intro message when appropriate. */
-    maybe_intro_message();
-
-    setcursor();
-
-    return ret;
-}
-#endif
-
 /*
  * Invoked after an asynchronous callback is called.
  * If an echo command was used the cursor needs to be put back where
@@ -6931,11 +6799,6 @@ screen_start_highlight(int attr)
 	    if ((attr & HL_BOLD) && *T_MD != NUL)	/* bold */
 		out_str(T_MD);
 	    else if (aep != NULL && cterm_normal_fg_bold && (
-#ifdef FEAT_TERMGUICOLORS
-			p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR
-			  ? aep->ae_u.cterm.fg_rgb != INVALCOLOR
-			  :
-#endif
 			    t_colors > 1 && aep->ae_u.cterm.fg_color))
 		/* If the Normal FG color has BOLD attribute and the new HL
 		 * has a FG color defined, clear BOLD. */
@@ -6961,30 +6824,11 @@ screen_start_highlight(int attr)
 	     */
 	    if (aep != NULL)
 	    {
-#ifdef FEAT_TERMGUICOLORS
-		/* When 'termguicolors' is set but fg or bg is unset,
-		 * fall back to the cterm colors.   This helps for SpellBad,
-		 * where the GUI uses a red undercurl. */
-		if (p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR)
-		{
-		    if (aep->ae_u.cterm.fg_rgb != INVALCOLOR)
-			term_fg_rgb_color(aep->ae_u.cterm.fg_rgb);
-		}
-		else
-#endif
 		if (t_colors > 1)
 		{
 		    if (aep->ae_u.cterm.fg_color)
 			term_fg_color(aep->ae_u.cterm.fg_color - 1);
 		}
-#ifdef FEAT_TERMGUICOLORS
-		if (p_tgc && aep->ae_u.cterm.bg_rgb != CTERMCOLOR)
-		{
-		    if (aep->ae_u.cterm.bg_rgb != INVALCOLOR)
-			term_bg_rgb_color(aep->ae_u.cterm.bg_rgb);
-		}
-		else
-#endif
 		if (t_colors > 1)
 		{
 		    if (aep->ae_u.cterm.bg_color)
@@ -7035,17 +6879,7 @@ screen_stop_highlight(void)
 		     */
 		    aep = syn_cterm_attr2entry(screen_attr);
 		    if (aep != NULL && ((
-#ifdef FEAT_TERMGUICOLORS
-			    p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR
-				? aep->ae_u.cterm.fg_rgb != INVALCOLOR
-				:
-#endif
 				aep->ae_u.cterm.fg_color) || (
-#ifdef FEAT_TERMGUICOLORS
-			    p_tgc && aep->ae_u.cterm.bg_rgb != CTERMCOLOR
-				? aep->ae_u.cterm.bg_rgb != INVALCOLOR
-				:
-#endif
 				aep->ae_u.cterm.bg_color)))
 			do_ME = TRUE;
 		}
@@ -7109,16 +6943,6 @@ screen_stop_highlight(void)
 	    if (do_ME || (screen_attr & (HL_BOLD | HL_INVERSE)))
 		out_str(T_ME);
 
-#ifdef FEAT_TERMGUICOLORS
-	    if (p_tgc)
-	    {
-		if (cterm_normal_fg_gui_color != INVALCOLOR)
-		    term_fg_rgb_color(cterm_normal_fg_gui_color);
-		if (cterm_normal_bg_gui_color != INVALCOLOR)
-		    term_bg_rgb_color(cterm_normal_bg_gui_color);
-	    }
-	    else
-#endif
 	    {
 		if (t_colors > 1)
 		{
@@ -7146,13 +6970,7 @@ reset_cterm_colors(void)
     if (IS_CTERM)
     {
 	/* set Normal cterm colors */
-#ifdef FEAT_TERMGUICOLORS
-	if (p_tgc ? (cterm_normal_fg_gui_color != INVALCOLOR
-		 || cterm_normal_bg_gui_color != INVALCOLOR)
-		: (cterm_normal_fg_color > 0 || cterm_normal_bg_color > 0))
-#else
 	if (cterm_normal_fg_color > 0 || cterm_normal_bg_color > 0)
-#endif
 	{
 	    out_str(T_OP);
 	    screen_attr = -1;
@@ -8033,12 +7851,7 @@ can_clear(char_u *p)
 #ifdef FEAT_GUI
 		|| gui.in_use
 #endif
-#ifdef FEAT_TERMGUICOLORS
-		|| (p_tgc && cterm_normal_bg_gui_color == INVALCOLOR)
-		|| (!p_tgc && cterm_normal_bg_color == 0)
-#else
 		|| cterm_normal_bg_color == 0
-#endif
 		|| *T_UT != NUL));
 }
 
@@ -9315,9 +9128,6 @@ draw_tabline(void)
     int		use_sep_chars = (t_colors < 8
 #ifdef FEAT_GUI
 					    && !gui.in_use
-#endif
-#ifdef FEAT_TERMGUICOLORS
-					    && !p_tgc
 #endif
 					    );
 
