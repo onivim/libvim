@@ -1,3 +1,4 @@
+#include "vim.h"
 #include "libvim.h"
 #include "minunit.h"
 
