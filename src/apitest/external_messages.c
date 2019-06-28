@@ -147,6 +147,18 @@ MU_TEST(test_set_print) {
   mu_check(lastPriority == MSG_INFO);
 }
 
+MU_TEST(test_print_marks) {
+  /* Set a mark */
+  vimInput("m");
+  vimInput("a");
+  
+  vimExecute("marks a");
+
+  mu_check(strcmp(lastTitle, "mark line  col file/text") == 0);
+  mu_check(strcmp(lastMessage, "\n a      1    0 This is the first line of a test file") == 0);
+  mu_check(lastPriority == MSG_INFO);
+}
+
 MU_TEST(test_autocmd) {
   vimExecute("autocmd");
 
@@ -178,6 +190,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_readonly_warning);
   MU_RUN_TEST(test_set_print);
+  MU_RUN_TEST(test_print_marks);
   /*MU_RUN_TEST(test_autocmd);*/
   /*MU_RUN_TEST(test_changes);*/
 }

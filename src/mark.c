@@ -753,21 +753,23 @@ show_one_mark(
 
     if (c == -1)			    /* finish up */
     {
-	if (did_title)
-	    did_title = FALSE;
-	else
-	{
-	    if (arg == NULL)
-		msg(_("No marks set"));
-	    else
-		semsg(_("E283: No marks matching \"%s\""), arg);
-	}
+        if (did_title)
+            did_title = FALSE;
+        else
+        {
+            if (arg == NULL)
+            msg(_("No marks set"));
+            else
+            semsg(_("E283: No marks matching \"%s\""), arg);
+        }
     }
     // don't output anything if 'q' typed at --more-- prompt
     else if (!got_int
 	    && (arg == NULL || vim_strchr(arg, c) != NULL)
 	    && p->lnum != 0)
     {
+        msg_T *message = msg2_create(MSG_INFO);
+
 	if (name == NULL && current)
 	{
 	    name = mark_line(p, 15);
@@ -779,23 +781,29 @@ show_one_mark(
 	    {
 		// Highlight title
 		msg_puts_title(_("\nmark line  col file/text"));
+        msg2_set_title(_("mark line  col file/text"), message);
 		did_title = TRUE;
 	    }
 	    msg_putchar('\n');
+        msg2_put("\n", message);
 	    if (!got_int)
 	    {
 		sprintf((char *)IObuff, " %c %6ld %4d ", c, p->lnum, p->col);
 		msg_outtrans(IObuff);
+        msg2_put(IObuff, message);
 		if (name != NULL)
 		{
 		    msg_outtrans_attr(name, current ? HL_ATTR(HLF_D) : 0);
+        msg2_put(name, message);
 		}
 	    }
-	    out_flush();		    // show one line at a time
 	}
+        msg2_send(message);
+        msg2_free(message);
 	if (mustfree)
 	    vim_free(name);
     }
+
 }
 
 /*
