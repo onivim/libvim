@@ -144,17 +144,13 @@ static void	ex_nogui(exarg_T *eap);
 # define ex_cscope		ex_ni
 # define ex_scscope		ex_ni
 # define ex_cstag		ex_ni
-#ifndef FEAT_SYN_HL
 # define ex_syntax		ex_ni
 # define ex_ownsyntax		ex_ni
-#endif
 #ifndef FEAT_EVAL
 # define ex_packadd		ex_ni
 # define ex_packloadall		ex_ni
 #endif
-#if !defined(FEAT_SYN_HL) || !defined(FEAT_PROFILE)
 # define ex_syntime		ex_ni
-#endif
 # define ex_spell		ex_ni
 # define ex_mkspell		ex_ni
 # define ex_spelldump		ex_ni
@@ -3773,7 +3769,6 @@ set_one_cmd_context(
 	    if (*arg == NUL || !ends_excmd(*arg))
 	    {
 		/* also complete "None" */
-		set_context_in_echohl_cmd(xp, arg);
 		arg = skipwhite(skiptowhite(arg));
 		if (*arg != NUL)
 		{
@@ -3896,11 +3891,6 @@ set_one_cmd_context(
 	    xp->xp_context = EXPAND_AUGROUP;
 	    xp->xp_pattern = arg;
 	    break;
-#ifdef FEAT_SYN_HL
-	case CMD_syntax:
-	    set_context_in_syntax_cmd(xp, arg);
-	    break;
-#endif
 #ifdef FEAT_EVAL
 	case CMD_let:
 	case CMD_if:
@@ -3945,7 +3935,6 @@ set_one_cmd_context(
 	    break;
 
 	case CMD_echohl:
-	    set_context_in_echohl_cmd(xp, arg);
 	    break;
 #endif
 	case CMD_highlight:
@@ -5507,7 +5496,7 @@ ends_excmd(int c)
     return (c == NUL || c == '|' || c == '"' || c == '\n');
 }
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SEARCH_EXTRA) || defined(FEAT_EVAL) \
+#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_EVAL) \
 	|| defined(PROTO)
 /*
  * Return the next command, after the first '|' or '\n'.

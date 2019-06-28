@@ -3746,18 +3746,6 @@ static void nv_clear(cmdarg_T *cap) {
      */
     ui_get_shellsize();
 #endif
-#ifdef FEAT_SYN_HL
-    /* Clear all syntax states to force resyncing. */
-    syn_stack_free_all(curwin->w_s);
-#ifdef FEAT_RELTIME
-    {
-      win_T *wp;
-
-      FOR_ALL_WINDOWS(wp)
-      wp->w_s->b_syn_slow = FALSE;
-    }
-#endif
-#endif
     redraw_later(CLEAR);
 #if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
 #ifdef VIMDLL
@@ -6224,11 +6212,6 @@ static void n_opencmd(cmdarg_T *cap) {
 #ifdef FEAT_CONCEAL
       if (curwin->w_p_cole > 0 && oldline != curwin->w_cursor.lnum)
         redrawWinline(curwin, oldline);
-#endif
-#ifdef FEAT_SYN_HL
-      if (curwin->w_p_cul)
-        /* force redraw of cursorline */
-        curwin->w_valid &= ~VALID_CROW;
 #endif
       /* When '#' is in 'cpoptions' ignore the count. */
       if (vim_strchr(p_cpo, CPO_HASH) != NULL)

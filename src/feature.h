@@ -411,14 +411,6 @@
 #endif
 
 /*
- * +syntax		syntax highlighting.  When using this, it's a good
- *			idea to have +autocmd and +eval too.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_SYN_HL
-#endif
-
-/*
  * +conceal		'conceal' option.  Needs syntax highlighting
  *			as this is how the concealed text is defined.
  */
@@ -991,6 +983,7 @@
  */
 #undef FEAT_NETBEANS_INTG
 #undef FEAT_STL_OPT
+#undef FEAT_SYN_HL
 #undef FEAT_TITLE
 /*
  * +vtp: Win32 virtual console.

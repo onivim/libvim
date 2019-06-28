@@ -115,14 +115,6 @@ comp_botline(win_T *wp)
     set_empty_rows(wp, done);
 }
 
-#ifdef FEAT_SYN_HL
-    void
-reset_cursorline(void)
-{
-    curwin->w_last_cursorline = 0;
-}
-#endif
-
 /*
  * Redraw when w_cline_row changes and 'relativenumber' or 'cursorline' is
  * set.
@@ -131,9 +123,6 @@ reset_cursorline(void)
 redraw_for_cursorline(win_T *wp)
 {
     if ((wp->w_p_rnu
-#ifdef FEAT_SYN_HL
-		|| wp->w_p_cul
-#endif
 		)
 	    && (wp->w_valid & VALID_CROW) == 0
 #ifdef FEAT_INS_EXPAND
@@ -144,21 +133,6 @@ redraw_for_cursorline(win_T *wp)
 	if (wp->w_p_rnu)
 	    // win_line() will redraw the number column only.
 	    redraw_win_later(wp, VALID);
-#ifdef FEAT_SYN_HL
-	if (wp->w_p_cul)
-	{
-	    if (wp->w_redr_type <= VALID && wp->w_last_cursorline != 0)
-	    {
-		// "w_last_cursorline" may be outdated, worst case we redraw
-		// too much.  This is optimized for moving the cursor around in
-		// the current window.
-		redrawWinline(wp, wp->w_last_cursorline);
-		redrawWinline(wp, wp->w_cursor.lnum);
-	    }
-	    else
-		redraw_win_later(wp, SOME_VALID);
-	}
-#endif
     }
 }
 
@@ -802,14 +776,6 @@ validate_virtcol_win(win_T *wp)
     {
 	getvvcol(wp, &wp->w_cursor, NULL, &(wp->w_virtcol), NULL);
 	wp->w_valid |= VALID_VIRTCOL;
-#ifdef FEAT_SYN_HL
-	if (wp->w_p_cuc
-# ifdef FEAT_INS_EXPAND
-		&& !pum_visible()
-# endif
-		)
-	    redraw_win_later(wp, SOME_VALID);
-#endif
     }
 }
 
@@ -1160,15 +1126,6 @@ curs_columns(
     if (prev_skipcol != curwin->w_skipcol)
 	redraw_later(NOT_VALID);
 
-#ifdef FEAT_SYN_HL
-    /* Redraw when w_virtcol changes and 'cursorcolumn' is set */
-    if (curwin->w_p_cuc && (curwin->w_valid & VALID_VIRTCOL) == 0
-# ifdef FEAT_INS_EXPAND
-	    && !pum_visible()
-# endif
-	)
-	redraw_later(SOME_VALID);
-#endif
 
     curwin->w_valid |= VALID_WCOL|VALID_WROW|VALID_VIRTCOL;
 }
@@ -2761,10 +2718,6 @@ do_check_cursorbind(void)
 	    restart_edit_save = restart_edit;
 	    restart_edit = TRUE;
 	    check_cursor();
-# ifdef FEAT_SYN_HL
-	    if (curwin->w_p_cul || curwin->w_p_cuc)
-		validate_cursor();
-# endif
 	    restart_edit = restart_edit_save;
 	    /* Correct cursor for multi-byte character. */
 	    if (has_mbyte)

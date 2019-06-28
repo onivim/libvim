@@ -5992,12 +5992,6 @@ ExpandFromContext(
 	    {EXPAND_USER_FUNC, get_user_func_name, FALSE, TRUE},
 	    {EXPAND_EXPRESSION, get_expr_name, FALSE, TRUE},
 #endif
-#ifdef FEAT_SYN_HL
-	    {EXPAND_SYNTAX, get_syntax_name, TRUE, TRUE},
-#endif
-#ifdef FEAT_PROFILE
-	    {EXPAND_SYNTIME, get_syntime_arg, TRUE, TRUE},
-#endif
 	    {EXPAND_HIGHLIGHT, get_highlight_name, TRUE, TRUE},
 	    {EXPAND_EVENTS, get_event_name, TRUE, TRUE},
 	    {EXPAND_AUGROUP, get_augroup_name, TRUE, TRUE},
@@ -6118,12 +6112,6 @@ ExpandGeneric(
 	else
 	    sort_strings(*file, *num_file);
     }
-
-#ifdef FEAT_CMDL_COMPL
-    /* Reset the variables used for special highlight names expansion, so that
-     * they don't show up when getting normal highlight names by ID. */
-    reset_expand_highlight();
-#endif
 
     return OK;
 }
