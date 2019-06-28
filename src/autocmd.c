@@ -749,49 +749,6 @@ check_ei(void)
     return OK;
 }
 
-# if defined(FEAT_SYN_HL) || defined(PROTO)
-
-/*
- * Add "what" to 'eventignore' to skip loading syntax highlighting for every
- * buffer loaded into the window.  "what" must start with a comma.
- * Returns the old value of 'eventignore' in allocated memory.
- */
-    char_u *
-au_event_disable(char *what)
-{
-    char_u	*new_ei;
-    char_u	*save_ei;
-
-    save_ei = vim_strsave(p_ei);
-    if (save_ei != NULL)
-    {
-	new_ei = vim_strnsave(p_ei, (int)(STRLEN(p_ei) + STRLEN(what)));
-	if (new_ei != NULL)
-	{
-	    if (*what == ',' && *p_ei == NUL)
-		STRCPY(new_ei, what + 1);
-	    else
-		STRCAT(new_ei, what);
-	    set_string_option_direct((char_u *)"ei", -1, new_ei,
-							  OPT_FREE, SID_NONE);
-	    vim_free(new_ei);
-	}
-    }
-    return save_ei;
-}
-
-    void
-au_event_restore(char_u *old_ei)
-{
-    if (old_ei != NULL)
-    {
-	set_string_option_direct((char_u *)"ei", -1, old_ei,
-							  OPT_FREE, SID_NONE);
-	vim_free(old_ei);
-    }
-}
-# endif  /* FEAT_SYN_HL */
-
 /*
  * do_autocmd() -- implements the :autocmd command.  Can be used in the
  *  following ways:
@@ -1577,7 +1534,7 @@ win_found:
 		    && bufref_valid(&aco->new_curbuf)
 		    && aco->new_curbuf.br_buf->b_ml.ml_mfp != NULL)
 	    {
-# if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+# if defined(FEAT_SPELL)
 		if (curwin->w_s == &curbuf->b_s)
 		    curwin->w_s = &aco->new_curbuf.br_buf->b_s;
 # endif
@@ -1956,11 +1913,6 @@ apply_autocmds_group(
 	    fname = NULL;
 	else
 	{
-#ifdef FEAT_SYN_HL
-	    if (event == EVENT_SYNTAX)
-		fname = buf->b_p_syn;
-	    else
-#endif
 		if (event == EVENT_FILETYPE)
 		    fname = buf->b_p_ft;
 		else

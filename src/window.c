@@ -1277,9 +1277,6 @@ win_init(win_T *newp, win_T *oldp, int flags UNUSED)
     int		i;
 
     newp->w_buffer = oldp->w_buffer;
-#ifdef FEAT_SYN_HL
-    newp->w_s = &(oldp->w_buffer->b_s);
-#endif
     oldp->w_buffer->b_nwindows++;
     newp->w_cursor = oldp->w_cursor;
     newp->w_valid = 0;
@@ -1330,9 +1327,6 @@ win_init(win_T *newp, win_T *oldp, int flags UNUSED)
 
     win_init_some(newp, oldp);
 
-#ifdef FEAT_SYN_HL
-    check_colorcolumn(newp);
-#endif
 }
 
 /*
@@ -2314,11 +2308,6 @@ close_last_window_tabpage(
     static void
 win_close_buffer(win_T *win, int free_buf, int abort_if_last)
 {
-#ifdef FEAT_SYN_HL
-    // Free independent synblock before the buffer is freed.
-    if (win->w_buffer != NULL)
-	reset_synblock(win);
-#endif
 
 #ifdef FEAT_QUICKFIX
     // When the quickfix/location list window is closed, unlist the buffer.
@@ -3488,7 +3477,7 @@ win_init_empty(win_T *wp)
     wp->w_topfill = 0;
 #endif
     wp->w_botline = 2;
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+#if defined(FEAT_SPELL)
     wp->w_s = &wp->w_buffer->b_s;
 #endif
 }
@@ -3569,9 +3558,6 @@ win_alloc_firstwin(win_T *oldwin)
 	if (curwin == NULL || curbuf == NULL)
 	    return FAIL;
 	curwin->w_buffer = curbuf;
-#ifdef FEAT_SYN_HL
-	curwin->w_s = &(curbuf->b_s);
-#endif
 	curbuf->b_nwindows = 1;	/* there is one window */
 	curwin->w_alist = &global_alist;
 	curwin_init();		/* init current window */
@@ -4793,9 +4779,6 @@ win_free(
 	VIM_CLEAR(wp->w_border_highlight[i]);
 #endif
 
-#ifdef FEAT_SYN_HL
-    vim_free(wp->w_p_cc_cols);
-#endif
 
     if (win_valid_any_tab(wp))
 	win_remove(wp, tp);
