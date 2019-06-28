@@ -114,7 +114,7 @@ MU_TEST(test_error) {
   mu_check(lastPriority == MSG_ERROR);
 }
 
-MU_TEST(test_readonly) {
+MU_TEST(test_readonly_warning) {
   vimExecute("set readonly");
 
   vimInput("i");
@@ -123,6 +123,13 @@ MU_TEST(test_readonly) {
   printf("LAST MESSAGE: %s\n", lastMessage);
   mu_check(strcmp(lastMessage, "W10: Warning: Changing a readonly file") == 0);
   mu_check(lastPriority == MSG_WARNING);
+}
+
+MU_TEST(test_set_print) {
+  vimExecute("set relativenumber?");
+
+  mu_check(strcmp(lastMessage, "norelativenumber") == 0);
+  mu_check(lastPriority == MSG_INFO);
 }
 
 MU_TEST(test_autocmd) {
@@ -153,7 +160,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_buffers);
   MU_RUN_TEST(test_files);
   MU_RUN_TEST(test_error);
-  MU_RUN_TEST(test_readonly);
+  MU_RUN_TEST(test_readonly_warning);
+  MU_RUN_TEST(test_set_print);
   /*MU_RUN_TEST(test_autocmd);*/
   /*MU_RUN_TEST(test_changes);*/
 }
