@@ -930,7 +930,7 @@ static struct fst
     {"term_dumpload",	1, 2, f_term_dumpload},
     {"term_dumpwrite",	2, 3, f_term_dumpwrite},
     {"term_getaltscreen", 1, 1, f_term_getaltscreen},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     {"term_getansicolors", 1, 1, f_term_getansicolors},
 # endif
     {"term_getattr",	2, 2, f_term_getattr},
@@ -945,7 +945,7 @@ static struct fst
     {"term_list",	0, 0, f_term_list},
     {"term_scrape",	2, 2, f_term_scrape},
     {"term_sendkeys",	2, 2, f_term_sendkeys},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     {"term_setansicolors", 2, 2, f_term_setansicolors},
 # endif
     {"term_setkill",	2, 2, f_term_setkill},
@@ -6358,9 +6358,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
-#endif
-#ifdef FEAT_TERMGUICOLORS
-	"termguicolors",
 #endif
 #if defined(FEAT_TERMINAL) && !defined(MSWIN)
 	"terminal",

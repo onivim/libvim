@@ -536,10 +536,6 @@ static struct builtin_term builtin_termcaps[] =
 #  else
     {(int)KS_CS,	"\033|%i%d;%dr"}, // scroll region
 #  endif
-#  ifdef FEAT_TERMGUICOLORS
-    {(int)KS_8F,	"\033|38;2;%lu;%lu;%lum"},
-    {(int)KS_8B,	"\033|48;2;%lu;%lu;%lum"},
-#  endif
 
     {K_UP,		"\316H"},
     {K_DOWN,		"\316P"},
@@ -850,11 +846,6 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_RFG,	IF_EB("\033]10;?\007", ESC_STR "]10;?\007")},
     {(int)KS_RBG,	IF_EB("\033]11;?\007", ESC_STR "]11;?\007")},
     {(int)KS_U7,	IF_EB("\033[6n", ESC_STR "[6n")},
-#  ifdef FEAT_TERMGUICOLORS
-    /* These are printf strings, not terminal codes. */
-    {(int)KS_8F,	IF_EB("\033[38;2;%lu;%lu;%lum", ESC_STR "[38;2;%lu;%lu;%lum")},
-    {(int)KS_8B,	IF_EB("\033[48;2;%lu;%lu;%lum", ESC_STR "[48;2;%lu;%lu;%lum")},
-#  endif
     {(int)KS_CBE,	IF_EB("\033[?2004h", ESC_STR "[?2004h")},
     {(int)KS_CBD,	IF_EB("\033[?2004l", ESC_STR "[?2004l")},
     {(int)KS_CST,	IF_EB("\033[22;2t", ESC_STR "[22;2t")},
@@ -1278,34 +1269,6 @@ static struct builtin_term builtin_termcaps[] =
     {(int)KS_NAME,	NULL}
 
 };	/* end of builtin_termcaps */
-
-#if defined(FEAT_TERMGUICOLORS) || defined(PROTO)
-    guicolor_T
-termgui_mch_get_color(char_u *name)
-{
-    return gui_get_color_cmn(name);
-}
-
-    guicolor_T
-termgui_get_color(char_u *name)
-{
-    guicolor_T	t;
-
-    if (*name == NUL)
-	return INVALCOLOR;
-    t = termgui_mch_get_color(name);
-
-    if (t == INVALCOLOR)
-	semsg(_("E254: Cannot allocate color %s"), name);
-    return t;
-}
-
-    guicolor_T
-termgui_mch_get_rgb(guicolor_T color)
-{
-    return color;
-}
-#endif
 
 /*
  * DEFAULT_TERM is used, when no terminal is specified with -T option or $TERM.
@@ -2460,36 +2423,6 @@ term_bg_color(int n)
     else if (*T_CSB)
 	term_color(T_CSB, n);
 }
-
-#if defined(FEAT_TERMGUICOLORS) || defined(PROTO)
-
-#define RED(rgb)   (((long_u)(rgb) >> 16) & 0xFF)
-#define GREEN(rgb) (((long_u)(rgb) >>  8) & 0xFF)
-#define BLUE(rgb)  (((long_u)(rgb)      ) & 0xFF)
-
-    static void
-term_rgb_color(char_u *s, guicolor_T rgb)
-{
-#define MAX_COLOR_STR_LEN 100
-    char	buf[MAX_COLOR_STR_LEN];
-
-    vim_snprintf(buf, MAX_COLOR_STR_LEN,
-				  (char *)s, RED(rgb), GREEN(rgb), BLUE(rgb));
-    OUT_STR(buf);
-}
-
-    void
-term_fg_rgb_color(guicolor_T rgb)
-{
-    term_rgb_color(T_8F, rgb);
-}
-
-    void
-term_bg_rgb_color(guicolor_T rgb)
-{
-    term_rgb_color(T_8B, rgb);
-}
-#endif
 
 #if (defined(VMS) \
 	|| defined(MACOS_X)) || defined(PROTO)
@@ -4272,153 +4205,17 @@ update_tcap(int attr)
     }
 }
 
-# ifdef FEAT_TERMGUICOLORS
-#  define KSSIZE 20
-struct ks_tbl_s
-{
-    int  code;		// value of KS_
-    char *vtp;		// code in vtp mode
-    char *vtp2;		// code in vtp2 mode
-    char buf[KSSIZE];   // save buffer in non-vtp mode
-    char vbuf[KSSIZE];  // save buffer in vtp mode
-    char v2buf[KSSIZE]; // save buffer in vtp2 mode
-    char arr[KSSIZE];   // real buffer
-};
-
-static struct ks_tbl_s ks_tbl[] =
-{
-    {(int)KS_ME,  "\033|0m",  "\033|0m"},   // normal
-    {(int)KS_MR,  "\033|7m",  "\033|7m"},   // reverse
-    {(int)KS_MD,  "\033|1m",  "\033|1m"},   // bold
-    {(int)KS_SO,  "\033|91m", "\033|91m"},  // standout: bright red text
-    {(int)KS_SE,  "\033|39m", "\033|39m"},  // standout end: default color
-    {(int)KS_CZH, "\033|95m", "\033|95m"},  // italic: bright magenta text
-    {(int)KS_CZR, "\033|0m",  "\033|0m"},   // italic end
-    {(int)KS_US,  "\033|4m",  "\033|4m"},   // underscore
-    {(int)KS_UE,  "\033|24m", "\033|24m"},  // underscore end
-#  ifdef TERMINFO
-    {(int)KS_CAB, "\033|%p1%db", "\033|%p14%dm"}, // set background color
-    {(int)KS_CAF, "\033|%p1%df", "\033|%p13%dm"}, // set foreground color
-    {(int)KS_CS,  "\033|%p1%d;%p2%dR", "\033|%p1%d;%p2%dR"},
-    {(int)KS_CSV, "\033|%p1%d;%p2%dV", "\033|%p1%d;%p2%dV"},
-#  else
-    {(int)KS_CAB, "\033|%db", "\033|4%dm"}, // set background color
-    {(int)KS_CAF, "\033|%df", "\033|3%dm"}, // set foreground color
-    {(int)KS_CS,  "\033|%d;%dR", "\033|%d;%dR"},
-    {(int)KS_CSV, "\033|%d;%dV", "\033|%d;%dV"},
-#  endif
-    {(int)KS_CCO, "256", "256"},	    // colors
-    {(int)KS_NAME}			    // terminator
-};
-
-    static struct builtin_term *
-find_first_tcap(
-    char_u *name,
-    int	    code)
-{
-    struct builtin_term *p;
-
-    for (p = find_builtin_term(name); p->bt_string != NULL; ++p)
-	if (p->bt_entry == code)
-	    return p;
-    return NULL;
-}
-# endif
-
 /*
  * For Win32 console: replace the sequence immediately after termguicolors.
  */
     void
 swap_tcap(void)
 {
-# ifdef FEAT_TERMGUICOLORS
-    static int		init_done = FALSE;
-    static int		curr_mode;
-    struct ks_tbl_s	*ks;
-    struct builtin_term *bt;
-    int			mode;
-    enum
-    {
-	CMODEINDEX,
-	CMODE24,
-	CMODE256
-    };
-
-    /* buffer initialization */
-    if (!init_done)
-    {
-	for (ks = ks_tbl; ks->code != (int)KS_NAME; ks++)
-	{
-	    bt = find_first_tcap(DEFAULT_TERM, ks->code);
-	    if (bt != NULL)
-	    {
-		STRNCPY(ks->buf, bt->bt_string, KSSIZE);
-		STRNCPY(ks->vbuf, ks->vtp, KSSIZE);
-		STRNCPY(ks->v2buf, ks->vtp2, KSSIZE);
-
-		STRNCPY(ks->arr, bt->bt_string, KSSIZE);
-		bt->bt_string = &ks->arr[0];
-	    }
-	}
-	init_done = TRUE;
-	curr_mode = CMODEINDEX;
-    }
-
-    if (p_tgc)
-	mode = CMODE24;
-    else if (t_colors >= 256)
-	mode = CMODE256;
-    else
-	mode = CMODEINDEX;
-
-    for (ks = ks_tbl; ks->code != (int)KS_NAME; ks++)
-    {
-	bt = find_first_tcap(DEFAULT_TERM, ks->code);
-	if (bt != NULL)
-	{
-	    switch (curr_mode)
-	    {
-	    case CMODEINDEX:
-		STRNCPY(&ks->buf[0], bt->bt_string, KSSIZE);
-		break;
-	    case CMODE24:
-		STRNCPY(&ks->vbuf[0], bt->bt_string, KSSIZE);
-		break;
-	    default:
-		STRNCPY(&ks->v2buf[0], bt->bt_string, KSSIZE);
-	    }
-	}
-    }
-
-    if (mode != curr_mode)
-    {
-	for (ks = ks_tbl; ks->code != (int)KS_NAME; ks++)
-	{
-	    bt = find_first_tcap(DEFAULT_TERM, ks->code);
-	    if (bt != NULL)
-	    {
-		switch (mode)
-		{
-		case CMODEINDEX:
-		    STRNCPY(bt->bt_string, &ks->buf[0], KSSIZE);
-		    break;
-		case CMODE24:
-		    STRNCPY(bt->bt_string, &ks->vbuf[0], KSSIZE);
-		    break;
-		default:
-		    STRNCPY(bt->bt_string, &ks->v2buf[0], KSSIZE);
-		}
-	    }
-	}
-
-	curr_mode = mode;
-    }
-# endif
 }
 
 #endif
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS) || defined(PROTO)
+#if defined(FEAT_GUI) || defined(PROTO)
     static int
 hex_digit(int c)
 {
