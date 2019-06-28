@@ -30,6 +30,19 @@ typedef struct
     colnr_T	coladd; // extra virtual column
 } pos_T;
 
+typedef enum
+{
+    INFO,
+    WARNING,
+    ERROR
+} msgPriority_T;
+
+typedef struct
+{
+    char_u *str;
+    msgPriority_T priority;
+};
+
 /*
  * State machine definitions
  */
