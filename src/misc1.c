@@ -1487,8 +1487,6 @@ vim_beep(
 		{
 		    out_str_cf(T_VB);
 		}
-		else
-		    out_char(BELL);
 #ifdef ELAPSED_FUNC
 	    }
 #endif

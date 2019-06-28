@@ -6159,7 +6159,6 @@ ex_stop(exarg_T *eap)
 	if (!eap->forceit)
 	    autowrite_all();
 	windgoto((int)Rows - 1, 0);
-	out_char('\n');
 	stoptermcap();
 	ui_suspend();		/* call machine specific function */
 	starttermcap();

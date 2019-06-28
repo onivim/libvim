@@ -574,7 +574,6 @@ vim_main2(void)
 	vim_snprintf((char *)IObuff, IOSIZE, "cfile %s", p_ef);
 	if (qf_init(NULL, p_ef, p_efm, TRUE, IObuff, enc) < 0)
 	{
-	    out_char('\n');
 	    mch_exit(3);
 	}
 	TIME_MSG("reading errorfile");

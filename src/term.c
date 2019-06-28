@@ -2405,50 +2405,6 @@ static int		out_pos = 0;	// number of chars in out_buf
 // 16, the escape sequence length can be 4 * 16 + lead + tail.
 #define MAX_ESC_SEQ_LEN	80
 
-/*
- * out_flush(): flush the output buffer
- */
-    void
-out_flush(void)
-{
-    /* No-op */
-}
-
-/*
- * out_flush_cursor(): flush the output buffer and redraw the cursor.
- * Does not flush recursively in the GUI to avoid slow drawing.
- */
-    void
-out_flush_cursor(
-    int	    force UNUSED,   /* when TRUE, update cursor even when not moved */
-    int	    clear_selection UNUSED) /* clear selection under cursor */
-{
-    /* No-op */
-}
-
-
-/*
- * Sometimes a byte out of a multi-byte character is written with out_char().
- * To avoid flushing half of the character, call this function first.
- */
-    void
-out_flush_check(void)
-{
-    /* No-op */
-}
-
-/*
- * out_char(c): put a byte into the output buffer.
- *		Flush it if it becomes full.
- * This should not be used for outputting text on the screen (use functions
- * like msg_puts() and screen_putchar() for that).
- */
-    void
-out_char(unsigned c)
-{
-    /* No-op */
-}
-
 static void out_char_nf(unsigned);
 
 /*
