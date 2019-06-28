@@ -5532,11 +5532,6 @@ void may_start_select(int c) {
  * Should set VIsual_select before calling this.
  */
 static void n_start_visual_mode(int c) {
-#ifdef FEAT_CONCEAL
-  /* Check for redraw before changing the state. */
-  conceal_check_cursor_line();
-#endif
-
   VIsual_mode = c;
   VIsual_active = TRUE;
   VIsual_reselect = TRUE;
@@ -5551,11 +5546,6 @@ static void n_start_visual_mode(int c) {
 
 #ifdef FEAT_FOLDING
   foldAdjustVisual();
-#endif
-
-#ifdef FEAT_CONCEAL
-  /* Check for redraw after changing the state. */
-  conceal_check_cursor_line();
 #endif
 
   if (p_smd && msg_silent == 0)
@@ -6110,9 +6100,6 @@ static void nv_g_cmd(cmdarg_T *cap) {
  * Handle "o" and "O" commands.
  */
 static void n_opencmd(cmdarg_T *cap) {
-#ifdef FEAT_CONCEAL
-  linenr_T oldline = curwin->w_cursor.lnum;
-#endif
 
   if (!checkclearopq(cap->oap)) {
 #ifdef FEAT_FOLDING
@@ -6133,10 +6120,6 @@ static void n_opencmd(cmdarg_T *cap) {
 #endif
                                                   0,
                   0) == OK) {
-#ifdef FEAT_CONCEAL
-      if (curwin->w_p_cole > 0 && oldline != curwin->w_cursor.lnum)
-        redrawWinline(curwin, oldline);
-#endif
       /* When '#' is in 'cpoptions' ignore the count. */
       if (vim_strchr(p_cpo, CPO_HASH) != NULL)
         cap->count1 = 1;

@@ -192,12 +192,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
     }
   }
 
-#ifdef FEAT_CONCEAL
-  /* Check if the cursor line needs redrawing before changing State.  If
-   * 'concealcursor' is "n" it needs to be redrawn without concealing. */
-  conceal_check_cursor_line();
-#endif
-
   {
     Insstart = curwin->w_cursor;
     if (context->startln)
@@ -1061,12 +1055,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     }
   }
 
-#ifdef FEAT_CONCEAL
-  /* Check if the cursor line needs redrawing before changing State.  If
-   * 'concealcursor' is "n" it needs to be redrawn without concealing. */
-  conceal_check_cursor_line();
-#endif
-
   {
     Insstart = curwin->w_cursor;
     if (startln)
@@ -1896,11 +1884,6 @@ int ins_need_undo_get(void) { return ins_need_undo; }
  */
 void ins_redraw(int ready) // not busy with something
 {
-#ifdef FEAT_CONCEAL
-  linenr_T conceal_old_cursor_line = 0;
-  linenr_T conceal_new_cursor_line = 0;
-  int conceal_update_lines = FALSE;
-#endif
 
   if (char_avail())
     return;
@@ -1911,9 +1894,6 @@ void ins_redraw(int ready) // not busy with something
       (has_cursormovedI()
 #ifdef FEAT_TEXT_PROP
        || popup_visible
-#endif
-#if defined(FEAT_CONCEAL)
-       || curwin->w_p_cole > 0
 #endif
        ) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor)
@@ -1927,13 +1907,6 @@ void ins_redraw(int ready) // not busy with something
 #ifdef FEAT_TEXT_PROP
     if (popup_visible)
       popup_check_cursor_pos();
-#endif
-#ifdef FEAT_CONCEAL
-    if (curwin->w_p_cole > 0) {
-      conceal_old_cursor_line = last_cursormoved.lnum;
-      conceal_new_cursor_line = curwin->w_cursor.lnum;
-      conceal_update_lines = TRUE;
-    }
 #endif
     last_cursormoved = curwin->w_cursor;
   }
@@ -1955,20 +1928,6 @@ void ins_redraw(int ready) // not busy with something
   }
 
 
-#if defined(FEAT_CONCEAL)
-  if ((conceal_update_lines &&
-       (conceal_old_cursor_line != conceal_new_cursor_line ||
-        conceal_cursor_line(curwin))) ||
-      need_cursor_line_redraw) {
-    if (conceal_old_cursor_line != conceal_new_cursor_line)
-      redrawWinline(curwin, conceal_old_cursor_line);
-    redrawWinline(curwin, conceal_new_cursor_line == 0
-                              ? curwin->w_cursor.lnum
-                              : conceal_new_cursor_line);
-    curwin->w_valid &= ~VALID_CROW;
-    need_cursor_line_redraw = FALSE;
-  }
-#endif
   if (must_redraw)
     update_screen(0);
   else if (clear_cmdline || redraw_cmdline)
