@@ -128,6 +128,7 @@ msg_attr_keep(
     int		attr,
     int		keep)	    /* TRUE: set keep_msg if it doesn't scroll */
 {
+    printf("[msg_attr_keep]: %s\n");
     static int	entered = 0;
     int		retval;
     char_u	*buf = NULL;
@@ -588,11 +589,117 @@ emsg_core(char_u *s)
     int		ignore = FALSE;
     int		severe;
 #endif
-    /* TODO: Handle severe? */
-    /* TODO: Handle ignore? */
-    /* TODO: Externalize */
-    printf("[EMSG] %s\n", p);
-    return TRUE;
+
+#ifdef FEAT_EVAL
+    /* When testing some errors are turned into a normal message. */
+    if (ignore_error(s))
+	/* don't call msg() if it results in a dialog */
+	return msg_use_printf() ? FALSE : msg((char *)s);
+#endif
+
+    called_emsg = TRUE;
+
+#ifdef FEAT_EVAL
+    /* If "emsg_severe" is TRUE: When an error exception is to be thrown,
+     * prefer this message over previous messages for the same command. */
+    severe = emsg_severe;
+    emsg_severe = FALSE;
+#endif
+
+    if (!emsg_off || vim_strchr(p_debug, 't') != NULL)
+    {
+#ifdef FEAT_EVAL
+	/*
+	 * Cause a throw of an error exception if appropriate.  Don't display
+	 * the error message in this case.  (If no matching catch clause will
+	 * be found, the message will be displayed later on.)  "ignore" is set
+	 * when the message should be ignored completely (used for the
+	 * interrupt message).
+	 */
+	if (cause_errthrow(s, severe, &ignore) == TRUE)
+	{
+	    if (!ignore)
+		++did_emsg;
+	    return TRUE;
+	}
+
+	/* set "v:errmsg", also when using ":silent! cmd" */
+	set_vim_var_string(VV_ERRMSG, s, -1);
+#endif
+
+	/*
+	 * When using ":silent! cmd" ignore error messages.
+	 * But do write it to the redirection file.
+	 */
+	if (emsg_silent != 0)
+	{
+	    if (emsg_noredir == 0)
+	    {
+		msg_start();
+		p = get_emsg_source();
+		if (p != NULL)
+		{
+		    STRCAT(p, "\n");
+		    redir_write(p, -1);
+		    vim_free(p);
+		}
+		p = get_emsg_lnum();
+		if (p != NULL)
+		{
+		    STRCAT(p, "\n");
+		    redir_write(p, -1);
+		    vim_free(p);
+		}
+		redir_write(s, -1);
+	    }
+#ifdef FEAT_JOB_CHANNEL
+	    ch_log(NULL, "ERROR: %s", (char *)s);
+#endif
+	    return TRUE;
+	}
+
+	ex_exitval = 1;
+
+	/* Reset msg_silent, an error causes messages to be switched back on.
+	 */
+	msg_silent = 0;
+	cmd_silent = FALSE;
+
+	if (global_busy)		/* break :global command */
+	    ++global_busy;
+
+	if (p_eb)
+	    beep_flush();		/* also includes flush_buffers() */
+	else
+	    flush_buffers(FLUSH_MINIMAL);  // flush internal buffers
+	++did_emsg;			   // flag for DoOneCmd()
+#ifdef FEAT_EVAL
+	did_uncaught_emsg = TRUE;
+#endif
+    }
+
+    emsg_on_display = TRUE;	/* remember there is an error message */
+    ++msg_scroll;		/* don't overwrite a previous message */
+    attr = HL_ATTR(HLF_E);	/* set highlight mode for error messages */
+
+#ifdef FEAT_JOB_CHANNEL
+    emsg_to_channel_log = TRUE;
+#endif
+    /*
+     * Display name and line number for the source of the error.
+     */
+    msg_source(attr);
+
+    /*
+     * Display the error message itself.
+     */
+    msg_nowait = FALSE;			/* wait for this msg */
+    r = msg_attr((char *)s, attr);
+
+#ifdef FEAT_JOB_CHANNEL
+    emsg_to_channel_log = FALSE;
+#endif
+    return r;
 }
 
 /*
@@ -896,10 +1003,9 @@ msg_end_prompt(void)
  * If "redraw" is -1, don't redraw at all.
  */
     void
-wait_return(int redraw)
-{
+wait_return(int redraw UNUSED) {
     /* libvim - noop */
-    printf("[WARNING] wait_return called");
+    return -1;
 }
 
 /*
@@ -909,7 +1015,6 @@ wait_return(int redraw)
 hit_return_msg(void)
 {
     /* libvim - noop */
-    printf("[WARNING] hit_return_msg called");
 }
 
 /*
@@ -2325,6 +2430,9 @@ do_more_prompt(int typed_char)
     }
 
     State = ASKMORE;
+#ifdef FEAT_MOUSE
+    setmouse();
+#endif
     if (typed_char == NUL)
 	msg_moremsg(FALSE);
     for (;;)
@@ -2522,6 +2630,9 @@ do_more_prompt(int typed_char)
     /* clear the --more-- message */
     screen_fill((int)Rows - 1, (int)Rows, 0, (int)Columns, ' ', ' ', 0);
     State = oldState;
+#ifdef FEAT_MOUSE
+    setmouse();
+#endif
     if (quit_more)
     {
 	msg_row = Rows - 1;
@@ -3225,6 +3336,9 @@ do_dialog(
 
     oldState = State;
     State = CONFIRM;
+#ifdef FEAT_MOUSE
+    setmouse();
+#endif
 
     /*
      * Since we wait for a keypress, don't make the
@@ -3287,6 +3401,9 @@ do_dialog(
     }
 
     State = oldState;
+#ifdef FEAT_MOUSE
+    setmouse();
+#endif
     --no_wait_return;
     msg_end_prompt();
 
