@@ -530,7 +530,6 @@ uc_list(char_u *name, size_t name_len)
 	    if (p_verbose > 0)
 		last_set_msg(cmd->uc_script_ctx);
 #endif
-	    out_flush();
 	    ui_breakcheck();
 	    if (got_int)
 		break;
