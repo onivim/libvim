@@ -47,6 +47,7 @@ EXTERN char_u	*LineWraps INIT(= NULL);	/* line wraps to next line */
 /* libvim API callbacks */
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
+EXTERN MessageCallback messageCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine

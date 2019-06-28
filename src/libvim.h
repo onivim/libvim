@@ -76,6 +76,12 @@ void vimInput(char_u *input);
 void vimExecute(char_u *cmd);
 
 /***
+ * Messages
+ ***/
+
+void vimSetMessageCallback(MessageCallback messageCallback);
+
+/***
  * Options
  **/
 

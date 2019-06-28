@@ -128,7 +128,6 @@ msg_attr_keep(
     int		attr,
     int		keep)	    /* TRUE: set keep_msg if it doesn't scroll */
 {
-    printf("[msg_attr_keep]: %s\n");
     static int	entered = 0;
     int		retval;
     char_u	*buf = NULL;
@@ -1178,6 +1177,8 @@ msg_outtrans(char_u *str)
     int
 msg_outtrans_attr(char_u *str, int attr)
 {
+    printf("msg_outtrans_attr: %s\n", str);
+
     return msg_outtrans_len_attr(str, (int)STRLEN(str), attr);
 }
 
@@ -1716,6 +1717,8 @@ msg_puts_attr_len(char *str, int maxlen, int attr)
      * If redirection is on, also write to the redirection file.
      */
     redir_write((char_u *)str, maxlen);
+
+    printf("msg_puts_attr: %s\n", str);
 
     /*
      * Don't print anything when using ":silent cmd".

@@ -2543,6 +2543,8 @@ typedef struct {
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 
+typedef void (*MessageCallback)(char_u *msg);
+
 #ifdef FEAT_DIFF
 /*
  * Stuff for diff mode.
