@@ -604,6 +604,8 @@ OBJ = \
 	$(OUTDIR)/screen.o \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
+	$(OUTDIR)/sds.o \
+	$(OUTDIR)/sdsalloc.o \
 	$(OUTDIR)/sign.o \
 	$(OUTDIR)/state_machine.o \
 	$(OUTDIR)/syntax.o \

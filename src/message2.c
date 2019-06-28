@@ -6,6 +6,7 @@
  */
 
 #include "vim.h"
+#include "sds.h"
 
 msg_T* msg2_create(msgPriority_T priority) {
     printf("msg2_create called\n");
