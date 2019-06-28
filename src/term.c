@@ -2239,17 +2239,6 @@ static int		out_pos = 0;	// number of chars in out_buf
 // 16, the escape sequence length can be 4 * 16 + lead + tail.
 #define MAX_ESC_SEQ_LEN	80
 
-static void out_char_nf(unsigned);
-
-/*
- * out_char_nf(c): like out_char(), but don't flush when p_wd is set
- */
-    static void
-out_char_nf(unsigned c)
-{
-    /* No-op */
-}
-
 /*
  * A conditional-flushing out_str, mainly for visualbell.
  * Handles a delay internally, because termlib may not respect the delay or do

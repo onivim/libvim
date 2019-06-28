@@ -4996,14 +4996,6 @@ win_line(
 						      + (unsigned)Columns - 1,
 					  screen_row - 1, (int)(Columns - 1));
 
-		    /* When there is a multi-byte character, just output a
-		     * space to keep it simple. */
-		    if (has_mbyte && MB_BYTE2LEN(ScreenLines[LineOffset[
-					screen_row - 1] + (Columns - 1)]) > 1)
-			out_char(' ');
-		    else
-			out_char(ScreenLines[LineOffset[screen_row - 1]
-							    + (Columns - 1)]);
 		    /* force a redraw of the first char on the next line */
 		    ScreenAttrs[LineOffset[screen_row]] = (sattr_T)-1;
 		    screen_start();	/* don't know where cursor is now */
@@ -7055,13 +7047,6 @@ screen_char(unsigned off, int row, int col)
 	buf[utfc_char2bytes(off, buf)] = NUL;
 	out_str(buf);
     }
-    else
-    {
-	out_char(ScreenLines[off]);
-	/* double-byte character in single-width cell */
-	if (enc_dbcs == DBCS_JPNU && ScreenLines[off] == 0x8e)
-	    out_char(ScreenLines2[off]);
-    }
 
     screen_cur_col++;
 }
@@ -7090,7 +7075,6 @@ screen_char_2(unsigned off, int row, int col)
     /* Output the first byte normally (positions the cursor), then write the
      * second byte directly. */
     screen_char(off, row, col);
-    out_char(ScreenLines[off + 1]);
     ++screen_cur_col;
 }
 
@@ -8048,18 +8032,13 @@ windgoto(int row, int col)
 		{
 		    if (noinvcurs)
 			screen_stop_highlight();
-		    out_char('\r');
 		    screen_cur_col = 0;
 		}
 		else if (plan == PLAN_NL)
 		{
 		    if (noinvcurs)
 			screen_stop_highlight();
-		    while (screen_cur_row < row)
-		    {
-			out_char('\n');
-			++screen_cur_row;
-		    }
+            screen_cur_row = row;
 		    screen_cur_col = 0;
 		}
 
@@ -8073,8 +8052,6 @@ windgoto(int row, int col)
 		     */
 		    if (T_ND[0] != NUL && T_ND[1] == NUL)
 		    {
-			while (i-- > 0)
-			    out_char(*T_ND);
 		    }
 		    else
 		    {
@@ -8085,10 +8062,8 @@ windgoto(int row, int col)
 			{
 			    if (ScreenAttrs[off] != screen_attr)
 				screen_stop_highlight();
-			    out_char(ScreenLines[off]);
 			    if (enc_dbcs == DBCS_JPNU
 						  && ScreenLines[off] == 0x8e)
-				out_char(ScreenLines2[off]);
 			    ++off;
 			}
 		    }
@@ -8817,8 +8792,6 @@ screen_del_lines(
     else if (type == USE_NL)
     {
 	windgoto(cursor_end - 1, cursor_col);
-	for (i = line_count; --i >= 0; )
-	    out_char('\n');		/* cursor will remain on same line */
     }
     else
     {

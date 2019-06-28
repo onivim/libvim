@@ -2571,8 +2571,6 @@ exit_scroll(void)
 	    else
 		mch_errmsg("\r\n");
 	}
-	else
-	    out_char('\n');
     }
     else
     {
