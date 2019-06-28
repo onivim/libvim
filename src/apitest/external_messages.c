@@ -20,6 +20,24 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
+msg_T* msg2_create(msgPriority_T priority) {
+    printf("msg2_create called\n");
+}
+
+void msg2_send(msg_T *msg) {
+    printf("sending message!\n");
+};
+
+void msg2_free(msg_T *msg) {
+    printf("freeing message!\n");
+};
+
+MU_TEST(test_msg2_api) {
+  msg_T* msg = msg2_create(MSG_INFO);  
+  msg2_send(msg);
+  msg2_free(msg);
+};
+
 MU_TEST(test_echo) {
   vimExecute("echomsg 'hi'");
 
@@ -47,6 +65,7 @@ MU_TEST(test_changes) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+  MU_RUN_TEST(test_msg2_api);
   MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_autocmd);
