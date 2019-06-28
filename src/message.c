@@ -677,6 +677,12 @@ emsg_core(char_u *s)
 #endif
     }
 
+    msg_T *message = msg2_create(MSG_ERROR);
+    msg2_source(message);
+    msg2_put(s, message);
+    msg2_send(message);
+    msg2_free(message);
+
     emsg_on_display = TRUE;	/* remember there is an error message */
     ++msg_scroll;		/* don't overwrite a previous message */
     attr = HL_ATTR(HLF_E);	/* set highlight mode for error messages */
