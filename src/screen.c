@@ -6814,11 +6814,6 @@ screen_start_highlight(int attr)
 	    if ((attr & HL_BOLD) && *T_MD != NUL)	/* bold */
 		out_str(T_MD);
 	    else if (aep != NULL && cterm_normal_fg_bold && (
-#ifdef FEAT_TERMGUICOLORS
-			p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR
-			  ? aep->ae_u.cterm.fg_rgb != INVALCOLOR
-			  :
-#endif
 			    t_colors > 1 && aep->ae_u.cterm.fg_color))
 		/* If the Normal FG color has BOLD attribute and the new HL
 		 * has a FG color defined, clear BOLD. */
@@ -6844,30 +6839,11 @@ screen_start_highlight(int attr)
 	     */
 	    if (aep != NULL)
 	    {
-#ifdef FEAT_TERMGUICOLORS
-		/* When 'termguicolors' is set but fg or bg is unset,
-		 * fall back to the cterm colors.   This helps for SpellBad,
-		 * where the GUI uses a red undercurl. */
-		if (p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR)
-		{
-		    if (aep->ae_u.cterm.fg_rgb != INVALCOLOR)
-			term_fg_rgb_color(aep->ae_u.cterm.fg_rgb);
-		}
-		else
-#endif
 		if (t_colors > 1)
 		{
 		    if (aep->ae_u.cterm.fg_color)
 			term_fg_color(aep->ae_u.cterm.fg_color - 1);
 		}
-#ifdef FEAT_TERMGUICOLORS
-		if (p_tgc && aep->ae_u.cterm.bg_rgb != CTERMCOLOR)
-		{
-		    if (aep->ae_u.cterm.bg_rgb != INVALCOLOR)
-			term_bg_rgb_color(aep->ae_u.cterm.bg_rgb);
-		}
-		else
-#endif
 		if (t_colors > 1)
 		{
 		    if (aep->ae_u.cterm.bg_color)
@@ -6918,17 +6894,7 @@ screen_stop_highlight(void)
 		     */
 		    aep = syn_cterm_attr2entry(screen_attr);
 		    if (aep != NULL && ((
-#ifdef FEAT_TERMGUICOLORS
-			    p_tgc && aep->ae_u.cterm.fg_rgb != CTERMCOLOR
-				? aep->ae_u.cterm.fg_rgb != INVALCOLOR
-				:
-#endif
 				aep->ae_u.cterm.fg_color) || (
-#ifdef FEAT_TERMGUICOLORS
-			    p_tgc && aep->ae_u.cterm.bg_rgb != CTERMCOLOR
-				? aep->ae_u.cterm.bg_rgb != INVALCOLOR
-				:
-#endif
 				aep->ae_u.cterm.bg_color)))
 			do_ME = TRUE;
 		}
@@ -6992,16 +6958,6 @@ screen_stop_highlight(void)
 	    if (do_ME || (screen_attr & (HL_BOLD | HL_INVERSE)))
 		out_str(T_ME);
 
-#ifdef FEAT_TERMGUICOLORS
-	    if (p_tgc)
-	    {
-		if (cterm_normal_fg_gui_color != INVALCOLOR)
-		    term_fg_rgb_color(cterm_normal_fg_gui_color);
-		if (cterm_normal_bg_gui_color != INVALCOLOR)
-		    term_bg_rgb_color(cterm_normal_bg_gui_color);
-	    }
-	    else
-#endif
 	    {
 		if (t_colors > 1)
 		{
@@ -7029,13 +6985,7 @@ reset_cterm_colors(void)
     if (IS_CTERM)
     {
 	/* set Normal cterm colors */
-#ifdef FEAT_TERMGUICOLORS
-	if (p_tgc ? (cterm_normal_fg_gui_color != INVALCOLOR
-		 || cterm_normal_bg_gui_color != INVALCOLOR)
-		: (cterm_normal_fg_color > 0 || cterm_normal_bg_color > 0))
-#else
 	if (cterm_normal_fg_color > 0 || cterm_normal_bg_color > 0)
-#endif
 	{
 	    out_str(T_OP);
 	    screen_attr = -1;
@@ -7919,12 +7869,7 @@ can_clear(char_u *p)
 #ifdef FEAT_GUI
 		|| gui.in_use
 #endif
-#ifdef FEAT_TERMGUICOLORS
-		|| (p_tgc && cterm_normal_bg_gui_color == INVALCOLOR)
-		|| (!p_tgc && cterm_normal_bg_color == 0)
-#else
 		|| cterm_normal_bg_color == 0
-#endif
 		|| *T_UT != NUL));
 }
 
@@ -9206,9 +9151,6 @@ draw_tabline(void)
     int		use_sep_chars = (t_colors < 8
 #ifdef FEAT_GUI
 					    && !gui.in_use
-#endif
-#ifdef FEAT_TERMGUICOLORS
-					    && !p_tgc
 #endif
 					    );
 
