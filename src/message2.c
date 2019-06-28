@@ -10,6 +10,7 @@
 msg_T* msg2_create(msgPriority_T priority) {
     printf("msg2_create called\n");
     msg_T* ret = (msg_T *)alloc(sizeof(msg_T));
+    ret->contents = sdsempty();
     ret->priority = priority;
     return ret;
 }
@@ -17,6 +18,10 @@ msg_T* msg2_create(msgPriority_T priority) {
 void msg2_send(msg_T *msg) {
     printf("sending message: %s\n", msg->contents);
 };
+
+char_u* msg2_get_contents(msg_T *msg) {
+    return (char_u*)msg->contents;
+}
 
 void msg2_free(msg_T *msg) {
     printf("freeing message!\n");
