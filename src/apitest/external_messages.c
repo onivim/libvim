@@ -82,9 +82,25 @@ MU_TEST(test_error) {
   mu_check(lastPriority == MSG_ERROR);
 }
 
-MU_TEST(test_autocmd) {
-  vimExecute("jumps");
+MU_TEST(test_readonly) {
+  vimExecute("set readonly");
 
+  vimInput("i");
+  vimInput("a");
+
+  printf("LAST MESSAGE: %s\n", lastMessage);
+  mu_check(strcmp(lastMessage, "W10: Warning: Changing a readonly file") == 0);
+  mu_check(lastPriority == MSG_WARNING);
+}
+
+MU_TEST(test_autocmd) {
+  vimExecute("autocmd");
+
+  /* TODO: get green
+  printf("LAST MESSAGE: %s\n", lastMessage);
+  mu_check(strcmp(lastMessage, "AUTO") == 0);
+  mu_check(lastPriority == MSG_INFO);
+  */
   mu_check(1 == 0);
 }
 
@@ -103,8 +119,9 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
   MU_RUN_TEST(test_error);
-  /*MU_RUN_TEST(test_autocmd);
-  MU_RUN_TEST(test_changes);*/
+  MU_RUN_TEST(test_readonly);
+  MU_RUN_TEST(test_autocmd);
+  /*MU_RUN_TEST(test_changes);*/
 }
 
 int main(int argc, char **argv) {
