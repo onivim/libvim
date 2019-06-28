@@ -6657,6 +6657,9 @@ ex_splitview(exarg_T *eap)
 		       || eap->cmdidx == CMD_tabnew;
 
 
+    if (windowSplitCallback != NULL) {
+	    windowSplitCallback(VERTICAL_SPLIT, "test-file.txt");
+    }
     
 
     /* libvim - noop */

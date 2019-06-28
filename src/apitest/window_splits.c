@@ -12,7 +12,7 @@ void onWindowSplit(windowSplit_T splitType, char_u* filename) {
 
   assert(strlen(filename) < MAX_FNAME);
 
-  strcpy(filename, lastFilename);
+  strcpy(lastFilename, filename);
   lastSplitType = splitType;
 };
 
@@ -31,6 +31,13 @@ MU_TEST(test_vsplit) {
   vimExecute("vsp test-file.txt");
 
   mu_check(strcmp(lastFilename, "test-file.txt") == 0);
+  mu_check(lastSplitType == VERTICAL_SPLIT);
+}
+
+MU_TEST(test_hsplit) {
+  vimExecute("sp test-h-file.txt");
+
+  mu_check(strcmp(lastFilename, "test-h-file.txt") == 0);
   mu_check(lastSplitType == HORIZONTAL_SPLIT);
 }
 
@@ -38,6 +45,7 @@ MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_vsplit);
+  MU_RUN_TEST(test_hsplit);
 }
 
 int main(int argc, char **argv) {
