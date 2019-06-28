@@ -159,21 +159,18 @@ MU_TEST(test_print_marks) {
   mu_check(lastPriority == MSG_INFO);
 }
 
-MU_TEST(test_autocmd) {
-  vimExecute("autocmd");
+MU_TEST(test_print_jumps) {
+  vimExecute("jumps");
 
-  /* TODO: get green
-  printf("LAST MESSAGE: %s\n", lastMessage);
-  mu_check(strcmp(lastMessage, "AUTO") == 0);
+  mu_check(strcmp(lastTitle, " jump line  col file/text") == 0);
   mu_check(lastPriority == MSG_INFO);
-  */
-  mu_check(1 == 0);
 }
 
-MU_TEST(test_changes) {
+MU_TEST(test_print_changes) {
   vimExecute("changes");
 
-  mu_check(1 == 0);
+  mu_check(strcmp(lastTitle, " change line  col text") == 0);
+  mu_check(lastPriority == MSG_INFO);
 }
 
 MU_TEST_SUITE(test_suite) {
@@ -191,8 +188,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_readonly_warning);
   MU_RUN_TEST(test_set_print);
   MU_RUN_TEST(test_print_marks);
-  /*MU_RUN_TEST(test_autocmd);*/
-  /*MU_RUN_TEST(test_changes);*/
+  MU_RUN_TEST(test_print_jumps);
+  MU_RUN_TEST(test_print_changes);
 }
 
 int main(int argc, char **argv) {
