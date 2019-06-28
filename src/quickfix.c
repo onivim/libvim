@@ -3551,7 +3551,6 @@ qf_list_entry(qfline_T *qfp, int qf_idx, int cursel)
 				? skipwhite(qfp->qf_text) : qfp->qf_text,
 				IObuff, IOSIZE);
     msg_prt_line(IObuff, FALSE);
-    out_flush();		// show one line at a time
 }
 
 /*
@@ -5639,7 +5638,6 @@ vgr_display_fname(char_u *fname)
     msg_didout = FALSE;	    // overwrite this message
     msg_nowait = TRUE;	    // don't wait for this message
     msg_col = 0;
-    out_flush();
 }
 
 /*

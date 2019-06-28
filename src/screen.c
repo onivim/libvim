@@ -457,14 +457,6 @@ redraw_after_callback(int call_update_screen)
 	setcursor();
     }
     cursor_on();
-#ifdef FEAT_GUI
-    if (gui.in_use && !gui_mch_is_blink_off())
-	// Don't update the cursor when it is blinking and off to avoid
-	// flicker.
-	out_flush_cursor(FALSE, FALSE);
-    else
-#endif
-	out_flush();
 
     --redrawing_for_callback;
 }
@@ -794,10 +786,6 @@ update_screen(int type_arg)
     {
 	if (did_undraw && !gui_mch_is_blink_off())
 	{
-	    mch_disable_flush();
-	    out_flush();	/* required before updating the cursor */
-	    mch_enable_flush();
-
 	    /* Put the GUI position where the cursor was, gui_update_cursor()
 	     * uses that. */
 	    gui.col = gui_cursor_col;
@@ -808,8 +796,6 @@ update_screen(int type_arg)
 	    screen_cur_col = gui.col;
 	    screen_cur_row = gui.row;
 	}
-	else
-	    out_flush();
 	gui_update_scrollbars(FALSE);
     }
 #endif
@@ -857,7 +843,6 @@ update_finish(void)
      * done. */
     if (gui.in_use)
     {
-	out_flush_cursor(FALSE, FALSE);
 	gui_update_scrollbars(FALSE);
     }
 # endif
@@ -7254,7 +7239,6 @@ screen_char(unsigned off, int row, int col)
     }
     else
     {
-	out_flush_check();
 	out_char(ScreenLines[off]);
 	/* double-byte character in single-width cell */
 	if (enc_dbcs == DBCS_JPNU && ScreenLines[off] == 0x8e)
@@ -7565,8 +7549,6 @@ check_for_delay(int check_msg_scroll)
 	    && !did_wait_return
 	    && emsg_silent == 0)
     {
-	out_flush();
-	ui_delay(1000L, TRUE);
 	emsg_on_display = FALSE;
 	if (check_msg_scroll)
 	    msg_scroll = FALSE;
@@ -8290,7 +8272,6 @@ windgoto(int row, int col)
 			{
 			    if (ScreenAttrs[off] != screen_attr)
 				screen_stop_highlight();
-			    out_flush_check();
 			    out_char(ScreenLines[off]);
 			    if (enc_dbcs == DBCS_JPNU
 						  && ScreenLines[off] == 0x8e)
@@ -8816,8 +8797,6 @@ screen_ins_lines(
 
 #ifdef FEAT_GUI
     gui_can_update_cursor();
-    if (gui.in_use)
-	out_flush();	/* always flush after a scroll */
 #endif
     return OK;
 }
@@ -9062,8 +9041,6 @@ screen_del_lines(
 
 #ifdef FEAT_GUI
     gui_can_update_cursor();
-    if (gui.in_use)
-	out_flush();	/* always flush after a scroll */
 #endif
 
     return OK;
