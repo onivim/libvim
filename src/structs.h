@@ -39,7 +39,7 @@ typedef enum
 
 typedef struct
 {
-    sds str;
+    sds contents;
     msgPriority_T priority;
 } msg_T;
 

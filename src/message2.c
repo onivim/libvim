@@ -6,20 +6,28 @@
  */
 
 #include "vim.h"
-#include "sds.h"
 
 msg_T* msg2_create(msgPriority_T priority) {
     printf("msg2_create called\n");
+    msg_T* ret = (msg_T *)alloc(sizeof(msg_T));
+    ret->priority = priority;
+    return ret;
 }
 
 void msg2_send(msg_T *msg) {
-    printf("sending message!\n");
+    printf("sending message: %s\n", msg->contents);
 };
 
 void msg2_free(msg_T *msg) {
     printf("freeing message!\n");
+
+    if (msg != NULL) {
+        sdsfree(msg->contents);
+        vim_free(msg);
+    }
 };
 
 void msg2_put(char_u *s, msg_T *msg) {
+    msg->contents = sdscat(msg->contents, s);
     printf("putting message: %s\n", s);
 };
