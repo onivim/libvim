@@ -5239,10 +5239,6 @@ win_line(
 #ifdef FEAT_SEARCH_EXTRA
 			/* highlight 'hlsearch' match at end of line */
 			|| (prevcol_hl_flag == TRUE
-# ifdef FEAT_SYN_HL
-			    && !(wp->w_p_cul && lnum == wp->w_cursor.lnum
-				    && !(wp == curwin && VIsual_active))
-# endif
 # ifdef FEAT_DIFF
 			    && diff_hlf == (hlf_T)0
 # endif
@@ -5323,9 +5319,6 @@ win_line(
 		    ++off;
 		}
 		++vcol;
-#ifdef FEAT_SYN_HL
-		eol_hl_off = 1;
-#endif
 	    }
 	}
 
@@ -5334,73 +5327,6 @@ win_line(
 	 */
 	if (c == NUL)
 	{
-#ifdef FEAT_SYN_HL
-	    /* Highlight 'cursorcolumn' & 'colorcolumn' past end of the line. */
-	    if (wp->w_p_wrap)
-		v = wp->w_skipcol;
-	    else
-		v = wp->w_leftcol;
-
-	    /* check if line ends before left margin */
-	    if (vcol < v + col - win_col_off(wp))
-		vcol = v + col - win_col_off(wp);
-#ifdef FEAT_CONCEAL
-	    // Get rid of the boguscols now, we want to draw until the right
-	    // edge for 'cursorcolumn'.
-	    col -= boguscols;
-	    boguscols = 0;
-#endif
-
-	    if (draw_color_col)
-		draw_color_col = advance_color_col(VCOL_HLC, &color_cols);
-
-	    if (((wp->w_p_cuc
-		      && (int)wp->w_virtcol >= VCOL_HLC - eol_hl_off
-		      && (int)wp->w_virtcol <
-					wp->w_width * (row - startrow + 1) + v
-		      && lnum != wp->w_cursor.lnum)
-		    || draw_color_col
-		    || win_attr != 0)
-# ifdef FEAT_RIGHTLEFT
-		    && !wp->w_p_rl
-# endif
-		    )
-	    {
-		int	rightmost_vcol = 0;
-		int	i;
-
-		if (wp->w_p_cuc)
-		    rightmost_vcol = wp->w_virtcol;
-		if (draw_color_col)
-		    /* determine rightmost colorcolumn to possibly draw */
-		    for (i = 0; color_cols[i] >= 0; ++i)
-			if (rightmost_vcol < color_cols[i])
-			    rightmost_vcol = color_cols[i];
-
-		while (col < wp->w_width)
-		{
-		    ScreenLines[off] = ' ';
-		    if (enc_utf8)
-			ScreenLinesUC[off] = 0;
-		    ++col;
-		    if (draw_color_col)
-			draw_color_col = advance_color_col(VCOL_HLC,
-								 &color_cols);
-
-		    if (wp->w_p_cuc && VCOL_HLC == (long)wp->w_virtcol)
-			ScreenAttrs[off++] = HL_ATTR(HLF_CUC);
-		    else if (draw_color_col && VCOL_HLC == *color_cols)
-			ScreenAttrs[off++] = HL_ATTR(HLF_MC);
-		    else
-			ScreenAttrs[off++] = win_attr;
-
-		    if (VCOL_HLC >= rightmost_vcol && win_attr == 0)
-			break;
-
-		    ++vcol;
-		}
-	    }
-#endif
 
 	    screen_line(screen_row, wp->w_wincol, col,
 					  (int)wp->w_width, screen_line_flags);
@@ -5453,32 +5379,6 @@ win_line(
 		mb_utf8 = FALSE;
 	}
 
-#ifdef FEAT_SYN_HL
-	/* advance to the next 'colorcolumn' */
-	if (draw_color_col)
-	    draw_color_col = advance_color_col(VCOL_HLC, &color_cols);
-
-	/* Highlight the cursor column if 'cursorcolumn' is set.  But don't
-	 * highlight the cursor position itself.
-	 * Also highlight the 'colorcolumn' if it is different than
-	 * 'cursorcolumn' */
-	vcol_save_attr = -1;
-	if (draw_state == WL_LINE && !lnum_in_visual_area
-		&& search_attr == 0 && area_attr == 0)
-	{
-	    if (wp->w_p_cuc && VCOL_HLC == (long)wp->w_virtcol
-						 && lnum != wp->w_cursor.lnum)
-	    {
-		vcol_save_attr = char_attr;
-		char_attr = hl_combine_attr(char_attr, HL_ATTR(HLF_CUC));
-	    }
-	    else if (draw_color_col && VCOL_HLC == *color_cols)
-	    {
-		vcol_save_attr = char_attr;
-		char_attr = hl_combine_attr(char_attr, HL_ATTR(HLF_MC));
-	    }
-	}
-#endif
 
 	/*
 	 * Store character to be displayed.
@@ -5671,10 +5571,6 @@ win_line(
 		)
 	    ++vcol;
 
-#ifdef FEAT_SYN_HL
-	if (vcol_save_attr >= 0)
-	    char_attr = vcol_save_attr;
-#endif
 
 	/* restore attributes after "predeces" in 'listchars' */
 	if (draw_state > WL_NR && n_attr3 > 0 && --n_attr3 == 0)
@@ -10095,11 +9991,7 @@ draw_tabline(void)
 		    if (col + len >= Columns - 3)
 			break;
 		    screen_puts_len(NameBuff, len, 0, col,
-#if defined(FEAT_SYN_HL)
-					 hl_combine_attr(attr, HL_ATTR(HLF_T))
-#else
 					 attr
-#endif
 					       );
 		    col += len;
 		}
