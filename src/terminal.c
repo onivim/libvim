@@ -2304,18 +2304,6 @@ cell2attr(VTermScreenCellAttrs cellattrs, VTermColor cellfg, VTermColor cellbg)
     }
     else
 #endif
-#ifdef FEAT_TERMGUICOLORS
-    if (p_tgc)
-    {
-	guicolor_T fg, bg;
-
-	fg = gui_get_rgb_color_cmn(cellfg.red, cellfg.green, cellfg.blue);
-	bg = gui_get_rgb_color_cmn(cellbg.red, cellbg.green, cellbg.blue);
-
-	return get_tgc_attr_idx(attr, fg, bg);
-    }
-    else
-#endif
     {
 	int bold = MAYBE;
 	int fg = color2index(&cellfg, TRUE, &bold);
@@ -3233,13 +3221,10 @@ init_default_colors(term_T *term)
     id = syn_name2id((char_u *)"Terminal");
 
     /* Use the actual color for the GUI and when 'termguicolors' is set. */
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (0
 # ifdef FEAT_GUI
 	    || gui.in_use
-# endif
-# ifdef FEAT_TERMGUICOLORS
-	    || p_tgc
 # endif
        )
     {
@@ -3256,17 +3241,6 @@ init_default_colors(term_T *term)
 		fg_rgb = gui.norm_pixel;
 	    if (bg_rgb == INVALCOLOR)
 		bg_rgb = gui.back_pixel;
-	}
-#  ifdef FEAT_TERMGUICOLORS
-	else
-#  endif
-# endif
-# ifdef FEAT_TERMGUICOLORS
-	{
-	    if (fg_rgb == INVALCOLOR)
-		fg_rgb = cterm_normal_fg_gui_color;
-	    if (bg_rgb == INVALCOLOR)
-		bg_rgb = cterm_normal_bg_gui_color;
 	}
 # endif
 	if (fg_rgb != INVALCOLOR)
@@ -3334,7 +3308,7 @@ init_default_colors(term_T *term)
     }
 }
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
 /*
  * Set the 16 ANSI colors from array of RGB values
  */
@@ -5171,7 +5145,7 @@ f_term_sendkeys(typval_T *argvars, typval_T *rettv)
     }
 }
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS) || defined(PROTO)
+#if defined(FEAT_GUI) || defined(PROTO)
 /*
  * "term_getansicolors(buf)" function
  */
@@ -5636,7 +5610,7 @@ conpty_term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	goto failed;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else
@@ -5966,7 +5940,7 @@ winpty_term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	goto failed;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else
@@ -6226,7 +6200,7 @@ term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	return FAIL;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else
