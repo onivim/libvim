@@ -390,11 +390,6 @@ EXTERN long	p_ch;		/* 'cmdheight' */
 EXTERN int	p_confirm;	/* 'confirm' */
 #endif
 EXTERN int	p_cp;		/* 'compatible' */
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_cot;		/* 'completeopt' */
-EXTERN long	p_ph;		/* 'pumheight' */
-EXTERN long	p_pw;		/* 'pumwidth' */
-#endif
 EXTERN char_u	*p_cpo;		/* 'cpoptions' */
 EXTERN char_u	*p_debug;	/* 'debug' */
 #ifdef FEAT_FIND_ID
@@ -406,9 +401,6 @@ EXTERN char_u	*p_dip;		/* 'diffopt' */
 # ifdef FEAT_EVAL
 EXTERN char_u	*p_dex;		/* 'diffexpr' */
 # endif
-#endif
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_dict;	/* 'dictionary' */
 #endif
 #ifdef FEAT_DIGRAPHS
 EXTERN int	p_dg;		/* 'digraph' */
@@ -767,9 +759,6 @@ EXTERN long	p_titlelen;	/* 'titlelen' */
 EXTERN char_u	*p_titleold;	/* 'titleold' */
 EXTERN char_u	*p_titlestring;	/* 'titlestring' */
 #endif
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_tsr;		/* 'thesaurus' */
-#endif
 EXTERN int	p_ttimeout;	/* 'ttimeout' */
 EXTERN long	p_ttm;		/* 'ttimeoutlen' */
 EXTERN int	p_tbi;		/* 'ttybuiltin' */
@@ -895,11 +884,6 @@ enum
 #endif
 #ifdef FEAT_COMMENTS
     , BV_COM
-#endif
-#ifdef FEAT_INS_EXPAND
-    , BV_CPT
-    , BV_DICT
-    , BV_TSR
 #endif
 #ifdef FEAT_FIND_ID
     , BV_DEF
