@@ -1022,7 +1022,6 @@ deathtrap SIGDEFARG(sigarg)
     {
 	/* No translation, it may call malloc(). */
 	OUT_STR("Vim: Double signal, exiting\n");
-	out_flush();
 	getout(1);
     }
 
@@ -1098,7 +1097,6 @@ sigcont_handler SIGDEFARG(sigarg)
 	after_sigcont();
 	redraw_later(CLEAR);
 	cursor_on_force();
-	out_flush();
     }
 
     SIGRETURN;
@@ -1180,10 +1178,7 @@ mch_suspend(void)
     /* BeOS does have SIGTSTP, but it doesn't work. */
 #if defined(SIGTSTP) && !defined(__BEOS__)
     in_mch_suspend = TRUE;
-
-    out_flush();	    /* needed to make cursor visible on some systems */
     settmode(TMODE_COOK);
-    out_flush();	    /* needed to disable mouse on some systems */
 
 # if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
     loose_clipboard();
@@ -1224,8 +1219,6 @@ mch_init(void)
 {
     Columns = 80;
     Rows = 24;
-
-    out_flush();
     set_signals();
 
 #ifdef MACOS_CONVERT
@@ -2628,7 +2621,6 @@ mch_exit(int r)
 	if (full_screen)
 	    cursor_on();
     }
-    out_flush();
     ml_close_all(TRUE);		/* remove all memfiles */
     may_core_dump();
 #ifdef FEAT_GUI
@@ -3025,7 +3017,6 @@ mch_set_shellsize(void)
 	 * find a ncurses, termcap or termlib library.
 	 */
 	term_set_winsize((int)Rows, (int)Columns);
-	out_flush();
 	screen_start();			/* don't know where cursor is now */
     }
 }
@@ -3359,7 +3350,6 @@ mch_call_shell_system(
     char_u	*newcmd;	/* only needed for unix */
     int		x;
 
-    out_flush();
 
     if (options & SHELL_COOKED)
 	settmode(TMODE_COOK);	    /* set to normal mode */
@@ -3465,7 +3455,6 @@ mch_call_shell_fork(
     int		pipe_error = FALSE;
     int		did_settmode = FALSE;	/* settmode(TMODE_RAW) called */
 
-    out_flush();
     if (options & SHELL_COOKED)
 	settmode(TMODE_COOK);		/* set to normal mode */
 
@@ -3510,7 +3499,6 @@ mch_call_shell_fork(
 	    if (pipe_error)
 	    {
 		msg_puts(_("\nCannot create pipes\n"));
-		out_flush();
 	    }
 	}
     }
@@ -3954,7 +3942,6 @@ mch_call_shell_fork(
 				    msg_outtrans_len(ta_buf + i, 1);
 			    }
 			    windgoto(msg_row, msg_col);
-			    out_flush();
 			}
 
 			ta_len += len;
@@ -4077,7 +4064,6 @@ mch_call_shell_fork(
 
 			windgoto(msg_row, msg_col);
 			cursor_on();
-			out_flush();
 			if (got_int)
 			    break;
 
@@ -6356,7 +6342,6 @@ xsmp_handle_interaction(SmcConn smc_conn, SmPointer client_data UNUSED)
 	cancel_shutdown = True;
     cmdmod = save_cmdmod;
     setcursor();		/* position cursor */
-    out_flush();
 
     /* Done interaction */
     SmcInteractDone(smc_conn, cancel_shutdown);
@@ -6393,7 +6378,6 @@ xsmp_handle_save_yourself(
     xsmp.shutdown = shutdown;
 
     /* First up, preserve all files */
-    out_flush();
     ml_sync_all(FALSE, FALSE);	/* preserve all swap files */
 
     if (p_verbose > 0)
