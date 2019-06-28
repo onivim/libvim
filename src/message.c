@@ -429,7 +429,7 @@ other_sourcing_name(void)
  * Returns an allocated string with room for one more character.
  * Returns NULL when no message is to be given.
  */
-    static char_u *
+    char_u *
 get_emsg_source(void)
 {
     char_u	*Buf, *p;
@@ -450,7 +450,7 @@ get_emsg_source(void)
  * Returns an allocated string with room for one more character.
  * Returns NULL when no message is to be given.
  */
-    static char_u *
+    char_u *
 get_emsg_lnum(void)
 {
     char_u	*Buf, *p;

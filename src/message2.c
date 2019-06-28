@@ -39,3 +39,27 @@ void msg2_put(char_u *s, msg_T *msg) {
     msg->contents = sdscat(msg->contents, s);
     printf("putting message: %s\n", s);
 };
+
+/*
+ * Put name and line number for the source of an error.
+ * Remember the file name and line number, so that for the next error the info
+ * is only displayed if it changed.
+ */
+    void
+msg2_source(msg_T *msg)
+{
+    char_u	*p;
+
+    p = get_emsg_source();
+    if (p != NULL)
+    {
+	msg2_put((char *)p, msg);
+	vim_free(p);
+    }
+    p = get_emsg_lnum();
+    if (p != NULL)
+    {
+	msg2_put((char *)p, msg);
+	vim_free(p);
+    }
+}

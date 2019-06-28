@@ -8,7 +8,7 @@ char_u lastMessage[MAX_TEST_MESSAGE];
 msgPriority_T lastPriority;
 
 void onMessage(char_u* msg, msgPriority_T priority) {
-  printf("Got message: %s!\n", msg);
+  printf("onMessage: %s!\n", msg);
 
   assert(strlen(msg) < MAX_TEST_MESSAGE);
 
@@ -78,7 +78,8 @@ MU_TEST(test_echom) {
 MU_TEST(test_error) {
   vimExecute("buf 999");
 
-  mu_check(1 == 0);
+  mu_check(strcmp(lastMessage, "E86: Buffer 999 does not exist") == 0);
+  mu_check(lastPriority == MSG_ERROR);
 }
 
 MU_TEST(test_autocmd) {
@@ -101,8 +102,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_msg2_send_triggers_callback);
   MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
-  /*MU_RUN_TEST(test_error);
-  MU_RUN_TEST(test_autocmd);
+  MU_RUN_TEST(test_error);
+  /*MU_RUN_TEST(test_autocmd);
   MU_RUN_TEST(test_changes);*/
 }
 
