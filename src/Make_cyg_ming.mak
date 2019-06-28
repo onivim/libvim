@@ -595,7 +595,6 @@ OBJ = \
 	$(OUTDIR)/os_mswin.o \
 	$(OUTDIR)/os_win32.o \
 	$(OUTDIR)/pathdef.o \
-	$(OUTDIR)/popupmnu.o \
 	$(OUTDIR)/popupwin.o \
 	$(OUTDIR)/quickfix.o \
 	$(OUTDIR)/regexp.o \
