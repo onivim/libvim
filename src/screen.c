@@ -4123,9 +4123,6 @@ win_line(
 							      && n_extra == 0)
 		    diff_hlf = HLF_CHD;		/* changed line */
 		line_attr = HL_ATTR(diff_hlf);
-		if (wp->w_p_cul && lnum == wp->w_cursor.lnum)
-		    line_attr = hl_combine_attr(line_attr, HL_ATTR(HLF_CUL));
-	    }
 #endif
 
 #ifdef FEAT_TEXT_PROP
