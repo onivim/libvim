@@ -264,10 +264,6 @@ open_buffer(
     /* Set last_changedtick to avoid triggering a TextChanged autocommand right
      * after it was added. */
     curbuf->b_last_changedtick = CHANGEDTICK(curbuf);
-#ifdef FEAT_INS_EXPAND
-    curbuf->b_last_changedtick_pum = CHANGEDTICK(curbuf);
-#endif
-
     /* require "!" to overwrite the file, because it wasn't read completely */
 #ifdef FEAT_EVAL
     if (aborting())
@@ -2137,9 +2133,6 @@ free_buf_options(
 #if defined(FEAT_SMARTINDENT)
     clear_string_option(&buf->b_p_cinw);
 #endif
-#ifdef FEAT_INS_EXPAND
-    clear_string_option(&buf->b_p_cpt);
-#endif
 #ifdef FEAT_QUICKFIX
     clear_string_option(&buf->b_p_gp);
     clear_string_option(&buf->b_p_mp);
@@ -2151,10 +2144,6 @@ free_buf_options(
     clear_string_option(&buf->b_p_tc);
 #ifdef FEAT_EVAL
     clear_string_option(&buf->b_p_tfu);
-#endif
-#ifdef FEAT_INS_EXPAND
-    clear_string_option(&buf->b_p_dict);
-    clear_string_option(&buf->b_p_tsr);
 #endif
 #ifdef FEAT_TEXTOBJ
     clear_string_option(&buf->b_p_qe);

@@ -1688,9 +1688,6 @@ trigger_cursorhold(void)
 	    && has_cursorhold()
 	    && reg_recording == 0
 	    && typebuf.tb_len == 0
-#ifdef FEAT_INS_EXPAND
-	    && !ins_compl_active()
-#endif
 	    )
     {
 	state = get_real_state();
@@ -1736,16 +1733,6 @@ has_textchangedI(void)
     return (first_autopat[(int)EVENT_TEXTCHANGEDI] != NULL);
 }
 
-#if defined(FEAT_INS_EXPAND) || defined(PROTO)
-/*
- * Return TRUE when there is a TextChangedP autocommand defined.
- */
-    int
-has_textchangedP(void)
-{
-    return (first_autopat[(int)EVENT_TEXTCHANGEDP] != NULL);
-}
-#endif
 
 /*
  * Return TRUE when there is an InsertCharPre autocommand defined.
@@ -2058,9 +2045,6 @@ apply_autocmds_group(
     if (!autocmd_busy)
     {
 	save_search_patterns();
-#ifdef FEAT_INS_EXPAND
-	if (!ins_compl_active())
-#endif
 	{
 	    saveRedobuff(&save_redo);
 	    did_save_redobuff = TRUE;

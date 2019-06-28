@@ -1035,9 +1035,6 @@ ins_char_bytes(char_u *buf, int charlen)
     // show the match for right parens and braces.
     if (p_sm && (State & INSERT)
 	    && msg_silent == 0
-#ifdef FEAT_INS_EXPAND
-	    && !ins_compl_active()
-#endif
        )
     {
 	if (has_mbyte)

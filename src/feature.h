@@ -981,6 +981,7 @@
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_INS_EXPAND
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM

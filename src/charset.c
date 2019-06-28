@@ -304,8 +304,7 @@ trans_characters(
     }
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_INS_EXPAND) \
-	|| defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Translate a string into allocated memory, replacing special chars with
  * printable chars.  Returns NULL when out of memory.
@@ -374,7 +373,7 @@ transstr(char_u *s)
 }
 #endif
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_INS_EXPAND) || defined(PROTO)
+#if defined(FEAT_SYN_HL) || defined(PROTO)
 /*
  * Convert the string "str[orglen]" to do ignore-case comparing.  Uses the
  * current locale.
