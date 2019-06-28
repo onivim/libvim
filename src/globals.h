@@ -1039,9 +1039,6 @@ EXTERN int	lcs_tab1 INIT(= NUL);
 EXTERN int	lcs_tab2 INIT(= NUL);
 EXTERN int	lcs_tab3 INIT(= NUL);
 EXTERN int	lcs_trail INIT(= NUL);
-#ifdef FEAT_CONCEAL
-EXTERN int	lcs_conceal INIT(= ' ');
-#endif
 
 /* Characters from 'fillchars' option */
 EXTERN int	fill_stl INIT(= ' ');
@@ -1129,11 +1126,6 @@ EXTERN char	pseps[2] INIT(= {'\\' COMMA 0});
  * when no operator is being executed, FALSE otherwise. */
 EXTERN int	virtual_op INIT(= MAYBE);
 
-
-#ifdef FEAT_CONCEAL
-/* Set when the cursor line needs to be redrawn. */
-EXTERN int		need_cursor_line_redraw INIT(= FALSE);
-#endif
 
 #ifdef USE_MCH_ERRMSG
 /* Grow array to collect error messages in until they can be displayed. */

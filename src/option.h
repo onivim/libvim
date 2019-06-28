@@ -969,10 +969,6 @@ enum
 #ifdef FEAT_ARABIC
     , WV_ARAB
 #endif
-#ifdef FEAT_CONCEAL
-    , WV_COCU
-    , WV_COLE
-#endif
 #ifdef FEAT_TERMINAL
     , WV_TWK
     , WV_TWS
