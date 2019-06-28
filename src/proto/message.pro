@@ -16,6 +16,8 @@ void internal_error(char *where);
 void emsg_invreg(int name);
 char *msg_trunc_attr(char *s, int force, int attr);
 char_u *msg_may_trunc(int force, char_u *s);
+char_u * get_emsg_source(void);
+char_u * get_emsg_lnum(void);
 int delete_first_msg(void);
 void ex_messages(exarg_T *eap);
 void msg_end_prompt(void);

@@ -39,30 +39,17 @@ change_warning(int col)
 	if (!curbuf->b_p_ro)
 	    return;
 
-	// Do what msg() does, but with a column offset if the warning should
-	// be after the mode message.
-	msg_start();
-	if (msg_row == Rows - 1)
-	    msg_col = col;
-	msg_source(HL_ATTR(HLF_W));
-	msg_puts_attr(_(w_readonly), HL_ATTR(HLF_W) | MSG_HIST);
+    msg_T *msg = msg2_create(MSG_WARNING);
+    msg2_source(msg);
+    msg2_put(_(w_readonly), msg);
+    msg2_send(msg);
+    msg2_free(msg);
+
 #ifdef FEAT_EVAL
 	set_vim_var_string(VV_WARNINGMSG, (char_u *)_(w_readonly), -1);
 #endif
-	msg_clr_eos();
-	(void)msg_end();
-	if (msg_silent == 0 && !silent_mode
-#ifdef FEAT_EVAL
-		&& time_for_testing != 1
-#endif
-		)
-	{
-	    ui_delay(1000L, TRUE); // give the user time to think about it
-	}
 	curbuf->b_did_warn = TRUE;
 	redraw_cmdline = FALSE;	// don't redraw and erase the message
-	if (msg_row < Rows - 1)
-	    showmode();
     }
 }
 

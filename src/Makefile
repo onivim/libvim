@@ -1465,6 +1465,7 @@ BASIC_SRC = \
 	memfile.c \
 	memline.c \
 	message.c \
+	message2.c \
 	misc1.c \
 	misc2.c \
 	move.c \
@@ -1570,6 +1571,7 @@ OBJ_COMMON = \
 	objects/list.o \
 	objects/mark.o \
 	objects/memline.o \
+	objects/message2.o \
 	objects/misc1.o \
 	objects/misc2.o \
 	objects/move.o \
@@ -1584,6 +1586,7 @@ OBJ_COMMON = \
 	objects/quickfix.o \
 	objects/regexp.o \
 	objects/screen.o \
+	objects/sds.o \
 	objects/search.o \
 	objects/sha256.o \
 	objects/sign.o \
@@ -1699,6 +1702,7 @@ PRO_AUTO = \
 	memfile.pro \
 	memline.pro \
 	message.pro \
+	message2.pro \
 	misc1.pro \
 	misc2.pro \
 	move.pro \
@@ -2883,6 +2887,9 @@ objects/memline.o: memline.c
 objects/message.o: message.c
 	$(CCC) -o $@ message.c
 
+objects/message2.o: message2.c
+	$(CCC) -o $@ message2.c
+
 objects/message_test.o: message_test.c
 	$(CCC) -o $@ message_test.c
 
@@ -2945,6 +2952,9 @@ objects/regexp.o: regexp.c regexp_nfa.c
 
 objects/screen.o: screen.c
 	$(CCC) -o $@ screen.c
+
+objects/sds.o: sds.c
+	$(CCC) -o $@ sds.c
 
 objects/search.o: search.c
 	$(CCC) -o $@ search.c
@@ -3257,6 +3267,10 @@ objects/memline.o: memline.c vim.h protodef.h auto/config.h feature.h os_unix.h 
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/message.o: message.c vim.h protodef.h auto/config.h feature.h os_unix.h \
+ auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
+ proto.h globals.h
+objects/message2.o: message2.c message.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h

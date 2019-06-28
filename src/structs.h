@@ -30,6 +30,20 @@ typedef struct
     colnr_T	coladd; // extra virtual column
 } pos_T;
 
+typedef enum
+{
+    MSG_INFO,
+    MSG_WARNING,
+    MSG_ERROR,
+} msgPriority_T;
+
+typedef struct
+{
+    sds contents;
+    sds title;
+    msgPriority_T priority;
+} msg_T;
+
 /*
  * State machine definitions
  */
@@ -2363,6 +2377,8 @@ typedef struct {
 } bufferUpdate_T;
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
+
+typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 
 #ifdef FEAT_DIFF
 /*

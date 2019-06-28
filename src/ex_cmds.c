@@ -1661,9 +1661,6 @@ do_shell(
 	    starttermcap();	// start termcap if not done by wait_return()
     }
 
-    /* display any error messages now */
-    display_errors();
-
     apply_autocmds(EVENT_SHELLCMDPOST, NULL, NULL, FALSE, curbuf);
 }
 

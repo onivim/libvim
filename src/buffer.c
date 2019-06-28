@@ -2902,7 +2902,9 @@ buflist_list(exarg_T *eap)
 #endif
 	    ro_char = !buf->b_p_ma ? '-' : (buf->b_p_ro ? '=' : ' ');
 
-	msg_putchar('\n');
+    msg_T *msg = msg2_create(MSG_INFO);
+
+    msg2_put("\n", msg);
 	len = vim_snprintf((char *)IObuff, IOSIZE - 20, "%3d%c%c%c%c%c \"%s\"",
 		buf->b_fnum,
 		buf->b_p_bl ? ' ' : 'u',
@@ -2924,8 +2926,9 @@ buflist_list(exarg_T *eap)
 	vim_snprintf((char *)IObuff + len, (size_t)(IOSIZE - len),
 		_("line %ld"), buf == curbuf ? curwin->w_cursor.lnum
 					       : (long)buflist_findlnum(buf));
-	msg_outtrans(IObuff);
-	ui_breakcheck();
+	msg2_put(IObuff, msg);
+	msg2_send(msg);
+	msg2_free(msg);
     }
 }
 

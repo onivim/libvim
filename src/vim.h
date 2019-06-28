@@ -1710,6 +1710,7 @@ typedef int sock_T;
 
 /* Note that gui.h is included by structs.h */
 
+#include "sds.h"
 #include "structs.h"	/* defines many structures */
 
 #include "alloc.h"
@@ -1932,19 +1933,6 @@ typedef enum {
 #include "ex_cmds.h"	    /* Ex command defines */
 
 #include "proto.h"	    /* function prototypes */
-
-/* This has to go after the include of proto.h, as proto/gui.pro declares
- * functions of these names. The declarations would break if the defines had
- * been seen at that stage.  But it must be before globals.h, where error_ga
- * is declared. */
-#if !defined(MSWIN) && !defined(FEAT_GUI_X11) \
-	&& !defined(FEAT_GUI_GTK) && !defined(FEAT_GUI_MAC) && !defined(PROTO)
-# define mch_errmsg(str)	fprintf(stderr, "%s", (str))
-# define display_errors()	fflush(stderr)
-# define mch_msg(str)		printf("%s", (str))
-#else
-# define USE_MCH_ERRMSG
-#endif
 
 # if defined(FEAT_EVAL) \
 	&& (!defined(FEAT_GUI_MSWIN) \

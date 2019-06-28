@@ -753,21 +753,23 @@ show_one_mark(
 
     if (c == -1)			    /* finish up */
     {
-	if (did_title)
-	    did_title = FALSE;
-	else
-	{
-	    if (arg == NULL)
-		msg(_("No marks set"));
-	    else
-		semsg(_("E283: No marks matching \"%s\""), arg);
-	}
+        if (did_title)
+            did_title = FALSE;
+        else
+        {
+            if (arg == NULL)
+            msg(_("No marks set"));
+            else
+            semsg(_("E283: No marks matching \"%s\""), arg);
+        }
     }
     // don't output anything if 'q' typed at --more-- prompt
     else if (!got_int
 	    && (arg == NULL || vim_strchr(arg, c) != NULL)
 	    && p->lnum != 0)
     {
+        msg_T *message = msg2_create(MSG_INFO);
+
 	if (name == NULL && current)
 	{
 	    name = mark_line(p, 15);
@@ -778,24 +780,27 @@ show_one_mark(
 	    if (!did_title)
 	    {
 		// Highlight title
-		msg_puts_title(_("\nmark line  col file/text"));
+        msg2_set_title(_("mark line  col file/text"), message);
 		did_title = TRUE;
 	    }
-	    msg_putchar('\n');
+        msg2_put("\n", message);
 	    if (!got_int)
 	    {
 		sprintf((char *)IObuff, " %c %6ld %4d ", c, p->lnum, p->col);
 		msg_outtrans(IObuff);
+        msg2_put(IObuff, message);
 		if (name != NULL)
 		{
-		    msg_outtrans_attr(name, current ? HL_ATTR(HLF_D) : 0);
+        msg2_put(name, message);
 		}
 	    }
-	    out_flush();		    // show one line at a time
 	}
+        msg2_send(message);
+        msg2_free(message);
 	if (mustfree)
 	    vim_free(name);
     }
+
 }
 
 /*
@@ -894,8 +899,10 @@ ex_jumps(exarg_T *eap UNUSED)
 
     cleanup_jumplist(curwin, TRUE);
 
+    msg_T *message = msg2_create(MSG_INFO);
+    msg2_set_title( _(" jump line  col file/text"), message);
+    
     /* Highlight title */
-    msg_puts_title(_("\n jump line  col file/text"));
     for (i = 0; i < curwin->w_jumplistlen && !got_int; ++i)
     {
 	if (curwin->w_jumplist[i].fmark.mark.lnum != 0)
@@ -909,7 +916,7 @@ ex_jumps(exarg_T *eap UNUSED)
 		continue;
 	    }
 
-	    msg_putchar('\n');
+        msg2_put("\n", message);
 	    if (got_int)
 	    {
 		vim_free(name);
@@ -921,17 +928,17 @@ ex_jumps(exarg_T *eap UNUSED)
 					  : curwin->w_jumplistidx - i,
 		curwin->w_jumplist[i].fmark.mark.lnum,
 		curwin->w_jumplist[i].fmark.mark.col);
-	    msg_outtrans(IObuff);
-	    msg_outtrans_attr(name,
-			    curwin->w_jumplist[i].fmark.fnum == curbuf->b_fnum
-							? HL_ATTR(HLF_D) : 0);
+        msg2_put(IObuff, message);
+        msg2_put(name, message);
 	    vim_free(name);
 	    ui_breakcheck();
 	}
-	out_flush();
     }
     if (curwin->w_jumplistidx == curwin->w_jumplistlen)
-	msg_puts("\n>");
+	msg2_put("\n", message);
+
+    msg2_send(message);
+    msg2_free(message);
 }
 
     void
@@ -951,14 +958,14 @@ ex_changes(exarg_T *eap UNUSED)
     int		i;
     char_u	*name;
 
-    /* Highlight title */
-    msg_puts_title(_("\nchange line  col text"));
+    msg_T *message = msg2_create(MSG_INFO);
+    msg2_set_title(_(" change line  col text"), message);
 
     for (i = 0; i < curbuf->b_changelistlen && !got_int; ++i)
     {
 	if (curbuf->b_changelist[i].lnum != 0)
 	{
-	    msg_putchar('\n');
+        msg2_put("\n", message);
 	    if (got_int)
 		break;
 	    sprintf((char *)IObuff, "%c %3d %5ld %4d ",
@@ -967,18 +974,20 @@ ex_changes(exarg_T *eap UNUSED)
 						: curwin->w_changelistidx - i,
 		    (long)curbuf->b_changelist[i].lnum,
 		    curbuf->b_changelist[i].col);
-	    msg_outtrans(IObuff);
+	    msg2_put(IObuff, message);
 	    name = mark_line(&curbuf->b_changelist[i], 17);
 	    if (name == NULL)
 		break;
-	    msg_outtrans_attr(name, HL_ATTR(HLF_D));
+	    msg2_put(name, message);
 	    vim_free(name);
 	    ui_breakcheck();
 	}
-	out_flush();
     }
     if (curwin->w_changelistidx == curbuf->b_changelistlen)
-	msg_puts("\n>");
+	msg2_put("\n", message);
+
+    msg2_send(message);
+    msg2_free(message);
 }
 #endif
 
