@@ -126,29 +126,6 @@ EXTERN int	screen_cleared INIT(= FALSE);	/* screen has been cleared */
  */
 EXTERN colnr_T	dollar_vcol INIT(= -1);
 
-#ifdef FEAT_INS_EXPAND
-/*
- * Variables for Insert mode completion.
- */
-
-/* Length in bytes of the text being completed (this is deleted to be replaced
- * by the match.) */
-EXTERN int	compl_length INIT(= 0);
-
-/* List of flags for method of completion. */
-EXTERN int	compl_cont_status INIT(= 0);
-# define CONT_ADDING	1	/* "normal" or "adding" expansion */
-# define CONT_INTRPT	(2 + 4)	/* a ^X interrupted the current expansion */
-				/* it's set only iff N_ADDS is set */
-# define CONT_N_ADDS	4	/* next ^X<> will add-new or expand-current */
-# define CONT_S_IPOS	8	/* next ^X<> will set initial_pos?
-				 * if so, word-wise-expansion will set SOL */
-# define CONT_SOL	16	/* pattern includes start of line, just for
-				 * word-wise expansion, not set for ^X^L */
-# define CONT_LOCAL	32	/* for ctrl_x_mode 0, ^X^P/^X^N do a local
-				 * expansion, (eg use complete=.) */
-#endif
-
 /*
  * Functions for putting characters in the command line,
  * while keeping ScreenLines[] updated.
@@ -864,12 +841,6 @@ EXTERN int arrow_used;			/* Normally FALSE, set to TRUE after
 					 * to call u_sync() */
 EXTERN int	ins_at_eol INIT(= FALSE); /* put cursor after eol when
 					   restarting edit after CTRL-O */
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*edit_submode INIT(= NULL); /* msg for CTRL-X submode */
-EXTERN char_u	*edit_submode_pre INIT(= NULL); /* prepended to edit_submode */
-EXTERN char_u	*edit_submode_extra INIT(= NULL);/* appended to edit_submode */
-EXTERN hlf_T	edit_submode_highl;	/* highl. method for extra info */
-#endif
 
 EXTERN int	no_abbr INIT(= TRUE);	/* TRUE when no abbreviations loaded */
 
@@ -1282,9 +1253,6 @@ EXTERN char e_openerrf[]	INIT(= N_("E40: Can't open errorfile %s"));
 EXTERN char e_opendisp[]	INIT(= N_("E233: cannot open display"));
 #endif
 EXTERN char e_outofmem[]	INIT(= N_("E41: Out of memory!"));
-#ifdef FEAT_INS_EXPAND
-EXTERN char e_patnotf[]	INIT(= N_("Pattern not found"));
-#endif
 EXTERN char e_patnotf2[]	INIT(= N_("E486: Pattern not found: %s"));
 EXTERN char e_positive[]	INIT(= N_("E487: Argument must be positive"));
 #if defined(UNIX) || defined(FEAT_SESSION)
