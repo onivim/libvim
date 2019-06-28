@@ -2,9 +2,14 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void onMessage(char_u* msg) {
-  // printf("on message?\n");
-  // printf("Got message: %s!\n", msg);
+char_u lastMessage[8192];
+msgPriority_T lastPriority;
+
+void onMessage(char_u* msg, msgPriority_T priority) {
+  printf("Got message: %s!\n", msg);
+
+  strcpy(lastMessage, msg);
+  lastPriority = priority;
 };
 
 void test_setup(void) {
@@ -40,6 +45,18 @@ MU_TEST(test_msg2_put_multiple) {
 
   msg2_free(msg);
 };
+
+MU_TEST(test_msg2_send_triggers_callback) {
+  
+  msg_T* msg = msg2_create(MSG_INFO);  
+  msg2_put("testing", msg);
+  msg2_send(msg);
+  msg2_free(msg);
+
+  mu_check(strcmp(lastMessage, "testing") == 0);
+  mu_check(lastPriority == MSG_INFO);
+};
+
 MU_TEST(test_echo) {
   vimExecute("echo 'hello'");
 
@@ -75,6 +92,7 @@ MU_TEST_SUITE(test_suite) {
 
   MU_RUN_TEST(test_msg2_put);
   MU_RUN_TEST(test_msg2_put_multiple);
+  MU_RUN_TEST(test_msg2_send_triggers_callback);
 /*  MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
   MU_RUN_TEST(test_error);
@@ -85,7 +103,7 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char **argv) {
   vimInit(argc, argv);
 
-  // vimSetMessageCallback(&onMessage);
+  vimSetMessageCallback(&onMessage);
 
   win_setwidth(5);
   win_setheight(100);
