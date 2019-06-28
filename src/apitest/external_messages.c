@@ -75,6 +75,38 @@ MU_TEST(test_echom) {
   mu_check(lastPriority == MSG_INFO);
 }
 
+MU_TEST(test_buffers) {
+  vimExecute("buffers");
+
+  printf("LAST MESSAGE: %s\n", lastMessage);
+  char_u *expected = "\n  2 %a   \"collateral/testfile.txt\"      line 1";
+
+  for(int i = 0; i < strlen(expected); i++) {
+    if (expected[i] != lastMessage[i]) {
+      printf("DIFFERS AT POSITION: %d expected: |%c| actual: |%c|\n", i, expected[i], lastMessage[i]);
+    }
+  }
+  
+  mu_check(strcmp(lastMessage, expected) == 0);
+  mu_check(lastPriority == MSG_INFO);
+}
+
+MU_TEST(test_files) {
+  vimExecute("files");
+
+  printf("LAST MESSAGE: %s\n", lastMessage);
+  char_u *expected = "\n  2 %a   \"collateral/testfile.txt\"      line 1";
+
+  for(int i = 0; i < strlen(expected); i++) {
+    if (expected[i] != lastMessage[i]) {
+      printf("DIFFERS AT POSITION: %d expected: |%c| actual: |%c|\n", i, expected[i], lastMessage[i]);
+    }
+  }
+  
+  mu_check(strcmp(lastMessage, expected) == 0);
+  mu_check(lastPriority == MSG_INFO);
+}
+
 MU_TEST(test_error) {
   vimExecute("buf 999");
 
@@ -118,6 +150,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_msg2_send_triggers_callback);
   MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
+  MU_RUN_TEST(test_buffers);
+  MU_RUN_TEST(test_files);
   MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_readonly);
   /*MU_RUN_TEST(test_autocmd);*/
