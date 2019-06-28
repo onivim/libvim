@@ -1728,10 +1728,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_S_DOWN: /* <S-Down> */
     case K_PAGEDOWN:
     case K_KPAGEDOWN:
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       ins_pagedown();
       break;
 
@@ -1740,10 +1736,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       /* FALLTHROUGH */
 
     case TAB: /* TAB or Complete patterns along path */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_FIND_ID)
-      if (ctrl_x_mode_path_patterns())
-        goto docomplete;
-#endif
       inserted_space = FALSE;
       if (ins_tab())
         goto normalchar; /* insert TAB as a normal char */
@@ -1782,15 +1774,8 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       inserted_space = FALSE;
       break;
 
-#if defined(FEAT_DIGRAPHS) || defined(FEAT_INS_EXPAND)
+#if defined(FEAT_DIGRAPHS)
     case Ctrl_K: /* digraph or keyword completion */
-#ifdef FEAT_INS_EXPAND
-      if (ctrl_x_mode_dictionary()) {
-        if (has_compl_option(TRUE))
-          goto docomplete;
-        break;
-      }
-#endif
 #ifdef FEAT_DIGRAPHS
       c = ins_digraph();
       if (c == NUL)
@@ -1799,32 +1784,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       goto normalchar;
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    case Ctrl_X: /* Enter CTRL-X mode */
-      ins_ctrl_x();
-      break;
-
-    case Ctrl_RSB: /* Tag name completion after ^X */
-      if (!ctrl_x_mode_tags())
-        goto normalchar;
-      goto docomplete;
-
-    case Ctrl_F: /* File name completion after ^X */
-      if (!ctrl_x_mode_files())
-        goto normalchar;
-      goto docomplete;
-
-    case 's': /* Spelling completion after ^X */
-    case Ctrl_S:
-      if (!ctrl_x_mode_spell())
-        goto normalchar;
-      goto docomplete;
-#endif
-
     case Ctrl_L: /* Whole line completion after ^X */
-#ifdef FEAT_INS_EXPAND
-      if (!ctrl_x_mode_whole_line())
-#endif
       {
         /* CTRL-L with 'insertmode' set: Leave Insert mode */
         if (p_im) {
@@ -1834,32 +1794,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
         }
         goto normalchar;
       }
-#ifdef FEAT_INS_EXPAND
-      /* FALLTHROUGH */
-
-    case Ctrl_P: /* Do previous/next pattern completion */
-    case Ctrl_N:
-      /* if 'complete' is empty then plain ^P is no longer special,
-       * but it is under other ^X modes */
-      if (*curbuf->b_p_cpt == NUL &&
-          (ctrl_x_mode_normal() || ctrl_x_mode_whole_line()) &&
-          !(compl_cont_status & CONT_LOCAL))
-        goto normalchar;
-
-    docomplete:
-      compl_busy = TRUE;
-#ifdef FEAT_FOLDING
-      disable_fold_update++; /* don't redraw folds here */
-#endif
-      if (ins_complete(c, TRUE) == FAIL)
-        compl_cont_status = 0;
-#ifdef FEAT_FOLDING
-      disable_fold_update--;
-#endif
-      compl_busy = FALSE;
-      break;
-#endif /* FEAT_INS_EXPAND */
-
     case Ctrl_Y: /* copy from previous line or scroll down */
     case Ctrl_E: /* copy from next line	   or scroll up */
       c = ins_ctrl_ey(c);
@@ -1986,9 +1920,6 @@ void ins_redraw(int ready) // not busy with something
 #endif
        ) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor)
-#ifdef FEAT_INS_EXPAND
-      && !pum_visible()
-#endif
   ) {
     if (has_cursormovedI()) {
       /* Make sure curswant is correct, an autocommand may call
@@ -2013,9 +1944,6 @@ void ins_redraw(int ready) // not busy with something
   /* Trigger TextChangedI if b_changedtick differs. */
   if (ready && has_textchangedI() &&
       curbuf->b_last_changedtick != CHANGEDTICK(curbuf)
-#ifdef FEAT_INS_EXPAND
-      && !pum_visible()
-#endif
   ) {
     aco_save_T aco;
     varnumber_T tick = CHANGEDTICK(curbuf);
@@ -2029,24 +1957,6 @@ void ins_redraw(int ready) // not busy with something
       u_save(curwin->w_cursor.lnum, (linenr_T)(curwin->w_cursor.lnum + 1));
   }
 
-#ifdef FEAT_INS_EXPAND
-  /* Trigger TextChangedP if b_changedtick differs. When the popupmenu closes
-   * TextChangedI will need to trigger for backwards compatibility, thus use
-   * different b_last_changedtick* variables. */
-  if (ready && has_textchangedP() &&
-      curbuf->b_last_changedtick_pum != CHANGEDTICK(curbuf) && pum_visible()) {
-    aco_save_T aco;
-    varnumber_T tick = CHANGEDTICK(curbuf);
-
-    // save and restore curwin and curbuf, in case the autocmd changes them
-    aucmd_prepbuf(&aco, curbuf);
-    apply_autocmds(EVENT_TEXTCHANGEDP, NULL, NULL, FALSE, curbuf);
-    aucmd_restbuf(&aco);
-    curbuf->b_last_changedtick_pum = CHANGEDTICK(curbuf);
-    if (tick != CHANGEDTICK(curbuf)) // see ins_apply_autocmds()
-      u_save(curwin->w_cursor.lnum, (linenr_T)(curwin->w_cursor.lnum + 1));
-  }
-#endif
 
 #if defined(FEAT_CONCEAL)
   if ((conceal_update_lines &&
@@ -4518,10 +4428,6 @@ static void ins_reg(void) {
 static void ins_ctrl_g(void) {
   int c;
 
-#ifdef FEAT_INS_EXPAND
-  /* Right after CTRL-X the cursor will be after the ruler. */
-  setcursor();
-#endif
 
   /*
    * Don't map the second key. This also prevents the mode message to be
@@ -5997,16 +5903,6 @@ int ins_copychar(linenr_T lnum) {
 static int ins_ctrl_ey(int tc) {
   int c = tc;
 
-#ifdef FEAT_INS_EXPAND
-  if (ctrl_x_mode_scroll()) {
-    if (c == Ctrl_Y)
-      scrolldown_clamp();
-    else
-      scrollup_clamp();
-    redraw_later(VALID);
-  } else
-#endif
-  {
     c = ins_copychar(curwin->w_cursor.lnum + (c == Ctrl_Y ? -1 : 1));
     if (c != NUL) {
       long tw_save;
@@ -6028,7 +5924,6 @@ static int ins_ctrl_ey(int tc) {
       c = Ctrl_V; /* pretend CTRL-V is last character */
       auto_format(FALSE, TRUE);
     }
-  }
   return c;
 }
 
