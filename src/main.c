@@ -845,7 +845,6 @@ vim_main2(void)
      * scrollbars.  This is skipped while creating them. */
     if (first_tabpage->tp_next != NULL)
     {
-	out_flush();
 	gui_init_which_components(NULL);
 	gui_update_scrollbars(TRUE);
     }
@@ -2490,7 +2489,6 @@ check_tty(mparm_T *parmp)
 	    mch_errmsg(_("Vim: Warning: Output is not to a terminal\n"));
 	if (!input_isatty)
 	    mch_errmsg(_("Vim: Warning: Input is not from a terminal\n"));
-	out_flush();
 	if (parmp->tty_fail && (!stdout_isatty || !input_isatty))
 	    exit(1);
 	if (scriptin[0] == NULL)
@@ -4097,7 +4095,6 @@ eval_client_expr_to_string(char_u *expr)
     /* A client can tell us to redraw, but not to display the cursor, so do
      * that here. */
     setcursor();
-    out_flush_cursor(FALSE, FALSE);
 
     return res;
 }
