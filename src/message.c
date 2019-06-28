@@ -2604,18 +2604,6 @@ msg_clr_cmdline(void)
     int
 msg_end(void)
 {
-    /*
-     * If the string is larger than the window,
-     * or the ruler option is set and we run into it,
-     * we have to redraw the window.
-     * Do not do this if we are abandoning the file or editing the command line.
-     */
-    if (!exiting && need_wait_return && !(State & CMDLINE))
-    {
-	wait_return(FALSE);
-	return FALSE;
-    }
-    out_flush();
     return TRUE;
 }
 
@@ -2922,9 +2910,6 @@ do_dialog(
 	emsg_on_display = FALSE;
 	cmdline_row = msg_row;
 
-	/* Flush output to avoid that further messages and redrawing is done
-	 * in the wrong order. */
-	out_flush();
 	gui_mch_update();
 
 	return c;

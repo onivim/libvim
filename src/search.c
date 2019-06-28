@@ -1479,7 +1479,6 @@ do_search(
 		msg_check();
 
 		gotocmdline(FALSE);
-		out_flush();
 		msg_nowait = TRUE;	    // don't wait for this message
 	    }
 	}
@@ -2542,7 +2541,6 @@ showmatch(
 	    showruler(FALSE);
 	    setcursor();
 	    cursor_on();		/* make sure that the cursor is shown */
-	    out_flush_cursor(TRUE, FALSE);
 
 	    /* Restore dollar_vcol(), because setcursor() may call curs_rows()
 	     * which resets it if the matching position is in a previous line
@@ -5109,7 +5107,6 @@ find_pattern_in_path(
 			    msg_puts(_("  NOT FOUND"));
 		    }
 		}
-		out_flush();	    /* output each line directly */
 	    }
 
 	    if (new_fname != NULL)
@@ -5496,7 +5493,6 @@ show_pat_in_path(
 	    msg_puts(" ");
 	}
 	msg_prt_line(line, FALSE);
-	out_flush();			/* show one line at a time */
 
 	/* Definition continues until line that doesn't end with '\' */
 	if (got_int || type != FIND_DEFINE || p < line || *p != '\\')
