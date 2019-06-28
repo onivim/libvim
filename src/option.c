@@ -6689,60 +6689,6 @@ did_set_string_option(
 	}
     }
 
-#ifdef FEAT_INS_EXPAND
-    /* check if it is a valid value for 'complete' -- Acevedo */
-    else if (gvarp == &p_cpt)
-    {
-	for (s = *varp; *s;)
-	{
-	    while (*s == ',' || *s == ' ')
-		s++;
-	    if (!*s)
-		break;
-	    if (vim_strchr((char_u *)".wbuksid]tU", *s) == NULL)
-	    {
-		errmsg = illegal_char(errbuf, *s);
-		break;
-	    }
-	    if (*++s != NUL && *s != ',' && *s != ' ')
-	    {
-		if (s[-1] == 'k' || s[-1] == 's')
-		{
-		    /* skip optional filename after 'k' and 's' */
-		    while (*s && *s != ',' && *s != ' ')
-		    {
-			if (*s == '\\' && s[1] != NUL)
-			    ++s;
-			++s;
-		    }
-		}
-		else
-		{
-		    if (errbuf != NULL)
-		    {
-			sprintf((char *)errbuf,
-				     _("E535: Illegal character after <%c>"),
-				     *--s);
-			errmsg = errbuf;
-		    }
-		    else
-			errmsg = "";
-		    break;
-		}
-	    }
-	}
-    }
-
-    /* 'completeopt' */
-    else if (varp == &p_cot)
-    {
-	if (check_opt_strings(p_cot, p_cot_values, TRUE) != OK)
-	    errmsg = e_invarg;
-	else
-	    completeopt_was_set();
-    }
-#endif /* FEAT_INS_EXPAND */
-
 #ifdef FEAT_SIGNS
     /* 'signcolumn' */
     else if (varp == &curwin->w_p_scl)
@@ -9758,14 +9704,6 @@ unset_global_local_option(char_u *name, void *from)
 	    clear_string_option(&buf->b_p_inc);
 	    break;
 #endif
-#ifdef FEAT_INS_EXPAND
-	case PV_DICT:
-	    clear_string_option(&buf->b_p_dict);
-	    break;
-	case PV_TSR:
-	    clear_string_option(&buf->b_p_tsr);
-	    break;
-#endif
 	case PV_FP:
 	    clear_string_option(&buf->b_p_fp);
 	    break;
@@ -9834,10 +9772,6 @@ get_varp_scope(struct vimoption *p, int opt_flags)
 	    case PV_DEF:  return (char_u *)&(curbuf->b_p_def);
 	    case PV_INC:  return (char_u *)&(curbuf->b_p_inc);
 #endif
-#ifdef FEAT_INS_EXPAND
-	    case PV_DICT: return (char_u *)&(curbuf->b_p_dict);
-	    case PV_TSR:  return (char_u *)&(curbuf->b_p_tsr);
-#endif
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
 	    case PV_BEXPR: return (char_u *)&(curbuf->b_p_bexpr);
 #endif
@@ -9891,12 +9825,6 @@ get_varp(struct vimoption *p)
 				    ? (char_u *)&(curbuf->b_p_def) : p->var;
 	case PV_INC:	return *curbuf->b_p_inc != NUL
 				    ? (char_u *)&(curbuf->b_p_inc) : p->var;
-#endif
-#ifdef FEAT_INS_EXPAND
-	case PV_DICT:	return *curbuf->b_p_dict != NUL
-				    ? (char_u *)&(curbuf->b_p_dict) : p->var;
-	case PV_TSR:	return *curbuf->b_p_tsr != NUL
-				    ? (char_u *)&(curbuf->b_p_tsr) : p->var;
 #endif
 	case PV_FP:	return *curbuf->b_p_fp != NUL
 				    ? (char_u *)&(curbuf->b_p_fp) : p->var;
@@ -9994,9 +9922,6 @@ get_varp(struct vimoption *p)
 #endif
 #ifdef FEAT_FOLDING
 	case PV_CMS:	return (char_u *)&(curbuf->b_p_cms);
-#endif
-#ifdef FEAT_INS_EXPAND
-	case PV_CPT:	return (char_u *)&(curbuf->b_p_cpt);
 #endif
 #ifdef FEAT_EVAL
 	case PV_TFU:	return (char_u *)&(curbuf->b_p_tfu);
@@ -10354,9 +10279,6 @@ buf_copy_options(buf_T *buf, int flags)
 	    buf->b_p_ml_nobin = p_ml_nobin;
 	    buf->b_p_inf = p_inf;
 	    buf->b_p_swf = cmdmod.noswapfile ? FALSE : p_swf;
-#ifdef FEAT_INS_EXPAND
-	    buf->b_p_cpt = vim_strsave(p_cpt);
-#endif
 #ifdef FEAT_EVAL
 	    buf->b_p_tfu = vim_strsave(p_tfu);
 #endif
@@ -10443,10 +10365,6 @@ buf_copy_options(buf_T *buf, int flags)
 # ifdef FEAT_EVAL
 	    buf->b_p_inex = vim_strsave(p_inex);
 # endif
-#endif
-#ifdef FEAT_INS_EXPAND
-	    buf->b_p_dict = empty_option;
-	    buf->b_p_tsr = empty_option;
 #endif
 #ifdef FEAT_TEXTOBJ
 	    buf->b_p_qe = vim_strsave(p_qe);
