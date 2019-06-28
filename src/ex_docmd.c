@@ -6160,9 +6160,7 @@ ex_stop(exarg_T *eap)
 	    autowrite_all();
 	windgoto((int)Rows - 1, 0);
 	out_char('\n');
-	out_flush();
 	stoptermcap();
-	out_flush();		/* needed for SUN to restore xterm buffer */
 	ui_suspend();		/* call machine specific function */
 	starttermcap();
 	scroll_start();		/* scroll screen before redrawing */
@@ -6231,7 +6229,6 @@ ex_print(exarg_T *eap)
 		    eap->cmdidx == CMD_list || (eap->flags & EXFLAG_LIST));
 	    if (++eap->line1 > eap->line2)
 		break;
-	    out_flush();	    /* show one line at a time */
 	}
 	setpcmark();
 	/* put cursor at last line */
@@ -6867,7 +6864,6 @@ ex_tabs(exarg_T *eap UNUSED)
 	msg_putchar('\n');
 	vim_snprintf((char *)IObuff, IOSIZE, _("Tab page %d"), tabcount++);
 	msg_outtrans_attr(IObuff, HL_ATTR(HLF_T));
-	out_flush();	    /* output one line at a time */
 	ui_breakcheck();
 
 	if (tp  == curtab)
@@ -6887,7 +6883,6 @@ ex_tabs(exarg_T *eap UNUSED)
 		home_replace(wp->w_buffer, wp->w_buffer->b_fname,
 							IObuff, IOSIZE, TRUE);
 	    msg_outtrans(IObuff);
-	    out_flush();	    /* output one line at a time */
 	    ui_breakcheck();
 	}
     }
@@ -7599,7 +7594,6 @@ do_sleep(long msec)
     long	wait_now;
 
     cursor_on();
-    out_flush_cursor(FALSE, FALSE);
     for (done = 0; !got_int && done < msec; done += wait_now)
     {
 	wait_now = msec - done > 1000L ? 1000L : msec - done;
@@ -8217,7 +8211,6 @@ ex_redraw(exarg_T *eap)
     /* No need to wait after an intentional redraw. */
     need_wait_return = FALSE;
 
-    out_flush();
 }
 
 /*
@@ -8226,19 +8219,7 @@ ex_redraw(exarg_T *eap)
     static void
 ex_redrawstatus(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-    if (eap->forceit)
-	status_redraw_all();
-    else
-	status_redraw_curbuf();
-    update_screen(VIsual_active ? INVERTED : 0);
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - no-op */
 }
 
 /*
@@ -8247,17 +8228,7 @@ ex_redrawstatus(exarg_T *eap UNUSED)
     static void
 ex_redrawtabline(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-
-    draw_tabline();
-
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - noop */
 }
 
     static void

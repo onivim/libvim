@@ -1754,9 +1754,6 @@ report_default_term(char_u *term)
     if (emsg_silent == 0)
     {
 	screen_start();	/* don't know where cursor is now */
-	out_flush();
-	if (!is_not_a_term())
-	    ui_delay(2000L, TRUE);
     }
 }
 
@@ -1875,7 +1872,6 @@ set_termname(char_u *term)
 		set_string_option_direct((char_u *)"term", -1, term,
 								 OPT_FREE, 0);
 	    }
-	    out_flush();
 #ifdef HAVE_TGETENT
 	    if (!termcap_cleared)
 	    {
@@ -1889,7 +1885,6 @@ set_termname(char_u *term)
 #ifdef FEAT_GUI
 	    if (term_is_gui(term))
 	    {
-		out_flush();
 		gui_init();
 		/* If starting the GUI failed, don't do any of the other
 		 * things for this terminal */
@@ -2618,7 +2613,6 @@ term_get_winpos(int *x, int *y, varnumber_T timeout)
     ++did_request_winpos;
     termrequest_sent(&winpos_status);
     OUT_STR(T_CGP);
-    out_flush();
 
     /* Try reading the result for "timeout" msec. */
     while (count++ <= timeout / 10 && !got_int)
@@ -2754,7 +2748,6 @@ term_settitle(char_u *title)
     OUT_STR(tgoto((char *)T_TS, 0, 0));	/* set title start */
     out_str_nf(title);
     out_str(T_FS);			/* set title end */
-    out_flush();
 }
 
 /*
@@ -2767,13 +2760,11 @@ term_push_title(int which)
     if ((which & SAVE_RESTORE_TITLE) && T_CST != NULL && *T_CST != NUL)
     {
 	OUT_STR(T_CST);
-	out_flush();
     }
 
     if ((which & SAVE_RESTORE_ICON) && T_SSI != NULL && *T_SSI != NUL)
     {
 	OUT_STR(T_SSI);
-	out_flush();
     }
 }
 
@@ -2786,13 +2777,11 @@ term_pop_title(int which)
     if ((which & SAVE_RESTORE_TITLE) && T_CRT != NULL && *T_CRT != NUL)
     {
 	OUT_STR(T_CRT);
-	out_flush();
     }
 
     if ((which & SAVE_RESTORE_ICON) && T_SRI != NULL && *T_SRI != NUL)
     {
 	OUT_STR(T_SRI);
-	out_flush();
     }
 }
 #endif
@@ -3177,7 +3166,6 @@ set_shellsize(int width, int height, int mustset)
 	}
 	cursor_on();	    /* redrawing may have switched it off */
     }
-    out_flush();
     --busy;
 }
 
@@ -3227,10 +3215,8 @@ settmode(int tmode)
 		    out_str(T_BE);	// enable bracketed paste mode (should
 					// be before mch_settmode().
 	    }
-	    out_flush();
 	    mch_settmode(tmode);	// machine specific function
 	    cur_tmode = tmode;
-	    out_flush();
 	}
 #ifdef FEAT_TERMRESPONSE
 	may_req_termresponse();
@@ -3246,7 +3232,6 @@ starttermcap(void)
 	out_str(T_TI);			/* start termcap mode */
 	out_str(T_KS);			/* start "keypad transmit" mode */
 	out_str(T_BE);			/* enable bracketed paste mode */
-	out_flush();
 	termcap_active = TRUE;
 	screen_start();			/* don't know where cursor is now */
 #ifdef FEAT_TERMRESPONSE
@@ -3296,12 +3281,10 @@ stoptermcap(void)
 #endif
 	out_str(T_BD);			/* disable bracketed paste mode */
 	out_str(T_KE);			/* stop "keypad transmit" mode */
-	out_flush();
 	termcap_active = FALSE;
 	cursor_on();			/* just in case it is still off */
 	out_str(T_TE);			/* stop termcap mode */
 	screen_start();			/* don't know where cursor is now */
-	out_flush();
     }
 }
 
@@ -3333,7 +3316,6 @@ may_req_termresponse(void)
 	termrequest_sent(&crv_status);
 	/* check for the characters now, otherwise they might be eaten by
 	 * get_keystroke() */
-	out_flush();
 	(void)vpeekc_nomap();
     }
 }
@@ -3366,7 +3348,6 @@ may_req_ambiguous_char_width(void)
 	out_str(buf);
 	out_str(T_U7);
 	termrequest_sent(&u7_status);
-	out_flush();
 
 	/* This overwrites a few characters on the screen, a redraw is needed
 	 * after this. Clear them out for now. */
@@ -3379,7 +3360,6 @@ may_req_ambiguous_char_width(void)
 
 	/* check for the characters now, otherwise they might be eaten by
 	 * get_keystroke() */
-	out_flush();
 	(void)vpeekc_nomap();
     }
 }
@@ -3419,7 +3399,6 @@ may_req_bg_color(void)
 	{
 	    /* check for the characters now, otherwise they might be eaten by
 	     * get_keystroke() */
-	    out_flush();
 	    (void)vpeekc_nomap();
 	}
     }
@@ -4309,8 +4288,6 @@ check_termcode(
 			    need_flush = TRUE;
 			}
 
-			if (need_flush)
-			    out_flush();
 		    }
 		    slen = i + 1;
 # ifdef FEAT_EVAL
@@ -5138,7 +5115,6 @@ show_termcodes(void)
 		else
 		    col += INC3;
 	    }
-	    out_flush();
 	    ui_breakcheck();
 	}
     }
@@ -5235,10 +5211,6 @@ req_more_codes_from_term(void)
 	out_str_nf((char_u *)buf);
 	++xt_index_out;
     }
-
-    /* Send the codes out right away. */
-    if (xt_index_out != old_idx)
-	out_flush();
 }
 
 /*

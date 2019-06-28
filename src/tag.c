@@ -736,7 +736,6 @@ do_tag(
 		    give_warning(IObuff, ic);
 		if (ic && !msg_scrolled && msg_silent == 0)
 		{
-		    out_flush();
 		    ui_delay(1000L, TRUE);
 		}
 	    }
@@ -1206,7 +1205,6 @@ do_tags(exarg_T *eap UNUSED)
 							? HL_ATTR(HLF_D) : 0);
 	    vim_free(name);
 	}
-	out_flush();		    /* show one line at a time */
     }
     if (tagstackidx == tagstacklen)	/* idx at top of stack */
 	msg_puts("\n>");
@@ -3594,11 +3592,6 @@ jumpto_tag(
 		    if (found == 2 || !save_p_ic)
 		    {
 			msg(_("E435: Couldn't find tag, just guessing!"));
-			if (!msg_scrolled && msg_silent == 0)
-			{
-			    out_flush();
-			    ui_delay(1000L, TRUE);
-			}
 		    }
 		    retval = OK;
 		}
