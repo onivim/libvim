@@ -575,13 +575,6 @@
 # endif
 #endif
 
-/*
- * +termguicolors	'termguicolors' option.
- */
-#if (defined(FEAT_BIG) && defined(FEAT_SYN_HL)) && !defined(ALWAYS_USE_GUI)
-# define FEAT_TERMGUICOLORS
-#endif
-
 /* Mac specific thing: Codewarrior interface. */
 #ifdef FEAT_GUI_MAC
 # define FEAT_CW_EDITOR
@@ -961,6 +954,7 @@
 #undef FEAT_SPELL
 #undef FEAT_STL_OPT
 #undef FEAT_SYN_HL
+#undef FEAT_TERMGUICOLORS
 #undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE
 /*
