@@ -2925,7 +2925,6 @@ buflist_list(exarg_T *eap)
 		_("line %ld"), buf == curbuf ? curwin->w_cursor.lnum
 					       : (long)buflist_findlnum(buf));
 	msg_outtrans(IObuff);
-	out_flush();	    /* output one line at a time */
 	ui_breakcheck();
     }
 }

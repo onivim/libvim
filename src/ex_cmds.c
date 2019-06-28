@@ -3019,7 +3019,6 @@ print_line(linenr_T lnum, int use_number, int list)
     {
 	msg_putchar('\n');
 	cursor_on();		/* msg_start() switches it off */
-	out_flush();
 	silent_mode = save_silent;
     }
     info_message = FALSE;
@@ -7632,7 +7631,6 @@ ex_oldfiles(exarg_T *eap UNUSED)
 		msg_outtrans(fname);
 		msg_clr_eos();
 		msg_putchar('\n');
-		out_flush();	    /* output one line at a time */
 		ui_breakcheck();
 	    }
 	}

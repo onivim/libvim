@@ -57,7 +57,6 @@ change_warning(int col)
 #endif
 		)
 	{
-	    out_flush();
 	    ui_delay(1000L, TRUE); // give the user time to think about it
 	}
 	curbuf->b_did_warn = TRUE;
@@ -117,9 +116,6 @@ changed(void)
 	    // and don't let the emsg() set msg_scroll.
 	    if (need_wait_return && emsg_silent == 0)
 	    {
-		out_flush();
-		ui_delay(2000L, TRUE);
-		wait_return(TRUE);
 		msg_scroll = save_msg_scroll;
 	    }
 	    else
