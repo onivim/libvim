@@ -120,7 +120,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_echom);
   MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_readonly);
-  MU_RUN_TEST(test_autocmd);
+  /*MU_RUN_TEST(test_autocmd);*/
   /*MU_RUN_TEST(test_changes);*/
 }
 
