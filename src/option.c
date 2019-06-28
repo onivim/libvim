@@ -205,10 +205,6 @@
 # define PV_WFW		OPT_WIN(WV_WFW)
 #define PV_WRAP		OPT_WIN(WV_WRAP)
 #define PV_CRBIND	OPT_WIN(WV_CRBIND)
-#ifdef FEAT_CONCEAL
-# define PV_COCU	OPT_WIN(WV_COCU)
-# define PV_COLE	OPT_WIN(WV_COLE)
-#endif
 #ifdef FEAT_TERMINAL
 # define PV_TWK		OPT_WIN(WV_TWK)
 # define PV_TWS		OPT_WIN(WV_TWS)
@@ -755,20 +751,11 @@ static struct vimoption options[] =
 			    {(char_u *)0L, (char_u *)0L}
 			    SCTX_INIT},
     {"concealcursor","cocu", P_STRING|P_ALLOCED|P_RWIN|P_VI_DEF,
-#ifdef FEAT_CONCEAL
-			    (char_u *)VAR_WIN, PV_COCU,
-			    {(char_u *)"", (char_u *)NULL}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)NULL, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"conceallevel","cole", P_NUM|P_RWIN|P_VI_DEF,
-#ifdef FEAT_CONCEAL
-			    (char_u *)VAR_WIN, PV_COLE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L}
 			    SCTX_INIT},
     {"completefunc", "cfu", P_STRING|P_ALLOCED|P_VI_DEF|P_SECURE,
@@ -6901,10 +6888,6 @@ did_set_string_option(
 	    p = (char_u *)CPO_ALL;
 	else if (varp == &(curbuf->b_p_fo)) /* 'formatoptions' */
 	    p = (char_u *)FO_ALL;
-#ifdef FEAT_CONCEAL
-	else if (varp == &curwin->w_p_cocu) /* 'concealcursor' */
-	    p = (char_u *)COCU_ALL;
-#endif
 	else if (varp == &p_mouse) /* 'mouse' */
 	{
 	    if (*p_mouse != NUL)
@@ -7052,11 +7035,7 @@ set_chars_option(char_u **varp)
 	{&lcs_space,	"space"},
 	{&lcs_tab2,	"tab"},
 	{&lcs_trail,	"trail"},
-#ifdef FEAT_CONCEAL
-	{&lcs_conceal,	"conceal"},
-#else
 	{NULL,		"conceal"},
-#endif
     };
     struct charstab *tab;
 
@@ -8049,21 +8028,6 @@ set_num_option(
 	if (p_uc && !old_value)
 	    ml_open_files();
     }
-#ifdef FEAT_CONCEAL
-    else if (pp == &curwin->w_p_cole)
-    {
-	if (curwin->w_p_cole < 0)
-	{
-	    errmsg = e_positive;
-	    curwin->w_p_cole = 0;
-	}
-	else if (curwin->w_p_cole > 3)
-	{
-	    errmsg = e_invarg;
-	    curwin->w_p_cole = 3;
-	}
-    }
-#endif
 #ifdef MZSCHEME_GUI_THREADS
     else if (pp == &p_mzq)
 	mzvim_reset_timer();
@@ -9666,10 +9630,6 @@ get_varp(struct vimoption *p)
 	case PV_WCR:	return (char_u *)&(curwin->w_p_wcr);
 	case PV_SCBIND: return (char_u *)&(curwin->w_p_scb);
 	case PV_CRBIND: return (char_u *)&(curwin->w_p_crb);
-#ifdef FEAT_CONCEAL
-	case PV_COCU:   return (char_u *)&(curwin->w_p_cocu);
-	case PV_COLE:   return (char_u *)&(curwin->w_p_cole);
-#endif
 #ifdef FEAT_TERMINAL
 	case PV_TWK:    return (char_u *)&(curwin->w_p_twk);
 	case PV_TWS:    return (char_u *)&(curwin->w_p_tws);
@@ -9826,10 +9786,6 @@ copy_winopt(winopt_T *from, winopt_T *to)
     to->wo_diff = from->wo_diff;
     to->wo_diff_saved = from->wo_diff_saved;
 #endif
-#ifdef FEAT_CONCEAL
-    to->wo_cocu = vim_strsave(from->wo_cocu);
-    to->wo_cole = from->wo_cole;
-#endif
 #ifdef FEAT_TERMINAL
     to->wo_twk = vim_strsave(from->wo_twk);
     to->wo_tws = vim_strsave(from->wo_tws);
@@ -9891,9 +9847,6 @@ check_winopt(winopt_T *wop UNUSED)
 #ifdef FEAT_RIGHTLEFT
     check_string_option(&wop->wo_rlc);
 #endif
-#ifdef FEAT_CONCEAL
-    check_string_option(&wop->wo_cocu);
-#endif
 #ifdef FEAT_TERMINAL
     check_string_option(&wop->wo_twk);
     check_string_option(&wop->wo_tws);
@@ -9929,9 +9882,6 @@ clear_winopt(winopt_T *wop UNUSED)
     clear_string_option(&wop->wo_wcr);
 #ifdef FEAT_RIGHTLEFT
     clear_string_option(&wop->wo_rlc);
-#endif
-#ifdef FEAT_CONCEAL
-    clear_string_option(&wop->wo_cocu);
 #endif
 #ifdef FEAT_TERMINAL
     clear_string_option(&wop->wo_twk);
