@@ -3769,7 +3769,6 @@ set_one_cmd_context(
 	    if (*arg == NUL || !ends_excmd(*arg))
 	    {
 		/* also complete "None" */
-		set_context_in_echohl_cmd(xp, arg);
 		arg = skipwhite(skiptowhite(arg));
 		if (*arg != NUL)
 		{
@@ -3936,7 +3935,6 @@ set_one_cmd_context(
 	    break;
 
 	case CMD_echohl:
-	    set_context_in_echohl_cmd(xp, arg);
 	    break;
 #endif
 	case CMD_highlight:

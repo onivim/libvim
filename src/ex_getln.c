@@ -6116,12 +6116,6 @@ ExpandGeneric(
 	    sort_strings(*file, *num_file);
     }
 
-#ifdef FEAT_CMDL_COMPL
-    /* Reset the variables used for special highlight names expansion, so that
-     * they don't show up when getting normal highlight names by ID. */
-    reset_expand_highlight();
-#endif
-
     return OK;
 }
 
