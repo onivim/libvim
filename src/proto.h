@@ -138,6 +138,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap);
 int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap, typval_T *tvs);
 
 # include "message.pro"
+# include "message2.pro"
 # include "misc1.pro"
 # include "misc2.pro"
 #ifndef HAVE_STRPBRK	    /* not generated automatically from misc2.c */

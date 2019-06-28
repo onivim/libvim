@@ -8559,11 +8559,12 @@ ex_echo(exarg_T *eap)
     char_u	*tofree;
     char_u	*p;
     int		needclr = TRUE;
-    int		atstart = TRUE;
     char_u	numbuf[NUMBUFLEN];
     int		did_emsg_before = did_emsg;
     int		called_emsg_before = called_emsg;
 
+
+    msg_T* msg = msg2_create(MSG_INFO);
 printf("echo - 1\n");
 
     if (eap->skip)
@@ -8595,26 +8596,9 @@ printf("echo - 3\n");
 	if (!eap->skip)
 	{
 printf("echo - 4\n");
-	    if (atstart)
-	    {
-printf("echo - 5\n");
-		atstart = FALSE;
-		/* Call msg_start() after eval1(), evaluating the expression
-		 * may cause a message to appear. */
-		if (eap->cmdidx == CMD_echo)
-		{
-		    /* Mark the saved text as finishing the line, so that what
-		     * follows is displayed on a new line when scrolling back
-		     * at the more prompt. */
-		    msg_sb_eol();
-		    msg_start();
-		}
-	    }
-	    else if (eap->cmdidx == CMD_echo)
-		msg_puts_attr(" ", echo_attr);
 	    p = echo_string(&rettv, &tofree, numbuf, get_copyID());
         printf("ECHO STRING? %s\n");
-	    if (p != NULL)
+	    if (p != NULL) {
 		for ( ; *p != NUL && !got_int; ++p)
 		{
 		    if (*p == '\n' || *p == '\r' || *p == TAB)
@@ -8640,6 +8624,8 @@ printf("echo - 5\n");
 			    (void)msg_outtrans_len_attr(p, 1, echo_attr);
 		    }
 		}
+        msg2_put(p, msg);
+        }
 	    vim_free(tofree);
 	}
 	clear_tv(&rettv);
@@ -8654,9 +8640,13 @@ printf("echo - 5\n");
 	/* remove text that may still be there from the command */
 	if (needclr)
 	    msg_clr_eos();
-	if (eap->cmdidx == CMD_echo)
+	if (eap->cmdidx == CMD_echo) {
 	    msg_end();
+        msg2_send(msg);
+        }
     }
+
+    msg2_free(msg);
 }
 
 /*
