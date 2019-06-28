@@ -261,10 +261,6 @@ typedef struct
 #endif
     long	wo_scr;
 #define w_p_scr w_onebuf_opt.wo_scr	/* 'scroll' */
-#ifdef FEAT_SPELL
-    int		wo_spell;
-# define w_p_spell w_onebuf_opt.wo_spell /* 'spell' */
-#endif
     int		wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb	/* 'scrollbind' */
     int		wo_diff_saved; /* options were saved for starting diff mode */
@@ -1897,11 +1893,7 @@ typedef struct
 #define SYNSPL_NOTOP	2	/* don't spell check toplevel text */
 
 /* avoid #ifdefs for when b_spell is not available */
-#ifdef FEAT_SPELL
-# define B_SPELL(buf)  ((buf)->b_spell)
-#else
 # define B_SPELL(buf)  (0)
-#endif
 
 #ifdef FEAT_QUICKFIX
 typedef struct qf_info_S qf_info_T;
@@ -1972,21 +1964,7 @@ typedef enum {
  * a window may have its own instance.
  */
 typedef struct {
-
-#ifdef FEAT_SPELL
-    /* for spell checking */
-    garray_T	b_langp;	/* list of pointers to slang_T, see spell.c */
-    char_u	b_spell_ismw[256];/* flags: is midword char */
-    char_u	*b_spell_ismw_mb; /* multi-byte midword chars */
-    char_u	*b_p_spc;	/* 'spellcapcheck' */
-    regprog_T	*b_cap_prog;	/* program for 'spellcapcheck' */
-    char_u	*b_p_spf;	/* 'spellfile' */
-    char_u	*b_p_spl;	/* 'spelllang' */
-    int		b_cjk;		/* all CJK letters as OK */
-#endif
-#if !defined(FEAT_SPELL)
     int		dummy;
-#endif
     char_u	b_syn_chartab[32];	/* syntax iskeyword option */
     char_u	*b_syn_isk;		/* iskeyword option */
 } synblock_T;
@@ -2360,11 +2338,6 @@ struct file_buffer
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
 #endif
 
-#if defined(FEAT_SPELL)
-    synblock_T	b_s;		/* Info related to syntax highlighting.  w_s
-				 * normally points to this, but some windows
-				 * may use a different synblock_T. */
-#endif
 
 #ifdef FEAT_SIGNS
     signlist_T	*b_signlist;	/* list of signs to draw */
@@ -2630,10 +2603,6 @@ struct window_S
 
     win_T	*w_prev;	    /* link to previous window */
     win_T	*w_next;	    /* link to next window */
-
-#if defined(FEAT_SPELL)
-    synblock_T	*w_s;		    /* for :ownsyntax */
-#endif
 
     int		w_closing;	    /* window is being closed, don't let
 				       autocommands close it too. */
