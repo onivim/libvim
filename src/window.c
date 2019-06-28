@@ -4191,9 +4191,6 @@ tabpage_move(int nr)
     void
 win_goto(win_T *wp)
 {
-#ifdef FEAT_CONCEAL
-    win_T	*owp = curwin;
-#endif
 
     if (NOT_IN_POPUP_WINDOW)
 	return;
@@ -4216,13 +4213,6 @@ win_goto(win_T *wp)
 #endif
     win_enter(wp, TRUE);
 
-#ifdef FEAT_CONCEAL
-    // Conceal cursor line in previous window, unconceal in current window.
-    if (win_valid(owp) && owp->w_p_cole > 0 && !msg_scrolled)
-	redrawWinline(owp, owp->w_cursor.lnum);
-    if (curwin->w_p_cole > 0 && !msg_scrolled)
-	need_cursor_line_redraw = TRUE;
-#endif
 }
 
 #if ((defined(FEAT_PYTHON) || defined(FEAT_PYTHON3))) || defined(PROTO)
@@ -6600,11 +6590,6 @@ match_add(
     m->match.regprog = regprog;
     m->match.rmm_ic = FALSE;
     m->match.rmm_maxcol = 0;
-# if defined(FEAT_CONCEAL)
-    m->conceal_char = 0;
-    if (conceal_char != NULL)
-	m->conceal_char = (*mb_ptr2char)(conceal_char);
-# endif
 
     /* Set up position matches */
     if (pos_list != NULL)

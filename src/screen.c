@@ -864,47 +864,6 @@ update_finish(void)
 }
 #endif
 
-#if defined(FEAT_CONCEAL) || defined(PROTO)
-/*
- * Return TRUE if the cursor line in window "wp" may be concealed, according
- * to the 'concealcursor' option.
- */
-    int
-conceal_cursor_line(win_T *wp)
-{
-    int		c;
-
-    if (*wp->w_p_cocu == NUL)
-	return FALSE;
-    if (get_real_state() & VISUAL)
-	c = 'v';
-    else if (State & INSERT)
-	c = 'i';
-    else if (State & NORMAL)
-	c = 'n';
-    else if (State & CMDLINE)
-	c = 'c';
-    else
-	return FALSE;
-    return vim_strchr(wp->w_p_cocu, c) != NULL;
-}
-
-/*
- * Check if the cursor line needs to be redrawn because of 'concealcursor'.
- */
-    void
-conceal_check_cursor_line(void)
-{
-    if (curwin->w_p_cole > 0 && conceal_cursor_line(curwin))
-    {
-	need_cursor_line_redraw = TRUE;
-	/* Need to recompute cursor column, e.g., when starting Visual mode
-	 * without concealing. */
-	curs_columns(TRUE);
-    }
-}
-#endif
-
 /*
  * Get 'wincolor' attribute for window "wp".  If not set and "wp" is a popup
  * window then get the "Pmenu" highlight attribute.
@@ -3120,31 +3079,7 @@ win_line(
 #endif
     int		screen_line_flags = 0;
 
-#ifdef FEAT_CONCEAL
-    int		syntax_flags	= 0;
-    int		syntax_seqnr	= 0;
-    int		prev_syntax_id	= 0;
-    int		conceal_attr	= HL_ATTR(HLF_CONCEAL);
-    int		is_concealing	= FALSE;
-    int		boguscols	= 0;	/* nonexistent columns added to force
-					   wrapping */
-    int		vcol_off	= 0;	/* offset for concealed characters */
-    int		did_wcol	= FALSE;
-    int		match_conc	= 0;	/* cchar for match functions */
-    int		old_boguscols   = 0;
-# define VCOL_HLC (vcol - vcol_off)
-# define FIX_FOR_BOGUSCOLS \
-    { \
-	n_extra += vcol_off; \
-	vcol -= vcol_off; \
-	vcol_off = 0; \
-	col -= boguscols; \
-	old_boguscols = boguscols; \
-	boguscols = 0; \
-    }
-#else
 # define VCOL_HLC (vcol)
-#endif
 
     if (startrow > endrow)		/* past the end already! */
 	return startrow;
@@ -3548,10 +3483,6 @@ win_line(
      */
     for (;;)
     {
-#ifdef FEAT_CONCEAL
-	int has_match_conc  = 0;	// match wants to conceal
-	int did_decrement_ptr = FALSE;
-#endif
 	/* Skip this quickly when working on the text. */
 	if (draw_state != WL_LINE)
 	{
@@ -3890,21 +3821,6 @@ win_line(
 			    if (shl->endcol < tmp_col)
 				shl->endcol = tmp_col;
 			    shl->attr_cur = shl->attr;
-#ifdef FEAT_CONCEAL
-			    // Match with the "Conceal" group results in hiding
-			    // the match.
-			    if (cur != NULL
-				    && shl != &search_hl
-				    && syn_name2id((char_u *)"Conceal")
-								== cur->hlg_id)
-			    {
-				has_match_conc =
-					     v == (long)shl->startcol ? 2 : 1;
-				match_conc = cur->conceal_char;
-			    }
-			    else
-				has_match_conc = match_conc = 0;
-#endif
 			}
 			else if (v == (long)shl->endcol)
 			{
@@ -4356,9 +4272,6 @@ win_line(
 		    // Put pointer back so that the character will be
 		    // displayed at the start of the next line.
 		    --ptr;
-#ifdef FEAT_CONCEAL
-		    did_decrement_ptr = TRUE;
-#endif
 		}
 		else if (*ptr != NUL)
 		    ptr += mb_l - 1;
@@ -4415,11 +4328,6 @@ win_line(
 		    c_final = NUL;
 		    if (VIM_ISWHITE(c))
 		    {
-#ifdef FEAT_CONCEAL
-			if (c == TAB)
-			    /* See "Tab alignment" below. */
-			    FIX_FOR_BOGUSCOLS;
-#endif
 			if (!wp->w_p_list)
 			    c = ' ';
 		    }
@@ -4522,16 +4430,6 @@ win_line(
 			int	i;
 			int	saved_nextra = n_extra;
 
-#ifdef FEAT_CONCEAL
-			if (vcol_off > 0)
-			    /* there are characters to conceal */
-			    tab_len += vcol_off;
-			/* boguscols before FIX_FOR_BOGUSCOLS macro from above
-			 */
-			if (wp->w_p_list && lcs_tab1 && old_boguscols > 0
-							 && n_extra > tab_len)
-			    tab_len += n_extra - tab_len;
-#endif
 
 			/* if n_extra > 0, it gives the number of chars, to
 			 * use for a tab, else we need to calculate the width
@@ -4558,32 +4456,6 @@ win_line(
 						 - (saved_nextra > 0 ? 1 : 0);
 			}
 			p_extra = p_extra_free;
-#ifdef FEAT_CONCEAL
-			/* n_extra will be increased by FIX_FOX_BOGUSCOLS
-			 * macro below, so need to adjust for that here */
-			if (vcol_off > 0)
-			    n_extra -= vcol_off;
-#endif
-		    }
-#endif
-#ifdef FEAT_CONCEAL
-		    {
-			int vc_saved = vcol_off;
-
-			/* Tab alignment should be identical regardless of
-			 * 'conceallevel' value. So tab compensates of all
-			 * previous concealed characters, and thus resets
-			 * vcol_off and boguscols accumulated so far in the
-			 * line. Note that the tab can be longer than
-			 * 'tabstop' when there are concealed characters. */
-			FIX_FOR_BOGUSCOLS;
-
-			/* Make sure, the highlighting for the tab char will be
-			 * correctly set further below (effectively reverts the
-			 * FIX_FOR_BOGSUCOLS macro */
-			if (n_extra == tab_len + vc_saved && wp->w_p_list
-								  && lcs_tab1)
-			    tab_len += vc_saved;
 		    }
 #endif
 		    mb_utf8 = FALSE;	/* don't draw as UTF-8 */
@@ -4749,9 +4621,6 @@ win_line(
 			    wp->w_p_rl ? (col >= 0) :
 # endif
 			    (col
-# ifdef FEAT_CONCEAL
-				- boguscols
-# endif
 					    < wp->w_width)))
 		{
 		    /* Highlight until the right side of the window */
@@ -4786,100 +4655,8 @@ win_line(
 #endif
 	    }
 
-#ifdef FEAT_CONCEAL
-	    if (   wp->w_p_cole > 0
-		&& (wp != curwin || lnum != wp->w_cursor.lnum ||
-						       conceal_cursor_line(wp))
-		&& ((syntax_flags & HL_CONCEAL) != 0 || has_match_conc > 0)
-		&& !(lnum_in_visual_area
-				    && vim_strchr(wp->w_p_cocu, 'v') == NULL))
-	    {
-		char_attr = conceal_attr;
-		if ((prev_syntax_id != syntax_seqnr || has_match_conc > 1)
-			&& (syn_get_sub_char() != NUL || match_conc
-							 || wp->w_p_cole == 1)
-			&& wp->w_p_cole != 3)
-		{
-		    /* First time at this concealed item: display one
-		     * character. */
-		    if (match_conc)
-			c = match_conc;
-		    else if (syn_get_sub_char() != NUL)
-			c = syn_get_sub_char();
-		    else if (lcs_conceal != NUL)
-			c = lcs_conceal;
-		    else
-			c = ' ';
-
-		    prev_syntax_id = syntax_seqnr;
-
-		    if (n_extra > 0)
-			vcol_off += n_extra;
-		    vcol += n_extra;
-		    if (wp->w_p_wrap && n_extra > 0)
-		    {
-# ifdef FEAT_RIGHTLEFT
-			if (wp->w_p_rl)
-			{
-			    col -= n_extra;
-			    boguscols -= n_extra;
-			}
-			else
-# endif
-			{
-			    boguscols += n_extra;
-			    col += n_extra;
-			}
-		    }
-		    n_extra = 0;
-		    n_attr = 0;
-		}
-		else if (n_skip == 0)
-		{
-		    is_concealing = TRUE;
-		    n_skip = 1;
-		}
-		mb_c = c;
-		if (enc_utf8 && utf_char2len(c) > 1)
-		{
-		    mb_utf8 = TRUE;
-		    u8cc[0] = 0;
-		    c = 0xc0;
-		}
-		else
-		    mb_utf8 = FALSE;	/* don't draw as UTF-8 */
-	    }
-	    else
-	    {
-		prev_syntax_id = 0;
-		is_concealing = FALSE;
-	    }
-
-	    if (n_skip > 0 && did_decrement_ptr)
-		// not showing the '>', put pointer back to avoid getting stuck
-		++ptr;
-
-#endif // FEAT_CONCEAL
 	}
 
-#ifdef FEAT_CONCEAL
-	/* In the cursor line and we may be concealing characters: correct
-	 * the cursor column when we reach its position. */
-	if (!did_wcol && draw_state == WL_LINE
-		&& wp == curwin && lnum == wp->w_cursor.lnum
-		&& conceal_cursor_line(wp)
-		&& (int)wp->w_virtcol <= vcol + n_skip)
-	{
-#  ifdef FEAT_RIGHTLEFT
-	    if (wp->w_p_rl)
-		wp->w_wcol = wp->w_width - col + boguscols - 1;
-	    else
-#  endif
-		wp->w_wcol = col - boguscols;
-	    wp->w_wrow = row;
-	    did_wcol = TRUE;
-	}
-#endif
 
 	/* Don't override visual selection highlighting. */
 	if (n_attr > 0
@@ -5252,90 +5029,6 @@ win_line(
 		++col;
 	    }
 	}
-#ifdef FEAT_CONCEAL
-	else if (wp->w_p_cole > 0 && is_concealing)
-	{
-	    --n_skip;
-	    ++vcol_off;
-	    if (n_extra > 0)
-		vcol_off += n_extra;
-	    if (wp->w_p_wrap)
-	    {
-		/*
-		 * Special voodoo required if 'wrap' is on.
-		 *
-		 * Advance the column indicator to force the line
-		 * drawing to wrap early. This will make the line
-		 * take up the same screen space when parts are concealed,
-		 * so that cursor line computations aren't messed up.
-		 *
-		 * To avoid the fictitious advance of 'col' causing
-		 * trailing junk to be written out of the screen line
-		 * we are building, 'boguscols' keeps track of the number
-		 * of bad columns we have advanced.
-		 */
-		if (n_extra > 0)
-		{
-		    vcol += n_extra;
-# ifdef FEAT_RIGHTLEFT
-		    if (wp->w_p_rl)
-		    {
-			col -= n_extra;
-			boguscols -= n_extra;
-		    }
-		    else
-# endif
-		    {
-			col += n_extra;
-			boguscols += n_extra;
-		    }
-		    n_extra = 0;
-		    n_attr = 0;
-		}
-
-
-		if (has_mbyte && (*mb_char2cells)(mb_c) > 1)
-		{
-		    /* Need to fill two screen columns. */
-# ifdef FEAT_RIGHTLEFT
-		    if (wp->w_p_rl)
-		    {
-			--boguscols;
-			--col;
-		    }
-		    else
-# endif
-		    {
-			++boguscols;
-			++col;
-		    }
-		}
-
-# ifdef FEAT_RIGHTLEFT
-		if (wp->w_p_rl)
-		{
-		    --boguscols;
-		    --col;
-		}
-		else
-# endif
-		{
-		    ++boguscols;
-		    ++col;
-		}
-	    }
-	    else
-	    {
-		if (n_extra > 0)
-		{
-		    vcol += n_extra;
-		    n_extra = 0;
-		    n_attr = 0;
-		}
-	    }
-
-	}
-#endif /* FEAT_CONCEAL */
 	else
 	    --n_skip;
 
@@ -5374,14 +5067,8 @@ win_line(
 		    || (n_extra != 0 && (c_extra != NUL || *p_extra != NUL)))
 		)
 	{
-#ifdef FEAT_CONCEAL
-	    screen_line(screen_row, wp->w_wincol, col - boguscols,
-					  (int)wp->w_width, screen_line_flags);
-	    boguscols = 0;
-#else
 	    screen_line(screen_row, wp->w_wincol, col,
 					  (int)wp->w_width, screen_line_flags);
-#endif
 	    ++row;
 	    ++screen_row;
 
