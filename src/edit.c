@@ -18,12 +18,6 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
-#ifdef FEAT_INS_EXPAND
-/* Set when doing something for completion that may call edit() recursively,
- * which is not allowed. */
-static int compl_busy = FALSE;
-#endif /* FEAT_INS_EXPAND */
-
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -1032,15 +1026,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     return FALSE;
   }
 
-#ifdef FEAT_INS_EXPAND
-  /* Don't allow recursive insert mode when busy with completion. */
-  if (ins_compl_active() || compl_busy || pum_visible()) {
-    emsg(_(e_secure));
-    return FALSE;
-  }
-  ins_compl_clear(); /* clear stuff for CTRL-X mode */
-#endif
-
   /*
    * Trigger InsertEnter autocommands.  Do not do this for "r<CR>" or "grx".
    */
@@ -1248,9 +1233,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       Insstart_orig = Insstart;
 
     if (stop_insert_mode
-#ifdef FEAT_INS_EXPAND
-        && !pum_visible()
-#endif
     ) {
       /* ":stopinsert" used or 'insertmode' reset */
       count = 0;
@@ -1403,68 +1385,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       c = hkmap(c); /* Hebrew mode mapping */
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    /*
-     * Special handling of keys while the popup menu is visible or wanted
-     * and the cursor is still in the completed word.  Only when there is
-     * a match, skip this when no matches were found.
-     */
-    if (ins_compl_active() && pum_wanted() &&
-        curwin->w_cursor.col >= ins_compl_col() &&
-        ins_compl_has_shown_match()) {
-      /* BS: Delete one character from "compl_leader". */
-      if ((c == K_BS || c == Ctrl_H) &&
-          curwin->w_cursor.col > ins_compl_col() && (c = ins_compl_bs()) == NUL)
-        continue;
-
-      /* When no match was selected or it was edited. */
-      if (!ins_compl_used_match()) {
-        /* CTRL-L: Add one character from the current match to
-         * "compl_leader".  Except when at the original match and
-         * there is nothing to add, CTRL-L works like CTRL-P then. */
-        if (c == Ctrl_L &&
-            (!ctrl_x_mode_line_or_eval() || ins_compl_long_shown_match())) {
-          ins_compl_addfrommatch();
-          continue;
-        }
-
-        /* A non-white character that fits in with the current
-         * completion: Add to "compl_leader". */
-        if (ins_compl_accept_char(c)) {
-#if defined(FEAT_EVAL)
-          /* Trigger InsertCharPre. */
-          char_u *str = do_insert_char_pre(c);
-          char_u *p;
-
-          if (str != NULL) {
-            for (p = str; *p != NUL; MB_PTR_ADV(p))
-              ins_compl_addleader(PTR2CHAR(p));
-            vim_free(str);
-          } else
-#endif
-            ins_compl_addleader(c);
-          continue;
-        }
-
-        /* Pressing CTRL-Y selects the current match.  When
-         * ins_compl_enter_selects() is set the Enter key does the
-         * same. */
-        if ((c == Ctrl_Y || (ins_compl_enter_selects() &&
-                             (c == CAR || c == K_KENTER || c == NL))) &&
-            stop_arrow() == OK) {
-          ins_compl_delete();
-          ins_compl_insert(FALSE);
-        }
-      }
-    }
-
-    /* Prepare for or stop CTRL-X mode.  This doesn't do completion, but
-     * it does fix up the text when finishing completion. */
-    ins_compl_init_get_longest();
-    if (ins_compl_prep(c))
-      continue;
-#endif
-
     /* CTRL-\ CTRL-N goes to Normal mode,
      * CTRL-\ CTRL-G goes to mode selected with 'insertmode',
      * CTRL-\ CTRL-O is like CTRL-O but without moving the cursor.  */
@@ -1497,10 +1417,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     c = do_digraph(c);
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    if ((c == Ctrl_V || c == Ctrl_Q) && ctrl_x_mode_cmdline())
-      goto docomplete;
-#endif
     if (c == Ctrl_V || c == Ctrl_Q) {
       ins_ctrl_v();
       c = Ctrl_V; /* pretend CTRL-V is last typed character */
@@ -1667,20 +1583,9 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
     case Ctrl_D: /* Make indent one shiftwidth smaller. */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_FIND_ID)
-      if (ctrl_x_mode_path_defines())
-        goto docomplete;
-#endif
       /* FALLTHROUGH */
 
     case Ctrl_T: /* Make indent one shiftwidth greater. */
-#ifdef FEAT_INS_EXPAND
-      if (c == Ctrl_T && ctrl_x_mode_thesaurus()) {
-        if (has_compl_option(FALSE))
-          goto docomplete;
-        break;
-      }
-#endif
       ins_shift(c, lastc);
       auto_format(FALSE, TRUE);
       inserted_space = FALSE;
@@ -1801,10 +1706,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       break;
 
     case K_UP: /* <Up> */
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       if (mod_mask & MOD_MASK_SHIFT)
         ins_pageup();
       else
@@ -1814,18 +1715,10 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_S_UP: /* <S-Up> */
     case K_PAGEUP:
     case K_KPAGEUP:
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       ins_pageup();
       break;
 
     case K_DOWN: /* <Down> */
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       if (mod_mask & MOD_MASK_SHIFT)
         ins_pagedown();
       else
