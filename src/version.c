@@ -269,11 +269,7 @@ static char *(features[]) =
 #else
 	"-iconv",
 #endif
-#ifdef FEAT_INS_EXPAND
-	"+insert_expand",
-#else
 	"-insert_expand",
-#endif
 #ifdef FEAT_JOB_CHANNEL
 	"+job",
 #else

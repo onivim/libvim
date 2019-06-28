@@ -2053,11 +2053,6 @@ struct file_buffer
 
     varnumber_T	b_last_changedtick; /* b:changedtick when TextChanged or
 				       TextChangedI was last triggered. */
-#ifdef FEAT_INS_EXPAND
-    varnumber_T	b_last_changedtick_pum; /* b:changedtick when TextChangedP was
-					   last triggered. */
-#endif
-
     int		b_saving;	/* Set to TRUE if we are in the middle of
 				   saving the buffer. */
 
@@ -2154,10 +2149,6 @@ struct file_buffer
     linenr_T	b_u_line_lnum;	/* line number of line in u_line */
     colnr_T	b_u_line_colnr;	/* optional column number */
 
-#ifdef FEAT_INS_EXPAND
-    int		b_scanned;	/* ^N/^P have scanned this buffer */
-#endif
-
     /* flags for use of ":lmap" and IM control */
     long	b_p_iminsert;	/* input mode for insert */
     long	b_p_imsearch;	/* input mode for search */
@@ -2208,9 +2199,6 @@ struct file_buffer
 #endif
 #ifdef FEAT_FOLDING
     char_u	*b_p_cms;	/* 'commentstring' */
-#endif
-#ifdef FEAT_INS_EXPAND
-    char_u	*b_p_cpt;	/* 'complete' */
 #endif
 #ifdef FEAT_EVAL
     char_u	*b_p_tfu;	/* 'tagfunc' */
@@ -2299,10 +2287,6 @@ struct file_buffer
     char_u	*b_p_tags;	/* 'tags' local value */
     char_u	*b_p_tc;	/* 'tagcase' local value */
     unsigned	b_tc_flags;     /* flags for 'tagcase' */
-#ifdef FEAT_INS_EXPAND
-    char_u	*b_p_dict;	/* 'dictionary' local value */
-    char_u	*b_p_tsr;	/* 'thesaurus' local value */
-#endif
     long	b_p_ul;		/* 'undolevels' local value */
 #ifdef FEAT_PERSISTENT_UNDO
     int		b_p_udf;	/* 'undofile' */

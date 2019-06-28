@@ -804,9 +804,6 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define ACTION_GOTO	2
 #define ACTION_SPLIT	3
 #define ACTION_SHOW_ALL	4
-#ifdef FEAT_INS_EXPAND
-# define ACTION_EXPAND	5
-#endif
 
 /* Values for 'options' argument in do_search() and searchit() */
 #define SEARCH_REV    0x01  /* go in reverse of previous dir. */

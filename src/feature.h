@@ -167,14 +167,6 @@
 #endif
 
 /*
- * +insert_expand	CTRL-N/CTRL-P/CTRL-X in insert mode. Takes about
- *			4Kbyte of code.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_INS_EXPAND
-#endif
-
-/*
  * +cmdline_compl	completion of mappings/abbreviations in cmdline mode.
  *			Takes a few Kbyte of code.
  */
@@ -973,6 +965,7 @@
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_INS_EXPAND
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
