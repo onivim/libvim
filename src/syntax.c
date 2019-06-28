@@ -154,10 +154,6 @@ static char *(highlight_init_both[]) = {
     CENT("DiffText term=reverse cterm=bold ctermbg=Red",
 	 "DiffText term=reverse cterm=bold ctermbg=Red gui=bold guibg=Red"),
 #endif
-#ifdef FEAT_INS_EXPAND
-    CENT("PmenuSbar ctermbg=Grey",
-	 "PmenuSbar ctermbg=Grey guibg=Grey"),
-#endif
     CENT("TabLineSel term=bold cterm=bold",
 	 "TabLineSel term=bold cterm=bold gui=bold"),
     CENT("TabLineFill term=reverse cterm=reverse",
@@ -194,14 +190,6 @@ static char *(highlight_init_light[]) = {
 	 "SpellRare term=reverse ctermbg=LightMagenta guisp=Magenta gui=undercurl"),
     CENT("SpellLocal term=underline ctermbg=Cyan",
 	 "SpellLocal term=underline ctermbg=Cyan guisp=DarkCyan gui=undercurl"),
-#endif
-#ifdef FEAT_INS_EXPAND
-    CENT("PmenuThumb ctermbg=Black",
-	 "PmenuThumb ctermbg=Black guibg=Black"),
-    CENT("Pmenu ctermbg=LightMagenta ctermfg=Black",
-	 "Pmenu ctermbg=LightMagenta ctermfg=Black guibg=LightMagenta"),
-    CENT("PmenuSel ctermbg=LightGrey ctermfg=Black",
-	 "PmenuSel ctermbg=LightGrey ctermfg=Black guibg=Grey"),
 #endif
     CENT("SpecialKey term=bold ctermfg=DarkBlue",
 	 "SpecialKey term=bold ctermfg=DarkBlue guifg=Blue"),
@@ -275,14 +263,6 @@ static char *(highlight_init_dark[]) = {
 	 "SpellRare term=reverse ctermbg=Magenta guisp=Magenta gui=undercurl"),
     CENT("SpellLocal term=underline ctermbg=Cyan",
 	 "SpellLocal term=underline ctermbg=Cyan guisp=Cyan gui=undercurl"),
-#endif
-#ifdef FEAT_INS_EXPAND
-    CENT("PmenuThumb ctermbg=White",
-	 "PmenuThumb ctermbg=White guibg=White"),
-    CENT("Pmenu ctermbg=Magenta ctermfg=Black",
-	 "Pmenu ctermbg=Magenta ctermfg=Black guibg=Magenta"),
-    CENT("PmenuSel ctermbg=Black ctermfg=DarkGrey",
-	 "PmenuSel ctermbg=Black ctermfg=DarkGrey guibg=DarkGrey"),
 #endif
     CENT("Title term=bold ctermfg=LightMagenta",
 	 "Title term=bold ctermfg=LightMagenta gui=bold guifg=Magenta"),
