@@ -17,6 +17,9 @@ msg_T* msg2_create(msgPriority_T priority) {
 
 void msg2_send(msg_T *msg) {
     printf("sending message: %s\n", msg->contents);
+    if (messageCallback != NULL) {
+	    messageCallback((char_u*)msg->contents, msg->priority);
+    }
 };
 
 char_u* msg2_get_contents(msg_T *msg) {
