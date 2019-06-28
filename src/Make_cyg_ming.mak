@@ -577,7 +577,6 @@ OBJ = \
 	$(OUTDIR)/getchar.o \
 	$(OUTDIR)/hashtab.o \
 	$(OUTDIR)/indent.o \
-	$(OUTDIR)/insexpand.o \
 	$(OUTDIR)/json.o \
 	$(OUTDIR)/libvim.o \
 	$(OUTDIR)/list.o \
