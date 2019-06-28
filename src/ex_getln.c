@@ -5992,9 +5992,6 @@ ExpandFromContext(
 	    {EXPAND_USER_FUNC, get_user_func_name, FALSE, TRUE},
 	    {EXPAND_EXPRESSION, get_expr_name, FALSE, TRUE},
 #endif
-#ifdef FEAT_PROFILE
-	    {EXPAND_SYNTIME, get_syntime_arg, TRUE, TRUE},
-#endif
 	    {EXPAND_HIGHLIGHT, get_highlight_name, TRUE, TRUE},
 	    {EXPAND_EVENTS, get_event_name, TRUE, TRUE},
 	    {EXPAND_AUGROUP, get_augroup_name, TRUE, TRUE},
