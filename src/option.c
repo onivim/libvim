@@ -78,11 +78,6 @@
 #ifdef FEAT_COMMENTS
 # define PV_COM		OPT_BUF(BV_COM)
 #endif
-#ifdef FEAT_INS_EXPAND
-# define PV_CPT		OPT_BUF(BV_CPT)
-# define PV_DICT	OPT_BOTH(OPT_BUF(BV_DICT))
-# define PV_TSR		OPT_BOTH(OPT_BUF(BV_TSR))
-#endif
 #ifdef FEAT_FIND_ID
 # define PV_DEF		OPT_BOTH(OPT_BUF(BV_DEF))
 # define PV_INC		OPT_BOTH(OPT_BUF(BV_INC))
@@ -263,9 +258,6 @@ static char_u	*p_com;
 #endif
 #ifdef FEAT_FOLDING
 static char_u	*p_cms;
-#endif
-#ifdef FEAT_INS_EXPAND
-static char_u	*p_cpt;
 #endif
 #ifdef FEAT_EVAL
 static char_u	*p_tfu;
@@ -772,13 +764,8 @@ static struct vimoption options[] =
 			    (char_u *)&p_cp, PV_NONE,
 			    {(char_u *)TRUE, (char_u *)FALSE} SCTX_INIT},
     {"complete",    "cpt",  P_STRING|P_ALLOCED|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_cpt, PV_CPT,
-			    {(char_u *)".,w,b,u,t,i", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"concealcursor","cocu", P_STRING|P_ALLOCED|P_RWIN|P_VI_DEF,
 #ifdef FEAT_CONCEAL
@@ -802,13 +789,8 @@ static struct vimoption options[] =
 			    {(char_u *)0L, (char_u *)0L}
 			    SCTX_INIT},
     {"completeopt",   "cot",  P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_cot, PV_NONE,
-			    {(char_u *)"menu,preview", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"confirm",     "cf",   P_BOOL|P_VI_DEF,
 #if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
@@ -884,11 +866,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_deco, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"dictionary",  "dict", P_STRING|P_EXPAND|P_VI_DEF|P_ONECOMMA|P_NODUP|P_NDNAME,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_dict, PV_DICT,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"diff",	    NULL,   P_BOOL|P_VI_DEF|P_RWIN|P_NOGLOB,
 #ifdef FEAT_DIFF
@@ -1952,18 +1930,10 @@ static struct vimoption options[] =
 			    (char_u *)&p_prompt, PV_NONE,
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"pumheight",   "ph",   P_NUM|P_VI_DEF,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_ph, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"pumwidth",    "pw",   P_NUM|P_VI_DEF,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_pw, PV_NONE,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)15L, (char_u *)15L} SCTX_INIT},
     {"pythonthreedll",  NULL,   P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
 #if defined(DYNAMIC_PYTHON3)
@@ -2516,11 +2486,7 @@ static struct vimoption options[] =
 			    (char_u *)&p_tw, PV_TW,
 			    {(char_u *)0L, (char_u *)0L} SCTX_INIT},
     {"thesaurus",   "tsr",  P_STRING|P_EXPAND|P_VI_DEF|P_ONECOMMA|P_NODUP|P_NDNAME,
-#ifdef FEAT_INS_EXPAND
-			    (char_u *)&p_tsr, PV_TSR,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"tildeop",	    "top",  P_BOOL|P_VI_DEF|P_VIM,
 			    (char_u *)&p_to, PV_NONE,
@@ -2947,9 +2913,6 @@ static char *(p_fdm_values[]) = {"manual", "expr", "marker", "indent", "syntax",
 # endif
 				NULL};
 static char *(p_fcl_values[]) = {"all", NULL};
-#endif
-#ifdef FEAT_INS_EXPAND
-static char *(p_cot_values[]) = {"menu", "menuone", "longest", "preview", "noinsert", "noselect", NULL};
 #endif
 #ifdef FEAT_SIGNS
 static char *(p_scl_values[]) = {"yes", "no", "auto", NULL};
@@ -5339,9 +5302,6 @@ check_buf_options(buf_T *buf)
 #if defined(FEAT_SMARTINDENT)
     check_string_option(&buf->b_p_cinw);
 #endif
-#ifdef FEAT_INS_EXPAND
-    check_string_option(&buf->b_p_cpt);
-#endif
 #ifdef FEAT_EVAL
     check_string_option(&buf->b_p_tfu);
 #endif
@@ -5357,10 +5317,6 @@ check_buf_options(buf_T *buf)
     check_string_option(&buf->b_p_path);
     check_string_option(&buf->b_p_tags);
     check_string_option(&buf->b_p_tc);
-#ifdef FEAT_INS_EXPAND
-    check_string_option(&buf->b_p_dict);
-    check_string_option(&buf->b_p_tsr);
-#endif
     check_string_option(&buf->b_p_bkc);
     check_string_option(&buf->b_p_menc);
 #ifdef FEAT_VARTABS
