@@ -158,11 +158,6 @@ static int fillchar_vsep(int *attr);
 /* Ugly global: overrule attribute used by screen_char() */
 static int screen_char_attr = 0;
 
-#if defined(FEAT_SYN_HL) && defined(FEAT_RELTIME)
-/* Can limit syntax highlight time to 'redrawtime'. */
-# define SYN_TIME_LIMIT 1
-#endif
-
 #ifdef FEAT_RIGHTLEFT
 # define HAS_RIGHTLEFT(x) x
 #else
@@ -610,10 +605,6 @@ update_screen(int type_arg)
 #endif
 
     updating_screen = TRUE;
-#ifdef FEAT_SYN_HL
-    ++display_tick;	    /* let syntax code know we're in a next round of
-			     * display updating */
-#endif
     if (no_update)
 	++no_win_do_lines_ins;
 
@@ -713,26 +704,6 @@ update_screen(int type_arg)
     if (redraw_tabline || type >= NOT_VALID)
 	draw_tabline();
 
-#ifdef FEAT_SYN_HL
-    /*
-     * Correct stored syntax highlighting info for changes in each displayed
-     * buffer.  Each buffer must only be done once.
-     */
-    FOR_ALL_WINDOWS(wp)
-    {
-	if (wp->w_buffer->b_mod_set)
-	{
-	    win_T	*wwp;
-
-	    /* Check if we already did this buffer. */
-	    for (wwp = firstwin; wwp != wp; wwp = wwp->w_next)
-		if (wwp->w_buffer == wp->w_buffer)
-		    break;
-	    if (wwp == wp && syntax_present(wp))
-		syn_stack_apply_changes(wp->w_buffer);
-	}
-    }
-#endif
 
     /*
      * Go from top to bottom through the windows, redrawing the ones that need
@@ -1224,18 +1195,9 @@ win_update(win_T *wp)
 #ifdef FEAT_FOLDING
     long	fold_count;
 #endif
-#ifdef FEAT_SYN_HL
-    /* remember what happened to the previous line, to know if
-     * check_visual_highlight() can be used */
-#define DID_NONE 1	/* didn't update a line */
-#define DID_LINE 2	/* updated a normal line */
-#define DID_FOLD 3	/* updated a folded line */
-    int		did_update = DID_NONE;
-    linenr_T	syntax_last_parsed = 0;		/* last parsed text line */
-#endif
     linenr_T	mod_top = 0;
     linenr_T	mod_bot = 0;
-#if defined(FEAT_SYN_HL) || defined(FEAT_SEARCH_EXTRA)
+#if defined(FEAT_SEARCH_EXTRA)
     int		save_got_int;
 #endif
 #ifdef SYN_TIME_LIMIT
@@ -1317,16 +1279,6 @@ win_update(win_T *wp)
 	    if (mod_top == 0 || mod_top > buf->b_mod_top)
 	    {
 		mod_top = buf->b_mod_top;
-#ifdef FEAT_SYN_HL
-		/* Need to redraw lines above the change that may be included
-		 * in a pattern match. */
-		if (syntax_present(wp))
-		{
-		    mod_top -= buf->b_s.b_syn_sync_linebreaks;
-		    if (mod_top < 1)
-			mod_top = 1;
-		}
-#endif
 	    }
 	    if (mod_bot == 0 || mod_bot < buf->b_mod_bot)
 		mod_bot = buf->b_mod_bot;
@@ -1412,10 +1364,6 @@ win_update(win_T *wp)
 	{
 	    if (mod_bot > wp->w_topline)
 		mod_top = wp->w_topline;
-#ifdef FEAT_SYN_HL
-	    else if (syntax_present(wp))
-		top_end = 1;
-#endif
 	}
 
 	/* When line numbers are displayed need to redraw all lines below
@@ -1893,7 +1841,7 @@ win_update(win_T *wp)
 	wp->w_old_visual_col = 0;
     }
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SEARCH_EXTRA)
+#if defined(FEAT_SEARCH_EXTRA)
     /* reset got_int, otherwise regexp won't work */
     save_got_int = got_int;
     got_int = 0;
@@ -1955,17 +1903,6 @@ win_update(win_T *wp)
 		    && (lnum == mod_top
 			|| (lnum >= mod_top
 			    && (lnum < mod_bot
-#ifdef FEAT_SYN_HL
-				|| did_update == DID_FOLD
-				|| (did_update == DID_LINE
-				    && syntax_present(wp)
-				    && (
-# ifdef FEAT_FOLDING
-					(foldmethodIsSyntax(wp)
-						      && hasAnyFolding(wp)) ||
-# endif
-					syntax_check_changed(lnum)))
-#endif
 #ifdef FEAT_SEARCH_EXTRA
 				/* match in fixed position might need redraw
 				 * if lines were inserted or deleted */
@@ -2161,9 +2098,6 @@ win_update(win_T *wp)
 		--fold_count;
 		wp->w_lines[idx].wl_folded = TRUE;
 		wp->w_lines[idx].wl_lastlnum = lnum + fold_count;
-# ifdef FEAT_SYN_HL
-		did_update = DID_FOLD;
-# endif
 	    }
 	    else
 #endif
@@ -2190,12 +2124,6 @@ win_update(win_T *wp)
 #ifdef FEAT_SEARCH_EXTRA
 		prepare_search_hl(wp, lnum);
 #endif
-#ifdef FEAT_SYN_HL
-		/* Let the syntax stuff know we skipped a few lines. */
-		if (syntax_last_parsed != 0 && syntax_last_parsed + 1 < lnum
-						       && syntax_present(wp))
-		    syntax_end_parsing(syntax_last_parsed + 1);
-#endif
 
 		/*
 		 * Display one line.
@@ -2206,10 +2134,6 @@ win_update(win_T *wp)
 #ifdef FEAT_FOLDING
 		wp->w_lines[idx].wl_folded = FALSE;
 		wp->w_lines[idx].wl_lastlnum = lnum;
-#endif
-#ifdef FEAT_SYN_HL
-		did_update = DID_LINE;
-		syntax_last_parsed = lnum;
 #endif
 	    }
 
