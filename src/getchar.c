@@ -1492,17 +1492,6 @@ close_all_scripts(void)
 }
 #endif
 
-#if defined(FEAT_INS_EXPAND) || defined(PROTO)
-/*
- * Return TRUE when reading keys from a script file.
- */
-    int
-using_script(void)
-{
-    return scriptin[curscript] != NULL;
-}
-#endif
-
 /*
  * This function is called just before doing a blocking wait.  Thus after
  * waiting 'updatetime' for a character to arrive.
@@ -1835,7 +1824,7 @@ vpeekc_nomap(void)
 }
 #endif
 
-#if defined(FEAT_INS_EXPAND) || defined(FEAT_EVAL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Check if any character is available, also half an escape sequence.
  * Trick: when no typeahead found, but there is something in the typeahead

@@ -101,12 +101,6 @@ static void f_chdir(typval_T *argvars, typval_T *rettv);
 static void f_cindent(typval_T *argvars, typval_T *rettv);
 static void f_clearmatches(typval_T *argvars, typval_T *rettv);
 static void f_col(typval_T *argvars, typval_T *rettv);
-#if defined(FEAT_INS_EXPAND)
-static void f_complete(typval_T *argvars, typval_T *rettv);
-static void f_complete_add(typval_T *argvars, typval_T *rettv);
-static void f_complete_check(typval_T *argvars, typval_T *rettv);
-static void f_complete_info(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_confirm(typval_T *argvars, typval_T *rettv);
 static void f_copy(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
@@ -582,12 +576,6 @@ static struct fst
     {"cindent",		1, 1, f_cindent},
     {"clearmatches",	0, 1, f_clearmatches},
     {"col",		1, 1, f_col},
-#if defined(FEAT_INS_EXPAND)
-    {"complete",	2, 2, f_complete},
-    {"complete_add",	1, 1, f_complete_add},
-    {"complete_check",	0, 0, f_complete_check},
-    {"complete_info",	0, 1, f_complete_info},
-#endif
     {"confirm",		1, 4, f_confirm},
     {"copy",		1, 1, f_copy},
 #ifdef FEAT_FLOAT
@@ -2556,85 +2544,6 @@ f_col(typval_T *argvars, typval_T *rettv)
     rettv->vval.v_number = col;
 }
 
-#if defined(FEAT_INS_EXPAND)
-/*
- * "complete()" function
- */
-    static void
-f_complete(typval_T *argvars, typval_T *rettv UNUSED)
-{
-    int	    startcol;
-
-    if ((State & INSERT) == 0)
-    {
-	emsg(_("E785: complete() can only be used in Insert mode"));
-	return;
-    }
-
-    /* Check for undo allowed here, because if something was already inserted
-     * the line was already saved for undo and this check isn't done. */
-    if (!undo_allowed())
-	return;
-
-    if (argvars[1].v_type != VAR_LIST || argvars[1].vval.v_list == NULL)
-    {
-	emsg(_(e_invarg));
-	return;
-    }
-
-    startcol = (int)tv_get_number_chk(&argvars[0], NULL);
-    if (startcol <= 0)
-	return;
-
-    set_completion(startcol - 1, argvars[1].vval.v_list);
-}
-
-/*
- * "complete_add()" function
- */
-    static void
-f_complete_add(typval_T *argvars, typval_T *rettv)
-{
-    rettv->vval.v_number = ins_compl_add_tv(&argvars[0], 0);
-}
-
-/*
- * "complete_check()" function
- */
-    static void
-f_complete_check(typval_T *argvars UNUSED, typval_T *rettv)
-{
-    int		saved = RedrawingDisabled;
-
-    RedrawingDisabled = 0;
-    ins_compl_check_keys(0, TRUE);
-    rettv->vval.v_number = ins_compl_interrupted();
-    RedrawingDisabled = saved;
-}
-
-/*
- * "complete_info()" function
- */
-    static void
-f_complete_info(typval_T *argvars, typval_T *rettv)
-{
-    list_T	*what_list = NULL;
-
-    if (rettv_dict_alloc(rettv) != OK)
-	return;
-
-    if (argvars[0].v_type != VAR_UNKNOWN)
-    {
-	if (argvars[0].v_type != VAR_LIST)
-	{
-	    emsg(_(e_listreq));
-	    return;
-	}
-	what_list = argvars[0].vval.v_list;
-    }
-    get_complete_info(what_list, rettv->vval.v_dict);
-}
-#endif
 
 /*
  * "confirm(message, buttons[, default [, type]])" function
@@ -6385,9 +6294,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #if defined(HAVE_ICONV_H) && defined(USE_ICONV)
 	"iconv",
 #endif
-#ifdef FEAT_INS_EXPAND
-	"insert_expand",
-#endif
 #ifdef FEAT_JOB_CHANNEL
 	"job",
 #endif
@@ -8603,12 +8509,6 @@ f_mode(typval_T *argvars, typval_T *rettv)
 		buf[0] = 'R';
 	    else
 		buf[0] = 'i';
-#ifdef FEAT_INS_EXPAND
-	    if (ins_compl_active())
-		buf[1] = 'c';
-	    else if (ctrl_x_mode_not_defined_yet())
-		buf[1] = 'x';
-#endif
 	}
     }
     else if ((State & CMDLINE) || exmode_active)
@@ -8902,10 +8802,6 @@ f_prompt_setprompt(typval_T *argvars, typval_T *rettv UNUSED)
     static void
 f_pumvisible(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_INS_EXPAND
-    if (pum_visible())
-	rettv->vval.v_number = 1;
-#endif
 }
 
 #ifdef FEAT_PYTHON3
