@@ -265,14 +265,6 @@ typedef struct
     int		wo_spell;
 # define w_p_spell w_onebuf_opt.wo_spell /* 'spell' */
 #endif
-#ifdef FEAT_SYN_HL
-    int		wo_cuc;
-# define w_p_cuc w_onebuf_opt.wo_cuc	/* 'cursorcolumn' */
-    int		wo_cul;
-# define w_p_cul w_onebuf_opt.wo_cul	/* 'cursorline' */
-    char_u	*wo_cc;
-# define w_p_cc w_onebuf_opt.wo_cc	/* 'colorcolumn' */
-#endif
     int		wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb	/* 'scrollbind' */
     int		wo_diff_saved; /* options were saved for starting diff mode */
@@ -971,68 +963,6 @@ struct cleanup_stuff
     except_T *exception;	/* exception value */
 };
 
-#ifdef FEAT_SYN_HL
-/* struct passed to in_id_list() */
-struct sp_syn
-{
-    int		inc_tag;	/* ":syn include" unique tag */
-    short	id;		/* highlight group ID of item */
-    short	*cont_in_list;	/* cont.in group IDs, if non-zero */
-};
-
-/*
- * Each keyword has one keyentry, which is linked in a hash list.
- */
-typedef struct keyentry keyentry_T;
-
-struct keyentry
-{
-    keyentry_T	*ke_next;	/* next entry with identical "keyword[]" */
-    struct sp_syn k_syn;	/* struct passed to in_id_list() */
-    short	*next_list;	/* ID list for next match (if non-zero) */
-    int		flags;
-    int		k_char;		/* conceal substitute character */
-    char_u	keyword[1];	/* actually longer */
-};
-
-/*
- * Struct used to store one state of the state stack.
- */
-typedef struct buf_state
-{
-    int		    bs_idx;	 /* index of pattern */
-    int		    bs_flags;	 /* flags for pattern */
-#ifdef FEAT_CONCEAL
-    int		    bs_seqnr;	 /* stores si_seqnr */
-    int		    bs_cchar;	 /* stores si_cchar */
-#endif
-    reg_extmatch_T *bs_extmatch; /* external matches from start pattern */
-} bufstate_T;
-
-/*
- * syn_state contains the syntax state stack for the start of one line.
- * Used by b_sst_array[].
- */
-typedef struct syn_state synstate_T;
-
-struct syn_state
-{
-    synstate_T	*sst_next;	/* next entry in used or free list */
-    linenr_T	sst_lnum;	/* line number for this state */
-    union
-    {
-	bufstate_T	sst_stack[SST_FIX_STATES]; /* short state stack */
-	garray_T	sst_ga;	/* growarray for long state stack */
-    } sst_union;
-    int		sst_next_flags;	/* flags for sst_next_list */
-    int		sst_stacksize;	/* number of states on the stack */
-    short	*sst_next_list;	/* "nextgroup" list in this state
-				 * (this is a copy, don't free it! */
-    disptick_T	sst_tick;	/* tick when last displayed */
-    linenr_T	sst_change_lnum;/* when non-zero, change in this line
-				 * may have made the state invalid */
-};
-#endif /* FEAT_SYN_HL */
 
 /*
  * Structure shared between syntax.c, screen.c and gui_x11.c.
@@ -2042,62 +1972,6 @@ typedef enum {
  * a window may have its own instance.
  */
 typedef struct {
-#ifdef FEAT_SYN_HL
-    hashtab_T	b_keywtab;		/* syntax keywords hash table */
-    hashtab_T	b_keywtab_ic;		/* idem, ignore case */
-    int		b_syn_error;		/* TRUE when error occurred in HL */
-# ifdef FEAT_RELTIME
-    int		b_syn_slow;		/* TRUE when 'redrawtime' reached */
-# endif
-    int		b_syn_ic;		/* ignore case for :syn cmds */
-    int		b_syn_spell;		/* SYNSPL_ values */
-    garray_T	b_syn_patterns;		/* table for syntax patterns */
-    garray_T	b_syn_clusters;		/* table for syntax clusters */
-    int		b_spell_cluster_id;	/* @Spell cluster ID or 0 */
-    int		b_nospell_cluster_id;	/* @NoSpell cluster ID or 0 */
-    int		b_syn_containedin;	/* TRUE when there is an item with a
-					   "containedin" argument */
-    int		b_syn_sync_flags;	/* flags about how to sync */
-    short	b_syn_sync_id;		/* group to sync on */
-    long	b_syn_sync_minlines;	/* minimal sync lines offset */
-    long	b_syn_sync_maxlines;	/* maximal sync lines offset */
-    long	b_syn_sync_linebreaks;	/* offset for multi-line pattern */
-    char_u	*b_syn_linecont_pat;	/* line continuation pattern */
-    regprog_T	*b_syn_linecont_prog;	/* line continuation program */
-#ifdef FEAT_PROFILE
-    syn_time_T  b_syn_linecont_time;
-#endif
-    int		b_syn_linecont_ic;	/* ignore-case flag for above */
-    int		b_syn_topgrp;		/* for ":syntax include" */
-# ifdef FEAT_CONCEAL
-    int		b_syn_conceal;		/* auto-conceal for :syn cmds */
-# endif
-# ifdef FEAT_FOLDING
-    int		b_syn_folditems;	/* number of patterns with the HL_FOLD
-					   flag set */
-# endif
-    /*
-     * b_sst_array[] contains the state stack for a number of lines, for the
-     * start of that line (col == 0).  This avoids having to recompute the
-     * syntax state too often.
-     * b_sst_array[] is allocated to hold the state for all displayed lines,
-     * and states for 1 out of about 20 other lines.
-     * b_sst_array	pointer to an array of synstate_T
-     * b_sst_len	number of entries in b_sst_array[]
-     * b_sst_first	pointer to first used entry in b_sst_array[] or NULL
-     * b_sst_firstfree	pointer to first free entry in b_sst_array[] or NULL
-     * b_sst_freecount	number of free entries in b_sst_array[]
-     * b_sst_check_lnum	entries after this lnum need to be checked for
-     *			validity (MAXLNUM means no check needed)
-     */
-    synstate_T	*b_sst_array;
-    int		b_sst_len;
-    synstate_T	*b_sst_first;
-    synstate_T	*b_sst_firstfree;
-    int		b_sst_freecount;
-    linenr_T	b_sst_check_lnum;
-    short_u	b_sst_lasttick;	/* last display tick */
-#endif /* FEAT_SYN_HL */
 
 #ifdef FEAT_SPELL
     /* for spell checking */
@@ -2110,7 +1984,7 @@ typedef struct {
     char_u	*b_p_spl;	/* 'spelllang' */
     int		b_cjk;		/* all CJK letters as OK */
 #endif
-#if !defined(FEAT_SYN_HL) && !defined(FEAT_SPELL)
+#if !defined(FEAT_SPELL)
     int		dummy;
 #endif
     char_u	b_syn_chartab[32];	/* syntax iskeyword option */
@@ -2394,10 +2268,6 @@ struct file_buffer
     char_u	*b_p_sua;	/* 'suffixesadd' */
 #endif
     int		b_p_swf;	/* 'swapfile' */
-#ifdef FEAT_SYN_HL
-    long	b_p_smc;	/* 'synmaxcol' */
-    char_u	*b_p_syn;	/* 'syntax' */
-#endif
     long	b_p_ts;		/* 'tabstop' */
     int		b_p_tx;		/* 'textmode' */
     long	b_p_tw;		/* 'textwidth' */
@@ -2506,7 +2376,7 @@ struct file_buffer
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
 #endif
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+#if defined(FEAT_SPELL)
     synblock_T	b_s;		/* Info related to syntax highlighting.  w_s
 				 * normally points to this, but some windows
 				 * may use a different synblock_T. */
@@ -2777,7 +2647,7 @@ struct window_S
     win_T	*w_prev;	    /* link to previous window */
     win_T	*w_next;	    /* link to next window */
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+#if defined(FEAT_SPELL)
     synblock_T	*w_s;		    /* for :ownsyntax */
 #endif
 
@@ -2796,9 +2666,6 @@ struct window_S
 				       time through cursupdate() to the
 				       current virtual column */
 
-#ifdef FEAT_SYN_HL
-    linenr_T	w_last_cursorline;  // where last time 'cursorline' was drawn
-#endif
 
     /*
      * the next seven are used to update the visual part
@@ -2981,9 +2848,6 @@ struct window_S
 #ifdef FEAT_EVAL
     long_u	w_p_fde_flags;	    /* flags for 'foldexpr' */
     long_u	w_p_fdt_flags;	    /* flags for 'foldtext' */
-#endif
-#ifdef FEAT_SYN_HL
-    int		*w_p_cc_cols;	    /* array of columns to highlight or NULL */
 #endif
 #ifdef FEAT_LINEBREAK
     int		w_p_brimin;	    /* minimum width for breakindent */
@@ -3190,10 +3054,6 @@ typedef struct
     int		lines_per_page;
     int		has_color;
     prt_text_attr_T number;
-#ifdef FEAT_SYN_HL
-    int		modec;
-    int		do_syntax;
-#endif
     int		user_abort;
     char_u	*jobname;
 #ifdef FEAT_POSTSCRIPT

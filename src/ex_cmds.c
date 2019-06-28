@@ -4037,15 +4037,6 @@ do_ecmd(
 		    auto_buf = TRUE;
 		else
 		{
-#ifdef FEAT_SYN_HL
-		    /*
-		     * <VN> We could instead free the synblock
-		     * and re-attach to buffer, perhaps.
-		     */
-		    if (curwin->w_buffer == NULL
-			    || curwin->w_s == &(curwin->w_buffer->b_s))
-			curwin->w_s = &(buf->b_s);
-#endif
 		    curwin->w_buffer = buf;
 		    curbuf = buf;
 		    ++curbuf->b_nwindows;
@@ -6881,9 +6872,6 @@ fix_help_buffer(void)
 	--curbuf_lock;
     }
 
-#ifdef FEAT_SYN_HL
-    if (!syntax_present(curwin))
-#endif
     {
 	for (lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
 	{

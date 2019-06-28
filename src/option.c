@@ -133,10 +133,6 @@
 # define PV_SI		OPT_BUF(BV_SI)
 #endif
 #define PV_SN		OPT_BUF(BV_SN)
-#ifdef FEAT_SYN_HL
-# define PV_SMC		OPT_BUF(BV_SMC)
-# define PV_SYN		OPT_BUF(BV_SYN)
-#endif
 #ifdef FEAT_SPELL
 # define PV_SPC		OPT_BUF(BV_SPC)
 # define PV_SPF		OPT_BUF(BV_SPF)
@@ -216,11 +212,6 @@
 #define PV_SO		OPT_BOTH(OPT_WIN(WV_SO))
 #ifdef FEAT_SPELL
 # define PV_SPELL	OPT_WIN(WV_SPELL)
-#endif
-#ifdef FEAT_SYN_HL
-# define PV_CUC		OPT_WIN(WV_CUC)
-# define PV_CUL		OPT_WIN(WV_CUL)
-# define PV_CC		OPT_WIN(WV_CC)
 #endif
 #define PV_UL		OPT_BOTH(OPT_BUF(BV_UL))
 # define PV_WFH		OPT_WIN(WV_WFH)
@@ -320,10 +311,6 @@ static char_u	*p_sua;
 #endif
 static long	p_sw;
 static int	p_swf;
-#ifdef FEAT_SYN_HL
-static long	p_smc;
-static char_u	*p_syn;
-#endif
 #ifdef FEAT_SPELL
 static char_u	*p_spc;
 static char_u	*p_spf;
@@ -754,11 +741,7 @@ static struct vimoption options[] =
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)7L, (char_u *)0L} SCTX_INIT},
     {"colorcolumn", "cc",   P_STRING|P_VI_DEF|P_ONECOMMA|P_NODUP|P_RWIN,
-#ifdef FEAT_SYN_HL
-			    (char_u *)VAR_WIN, PV_CC,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"columns",	    "co",   P_NUM|P_NODEFAULT|P_NO_MKRC|P_VI_DEF|P_RCLR,
 			    (char_u *)&Columns, PV_NONE,
@@ -880,18 +863,10 @@ static struct vimoption options[] =
 			    (char_u *)VAR_WIN, PV_CRBIND,
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"cursorcolumn", "cuc", P_BOOL|P_VI_DEF|P_RWINONLY,
-#ifdef FEAT_SYN_HL
-			    (char_u *)VAR_WIN, PV_CUC,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"cursorline",   "cul", P_BOOL|P_VI_DEF|P_RWINONLY,
-#ifdef FEAT_SYN_HL
-			    (char_u *)VAR_WIN, PV_CUL,
-#else
 			    (char_u *)NULL, PV_NONE,
-#endif
 			    {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
     {"debug",	    NULL,   P_STRING|P_VI_DEF,
 			    (char_u *)&p_debug, PV_NONE,
@@ -2399,22 +2374,12 @@ static struct vimoption options[] =
 			    (char_u *)&p_swb, PV_NONE,
 			    {(char_u *)"", (char_u *)0L} SCTX_INIT},
     {"synmaxcol",   "smc",  P_NUM|P_VI_DEF|P_RBUF,
-#ifdef FEAT_SYN_HL
-			    (char_u *)&p_smc, PV_SMC,
-			    {(char_u *)3000L, (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"syntax",	    "syn",  P_STRING|P_ALLOCED|P_VI_DEF|P_NOGLOB|P_NFNAME,
-#ifdef FEAT_SYN_HL
-			    (char_u *)&p_syn, PV_SYN,
-			    {(char_u *)"", (char_u *)0L}
-#else
 			    (char_u *)NULL, PV_NONE,
 			    {(char_u *)0L, (char_u *)0L}
-#endif
 			    SCTX_INIT},
     {"tabline",	    "tal",  P_STRING|P_VI_DEF|P_RALL|P_MLE,
 			    (char_u *)NULL, PV_NONE,
@@ -5362,10 +5327,6 @@ check_buf_options(buf_T *buf)
 #ifdef FEAT_TEXTOBJ
     check_string_option(&buf->b_p_qe);
 #endif
-#ifdef FEAT_SYN_HL
-    check_string_option(&buf->b_p_syn);
-    check_string_option(&buf->b_s.b_syn_isk);
-#endif
 #ifdef FEAT_SPELL
     check_string_option(&buf->b_s.b_p_spc);
     check_string_option(&buf->b_s.b_p_spf);
@@ -5930,11 +5891,6 @@ did_set_string_option(
 	}
     }
 
-#ifdef FEAT_SYN_HL
-    /* 'colorcolumn' */
-    else if (varp == &curwin->w_p_cc)
-	errmsg = check_colorcolumn(curwin);
-#endif
 
 #ifdef FEAT_MULTI_LANG
     /* 'helplang' */
@@ -7041,21 +6997,6 @@ did_set_string_option(
 	}
     }
 
-#ifdef FEAT_SYN_HL
-    else if (gvarp == &p_syn)
-    {
-	if (!valid_filetype(*varp))
-	    errmsg = e_invarg;
-	else
-	{
-	    value_changed = STRCMP(oldval, *varp) != 0;
-
-	    // Since we check the value, there is no need to set P_INSECURE,
-	    // even when the value comes from a modeline.
-	    *value_checked = TRUE;
-	}
-    }
-#endif
 
 #ifdef FEAT_TERMINAL
     // 'termwinkey'
@@ -7256,20 +7197,6 @@ did_set_string_option(
 	/*
 	 * Trigger the autocommand only after setting the flags.
 	 */
-#ifdef FEAT_SYN_HL
-	/* When 'syntax' is set, load the syntax of that name */
-	if (varp == &(curbuf->b_p_syn))
-	{
-	    static int syn_recursive = 0;
-
-	    ++syn_recursive;
-	    // Only pass TRUE for "force" when the value changed or not used
-	    // recursively, to avoid endless recurrence.
-	    apply_autocmds(EVENT_SYNTAX, curbuf->b_p_syn, curbuf->b_fname,
-		    value_changed || syn_recursive == 1, curbuf);
-	    --syn_recursive;
-	}
-#endif
 	else if (varp == &(curbuf->b_p_ft))
 	{
 	    /* 'filetype' is set, trigger the FileType autocommand.
@@ -7340,86 +7267,6 @@ did_set_string_option(
     return errmsg;
 }
 
-#if defined(FEAT_SYN_HL) || defined(PROTO)
-/*
- * Simple int comparison function for use with qsort()
- */
-    static int
-int_cmp(const void *a, const void *b)
-{
-    return *(const int *)a - *(const int *)b;
-}
-
-/*
- * Handle setting 'colorcolumn' or 'textwidth' in window "wp".
- * Returns error message, NULL if it's OK.
- */
-    char *
-check_colorcolumn(win_T *wp)
-{
-    char_u	*s;
-    int		col;
-    int		count = 0;
-    int		color_cols[256];
-    int		i;
-    int		j = 0;
-
-    if (wp->w_buffer == NULL)
-	return NULL;  /* buffer was closed */
-
-    for (s = wp->w_p_cc; *s != NUL && count < 255;)
-    {
-	if (*s == '-' || *s == '+')
-	{
-	    /* -N and +N: add to 'textwidth' */
-	    col = (*s == '-') ? -1 : 1;
-	    ++s;
-	    if (!VIM_ISDIGIT(*s))
-		return e_invarg;
-	    col = col * getdigits(&s);
-	    if (wp->w_buffer->b_p_tw == 0)
-		goto skip;  /* 'textwidth' not set, skip this item */
-	    col += wp->w_buffer->b_p_tw;
-	    if (col < 0)
-		goto skip;
-	}
-	else if (VIM_ISDIGIT(*s))
-	    col = getdigits(&s);
-	else
-	    return e_invarg;
-	color_cols[count++] = col - 1;  /* 1-based to 0-based */
-skip:
-	if (*s == NUL)
-	    break;
-	if (*s != ',')
-	    return e_invarg;
-	if (*++s == NUL)
-	    return e_invarg;  /* illegal trailing comma as in "set cc=80," */
-    }
-
-    vim_free(wp->w_p_cc_cols);
-    if (count == 0)
-	wp->w_p_cc_cols = NULL;
-    else
-    {
-	wp->w_p_cc_cols = ALLOC_MULT(int, count + 1);
-	if (wp->w_p_cc_cols != NULL)
-	{
-	    /* sort the columns for faster usage on screen redraw inside
-	     * win_line() */
-	    qsort(color_cols, count, sizeof(int), int_cmp);
-
-	    for (i = 0; i < count; ++i)
-		/* skip duplicates */
-		if (j == 0 || wp->w_p_cc_cols[j - 1] != color_cols[i])
-		    wp->w_p_cc_cols[j++] = color_cols[i];
-	    wp->w_p_cc_cols[j] = -1;  /* end marker */
-	}
-    }
-
-    return NULL;  /* no error */
-}
-#endif
 
 /*
  * Handle setting 'listchars' or 'fillchars'.
@@ -7815,10 +7662,6 @@ set_bool_option(
 	p_lrm = !p_lnr;
 #endif
 
-#ifdef FEAT_SYN_HL
-    else if ((int *)varp == &curwin->w_p_cul && !value && old_value)
-	reset_cursorline();
-#endif
 
 #ifdef FEAT_PERSISTENT_UNDO
     /* 'undofile' */
@@ -8602,15 +8445,6 @@ set_num_option(
 	    errmsg = e_positive;
 	    curbuf->b_p_tw = 0;
 	}
-#ifdef FEAT_SYN_HL
-	{
-	    win_T	*wp;
-	    tabpage_T	*tp;
-
-	    FOR_ALL_TAB_WINDOWS(tp, wp)
-		check_colorcolumn(wp);
-	}
-#endif
     }
 
     /*
@@ -9615,9 +9449,6 @@ makeset(FILE *fd, int opt_flags, int local_only)
 		    /* Don't set 'syntax' and 'filetype' again if the value is
 		     * already right, avoids reloading the syntax file. */
 		    if (
-#if defined(FEAT_SYN_HL)
-			    p->indir == PV_SYN ||
-#endif
 			    p->indir == PV_FT)
 		    {
 			if (fprintf(fd, "if &%s != '%s'", p->fullname,
@@ -10141,11 +9972,6 @@ get_varp(struct vimoption *p)
 #ifdef FEAT_SPELL
 	case PV_SPELL:	return (char_u *)&(curwin->w_p_spell);
 #endif
-#ifdef FEAT_SYN_HL
-	case PV_CUC:	return (char_u *)&(curwin->w_p_cuc);
-	case PV_CUL:	return (char_u *)&(curwin->w_p_cul);
-	case PV_CC:	return (char_u *)&(curwin->w_p_cc);
-#endif
 #ifdef FEAT_DIFF
 	case PV_DIFF:	return (char_u *)&(curwin->w_p_diff);
 #endif
@@ -10261,10 +10087,6 @@ get_varp(struct vimoption *p)
 	case PV_SUA:	return (char_u *)&(curbuf->b_p_sua);
 #endif
 	case PV_SWF:	return (char_u *)&(curbuf->b_p_swf);
-#ifdef FEAT_SYN_HL
-	case PV_SMC:	return (char_u *)&(curbuf->b_p_smc);
-	case PV_SYN:	return (char_u *)&(curbuf->b_p_syn);
-#endif
 #ifdef FEAT_SPELL
 	case PV_SPC:	return (char_u *)&(curwin->w_s->b_p_spc);
 	case PV_SPF:	return (char_u *)&(curwin->w_s->b_p_spf);
@@ -10358,11 +10180,6 @@ copy_winopt(winopt_T *from, winopt_T *to)
 #ifdef FEAT_SPELL
     to->wo_spell = from->wo_spell;
 #endif
-#ifdef FEAT_SYN_HL
-    to->wo_cuc = from->wo_cuc;
-    to->wo_cul = from->wo_cul;
-    to->wo_cc = vim_strsave(from->wo_cc);
-#endif
 #ifdef FEAT_DIFF
     to->wo_diff = from->wo_diff;
     to->wo_diff_saved = from->wo_diff_saved;
@@ -10432,9 +10249,6 @@ check_winopt(winopt_T *wop UNUSED)
 #ifdef FEAT_RIGHTLEFT
     check_string_option(&wop->wo_rlc);
 #endif
-#ifdef FEAT_SYN_HL
-    check_string_option(&wop->wo_cc);
-#endif
 #ifdef FEAT_CONCEAL
     check_string_option(&wop->wo_cocu);
 #endif
@@ -10473,9 +10287,6 @@ clear_winopt(winopt_T *wop UNUSED)
     clear_string_option(&wop->wo_wcr);
 #ifdef FEAT_RIGHTLEFT
     clear_string_option(&wop->wo_rlc);
-#endif
-#ifdef FEAT_SYN_HL
-    clear_string_option(&wop->wo_cc);
 #endif
 #ifdef FEAT_CONCEAL
     clear_string_option(&wop->wo_cocu);
@@ -10624,12 +10435,6 @@ buf_copy_options(buf_T *buf, int flags)
 	    buf->b_p_pi = p_pi;
 #if defined(FEAT_SMARTINDENT)
 	    buf->b_p_cinw = vim_strsave(p_cinw);
-#endif
-#ifdef FEAT_SYN_HL
-	    /* Don't copy 'syntax', it must be set */
-	    buf->b_p_syn = empty_option;
-	    buf->b_p_smc = p_smc;
-	    buf->b_s.b_syn_isk = empty_option;
 #endif
 #ifdef FEAT_SPELL
 	    buf->b_s.b_p_spc = vim_strsave(p_spc);

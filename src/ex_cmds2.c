@@ -576,33 +576,6 @@ timer_free_all()
 #  endif
 # endif
 
-#if defined(FEAT_SYN_HL) && defined(FEAT_RELTIME) && defined(FEAT_FLOAT) && defined(FEAT_PROFILE)
-# if defined(HAVE_MATH_H)
-#  include <math.h>
-# endif
-
-/*
- * Divide the time "tm" by "count" and store in "tm2".
- */
-    void
-profile_divide(proftime_T *tm, int count, proftime_T *tm2)
-{
-    if (count == 0)
-	profile_zero(tm2);
-    else
-    {
-# ifdef MSWIN
-	tm2->QuadPart = tm->QuadPart / count;
-# else
-	double usec = (tm->tv_sec * 1000000.0 + tm->tv_usec) / count;
-
-	tm2->tv_sec = floor(usec / 1000000.0);
-	tm2->tv_usec = vim_round(usec - (tm2->tv_sec * 1000000.0));
-# endif
-    }
-}
-#endif
-
 # if defined(FEAT_PROFILE) || defined(PROTO)
 /*
  * Functions for profiling.
@@ -1507,7 +1480,7 @@ get_arglist(garray_T *gap, char_u *str, int escaped)
     return OK;
 }
 
-#if defined(FEAT_QUICKFIX) || defined(FEAT_SYN_HL) || defined(PROTO)
+#if defined(FEAT_QUICKFIX) || defined(PROTO)
 /*
  * Parse a list of arguments (file names), expand them and return in
  * "fnames[fcountp]".  When "wig" is TRUE, removes files matching 'wildignore'.
@@ -2026,9 +1999,6 @@ ex_listdo(exarg_T *eap)
     tabpage_T	*tp;
     buf_T	*buf = curbuf;
     int		next_fnum = 0;
-#if defined(FEAT_SYN_HL)
-    char_u	*save_ei = NULL;
-#endif
     char_u	*p_shm_save;
 #ifdef FEAT_QUICKFIX
     int		qf_size = 0;
@@ -2044,12 +2014,6 @@ ex_listdo(exarg_T *eap)
     }
 #endif
 
-#if defined(FEAT_SYN_HL)
-    if (eap->cmdidx != CMD_windo && eap->cmdidx != CMD_tabdo)
-	/* Don't do syntax HL autocommands.  Skipping the syntax file is a
-	 * great speed improvement. */
-	save_ei = au_event_disable(",Syntax");
-#endif
 #ifdef FEAT_CLIPBOARD
     start_global_changes();
 #endif
@@ -2237,14 +2201,6 @@ ex_listdo(exarg_T *eap)
 	listcmd_busy = FALSE;
     }
 
-#if defined(FEAT_SYN_HL)
-    if (save_ei != NULL)
-    {
-	au_event_restore(save_ei);
-	apply_autocmds(EVENT_SYNTAX, curbuf->b_p_syn,
-					       curbuf->b_fname, TRUE, curbuf);
-    }
-#endif
 #ifdef FEAT_CLIPBOARD
     end_global_changes();
 #endif

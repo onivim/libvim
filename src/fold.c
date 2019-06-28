@@ -3452,26 +3452,8 @@ foldlevelMarker(fline_T *flp)
     static void
 foldlevelSyntax(fline_T *flp)
 {
-#ifndef FEAT_SYN_HL
     flp->start = 0;
     flp->lvl = 0;
-#else
-    linenr_T	lnum = flp->lnum + flp->off;
-    int		n;
-
-    /* Use the maximum fold level at the start of this line and the next. */
-    flp->lvl = syn_get_foldlevel(flp->wp, lnum);
-    flp->start = 0;
-    if (lnum < flp->wp->w_buffer->b_ml.ml_line_count)
-    {
-	n = syn_get_foldlevel(flp->wp, lnum + 1);
-	if (n > flp->lvl)
-	{
-	    flp->start = n - flp->lvl;	/* fold(s) start here */
-	    flp->lvl = n;
-	}
-    }
-#endif
 }
 
 /* functions for storing the fold state in a View {{{1 */

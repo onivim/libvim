@@ -2097,14 +2097,6 @@ void ins_redraw(int ready) // not busy with something
       && !pum_visible()
 #endif
   ) {
-#ifdef FEAT_SYN_HL
-    /* Need to update the screen first, to make sure syntax
-     * highlighting is correct after making a change (e.g., inserting
-     * a "(".  The autocommand may also require a redraw, so it's done
-     * again below, unfortunately. */
-    if (syntax_present(curwin) && must_redraw)
-      update_screen(0);
-#endif
     if (has_cursormovedI()) {
       /* Make sure curswant is correct, an autocommand may call
        * getcurpos(). */
