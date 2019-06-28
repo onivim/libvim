@@ -41,11 +41,19 @@ MU_TEST(test_hsplit) {
   mu_check(lastSplitType == HORIZONTAL_SPLIT);
 }
 
+MU_TEST(test_tabnew) {
+  vimExecute("tabnew test-tabnew-file.txt");
+
+  mu_check(strcmp(lastFilename, "test-tabnew-file.txt") == 0);
+  mu_check(lastSplitType == TAB_PAGE);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_vsplit);
   MU_RUN_TEST(test_hsplit);
+  MU_RUN_TEST(test_tabnew);
 }
 
 int main(int argc, char **argv) {

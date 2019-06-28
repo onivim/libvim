@@ -6657,8 +6657,26 @@ ex_splitview(exarg_T *eap)
 		       || eap->cmdidx == CMD_tabnew;
 
 
+    windowSplit_T splitType = HORIZONTAL_SPLIT;
+
+    switch (eap->cmdidx) {
+        case CMD_vsplit:
+        case CMD_vnew:
+            splitType = VERTICAL_SPLIT;
+            break;
+        case CMD_tabfind:
+        case CMD_tabedit:
+        case CMD_tabnew:
+            splitType = TAB_PAGE;
+            break;
+        default:
+            break;
+    }
+
+    fname = eap->arg;
+
     if (windowSplitCallback != NULL) {
-	    windowSplitCallback(VERTICAL_SPLIT, "test-file.txt");
+	    windowSplitCallback(splitType, fname);
     }
     
 

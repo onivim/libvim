@@ -41,7 +41,7 @@ typedef enum
 {
     HORIZONTAL_SPLIT,
     VERTICAL_SPLIT,
-    TAB_EDIT
+    TAB_PAGE,
 } windowSplit_T;
 
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
