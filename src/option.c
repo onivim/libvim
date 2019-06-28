@@ -4880,7 +4880,6 @@ theend:
 	info_message = TRUE;	/* use mch_msg(), not mch_errmsg() */
 	msg_putchar('\n');
 	cursor_on();		/* msg_start() switches it off */
-	out_flush();
 	silent_mode = TRUE;
 	info_message = FALSE;	/* use mch_msg(), not mch_errmsg() */
     }
@@ -6572,7 +6571,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -6587,7 +6585,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -8912,7 +8909,6 @@ showoptions(
 		showoneopt(items[i], opt_flags);
 		col += INC;
 	    }
-	    out_flush();
 	    ui_breakcheck();
 	}
     }

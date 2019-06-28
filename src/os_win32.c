@@ -2045,7 +2045,6 @@ mch_init_c(void)
     SetErrorMode(SEM_FAILCRITICALERRORS);
 
     _fmode = O_BINARY;		/* we do our own CR-LF translation */
-    out_flush();
 
     /* Obtain handles for the standard Console I/O devices */
     if (read_cmd_fd == 0)
@@ -3581,7 +3580,6 @@ dump_pipe(int	    options,
 
 	windgoto(msg_row, msg_col);
 	cursor_on();
-	out_flush();
     }
 }
 
@@ -3791,7 +3789,6 @@ mch_system_piped(char *cmd, int options)
 			    msg_outtrans_len(ta_buf + i, 1);
 		    }
 		    windgoto(msg_row, msg_col);
-		    out_flush();
 
 		    ta_len += len;
 
@@ -4007,7 +4004,6 @@ mch_call_shell(
 {
     int		x = 0;
     int		tmode = cur_tmode;
-    out_flush();
 
 #ifdef MCH_WRITE_DUMP
     if (fdDump)
