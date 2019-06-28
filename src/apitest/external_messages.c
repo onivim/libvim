@@ -2,11 +2,15 @@
 #include "libvim.h"
 #include "minunit.h"
 
-char_u lastMessage[8192];
+#define MAX_TEST_MESSAGE 8192
+
+char_u lastMessage[MAX_TEST_MESSAGE];
 msgPriority_T lastPriority;
 
 void onMessage(char_u* msg, msgPriority_T priority) {
   printf("Got message: %s!\n", msg);
+
+  assert(strlen(msg) < MAX_TEST_MESSAGE);
 
   strcpy(lastMessage, msg);
   lastPriority = priority;
@@ -60,13 +64,15 @@ MU_TEST(test_msg2_send_triggers_callback) {
 MU_TEST(test_echo) {
   vimExecute("echo 'hello'");
 
-  mu_check(1 == 0);
+  mu_check(strcmp(lastMessage, "hello") == 0);
+  mu_check(lastPriority == MSG_INFO);
 }
 
 MU_TEST(test_echom) {
   vimExecute("echomsg 'hi'");
 
-  mu_check(1 == 0);
+  mu_check(strcmp(lastMessage, "hi") == 0);
+  mu_check(lastPriority == MSG_INFO);
 }
 
 MU_TEST(test_error) {
@@ -93,9 +99,9 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_msg2_put);
   MU_RUN_TEST(test_msg2_put_multiple);
   MU_RUN_TEST(test_msg2_send_triggers_callback);
-/*  MU_RUN_TEST(test_echo);
+  MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
-  MU_RUN_TEST(test_error);
+  /*MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_autocmd);
   MU_RUN_TEST(test_changes);*/
 }
