@@ -761,10 +761,6 @@ update_screen(int type_arg)
 #if defined(FEAT_SEARCH_EXTRA)
     end_search_hl();
 #endif
-#ifdef FEAT_INS_EXPAND
-    /* May need to redraw the popup menu. */
-    pum_may_redraw();
-#endif
 
     /* Reset b_mod_set flags.  Going through all windows is probably faster
      * than going through all buffers (there could be many buffers). */
@@ -6577,11 +6573,6 @@ win_redr_status(win_T *wp, int ignore_pum UNUSED)
 	redraw_cmdline = TRUE;
     }
     else if (!redrawing()
-#ifdef FEAT_INS_EXPAND
-	    // don't update status line when popup menu is visible and may be
-	    // drawn over it, unless it will be redrawn later
-	    || (!ignore_pum && pum_visible())
-#endif
 	    )
     {
 	/* Don't redraw right now, do it later. */
@@ -7743,10 +7734,6 @@ screen_char(unsigned off, int row, int col)
     if (row >= screen_Rows || col >= screen_Columns)
 	return;
 
-#ifdef FEAT_INS_EXPAND
-    if (pum_under_menu(row, col))
-	return;
-#endif
     /* Outputting a character in the last cell on the screen may scroll the
      * screen up.  Only do it when the "xn" termcap property is set, otherwise
      * mark the character invalid (update it when scrolled up). */
@@ -9659,9 +9646,6 @@ showmode(void)
     int		do_mode;
     int		attr;
     int		nwr_save;
-#ifdef FEAT_INS_EXPAND
-    int		sub_attr;
-#endif
 
     do_mode = ((p_smd && msg_silent == 0)
 	    && ((State & INSERT)
@@ -9715,38 +9699,6 @@ showmode(void)
 			msg_puts_attr(" \307\321\261\333", attr);
 		}
 	    }
-#endif
-#ifdef FEAT_INS_EXPAND
-	    /* CTRL-X in Insert mode */
-	    if (edit_submode != NULL && !shortmess(SHM_COMPLETIONMENU))
-	    {
-		/* These messages can get long, avoid a wrap in a narrow
-		 * window.  Prefer showing edit_submode_extra. */
-		length = (Rows - msg_row) * Columns - 3;
-		if (edit_submode_extra != NULL)
-		    length -= vim_strsize(edit_submode_extra);
-		if (length > 0)
-		{
-		    if (edit_submode_pre != NULL)
-			length -= vim_strsize(edit_submode_pre);
-		    if (length - vim_strsize(edit_submode) > 0)
-		    {
-			if (edit_submode_pre != NULL)
-			    msg_puts_attr((char *)edit_submode_pre, attr);
-			msg_puts_attr((char *)edit_submode, attr);
-		    }
-		    if (edit_submode_extra != NULL)
-		    {
-			msg_puts_attr(" ", attr);  /* add a space in between */
-			if ((int)edit_submode_highl < (int)HLF_COUNT)
-			    sub_attr = HL_ATTR(edit_submode_highl);
-			else
-			    sub_attr = attr;
-			msg_puts_attr((char *)edit_submode_extra, sub_attr);
-		    }
-		}
-	    }
-	    else
 #endif
 	    {
 		if (State & VREPLACE_FLAG)
@@ -9812,9 +9764,6 @@ showmode(void)
 	    need_clear = TRUE;
 	}
 	if (reg_recording != 0
-#ifdef FEAT_INS_EXPAND
-		&& edit_submode == NULL	    /* otherwise it gets too long */
-#endif
 		)
 	{
 	    recording_mode(attr);
@@ -10163,14 +10112,6 @@ showruler(int always)
 {
     if (!always && !redrawing())
 	return;
-#ifdef FEAT_INS_EXPAND
-    if (pum_visible())
-    {
-	/* Don't redraw right now, do it later. */
-	curwin->w_redr_status = TRUE;
-	return;
-    }
-#endif
 
     /* Redraw the tab pages line if needed. */
     if (redraw_tabline)
