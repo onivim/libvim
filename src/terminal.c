@@ -3316,10 +3316,6 @@ init_default_colors(term_T *term)
 	    }
 # endif
 	}
-# ifdef FEAT_TERMRESPONSE
-	else
-	    term_get_fg_color(&fg->red, &fg->green, &fg->blue);
-# endif
 
 	if (cterm_normal_bg_color > 0)
 	{
@@ -3335,10 +3331,6 @@ init_default_colors(term_T *term)
 	    }
 # endif
 	}
-# ifdef FEAT_TERMRESPONSE
-	else
-	    term_get_bg_color(&bg->red, &bg->green, &bg->blue);
-# endif
     }
 }
 
@@ -3617,14 +3609,6 @@ parse_csi(
     // We recognize only CSI 13 t
     if (command != 't' || argcount != 1 || args[0] != 13)
 	return 0; // not handled
-
-    // When getting the window position is not possible or it fails it results
-    // in zero/zero.
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    (void)ui_get_winpos(&x, &y, (varnumber_T)100);
-#endif
 
     FOR_ALL_WINDOWS(wp)
 	if (wp->w_buffer == term->tl_buffer)
