@@ -1371,7 +1371,7 @@ getout(int exitval)
 #endif
 	windgoto((int)Rows - 1, 0);
 
-#if defined(FEAT_EVAL) || defined(FEAT_SYN_HL)
+#if defined(FEAT_EVAL)
     /* Optionally print hashtable efficiency. */
     hash_debug_results();
 #endif

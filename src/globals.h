@@ -127,29 +127,6 @@ EXTERN int	screen_cleared INIT(= FALSE);	/* screen has been cleared */
  */
 EXTERN colnr_T	dollar_vcol INIT(= -1);
 
-#ifdef FEAT_INS_EXPAND
-/*
- * Variables for Insert mode completion.
- */
-
-/* Length in bytes of the text being completed (this is deleted to be replaced
- * by the match.) */
-EXTERN int	compl_length INIT(= 0);
-
-/* List of flags for method of completion. */
-EXTERN int	compl_cont_status INIT(= 0);
-# define CONT_ADDING	1	/* "normal" or "adding" expansion */
-# define CONT_INTRPT	(2 + 4)	/* a ^X interrupted the current expansion */
-				/* it's set only iff N_ADDS is set */
-# define CONT_N_ADDS	4	/* next ^X<> will add-new or expand-current */
-# define CONT_S_IPOS	8	/* next ^X<> will set initial_pos?
-				 * if so, word-wise-expansion will set SOL */
-# define CONT_SOL	16	/* pattern includes start of line, just for
-				 * word-wise expansion, not set for ^X^L */
-# define CONT_LOCAL	32	/* for ctrl_x_mode 0, ^X^P/^X^N do a local
-				 * expansion, (eg use complete=.) */
-#endif
-
 /*
  * Functions for putting characters in the command line,
  * while keeping ScreenLines[] updated.
@@ -865,12 +842,6 @@ EXTERN int arrow_used;			/* Normally FALSE, set to TRUE after
 					 * to call u_sync() */
 EXTERN int	ins_at_eol INIT(= FALSE); /* put cursor after eol when
 					   restarting edit after CTRL-O */
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*edit_submode INIT(= NULL); /* msg for CTRL-X submode */
-EXTERN char_u	*edit_submode_pre INIT(= NULL); /* prepended to edit_submode */
-EXTERN char_u	*edit_submode_extra INIT(= NULL);/* appended to edit_submode */
-EXTERN hlf_T	edit_submode_highl;	/* highl. method for extra info */
-#endif
 
 EXTERN int	no_abbr INIT(= TRUE);	/* TRUE when no abbreviations loaded */
 
@@ -948,15 +919,6 @@ EXTERN int	termcap_active INIT(= FALSE);	/* set by starttermcap() */
 EXTERN int	cur_tmode INIT(= TMODE_COOK);	/* input terminal mode */
 EXTERN int	bangredo INIT(= FALSE);	    /* set to TRUE with ! command */
 EXTERN int	searchcmdlen;		    /* length of previous search cmd */
-#ifdef FEAT_SYN_HL
-EXTERN int	reg_do_extmatch INIT(= 0);  /* Used when compiling regexp:
-					     * REX_SET to allow \z\(...\),
-					     * REX_USE to allow \z\1 et al. */
-EXTERN reg_extmatch_T *re_extmatch_in INIT(= NULL); /* Used by vim_regexec():
-					     * strings for \z\1...\z\9 */
-EXTERN reg_extmatch_T *re_extmatch_out INIT(= NULL); /* Set by vim_regexec()
-					     * to store \z\(...\) matches */
-#endif
 
 EXTERN int	did_outofmem_msg INIT(= FALSE);
 					    /* set after out of memory msg */
@@ -1168,10 +1130,6 @@ EXTERN char	pseps[2] INIT(= {'\\' COMMA 0});
  * when no operator is being executed, FALSE otherwise. */
 EXTERN int	virtual_op INIT(= MAYBE);
 
-#ifdef FEAT_SYN_HL
-/* Display tick, incremented for each call to update_screen() */
-EXTERN disptick_T	display_tick INIT(= 0);
-#endif
 
 #ifdef FEAT_CONCEAL
 /* Set when the cursor line needs to be redrawn. */
@@ -1229,7 +1187,7 @@ EXTERN char e_invexpr2[]	INIT(= N_("E15: Invalid expression: %s"));
 #endif
 EXTERN char e_invrange[]	INIT(= N_("E16: Invalid range"));
 EXTERN char e_invcmd[]	INIT(= N_("E476: Invalid command"));
-#if defined(UNIX) || defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+#if defined(UNIX) || defined(FEAT_SPELL)
 EXTERN char e_isadir2[]	INIT(= N_("E17: \"%s\" is a directory"));
 #endif
 #ifdef FEAT_LIBCALL
@@ -1267,7 +1225,7 @@ EXTERN char e_nofarsi[]		INIT(= N_("E27: Farsi support has been removed\n"));
 #ifndef FEAT_ARABIC
 EXTERN char e_noarabic[]	INIT(= N_("E800: Arabic cannot be used: Not enabled at compile time\n"));
 #endif
-#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_SYN_HL)
+#if defined(FEAT_SEARCH_EXTRA)
 EXTERN char e_nogroup[]	INIT(= N_("E28: No such highlight group name: %s"));
 #endif
 EXTERN char e_noinstext[]	INIT(= N_("E29: No inserted text yet"));
@@ -1296,9 +1254,6 @@ EXTERN char e_openerrf[]	INIT(= N_("E40: Can't open errorfile %s"));
 EXTERN char e_opendisp[]	INIT(= N_("E233: cannot open display"));
 #endif
 EXTERN char e_outofmem[]	INIT(= N_("E41: Out of memory!"));
-#ifdef FEAT_INS_EXPAND
-EXTERN char e_patnotf[]	INIT(= N_("Pattern not found"));
-#endif
 EXTERN char e_patnotf2[]	INIT(= N_("E486: Pattern not found: %s"));
 EXTERN char e_positive[]	INIT(= N_("E487: Argument must be positive"));
 #if defined(UNIX) || defined(FEAT_SESSION)
@@ -1365,9 +1320,6 @@ EXTERN char e_nobufnr[]	INIT(= N_("E86: Buffer %ld does not exist"));
 
 EXTERN char e_invalpat[]	INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[]	INIT(= N_("E139: File is loaded in another buffer"));
-#if defined(FEAT_SYN_HL)
-EXTERN char e_notset[]	INIT(= N_("E764: Option '%s' is not set"));
-#endif
 #ifndef FEAT_CLIPBOARD
 EXTERN char e_invalidreg[]    INIT(= N_("E850: Invalid register name"));
 #endif

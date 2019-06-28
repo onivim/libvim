@@ -167,14 +167,6 @@
 #endif
 
 /*
- * +insert_expand	CTRL-N/CTRL-P/CTRL-X in insert mode. Takes about
- *			4Kbyte of code.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_INS_EXPAND
-#endif
-
-/*
  * +cmdline_compl	completion of mappings/abbreviations in cmdline mode.
  *			Takes a few Kbyte of code.
  */
@@ -408,14 +400,6 @@
 # define FEAT_VIMINFO
 /* #define VIMINFO_FILE	"$HOME/foo/.viminfo" */
 /* #define VIMINFO_FILE2 "~/bar/.viminfo" */
-#endif
-
-/*
- * +syntax		syntax highlighting.  When using this, it's a good
- *			idea to have +autocmd and +eval too.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_SYN_HL
 #endif
 
 /*
@@ -981,6 +965,7 @@
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_INS_EXPAND
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
@@ -990,6 +975,7 @@
  */
 #undef FEAT_NETBEANS_INTG
 #undef FEAT_STL_OPT
+#undef FEAT_SYN_HL
 #undef FEAT_TITLE
 /*
  * +vtp: Win32 virtual console.

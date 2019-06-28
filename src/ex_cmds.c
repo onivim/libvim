@@ -4037,15 +4037,6 @@ do_ecmd(
 		    auto_buf = TRUE;
 		else
 		{
-#ifdef FEAT_SYN_HL
-		    /*
-		     * <VN> We could instead free the synblock
-		     * and re-attach to buffer, perhaps.
-		     */
-		    if (curwin->w_buffer == NULL
-			    || curwin->w_s == &(curwin->w_buffer->b_s))
-			curwin->w_s = &(buf->b_s);
-#endif
 		    curwin->w_buffer = buf;
 		    curbuf = buf;
 		    ++curbuf->b_nwindows;
@@ -5466,12 +5457,6 @@ do_sub(exarg_T *eap)
 			    subflags.do_ask = FALSE;
 			    break;
 			}
-#ifdef FEAT_INS_EXPAND
-			if (typed == Ctrl_E)
-			    scrollup_clamp();
-			else if (typed == Ctrl_Y)
-			    scrolldown_clamp();
-#endif
 		    }
 		    State = save_State;
 		    if (vim_strchr(p_cpo, CPO_UNDO) != NULL)
@@ -6881,9 +6866,6 @@ fix_help_buffer(void)
 	--curbuf_lock;
     }
 
-#ifdef FEAT_SYN_HL
-    if (!syntax_present(curwin))
-#endif
     {
 	for (lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
 	{

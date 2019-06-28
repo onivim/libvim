@@ -269,11 +269,7 @@ static char *(features[]) =
 #else
 	"-iconv",
 #endif
-#ifdef FEAT_INS_EXPAND
-	"+insert_expand",
-#else
 	"-insert_expand",
-#endif
 #ifdef FEAT_JOB_CHANNEL
 	"+job",
 #else
@@ -446,11 +442,7 @@ static char *(features[]) =
 	"-statusline",
 #endif
 	"-sun_workshop",
-#ifdef FEAT_SYN_HL
-	"+syntax",
-#else
 	"-syntax",
-#endif
 	    /* only interesting on Unix systems */
 #if defined(USE_SYSTEM) && defined(UNIX)
 	"+system()",
@@ -3611,9 +3603,6 @@ list_in_columns(char_u **items, int size, int current)
     int		nrow;
     int		item_count = 0;
     int		width = 0;
-#ifdef FEAT_SYN_HL
-    int		use_highlight = (items == (char_u **)features);
-#endif
 
     /* Find the length of the longest item, use that + 1 as the column
      * width. */
@@ -3655,11 +3644,6 @@ list_in_columns(char_u **items, int size, int current)
 
 	    if (idx == current)
 		msg_putchar('[');
-#ifdef FEAT_SYN_HL
-	    if (use_highlight && items[idx][0] == '-')
-		msg_puts_attr((char *)items[idx], HL_ATTR(HLF_W));
-	    else
-#endif
 		msg_puts((char *)items[idx]);
 	    if (idx == current)
 		msg_putchar(']');

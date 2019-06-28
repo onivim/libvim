@@ -218,6 +218,10 @@ void vimOptionSetTabSize(int tabSize) {
 
 void vimOptionSetInsertSpaces(int insertSpaces) {
   curbuf->b_p_et = insertSpaces;
+
+  if (!insertSpaces) {
+    curbuf->b_p_sts = 0;
+  }
 }
 
 int vimOptionGetTabSize() { return curbuf->b_p_ts; }
