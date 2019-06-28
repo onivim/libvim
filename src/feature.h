@@ -974,6 +974,7 @@
  * The Netbeans feature
  */
 #undef FEAT_NETBEANS_INTG
+#undef FEAT_SPELL
 #undef FEAT_STL_OPT
 #undef FEAT_SYN_HL
 #undef FEAT_TITLE
