@@ -152,7 +152,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # include "normal.pro"
 # include "ops.pro"
 # include "option.pro"
-# include "popupmnu.pro"
 # ifdef FEAT_QUICKFIX
 #  include "quickfix.pro"
 # endif

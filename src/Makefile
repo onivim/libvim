@@ -1474,7 +1474,6 @@ BASIC_SRC = \
 	option.c \
 	os_unix.c \
 	auto/pathdef.c \
-	popupmnu.c \
 	popupwin.c \
 	pty.c \
 	quickfix.c \
@@ -1580,7 +1579,6 @@ OBJ_COMMON = \
 	objects/option.o \
 	objects/os_unix.o \
 	objects/pathdef.o \
-	objects/popupmnu.o \
 	objects/popupwin.o \
 	objects/pty.o \
 	objects/quickfix.o \
@@ -1709,7 +1707,6 @@ PRO_AUTO = \
 	option.pro \
 	os_mac_conv.pro \
 	os_unix.pro \
-	popupmnu.pro \
 	popupwin.pro \
 	pty.pro \
 	quickfix.pro \
@@ -2934,9 +2931,6 @@ objects/winclip.o: winclip.c
 objects/pathdef.o: auto/pathdef.c
 	$(CCC) -o $@ auto/pathdef.c
 
-objects/popupmnu.o: popupmnu.c
-	$(CCC) -o $@ popupmnu.c
-
 objects/popupwin.o: popupwin.c
 	$(CCC) -o $@ popupwin.c
 
@@ -3300,10 +3294,6 @@ objects/os_unix.o: os_unix.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  proto.h globals.h os_unixx.h
 objects/pathdef.o: auto/pathdef.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
-objects/popupmnu.o: popupmnu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/popupwin.o: popupwin.c vim.h protodef.h auto/config.h feature.h os_unix.h \
