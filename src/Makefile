@@ -1589,6 +1589,7 @@ OBJ_COMMON = \
 	objects/quickfix.o \
 	objects/regexp.o \
 	objects/screen.o \
+	objects/sds.o \
 	objects/search.o \
 	objects/sha256.o \
 	objects/sign.o \
@@ -2962,6 +2963,9 @@ objects/regexp.o: regexp.c regexp_nfa.c
 
 objects/screen.o: screen.c
 	$(CCC) -o $@ screen.c
+
+objects/sds.o: sds.c
+	$(CCC) -o $@ sds.c
 
 objects/search.o: search.c
 	$(CCC) -o $@ search.c

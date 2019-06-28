@@ -602,10 +602,9 @@ OBJ = \
 	$(OUTDIR)/quickfix.o \
 	$(OUTDIR)/regexp.o \
 	$(OUTDIR)/screen.o \
+	$(OUTDIR)/sds.o \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
-	$(OUTDIR)/sds.o \
-	$(OUTDIR)/sdsalloc.o \
 	$(OUTDIR)/sign.o \
 	$(OUTDIR)/state_machine.o \
 	$(OUTDIR)/syntax.o \

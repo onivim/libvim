@@ -1747,6 +1747,7 @@ typedef int sock_T;
 
 /* Note that gui.h is included by structs.h */
 
+#include "sds.h"
 #include "structs.h"	/* defines many structures */
 
 #include "alloc.h"
