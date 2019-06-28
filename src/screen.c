@@ -4755,18 +4755,6 @@ win_line(
 		int	can_spell = TRUE;
 #endif
 
-#ifdef FEAT_TERMINAL
-		if (get_term_attr)
-		{
-		    syntax_attr = term_get_attr(wp->w_buffer, lnum, vcol);
-
-		    if (!attr_pri)
-			char_attr = syntax_attr;
-		    else
-			char_attr = hl_combine_attr(syntax_attr, char_attr);
-		}
-#endif
-
 #ifdef FEAT_SYN_HL
 		// Get syntax attribute, unless still at the start of the line
 		// (double-wide char that doesn't fit).
