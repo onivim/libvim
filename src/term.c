@@ -2500,11 +2500,7 @@ term_bg_rgb_color(guicolor_T rgb)
     void
 term_settitle(char_u *title)
 {
-    /* t_ts takes one argument: column in status line */
-    OUT_STR(tgoto((char *)T_TS, 0, 0));	/* set title start */
-    out_str_nf(title);
-    out_str(T_FS);			/* set title end */
-    out_flush();
+    /* libvim - no-op */
 }
 
 /*
@@ -2514,17 +2510,7 @@ term_settitle(char_u *title)
     void
 term_push_title(int which)
 {
-    if ((which & SAVE_RESTORE_TITLE) && T_CST != NULL && *T_CST != NUL)
-    {
-	OUT_STR(T_CST);
-	out_flush();
-    }
-
-    if ((which & SAVE_RESTORE_ICON) && T_SSI != NULL && *T_SSI != NUL)
-    {
-	OUT_STR(T_SSI);
-	out_flush();
-    }
+    /* libvim - no-op */
 }
 
 /*
@@ -2533,17 +2519,7 @@ term_push_title(int which)
     void
 term_pop_title(int which)
 {
-    if ((which & SAVE_RESTORE_TITLE) && T_CRT != NULL && *T_CRT != NUL)
-    {
-	OUT_STR(T_CRT);
-	out_flush();
-    }
-
-    if ((which & SAVE_RESTORE_ICON) && T_SRI != NULL && *T_SRI != NUL)
-    {
-	OUT_STR(T_SRI);
-	out_flush();
-    }
+    /* libvim - no-op */
 }
 #endif
 
