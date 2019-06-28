@@ -947,15 +947,6 @@ EXTERN int	termcap_active INIT(= FALSE);	/* set by starttermcap() */
 EXTERN int	cur_tmode INIT(= TMODE_COOK);	/* input terminal mode */
 EXTERN int	bangredo INIT(= FALSE);	    /* set to TRUE with ! command */
 EXTERN int	searchcmdlen;		    /* length of previous search cmd */
-#ifdef FEAT_SYN_HL
-EXTERN int	reg_do_extmatch INIT(= 0);  /* Used when compiling regexp:
-					     * REX_SET to allow \z\(...\),
-					     * REX_USE to allow \z\1 et al. */
-EXTERN reg_extmatch_T *re_extmatch_in INIT(= NULL); /* Used by vim_regexec():
-					     * strings for \z\1...\z\9 */
-EXTERN reg_extmatch_T *re_extmatch_out INIT(= NULL); /* Set by vim_regexec()
-					     * to store \z\(...\) matches */
-#endif
 
 EXTERN int	did_outofmem_msg INIT(= FALSE);
 					    /* set after out of memory msg */
@@ -1167,10 +1158,6 @@ EXTERN char	pseps[2] INIT(= {'\\' COMMA 0});
  * when no operator is being executed, FALSE otherwise. */
 EXTERN int	virtual_op INIT(= MAYBE);
 
-#ifdef FEAT_SYN_HL
-/* Display tick, incremented for each call to update_screen() */
-EXTERN disptick_T	display_tick INIT(= 0);
-#endif
 
 #ifdef FEAT_CONCEAL
 /* Set when the cursor line needs to be redrawn. */
@@ -1228,7 +1215,7 @@ EXTERN char e_invexpr2[]	INIT(= N_("E15: Invalid expression: %s"));
 #endif
 EXTERN char e_invrange[]	INIT(= N_("E16: Invalid range"));
 EXTERN char e_invcmd[]	INIT(= N_("E476: Invalid command"));
-#if defined(UNIX) || defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
+#if defined(UNIX) || defined(FEAT_SPELL)
 EXTERN char e_isadir2[]	INIT(= N_("E17: \"%s\" is a directory"));
 #endif
 #ifdef FEAT_LIBCALL
@@ -1266,7 +1253,7 @@ EXTERN char e_nofarsi[]		INIT(= N_("E27: Farsi support has been removed\n"));
 #ifndef FEAT_ARABIC
 EXTERN char e_noarabic[]	INIT(= N_("E800: Arabic cannot be used: Not enabled at compile time\n"));
 #endif
-#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_SYN_HL)
+#if defined(FEAT_SEARCH_EXTRA)
 EXTERN char e_nogroup[]	INIT(= N_("E28: No such highlight group name: %s"));
 #endif
 EXTERN char e_noinstext[]	INIT(= N_("E29: No inserted text yet"));
@@ -1364,9 +1351,6 @@ EXTERN char e_nobufnr[]	INIT(= N_("E86: Buffer %ld does not exist"));
 
 EXTERN char e_invalpat[]	INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[]	INIT(= N_("E139: File is loaded in another buffer"));
-#if defined(FEAT_SYN_HL)
-EXTERN char e_notset[]	INIT(= N_("E764: Option '%s' is not set"));
-#endif
 #ifndef FEAT_CLIPBOARD
 EXTERN char e_invalidreg[]    INIT(= N_("E850: Invalid register name"));
 #endif

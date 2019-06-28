@@ -555,10 +555,6 @@ EXTERN char_u	*p_mp;		/* 'makeprg' */
 #ifdef FEAT_SIGNS
 EXTERN char_u  *p_scl;		/* signcolumn */
 #endif
-#ifdef FEAT_SYN_HL
-EXTERN char_u   *p_cc;		/* 'colorcolumn' */
-EXTERN int      p_cc_cols[256]; /* array for 'colorcolumn' columns */
-#endif
 EXTERN long	p_mat;		/* 'matchtime' */
 EXTERN long	p_mco;		/* 'maxcombine' */
 #ifdef FEAT_EVAL
@@ -957,10 +953,6 @@ enum
     , BV_SI
 #endif
     , BV_SN
-#ifdef FEAT_SYN_HL
-    , BV_SMC
-    , BV_SYN
-#endif
 #ifdef FEAT_SPELL
     , BV_SPC
     , BV_SPF
@@ -1056,11 +1048,6 @@ enum
     , WV_SO
 #ifdef FEAT_SPELL
     , WV_SPELL
-#endif
-#ifdef FEAT_SYN_HL
-    , WV_CUC
-    , WV_CUL
-    , WV_CC
 #endif
 #ifdef FEAT_STL_OPT
     , WV_STL
