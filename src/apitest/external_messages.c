@@ -93,15 +93,7 @@ MU_TEST(test_echom) {
 MU_TEST(test_buffers) {
   vimExecute("buffers");
 
-  printf("LAST MESSAGE: %s\n", lastMessage);
   char_u *expected = "\n  2 %a   \"collateral/testfile.txt\"      line 1";
-
-  for(int i = 0; i < strlen(expected); i++) {
-    if (expected[i] != lastMessage[i]) {
-      printf("DIFFERS AT POSITION: %d expected: |%c| actual: |%c|\n", i, expected[i], lastMessage[i]);
-    }
-  }
-  
   mu_check(strcmp(lastMessage, expected) == 0);
   mu_check(lastPriority == MSG_INFO);
 }
@@ -109,15 +101,7 @@ MU_TEST(test_buffers) {
 MU_TEST(test_files) {
   vimExecute("files");
 
-  printf("LAST MESSAGE: %s\n", lastMessage);
   char_u *expected = "\n  2 %a   \"collateral/testfile.txt\"      line 1";
-
-  for(int i = 0; i < strlen(expected); i++) {
-    if (expected[i] != lastMessage[i]) {
-      printf("DIFFERS AT POSITION: %d expected: |%c| actual: |%c|\n", i, expected[i], lastMessage[i]);
-    }
-  }
-  
   mu_check(strcmp(lastMessage, expected) == 0);
   mu_check(lastPriority == MSG_INFO);
 }
@@ -135,7 +119,6 @@ MU_TEST(test_readonly_warning) {
   vimInput("i");
   vimInput("a");
 
-  printf("LAST MESSAGE: %s\n", lastMessage);
   mu_check(strcmp(lastMessage, "W10: Warning: Changing a readonly file") == 0);
   mu_check(lastPriority == MSG_WARNING);
 }
