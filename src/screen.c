@@ -2184,9 +2184,6 @@ win_update(win_T *wp)
 #else
 	    ++lnum;
 #endif
-#ifdef FEAT_SYN_HL
-	    did_update = DID_NONE;
-#endif
 	}
 
 	if (lnum > buf->b_ml.ml_line_count)
@@ -2201,14 +2198,6 @@ win_update(win_T *wp)
 
     if (idx > wp->w_lines_valid)
 	wp->w_lines_valid = idx;
-
-#ifdef FEAT_SYN_HL
-    /*
-     * Let the syntax stuff know we stop parsing here.
-     */
-    if (syntax_last_parsed != 0 && syntax_present(wp))
-	syntax_end_parsing(syntax_last_parsed + 1);
-#endif
 
     /*
      * If we didn't hit the end of the file, and we didn't finish the last
@@ -2354,7 +2343,7 @@ win_update(win_T *wp)
 	}
     }
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SEARCH_EXTRA)
+#if defined(FEAT_SEARCH_EXTRA)
     /* restore got_int, unless CTRL-C was hit while redrawing */
     if (!got_int)
 	got_int = save_got_int;
@@ -2460,18 +2449,6 @@ win_draw_end(
     set_empty_rows(wp, row);
 }
 
-#ifdef FEAT_SYN_HL
-/*
- * Advance **color_cols and return TRUE when there are columns to draw.
- */
-    static int
-advance_color_col(int vcol, int **color_cols)
-{
-    while (**color_cols >= 0 && vcol > **color_cols)
-	++*color_cols;
-    return (**color_cols >= 0);
-}
-#endif
 
 #ifdef FEAT_FOLDING
 /*
@@ -2867,42 +2844,6 @@ fold_line(
 	}
     }
 
-#ifdef FEAT_SYN_HL
-    /* Show colorcolumn in the fold line, but let cursorcolumn override it. */
-    if (wp->w_p_cc_cols)
-    {
-	int i = 0;
-	int j = wp->w_p_cc_cols[i];
-	int old_txtcol = txtcol;
-
-	while (j > -1)
-	{
-	    txtcol += j;
-	    if (wp->w_p_wrap)
-		txtcol -= wp->w_skipcol;
-	    else
-		txtcol -= wp->w_leftcol;
-	    if (txtcol >= 0 && txtcol < wp->w_width)
-		ScreenAttrs[off + txtcol] = hl_combine_attr(
-				    ScreenAttrs[off + txtcol], HL_ATTR(HLF_MC));
-	    txtcol = old_txtcol;
-	    j = wp->w_p_cc_cols[++i];
-	}
-    }
-
-    /* Show 'cursorcolumn' in the fold line. */
-    if (wp->w_p_cuc)
-    {
-	txtcol += wp->w_virtcol;
-	if (wp->w_p_wrap)
-	    txtcol -= wp->w_skipcol;
-	else
-	    txtcol -= wp->w_leftcol;
-	if (txtcol >= 0 && txtcol < wp->w_width)
-	    ScreenAttrs[off + txtcol] = hl_combine_attr(
-				 ScreenAttrs[off + txtcol], HL_ATTR(HLF_CUC));
-    }
-#endif
 
     screen_line(row + W_WINROW(wp), wp->w_wincol, (int)wp->w_width,
 						     (int)wp->w_width, 0);
@@ -3096,15 +3037,6 @@ win_line(
 					// margins and "~" lines.
     int		area_attr = 0;		// attributes desired by highlighting
     int		search_attr = 0;	// attributes desired by 'hlsearch'
-#ifdef FEAT_SYN_HL
-    int		vcol_save_attr = 0;	/* saved attr for 'cursorcolumn' */
-    int		syntax_attr = 0;	/* attributes desired by syntax */
-    int		has_syntax = FALSE;	/* this buffer has syntax highl. */
-    int		save_did_emsg;
-    int		eol_hl_off = 0;		/* 1 if highlighted char after EOL */
-    int		draw_color_col = FALSE;	/* highlight colorcolumn */
-    int		*color_cols = NULL;	/* pointer to according columns array */
-#endif
 #ifdef FEAT_TEXT_PROP
     int		text_prop_count;
     int		text_prop_next = 0;	// next text property to use
@@ -3150,7 +3082,7 @@ win_line(
 					   chars */
 #endif
 #if defined(FEAT_SIGNS) || defined(FEAT_QUICKFIX) \
-	|| defined(FEAT_SYN_HL) || defined(FEAT_DIFF)
+	|| defined(FEAT_DIFF)
 # define LINE_ATTR
     int		line_attr = 0;		/* attribute for the whole line */
 #endif
@@ -3248,38 +3180,6 @@ win_line(
 	 */
 #ifdef FEAT_LINEBREAK
 	extra_check = wp->w_p_lbr;
-#endif
-#ifdef FEAT_SYN_HL
-	if (syntax_present(wp) && !wp->w_s->b_syn_error
-# ifdef SYN_TIME_LIMIT
-		&& !wp->w_s->b_syn_slow
-# endif
-	   )
-	{
-	    /* Prepare for syntax highlighting in this line.  When there is an
-	     * error, stop syntax highlighting. */
-	    save_did_emsg = did_emsg;
-	    did_emsg = FALSE;
-	    syntax_start(wp, lnum);
-	    if (did_emsg)
-		wp->w_s->b_syn_error = TRUE;
-	    else
-	    {
-		did_emsg = save_did_emsg;
-#ifdef SYN_TIME_LIMIT
-		if (!wp->w_s->b_syn_slow)
-#endif
-		{
-		    has_syntax = TRUE;
-		    extra_check = TRUE;
-		}
-	    }
-	}
-
-	/* Check for columns to display for 'colorcolumn'. */
-	color_cols = wp->w_p_cc_cols;
-	if (color_cols != NULL)
-	    draw_color_col = advance_color_col(VCOL_HLC, &color_cols);
 #endif
 
 #ifdef FEAT_TERMINAL
@@ -3579,9 +3479,6 @@ win_line(
 	 * the end of the line may be before the start of the displayed part.
 	 */
 	if (vcol < v && (
-#ifdef FEAT_SYN_HL
-	     wp->w_p_cuc || draw_color_col ||
-#endif
 	     virtual_active() ||
 	     (VIsual_active && wp->w_buffer == curwin->w_buffer)))
 	    vcol = v;
@@ -3648,11 +3545,6 @@ win_line(
 	    }
 	    wp->w_cursor = pos;
 
-# ifdef FEAT_SYN_HL
-	    /* Need to restart syntax highlighting for this line. */
-	    if (has_syntax)
-		syntax_start(wp, lnum);
-# endif
 	}
 #endif
     }
@@ -3744,20 +3636,6 @@ win_line(
     }
 #endif
 
-#ifdef FEAT_SYN_HL
-    // Cursor line highlighting for 'cursorline' in the current window.
-    if (wp->w_p_cul && lnum == wp->w_cursor.lnum)
-    {
-	// Do not show the cursor line when Visual mode is active, because it's
-	// not clear what is selected then.  Do update w_last_cursorline.
-	if (!(wp == curwin && VIsual_active))
-	{
-	    line_attr = HL_ATTR(HLF_CUL);
-	    area_highlighting = TRUE;
-	}
-	wp->w_last_cursorline = wp->w_cursor.lnum;
-    }
-#endif
 
 #ifdef FEAT_TEXT_PROP
     {
@@ -3961,15 +3839,6 @@ win_line(
 		    }
 		    n_extra = number_width(wp) + 1;
 		    char_attr = hl_combine_attr(wcr_attr, HL_ATTR(HLF_N));
-#ifdef FEAT_SYN_HL
-		    /* When 'cursorline' is set highlight the line number of
-		     * the current line differently.
-		     * TODO: Can we use CursorLine instead of CursorLineNr
-		     * when CursorLineNr isn't set? */
-		    if ((wp->w_p_cul || wp->w_p_rnu)
-						 && lnum == wp->w_cursor.lnum)
-			char_attr = hl_combine_attr(wcr_attr, HL_ATTR(HLF_CLN));
-#endif
 		}
 	    }
 
@@ -3999,11 +3868,6 @@ win_line(
 		    if (diff_hlf != (hlf_T)0)
 		    {
 			char_attr = HL_ATTR(diff_hlf);
-#  ifdef FEAT_SYN_HL
-			if (wp->w_p_cul && lnum == wp->w_cursor.lnum)
-			    char_attr = hl_combine_attr(char_attr,
-							    HL_ATTR(HLF_CUL));
-#  endif
 		    }
 # endif
 		    p_extra = NULL;
@@ -4060,12 +3924,6 @@ win_line(
 		     * required when 'linebreak' is also set. */
 		    if (tocol == vcol)
 			tocol += n_extra;
-#ifdef FEAT_SYN_HL
-		    /* combine 'showbreak' with 'cursorline' */
-		    if (wp->w_p_cul && lnum == wp->w_cursor.lnum)
-			char_attr = hl_combine_attr(char_attr,
-							    HL_ATTR(HLF_CUL));
-#endif
 		}
 # endif
 	    }
@@ -4103,11 +3961,6 @@ win_line(
 							    screen_line_flags);
 	    /* Pretend we have finished updating the window.  Except when
 	     * 'cursorcolumn' is set. */
-#ifdef FEAT_SYN_HL
-	    if (wp->w_p_cuc)
-		row = wp->w_cline_row + wp->w_cline_height;
-	    else
-#endif
 		row = wp->w_height;
 	    break;
 	}
@@ -4372,11 +4225,6 @@ win_line(
 			char_attr = hl_combine_attr(
 						  win_attr, text_prop_attr);
 		}
-		else
-#endif
-#ifdef FEAT_SYN_HL
-		if (has_syntax)
-		    char_attr = syntax_attr;
 		else
 #endif
 		    char_attr = 0;
@@ -4679,70 +4527,6 @@ win_line(
 		int	can_spell = TRUE;
 #endif
 
-#ifdef FEAT_SYN_HL
-		// Get syntax attribute, unless still at the start of the line
-		// (double-wide char that doesn't fit).
-		v = (long)(ptr - line);
-		if (has_syntax && v > 0)
-		{
-		    /* Get the syntax attribute for the character.  If there
-		     * is an error, disable syntax highlighting. */
-		    save_did_emsg = did_emsg;
-		    did_emsg = FALSE;
-
-		    syntax_attr = get_syntax_attr((colnr_T)v - 1,
-# ifdef FEAT_SPELL
-						has_spell ? &can_spell :
-# endif
-						NULL, FALSE);
-
-		    if (did_emsg)
-		    {
-			wp->w_s->b_syn_error = TRUE;
-			has_syntax = FALSE;
-			syntax_attr = 0;
-		    }
-		    else
-			did_emsg = save_did_emsg;
-
-		    // combine syntax attribute with 'wincolor'
-		    if (win_attr != 0)
-			syntax_attr = hl_combine_attr(win_attr, syntax_attr);
-
-#ifdef SYN_TIME_LIMIT
-		    if (wp->w_s->b_syn_slow)
-			has_syntax = FALSE;
-#endif
-
-		    /* Need to get the line again, a multi-line regexp may
-		     * have made it invalid. */
-		    line = ml_get_buf(wp->w_buffer, lnum, FALSE);
-		    ptr = line + v;
-
-# ifdef FEAT_TEXT_PROP
-		    // Text properties overrule syntax highlighting or combine.
-		    if (text_prop_attr == 0 || text_prop_combine)
-# endif
-		    {
-			int comb_attr = syntax_attr;
-# ifdef FEAT_TEXT_PROP
-			comb_attr = hl_combine_attr(text_prop_attr, comb_attr);
-# endif
-			if (!attr_pri)
-			    char_attr = comb_attr;
-			else
-			    char_attr = hl_combine_attr(comb_attr, char_attr);
-		    }
-# ifdef FEAT_CONCEAL
-		    /* no concealing past the end of the line, it interferes
-		     * with line highlighting */
-		    if (c == NUL)
-			syntax_flags = 0;
-		    else
-			syntax_flags = get_syntax_info(&syntax_seqnr);
-# endif
-		}
-#endif
 
 #ifdef FEAT_SPELL
 		/* Check spelling (unless at the end of the line).
@@ -4753,9 +4537,6 @@ win_line(
 		{
 		    spell_attr = 0;
 		    if (c != 0 && (
-# ifdef FEAT_SYN_HL
-				!has_syntax ||
-# endif
 				can_spell))
 		    {
 			char_u	*prev_ptr, *p;
