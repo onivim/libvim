@@ -3043,22 +3043,6 @@ win_line(
     int		text_prop_attr = 0;
     int		text_prop_combine = FALSE;
 #endif
-#ifdef FEAT_SPELL
-    int		has_spell = FALSE;	/* this buffer has spell checking */
-# define SPWORDLEN 150
-    char_u	nextline[SPWORDLEN * 2];/* text with start of the next line */
-    int		nextlinecol = 0;	/* column where nextline[] starts */
-    int		nextline_idx = 0;	/* index in nextline[] where next line
-					   starts */
-    int		spell_attr = 0;		/* attributes desired by spelling */
-    int		word_end = 0;		/* last byte with same spell_attr */
-    static linenr_T  checked_lnum = 0;	/* line number for "checked_col" */
-    static int	checked_col = 0;	/* column in "checked_lnum" up to which
-					 * there are no spell errors */
-    static int	cap_col = -1;		/* column to check for Cap word */
-    static linenr_T capcol_lnum = 0;	/* line number where "cap_col" used */
-    int		cur_checked_col = 0;	/* checked column for current line */
-#endif
     int		extra_check = 0;	// has extra highlighting
     int		multi_attr = 0;		/* attributes desired by multibyte */
     int		mb_l = 1;		/* multi-byte byte length */
@@ -3187,42 +3171,6 @@ win_line(
 	}
 #endif
 
-#ifdef FEAT_SPELL
-	if (wp->w_p_spell
-		&& *wp->w_s->b_p_spl != NUL
-		&& wp->w_s->b_langp.ga_len > 0
-		&& *(char **)(wp->w_s->b_langp.ga_data) != NULL)
-	{
-	    /* Prepare for spell checking. */
-	    has_spell = TRUE;
-	    extra_check = TRUE;
-
-	    /* Get the start of the next line, so that words that wrap to the
-	     * next line are found too: "et<line-break>al.".
-	     * Trick: skip a few chars for C/shell/Vim comments */
-	    nextline[SPWORDLEN] = NUL;
-	    if (lnum < wp->w_buffer->b_ml.ml_line_count)
-	    {
-		line = ml_get_buf(wp->w_buffer, lnum + 1, FALSE);
-		spell_cat_line(nextline + SPWORDLEN, line, SPWORDLEN);
-	    }
-
-	    /* When a word wrapped from the previous line the start of the
-	     * current line is valid. */
-	    if (lnum == checked_lnum)
-		cur_checked_col = checked_col;
-	    checked_lnum = 0;
-
-	    /* When there was a sentence end in the previous line may require a
-	     * word starting with capital in this line.  In line 1 always check
-	     * the first word. */
-	    if (lnum != capcol_lnum)
-		cap_col = -1;
-	    if (lnum == 1)
-		cap_col = 0;
-	    capcol_lnum = 0;
-	}
-#endif
 
 	/*
 	 * handle visual active in this window
@@ -3383,44 +3331,6 @@ win_line(
     line = ml_get_buf(wp->w_buffer, lnum, FALSE);
     ptr = line;
 
-#ifdef FEAT_SPELL
-    if (has_spell && !number_only)
-    {
-	/* For checking first word with a capital skip white space. */
-	if (cap_col == 0)
-	    cap_col = getwhitecols(line);
-
-	/* To be able to spell-check over line boundaries copy the end of the
-	 * current line into nextline[].  Above the start of the next line was
-	 * copied to nextline[SPWORDLEN]. */
-	if (nextline[SPWORDLEN] == NUL)
-	{
-	    /* No next line or it is empty. */
-	    nextlinecol = MAXCOL;
-	    nextline_idx = 0;
-	}
-	else
-	{
-	    v = (long)STRLEN(line);
-	    if (v < SPWORDLEN)
-	    {
-		/* Short line, use it completely and append the start of the
-		 * next line. */
-		nextlinecol = 0;
-		mch_memmove(nextline, line, (size_t)v);
-		STRMOVE(nextline + v, nextline + SPWORDLEN);
-		nextline_idx = v + 1;
-	    }
-	    else
-	    {
-		/* Long line, use only the last SPWORDLEN bytes. */
-		nextlinecol = v - SPWORDLEN;
-		mch_memmove(nextline, line + nextlinecol, SPWORDLEN);
-		nextline_idx = SPWORDLEN + 1;
-	    }
-	}
-    }
-#endif
 
     if (wp->w_p_list)
     {
@@ -3504,44 +3414,6 @@ win_line(
 	/* When w_skipcol is non-zero, first line needs 'showbreak' */
 	if (wp->w_p_wrap)
 	    need_showbreak = TRUE;
-#endif
-#ifdef FEAT_SPELL
-	/* When spell checking a word we need to figure out the start of the
-	 * word and if it's badly spelled or not. */
-	if (has_spell)
-	{
-	    int		len;
-	    colnr_T	linecol = (colnr_T)(ptr - line);
-	    hlf_T	spell_hlf = HLF_COUNT;
-
-	    pos = wp->w_cursor;
-	    wp->w_cursor.lnum = lnum;
-	    wp->w_cursor.col = linecol;
-	    len = spell_move_to(wp, FORWARD, TRUE, TRUE, &spell_hlf);
-
-	    /* spell_move_to() may call ml_get() and make "line" invalid */
-	    line = ml_get_buf(wp->w_buffer, lnum, FALSE);
-	    ptr = line + linecol;
-
-	    if (len == 0 || (int)wp->w_cursor.col > ptr - line)
-	    {
-		/* no bad word found at line start, don't check until end of a
-		 * word */
-		spell_hlf = HLF_COUNT;
-		word_end = (int)(spell_to_word_end(ptr, wp) - line + 1);
-	    }
-	    else
-	    {
-		/* bad word found, use attributes until end of word */
-		word_end = wp->w_cursor.col + len + 1;
-
-		/* Turn index into actual attributes. */
-		if (spell_hlf != HLF_COUNT)
-		    spell_attr = highlight_attr[spell_hlf];
-	    }
-	    wp->w_cursor = pos;
-
-	}
 #endif
     }
 
@@ -3962,9 +3834,6 @@ win_line(
 	}
 
 	if (draw_state == WL_LINE && (area_highlighting
-#ifdef FEAT_SPELL
-		|| has_spell
-#endif
 	   ))
 	{
 	    /* handle Visual or match highlighting in this line */
@@ -4519,95 +4388,7 @@ win_line(
 
 	    if (extra_check)
 	    {
-#ifdef FEAT_SPELL
-		int	can_spell = TRUE;
-#endif
 
-
-#ifdef FEAT_SPELL
-		/* Check spelling (unless at the end of the line).
-		 * Only do this when there is no syntax highlighting, the
-		 * @Spell cluster is not used or the current syntax item
-		 * contains the @Spell cluster. */
-		if (has_spell && v >= word_end && v > cur_checked_col)
-		{
-		    spell_attr = 0;
-		    if (c != 0 && (
-				can_spell))
-		    {
-			char_u	*prev_ptr, *p;
-			int	len;
-			hlf_T	spell_hlf = HLF_COUNT;
-			if (has_mbyte)
-			{
-			    prev_ptr = ptr - mb_l;
-			    v -= mb_l - 1;
-			}
-			else
-			    prev_ptr = ptr - 1;
-
-			/* Use nextline[] if possible, it has the start of the
-			 * next line concatenated. */
-			if ((prev_ptr - line) - nextlinecol >= 0)
-			    p = nextline + (prev_ptr - line) - nextlinecol;
-			else
-			    p = prev_ptr;
-			cap_col -= (int)(prev_ptr - line);
-			len = spell_check(wp, p, &spell_hlf, &cap_col,
-								    nochange);
-			word_end = v + len;
-
-			/* In Insert mode only highlight a word that
-			 * doesn't touch the cursor. */
-			if (spell_hlf != HLF_COUNT
-				&& (State & INSERT) != 0
-				&& wp->w_cursor.lnum == lnum
-				&& wp->w_cursor.col >=
-						    (colnr_T)(prev_ptr - line)
-				&& wp->w_cursor.col < (colnr_T)word_end)
-			{
-			    spell_hlf = HLF_COUNT;
-			    spell_redraw_lnum = lnum;
-			}
-
-			if (spell_hlf == HLF_COUNT && p != prev_ptr
-				       && (p - nextline) + len > nextline_idx)
-			{
-			    /* Remember that the good word continues at the
-			     * start of the next line. */
-			    checked_lnum = lnum + 1;
-			    checked_col = (int)((p - nextline) + len - nextline_idx);
-			}
-
-			/* Turn index into actual attributes. */
-			if (spell_hlf != HLF_COUNT)
-			    spell_attr = highlight_attr[spell_hlf];
-
-			if (cap_col > 0)
-			{
-			    if (p != prev_ptr
-				   && (p - nextline) + cap_col >= nextline_idx)
-			    {
-				/* Remember that the word in the next line
-				 * must start with a capital. */
-				capcol_lnum = lnum + 1;
-				cap_col = (int)((p - nextline) + cap_col
-							       - nextline_idx);
-			    }
-			    else
-				/* Compute the actual column. */
-				cap_col += (int)(prev_ptr - line);
-			}
-		    }
-		}
-		if (spell_attr != 0)
-		{
-		    if (!attr_pri)
-			char_attr = hl_combine_attr(char_attr, spell_attr);
-		    else
-			char_attr = hl_combine_attr(spell_attr, char_attr);
-		}
-#endif
 #ifdef FEAT_LINEBREAK
 		/*
 		 * Found last space before word: check for line break.
@@ -5725,14 +5506,6 @@ win_line(
 
     }	/* for every character in the line */
 
-#ifdef FEAT_SPELL
-    /* After an empty line check first word for capital. */
-    if (*skipwhite(line) == NUL)
-    {
-	capcol_lnum = lnum + 1;
-	cap_col = 0;
-    }
-#endif
 #ifdef FEAT_TEXT_PROP
     vim_free(text_props);
     vim_free(text_prop_idxs);

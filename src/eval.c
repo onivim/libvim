@@ -994,65 +994,6 @@ restore_vimvar(int idx, typval_T *save_tv)
     }
 }
 
-#if defined(FEAT_SPELL) || defined(PROTO)
-/*
- * Evaluate an expression to a list with suggestions.
- * For the "expr:" part of 'spellsuggest'.
- * Returns NULL when there is an error.
- */
-    list_T *
-eval_spell_expr(char_u *badword, char_u *expr)
-{
-    typval_T	save_val;
-    typval_T	rettv;
-    list_T	*list = NULL;
-    char_u	*p = skipwhite(expr);
-
-    /* Set "v:val" to the bad word. */
-    prepare_vimvar(VV_VAL, &save_val);
-    vimvars[VV_VAL].vv_type = VAR_STRING;
-    vimvars[VV_VAL].vv_str = badword;
-    if (p_verbose == 0)
-	++emsg_off;
-
-    if (eval1(&p, &rettv, TRUE) == OK)
-    {
-	if (rettv.v_type != VAR_LIST)
-	    clear_tv(&rettv);
-	else
-	    list = rettv.vval.v_list;
-    }
-
-    if (p_verbose == 0)
-	--emsg_off;
-    restore_vimvar(VV_VAL, &save_val);
-
-    return list;
-}
-
-/*
- * "list" is supposed to contain two items: a word and a number.  Return the
- * word in "pp" and the number as the return value.
- * Return -1 if anything isn't right.
- * Used to get the good word and score from the eval_spell_expr() result.
- */
-    int
-get_spellword(list_T *list, char_u **pp)
-{
-    listitem_T	*li;
-
-    li = list->lv_first;
-    if (li == NULL)
-	return -1;
-    *pp = tv_get_string(&li->li_tv);
-
-    li = li->li_next;
-    if (li == NULL)
-	return -1;
-    return (int)tv_get_number(&li->li_tv);
-}
-#endif
-
 /*
  * Top level evaluation function.
  * Returns an allocated typval_T with the result.

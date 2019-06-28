@@ -1534,10 +1534,6 @@ win_found:
 		    && bufref_valid(&aco->new_curbuf)
 		    && aco->new_curbuf.br_buf->b_ml.ml_mfp != NULL)
 	    {
-# if defined(FEAT_SPELL)
-		if (curwin->w_s == &curbuf->b_s)
-		    curwin->w_s = &aco->new_curbuf.br_buf->b_s;
-# endif
 		--curbuf->b_nwindows;
 		curbuf = aco->new_curbuf.br_buf;
 		curwin->w_buffer = curbuf;

@@ -3169,9 +3169,6 @@ static void nv_zet(cmdarg_T *cap) {
   long old_fdl = curwin->w_p_fdl;
   int old_fen = curwin->w_p_fen;
 #endif
-#ifdef FEAT_SPELL
-  int undo = FALSE;
-#endif
   long siso = get_sidescrolloff_value();
 
   if (VIM_ISDIGIT(nchar)) {
@@ -3543,59 +3540,6 @@ dozet:
     break;
 
 #endif /* FEAT_FOLDING */
-
-#ifdef FEAT_SPELL
-  case 'u': /* "zug" and "zuw": undo "zg" and "zw" */
-    ++no_mapping;
-    ++allow_keys; /* no mapping for nchar, but allow key codes */
-    nchar = plain_vgetc();
-    LANGMAP_ADJUST(nchar, TRUE);
-    --no_mapping;
-    --allow_keys;
-    if (vim_strchr((char_u *)"gGwW", nchar) == NULL) {
-      clearopbeep(cap->oap);
-      break;
-    }
-    undo = TRUE;
-    /* FALLTHROUGH */
-
-  case 'g': /* "zg": add good word to word list */
-  case 'w': /* "zw": add wrong word to word list */
-  case 'G': /* "zG": add good word to temp word list */
-  case 'W': /* "zW": add wrong word to temp word list */
-  {
-    char_u *ptr = NULL;
-    int len;
-
-    if (checkclearop(cap->oap))
-      break;
-    if (VIsual_active && get_visual_text(cap, &ptr, &len) == FAIL)
-      return;
-    if (ptr == NULL) {
-      pos_T pos = curwin->w_cursor;
-
-      /* Find bad word under the cursor.  When 'spell' is
-       * off this fails and find_ident_under_cursor() is
-       * used below. */
-      emsg_off++;
-      len = spell_move_to(curwin, FORWARD, TRUE, TRUE, NULL);
-      emsg_off--;
-      if (len != 0 && curwin->w_cursor.col <= pos.col)
-        ptr = ml_get_pos(&curwin->w_cursor);
-      curwin->w_cursor = pos;
-    }
-
-    if (ptr == NULL && (len = find_ident_under_cursor(&ptr, FIND_IDENT)) == 0)
-      return;
-    spell_add_word(ptr, len, nchar == 'w' || nchar == 'W',
-                   (nchar == 'G' || nchar == 'W') ? 0 : (int)cap->count1, undo);
-  } break;
-
-  case '=': /* "z=": suggestions for a badly spelled word  */
-    if (!checkclearop(cap->oap))
-      spell_suggest((int)cap->count0);
-    break;
-#endif
 
   default:
     clearopbeep(cap->oap);
@@ -4805,26 +4749,6 @@ static void nv_brackets(cmdarg_T *cap) {
     if (diff_move_to(cap->cmdchar == ']' ? FORWARD : BACKWARD, cap->count1) ==
         FAIL)
       clearopbeep(cap->oap);
-  }
-#endif
-
-#ifdef FEAT_SPELL
-  /*
-   * "[s", "[S", "]s" and "]S": move to next spell error.
-   */
-  else if (cap->nchar == 's' || cap->nchar == 'S') {
-    setpcmark();
-    for (n = 0; n < cap->count1; ++n)
-      if (spell_move_to(curwin, cap->cmdchar == ']' ? FORWARD : BACKWARD,
-                        cap->nchar == 's' ? TRUE : FALSE, FALSE, NULL) == 0) {
-        clearopbeep(cap->oap);
-        break;
-      } else
-        curwin->w_set_curswant = TRUE;
-#ifdef FEAT_FOLDING
-    if (cap->oap->op_type == OP_NOP && (fdo_flags & FDO_SEARCH) && KeyTyped)
-      foldOpenCursor();
-#endif
   }
 #endif
 

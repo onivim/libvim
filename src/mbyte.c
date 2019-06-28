@@ -778,11 +778,6 @@ codepage_invalid:
      * after Vim has been setup for the new encoding. */
     apply_autocmds(EVENT_ENCODINGCHANGED, NULL, (char_u *)"", FALSE, curbuf);
 
-#ifdef FEAT_SPELL
-    /* Need to reload spell dictionaries */
-    spell_reload();
-#endif
-
     return NULL;
 }
 
@@ -4147,23 +4142,6 @@ mb_charlen(char_u *str)
 
     return count;
 }
-
-#if defined(FEAT_SPELL) || defined(PROTO)
-/*
- * Like mb_charlen() but for a string with specified length.
- */
-    int
-mb_charlen_len(char_u *str, int len)
-{
-    char_u	*p = str;
-    int		count;
-
-    for (count = 0; *p != NUL && p < str + len; count++)
-	p += (*mb_ptr2len)(p);
-
-    return count;
-}
-#endif
 
 /*
  * Try to un-escape a multi-byte character.

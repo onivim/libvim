@@ -1055,11 +1055,6 @@ free_all_mem(void)
     if (!ONE_WINDOW)
 	do_cmdline_cmd((char_u *)"only!");
 
-# if defined(FEAT_SPELL)
-    /* Free all spell info. */
-    spell_free_all();
-# endif
-
     // Clear user commands (before deleting buffers).
     ex_comclear(NULL);
 
@@ -1546,7 +1541,7 @@ vim_strup(
     }
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Make string "s" all upper-case and return it in allocated memory.
  * Handles multi-byte characters as well as possible.
@@ -3635,7 +3630,7 @@ vimpty_getenv(const char_u *string)
 
 #endif /* !defined(HAVE_SETENV) && !defined(HAVE_PUTENV) */
 
-#if defined(FEAT_EVAL) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Return 0 for not writable, 1 for writable file, 2 for a dir which we have
  * rights to write into.
@@ -3670,7 +3665,7 @@ filewritable(char_u *fname)
 }
 #endif
 
-#if defined(FEAT_SPELL) || defined(FEAT_PERSISTENT_UNDO) || defined(PROTO)
+#if defined(FEAT_PERSISTENT_UNDO) || defined(PROTO)
 /*
  * Read 2 bytes from "fd" and turn them into an int, MSB first.
  * Returns -1 when encountering EOF.
@@ -3862,7 +3857,7 @@ time_to_bytes(time_T the_time, char_u *buf)
 
 #endif
 
-#if defined(FEAT_QUICKFIX) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_QUICKFIX) || defined(PROTO)
 /*
  * Return TRUE if string "s" contains a non-ASCII character (128 or higher).
  * When "s" is NULL FALSE is returned.
