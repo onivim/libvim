@@ -287,56 +287,72 @@ show_autocmd(AutoPat *ap, event_T event)
     // when "q" has been hit for the "--more--" prompt
     if (got_int)
 	return;
+    
     if (ap->pat == NULL)		// pattern has been removed
 	return;
 
-    msg_putchar('\n');
-    if (got_int)
+    if (got_int) 
 	return;
+    
+    msg_T *msg = msg2_create(MSG_INFO);
+    msg2_put("\n", msg);
     if (event != last_event || ap->group != last_group)
     {
 	if (ap->group != AUGROUP_DEFAULT)
 	{
 	    if (AUGROUP_NAME(ap->group) == NULL)
-		msg_puts_attr((char *)get_deleted_augroup(), HL_ATTR(HLF_E));
+        msg2_put((char *)get_deleted_augroup(), msg);
 	    else
-		msg_puts_attr((char *)AUGROUP_NAME(ap->group), HL_ATTR(HLF_T));
-	    msg_puts("  ");
+        msg2_put((char *)AUGROUP_NAME(ap->group), msg);
+        
+	    msg2_put("  ", msg);
 	}
-	msg_puts_attr((char *)event_nr2name(event), HL_ATTR(HLF_T));
+
+    msg2_put((char *)event_nr2name(event), msg);
 	last_event = event;
 	last_group = ap->group;
-	msg_putchar('\n');
+    msg2_put("\n", msg);
 	if (got_int)
+        msg2_free(msg);
 	    return;
     }
     msg_col = 4;
-    msg_outtrans(ap->pat);
+
+    msg2_put(ap->pat, msg);
 
     for (ac = ap->cmds; ac != NULL; ac = ac->next)
     {
 	if (ac->cmd != NULL)		// skip removed commands
 	{
 	    if (msg_col >= 14)
-		msg_putchar('\n');
+		msg2_put("\n", msg);
 	    msg_col = 14;
-	    if (got_int)
-		return;
-	    msg_outtrans(ac->cmd);
+	    if (got_int) {
+            msg2_free(msg);
+            return;
+        }
+        msg2_put(ac->cmd, msg);
 #ifdef FEAT_EVAL
 	    if (p_verbose > 0)
 		last_set_msg(ac->script_ctx);
 #endif
-	    if (got_int)
-		return;
+	    if (got_int) {
+            msg2_free(msg);
+            return;
+        }
 	    if (ac->next != NULL)
 	    {
-		msg_putchar('\n');
-		if (got_int)
+		msg2_put("\n", msg);
+		if (got_int) {
+            msg2_free(msg);
 		    return;
+            }
 	    }
 	}
     }
+
+    msg2_send(msg);
+    msg2_free(msg);
 }
 
 /*

@@ -3864,7 +3864,6 @@ cmdsrv_main(
 
     if (didone)
     {
-	display_errors();	/* display any collected messages */
 	exit(exiterr);	/* Mission accomplished - get out */
     }
 

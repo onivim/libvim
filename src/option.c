@@ -8957,22 +8957,27 @@ showoneopt(
 
     varp = get_varp_scope(p, opt_flags);
 
+    msg_T *msg = msg2_create(MSG_INFO);
+
     /* for 'modified' we also need to check if 'ff' or 'fenc' changed. */
     if ((p->flags & P_BOOL) && ((int *)varp == &curbuf->b_changed
 					? !curbufIsChanged() : !*(int *)varp))
-	msg_puts("no");
+	msg2_put("no", msg);
     else if ((p->flags & P_BOOL) && *(int *)varp < 0)
-	msg_puts("--");
+	msg2_put("--", msg);
     else
-	msg_puts("  ");
-    msg_puts(p->fullname);
+	msg2_put("  ", msg);
+    msg2_put(p->fullname, msg);
     if (!(p->flags & P_BOOL))
     {
-	msg_putchar('=');
+	msg2_put("=", msg);
 	/* put value string in NameBuff */
 	option_value2string(p, opt_flags);
-	msg_outtrans(NameBuff);
+    msg2_put(NameBuff, msg);
     }
+
+    msg2_send(msg);
+    msg2_free(msg);
 
     silent_mode = save_silent;
     info_message = FALSE;

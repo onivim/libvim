@@ -585,6 +585,7 @@ OBJ = \
 	$(OUTDIR)/memfile.o \
 	$(OUTDIR)/memline.o \
 	$(OUTDIR)/message.o \
+	$(OUTDIR)/message2.o \
 	$(OUTDIR)/misc1.o \
 	$(OUTDIR)/misc2.o \
 	$(OUTDIR)/move.o \
@@ -599,6 +600,7 @@ OBJ = \
 	$(OUTDIR)/quickfix.o \
 	$(OUTDIR)/regexp.o \
 	$(OUTDIR)/screen.o \
+	$(OUTDIR)/sds.o \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
 	$(OUTDIR)/sign.o \

@@ -8500,10 +8500,12 @@ ex_echo(exarg_T *eap)
     char_u	*tofree;
     char_u	*p;
     int		needclr = TRUE;
-    int		atstart = TRUE;
     char_u	numbuf[NUMBUFLEN];
     int		did_emsg_before = did_emsg;
     int		called_emsg_before = called_emsg;
+
+
+    msg_T* msg = msg2_create(MSG_INFO);
 
     if (eap->skip)
 	++emsg_skip;
@@ -8531,24 +8533,9 @@ ex_echo(exarg_T *eap)
 
 	if (!eap->skip)
 	{
-	    if (atstart)
-	    {
-		atstart = FALSE;
-		/* Call msg_start() after eval1(), evaluating the expression
-		 * may cause a message to appear. */
-		if (eap->cmdidx == CMD_echo)
-		{
-		    /* Mark the saved text as finishing the line, so that what
-		     * follows is displayed on a new line when scrolling back
-		     * at the more prompt. */
-		    msg_sb_eol();
-		    msg_start();
-		}
-	    }
-	    else if (eap->cmdidx == CMD_echo)
-		msg_puts_attr(" ", echo_attr);
 	    p = echo_string(&rettv, &tofree, numbuf, get_copyID());
-	    if (p != NULL)
+	    if (p != NULL) {
+        msg2_put(p, msg);
 		for ( ; *p != NUL && !got_int; ++p)
 		{
 		    if (*p == '\n' || *p == '\r' || *p == TAB)
@@ -8574,6 +8561,7 @@ ex_echo(exarg_T *eap)
 			    (void)msg_outtrans_len_attr(p, 1, echo_attr);
 		    }
 		}
+        }
 	    vim_free(tofree);
 	}
 	clear_tv(&rettv);
@@ -8588,9 +8576,13 @@ ex_echo(exarg_T *eap)
 	/* remove text that may still be there from the command */
 	if (needclr)
 	    msg_clr_eos();
-	if (eap->cmdidx == CMD_echo)
+	if (eap->cmdidx == CMD_echo) {
 	    msg_end();
+        msg2_send(msg);
+        }
     }
+
+    msg2_free(msg);
 }
 
 /*
@@ -8667,6 +8659,10 @@ ex_execute(exarg_T *eap)
 
 	if (eap->cmdidx == CMD_echomsg)
 	{
+        msg_T *msg = msg2_create(MSG_INFO);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    msg_attr(ga.ga_data, echo_attr);
 	    out_flush();
 	}
@@ -8675,6 +8671,10 @@ ex_execute(exarg_T *eap)
 	    /* We don't want to abort following commands, restore did_emsg. */
 	    save_did_emsg = did_emsg;
 	    emsg(ga.ga_data);
+        msg_T *msg = msg2_create(MSG_ERROR);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    if (!force_abort)
 		did_emsg = save_did_emsg;
 	}
