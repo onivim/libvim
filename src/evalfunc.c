@@ -5914,18 +5914,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	varnumber_T timeout = 100;
-
-	if (argvars[0].v_type != VAR_UNKNOWN)
-	    timeout = tv_get_number(&argvars[0]);
-
-	(void)ui_get_winpos(&x, &y, timeout);
-    }
-#endif
     list_append_number(rettv->vval.v_list, (varnumber_T)x);
     list_append_number(rettv->vval.v_list, (varnumber_T)y);
 }
@@ -5938,17 +5926,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = x;
-    }
-#endif
 }
 
 /*
@@ -5958,16 +5935,6 @@ f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposy(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = y;
-    }
-#endif
 }
 
 /*
@@ -6400,9 +6367,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef TERMINFO
 	"terminfo",
-#endif
-#ifdef FEAT_TERMRESPONSE
-	"termresponse",
 #endif
 #ifdef FEAT_TEXTOBJ
 	"textobjects",
