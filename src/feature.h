@@ -403,14 +403,6 @@
 #endif
 
 /*
- * +conceal		'conceal' option.  Needs syntax highlighting
- *			as this is how the concealed text is defined.
- */
-#if defined(FEAT_BIG) && defined(FEAT_SYN_HL)
-# define FEAT_CONCEAL
-#endif
-
-/*
  * +textprop		Text properties and popup windows
  */
 #if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
@@ -959,6 +951,7 @@
 #undef FEAT_AUTOSERVERNAME
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
+#undef FEAT_CONCEAL
 #undef FEAT_CRYPT
 /*
  * +footer		Motif only: Add a message area at the bottom of the

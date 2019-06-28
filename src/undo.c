@@ -2932,18 +2932,6 @@ u_undo_end(
     else
 	u_add_time(msgbuf, sizeof(msgbuf), uhp->uh_time);
 
-#ifdef FEAT_CONCEAL
-    {
-	win_T	*wp;
-
-	FOR_ALL_WINDOWS(wp)
-	{
-	    if (wp->w_buffer == curbuf && wp->w_p_cole > 0)
-		redraw_win_later(wp, NOT_VALID);
-	}
-    }
-#endif
-
     smsg_attr_keep(0, _("%ld %s; %s #%ld  %s"),
 	    u_oldcount < 0 ? -u_oldcount : u_oldcount,
 	    _(msgstr),

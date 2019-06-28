@@ -286,12 +286,6 @@ typedef struct
     int		wo_wrap_save;	/* 'wrap' state saved for diff mode*/
 # define w_p_wrap_save w_onebuf_opt.wo_wrap_save
 #endif
-#ifdef FEAT_CONCEAL
-    char_u	*wo_cocu;		/* 'concealcursor' */
-# define w_p_cocu w_onebuf_opt.wo_cocu
-    long	wo_cole;		/* 'conceallevel' */
-# define w_p_cole w_onebuf_opt.wo_cole
-#endif
     int		wo_crb;
 #define w_p_crb w_onebuf_opt.wo_crb	/* 'cursorbind' */
     int		wo_crb_save;	/* 'cursorbind' state saved for diff mode*/
@@ -2590,9 +2584,6 @@ struct matchitem
     regmmatch_T	match;	    /* regexp program for pattern */
     posmatch_T	pos;	    /* position matches */
     match_T	hl;	    /* struct for doing the actual highlighting */
-#ifdef FEAT_CONCEAL
-    int		conceal_char; /* cchar for Conceal highlighting */
-#endif
 };
 
 // Structure to store last cursor position and topline.  Used by check_lnums()
