@@ -40,6 +40,7 @@ typedef enum
 typedef struct
 {
     sds contents;
+    sds title;
     msgPriority_T priority;
 } msg_T;
 
@@ -2377,7 +2378,7 @@ typedef struct {
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 
-typedef void (*MessageCallback)(char_u *msg, msgPriority_T priority);
+typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 
 #ifdef FEAT_DIFF
 /*

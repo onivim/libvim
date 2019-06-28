@@ -5,14 +5,17 @@
 #define MAX_TEST_MESSAGE 8192
 
 char_u lastMessage[MAX_TEST_MESSAGE];
+char_u lastTitle[MAX_TEST_MESSAGE];
 msgPriority_T lastPriority;
 
-void onMessage(char_u* msg, msgPriority_T priority) {
-  printf("onMessage: %s!\n", msg);
+void onMessage(char_u *title, char_u* msg, msgPriority_T priority) {
+  printf("onMessage - title: |%s| contents: |%s|", title, msg);
 
   assert(strlen(msg) < MAX_TEST_MESSAGE);
+  assert(strlen(title) < MAX_TEST_MESSAGE);
 
   strcpy(lastMessage, msg);
+  strcpy(lastTitle, title);
   lastPriority = priority;
 };
 
@@ -58,6 +61,18 @@ MU_TEST(test_msg2_send_triggers_callback) {
   msg2_free(msg);
 
   mu_check(strcmp(lastMessage, "testing") == 0);
+  mu_check(lastPriority == MSG_INFO);
+};
+
+MU_TEST(test_msg2_title) {
+  msg_T* msg = msg2_create(MSG_INFO);  
+  msg2_set_title("test-title", msg);
+  msg2_put("test-contents", msg);
+  msg2_send(msg);
+  msg2_free(msg);
+
+  mu_check(strcmp(lastMessage, "test-contents") == 0);
+  mu_check(strcmp(lastTitle, "test-title") == 0);
   mu_check(lastPriority == MSG_INFO);
 };
 
@@ -155,6 +170,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_msg2_put);
   MU_RUN_TEST(test_msg2_put_multiple);
   MU_RUN_TEST(test_msg2_send_triggers_callback);
+  MU_RUN_TEST(test_msg2_title);
   MU_RUN_TEST(test_echo);
   MU_RUN_TEST(test_echom);
   MU_RUN_TEST(test_buffers);

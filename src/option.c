@@ -8949,7 +8949,6 @@ showoneopt(
     struct vimoption	*p,
     int			opt_flags)	/* OPT_LOCAL or OPT_GLOBAL */
 {
-    printf("SHOW ONE OPT\n");
     char_u	*varp;
     int		save_silent = silent_mode;
 
