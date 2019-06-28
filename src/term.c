@@ -1874,7 +1874,6 @@ set_termname(char_u *term)
 		report_default_term(term);
 		set_string_option_direct((char_u *)"term", -1, term,
 								 OPT_FREE, 0);
-		display_errors();
 	    }
 	    out_flush();
 #ifdef HAVE_TGETENT
