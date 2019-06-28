@@ -55,6 +55,10 @@ void vimSetWindowSplitCallback(WindowSplitCallback f) {
   windowSplitCallback = f;
 }
 
+void vimSetWindowMovementCallback(WindowMovementCallback f) {
+  windowMovementCallback = f;
+}
+
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
 char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }

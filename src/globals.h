@@ -49,6 +49,7 @@ EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
+EXTERN WindowMovementCallback windowMovementCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine

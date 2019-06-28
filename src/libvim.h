@@ -155,6 +155,7 @@ void vimWindowSetWidth(int width);
 void vimWindowSetHeight(int height);
 
 void vimSetWindowSplitCallback(WindowSplitCallback callback);
+void vimSetWindowMovementCallback(WindowMovementCallback callback);
 
 /***
  * Misc

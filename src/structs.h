@@ -44,7 +44,22 @@ typedef enum
     TAB_PAGE,
 } windowSplit_T;
 
+typedef enum
+{
+    ONE_LEFT,
+    ONE_RIGHT,
+    ONE_UP,
+    ONE_DOWN,
+    FULL_LEFT,
+    FULL_RIGHT,
+    FULL_UP,
+    FULL_DOWN,
+    TOP_LEFT,
+    BOTTOM_RIGHT
+} windowMovement_T;
+
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
+typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 
 typedef struct
 {
