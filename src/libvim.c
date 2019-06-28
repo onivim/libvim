@@ -51,6 +51,10 @@ void vimSetMessageCallback(MessageCallback f) {
   messageCallback = f;
 }
 
+void vimSetWindowSplitCallback(WindowSplitCallback f) {
+  windowSplitCallback = f;
+}
+
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
 char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }

@@ -154,6 +154,8 @@ int vimWindowGetTopLine(void);
 void vimWindowSetWidth(int width);
 void vimWindowSetHeight(int height);
 
+void vimSetWindowSplitCallback(WindowSplitCallback callback);
+
 /***
  * Misc
  ***/
