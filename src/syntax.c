@@ -181,16 +181,6 @@ static char *(highlight_init_light[]) = {
 	 "Question term=standout ctermfg=DarkGreen gui=bold guifg=SeaGreen"),
     CENT("Search term=reverse ctermbg=Yellow ctermfg=NONE",
 	 "Search term=reverse ctermbg=Yellow ctermfg=NONE guibg=Yellow guifg=NONE"),
-#ifdef FEAT_SPELL
-    CENT("SpellBad term=reverse ctermbg=LightRed",
-	 "SpellBad term=reverse ctermbg=LightRed guisp=Red gui=undercurl"),
-    CENT("SpellCap term=reverse ctermbg=LightBlue",
-	 "SpellCap term=reverse ctermbg=LightBlue guisp=Blue gui=undercurl"),
-    CENT("SpellRare term=reverse ctermbg=LightMagenta",
-	 "SpellRare term=reverse ctermbg=LightMagenta guisp=Magenta gui=undercurl"),
-    CENT("SpellLocal term=underline ctermbg=Cyan",
-	 "SpellLocal term=underline ctermbg=Cyan guisp=DarkCyan gui=undercurl"),
-#endif
     CENT("SpecialKey term=bold ctermfg=DarkBlue",
 	 "SpecialKey term=bold ctermfg=DarkBlue guifg=Blue"),
     CENT("Title term=bold ctermfg=DarkMagenta",
@@ -254,16 +244,6 @@ static char *(highlight_init_dark[]) = {
 	 "Search term=reverse ctermbg=Yellow ctermfg=Black guibg=Yellow guifg=Black"),
     CENT("SpecialKey term=bold ctermfg=LightBlue",
 	 "SpecialKey term=bold ctermfg=LightBlue guifg=Cyan"),
-#ifdef FEAT_SPELL
-    CENT("SpellBad term=reverse ctermbg=Red",
-	 "SpellBad term=reverse ctermbg=Red guisp=Red gui=undercurl"),
-    CENT("SpellCap term=reverse ctermbg=Blue",
-	 "SpellCap term=reverse ctermbg=Blue guisp=Blue gui=undercurl"),
-    CENT("SpellRare term=reverse ctermbg=Magenta",
-	 "SpellRare term=reverse ctermbg=Magenta guisp=Magenta gui=undercurl"),
-    CENT("SpellLocal term=underline ctermbg=Cyan",
-	 "SpellLocal term=underline ctermbg=Cyan guisp=Cyan gui=undercurl"),
-#endif
     CENT("Title term=bold ctermfg=LightMagenta",
 	 "Title term=bold ctermfg=LightMagenta gui=bold guifg=Magenta"),
     CENT("WarningMsg term=standout ctermfg=LightRed",

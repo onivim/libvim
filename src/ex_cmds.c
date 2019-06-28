@@ -4054,9 +4054,6 @@ do_ecmd(
 		 * before, reset the local window options to the global
 		 * values.  Also restores old folding stuff. */
 		get_winopts(curbuf);
-#ifdef FEAT_SPELL
-		did_get_winopts = TRUE;
-#endif
 	    }
 	    vim_free(new_name);
 	    au_new_curbuf.br_buf = NULL;
@@ -4278,12 +4275,6 @@ do_ecmd(
     }
 #endif
 
-#ifdef FEAT_SPELL
-    /* If the window options were changed may need to set the spell language.
-     * Can only do this after the buffer has been properly setup. */
-    if (did_get_winopts && curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
-	(void)did_set_spelllang(curwin);
-#endif
 
     if (command == NULL)
     {
@@ -6834,9 +6825,6 @@ prepare_help_buffer(void)
 #endif
 #ifdef FEAT_DIFF
     curwin->w_p_diff = FALSE;	/* No 'diff' */
-#endif
-#ifdef FEAT_SPELL
-    curwin->w_p_spell = FALSE;	/* No spell checking */
 #endif
 
     set_buflisted(FALSE);

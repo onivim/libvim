@@ -3477,9 +3477,6 @@ win_init_empty(win_T *wp)
     wp->w_topfill = 0;
 #endif
     wp->w_botline = 2;
-#if defined(FEAT_SPELL)
-    wp->w_s = &wp->w_buffer->b_s;
-#endif
 }
 
 /*

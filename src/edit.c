@@ -29,9 +29,6 @@ static void internal_format(int textwidth, int second_indent, int flags,
 static void check_auto_format(int);
 static void redo_literal(int c);
 static void start_arrow_common(pos_T *end_insert_pos, int change);
-#ifdef FEAT_SPELL
-static void check_spell_redraw(void);
-#endif
 static void stop_insert(pos_T *end_insert_pos, int esc, int nomove);
 static int echeck_abbr(int);
 static void replace_join(int off);
@@ -3401,26 +3398,7 @@ static void start_arrow_common(pos_T *end_insert_pos, /* can be NULL */
     stop_insert(end_insert_pos, FALSE, FALSE);
     arrow_used = TRUE; /* this means we stopped the current insert */
   }
-#ifdef FEAT_SPELL
-  check_spell_redraw();
-#endif
 }
-
-#ifdef FEAT_SPELL
-/*
- * If we skipped highlighting word at cursor, do it now.
- * It may be skipped again, thus reset spell_redraw_lnum first.
- */
-static void check_spell_redraw(void) {
-  if (spell_redraw_lnum != 0) {
-    linenr_T lnum = spell_redraw_lnum;
-
-    spell_redraw_lnum = 0;
-    redrawWinline(curwin, lnum);
-  }
-}
-
-#endif
 
 /*
  * stop_arrow() is called before a change is made in insert mode.
@@ -4512,9 +4490,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
   int temp;
   static int disabled_redraw = FALSE;
 
-#ifdef FEAT_SPELL
-  check_spell_redraw();
-#endif
 #if defined(FEAT_HANGULIN)
 #if defined(ESC_CHG_TO_ENG_MODE)
   hangul_input_state_set(0);
