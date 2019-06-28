@@ -32,16 +32,16 @@ typedef struct
 
 typedef enum
 {
-    INFO,
-    WARNING,
-    ERROR
+    MSG_INFO,
+    MSG_WARNING,
+    MSG_ERROR,
 } msgPriority_T;
 
 typedef struct
 {
     char_u *str;
     msgPriority_T priority;
-};
+} msg_T;
 
 /*
  * State machine definitions
