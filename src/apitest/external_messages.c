@@ -21,18 +21,6 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-msg_T* msg2_create(msgPriority_T priority) {
-    printf("msg2_create called\n");
-}
-
-void msg2_send(msg_T *msg) {
-    printf("sending message!\n");
-};
-
-void msg2_free(msg_T *msg) {
-    printf("freeing message!\n");
-};
-
 MU_TEST(test_msg2_api) {
   msg_T* msg = msg2_create(MSG_INFO);  
   msg2_send(msg);

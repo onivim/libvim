@@ -20,5 +20,5 @@ void msg2_free(msg_T *msg) {
 };
 
 void msg2_put(char_u *s, msg_T *msg) {
-    printf("putting message: %s\n");
+    printf("putting message: %s\n", s);
 };

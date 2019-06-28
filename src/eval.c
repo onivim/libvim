@@ -8723,6 +8723,10 @@ ex_execute(exarg_T *eap)
 
 	if (eap->cmdidx == CMD_echomsg)
 	{
+        msg_T *msg = msg2_create(MSG_INFO);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    msg_attr(ga.ga_data, echo_attr);
 	    out_flush();
 	}
@@ -8731,6 +8735,10 @@ ex_execute(exarg_T *eap)
 	    /* We don't want to abort following commands, restore did_emsg. */
 	    save_did_emsg = did_emsg;
 	    emsg(ga.ga_data);
+        msg_T *msg = msg2_create(MSG_ERROR);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    if (!force_abort)
 		did_emsg = save_did_emsg;
 	}

@@ -695,6 +695,8 @@ emsg_core(char_u *s)
     msg_nowait = FALSE;			/* wait for this msg */
     r = msg_attr((char *)s, attr);
 
+    printf("EMSG print: %s\n", s);
+
 #ifdef FEAT_JOB_CHANNEL
     emsg_to_channel_log = FALSE;
 #endif
