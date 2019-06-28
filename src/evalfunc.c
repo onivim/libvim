@@ -6492,9 +6492,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef STARTUPTIME
 	"startuptime",
 #endif
-#ifdef FEAT_SYN_HL
-	"syntax",
-#endif
 #if defined(USE_SYSTEM) || !defined(UNIX)
 	"system",
 #endif
@@ -6679,10 +6676,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	else if (STRICMP(name, "browse") == 0)
 	    n = gui.in_use;	/* gui_mch_browse() works when GUI is running */
 # endif
-#endif
-#ifdef FEAT_SYN_HL
-	else if (STRICMP(name, "syntax_items") == 0)
-	    n = syntax_present(curwin);
 #endif
 #if defined(FEAT_TERMINAL) && defined(MSWIN)
 	else if (STRICMP(name, "terminal") == 0)
@@ -12897,20 +12890,6 @@ f_swapname(typval_T *argvars, typval_T *rettv)
 f_synID(typval_T *argvars UNUSED, typval_T *rettv)
 {
     int		id = 0;
-#ifdef FEAT_SYN_HL
-    linenr_T	lnum;
-    colnr_T	col;
-    int		trans;
-    int		transerr = FALSE;
-
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (linenr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-    trans = (int)tv_get_number_chk(&argvars[2], &transerr);
-
-    if (!transerr && lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col < (long)STRLEN(ml_get(lnum)))
-	id = syn_get_id(curwin, lnum, (colnr_T)col, trans, NULL, FALSE);
-#endif
 
     rettv->vval.v_number = id;
 }
@@ -12922,87 +12901,6 @@ f_synID(typval_T *argvars UNUSED, typval_T *rettv)
 f_synIDattr(typval_T *argvars UNUSED, typval_T *rettv)
 {
     char_u	*p = NULL;
-#ifdef FEAT_SYN_HL
-    int		id;
-    char_u	*what;
-    char_u	*mode;
-    char_u	modebuf[NUMBUFLEN];
-    int		modec;
-
-    id = (int)tv_get_number(&argvars[0]);
-    what = tv_get_string(&argvars[1]);
-    if (argvars[2].v_type != VAR_UNKNOWN)
-    {
-	mode = tv_get_string_buf(&argvars[2], modebuf);
-	modec = TOLOWER_ASC(mode[0]);
-	if (modec != 't' && modec != 'c' && modec != 'g')
-	    modec = 0;	/* replace invalid with current */
-    }
-    else
-    {
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
-	if (USE_24BIT)
-	    modec = 'g';
-	else
-#endif
-	    if (t_colors > 1)
-	    modec = 'c';
-	else
-	    modec = 't';
-    }
-
-    switch (TOLOWER_ASC(what[0]))
-    {
-	case 'b':
-		if (TOLOWER_ASC(what[1]) == 'g')	/* bg[#] */
-		    p = highlight_color(id, what, modec);
-		else					/* bold */
-		    p = highlight_has_attr(id, HL_BOLD, modec);
-		break;
-
-	case 'f':					/* fg[#] or font */
-		p = highlight_color(id, what, modec);
-		break;
-
-	case 'i':
-		if (TOLOWER_ASC(what[1]) == 'n')	/* inverse */
-		    p = highlight_has_attr(id, HL_INVERSE, modec);
-		else					/* italic */
-		    p = highlight_has_attr(id, HL_ITALIC, modec);
-		break;
-
-	case 'n':					/* name */
-		p = get_highlight_name_ext(NULL, id - 1, FALSE);
-		break;
-
-	case 'r':					/* reverse */
-		p = highlight_has_attr(id, HL_INVERSE, modec);
-		break;
-
-	case 's':
-		if (TOLOWER_ASC(what[1]) == 'p')	/* sp[#] */
-		    p = highlight_color(id, what, modec);
-							/* strikeout */
-		else if (TOLOWER_ASC(what[1]) == 't' &&
-			TOLOWER_ASC(what[2]) == 'r')
-		    p = highlight_has_attr(id, HL_STRIKETHROUGH, modec);
-		else					/* standout */
-		    p = highlight_has_attr(id, HL_STANDOUT, modec);
-		break;
-
-	case 'u':
-		if (STRLEN(what) <= 5 || TOLOWER_ASC(what[5]) != 'c')
-							/* underline */
-		    p = highlight_has_attr(id, HL_UNDERLINE, modec);
-		else
-							/* undercurl */
-		    p = highlight_has_attr(id, HL_UNDERCURL, modec);
-		break;
-    }
-
-    if (p != NULL)
-	p = vim_strsave(p);
-#endif
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = p;
 }
@@ -13015,13 +12913,6 @@ f_synIDtrans(typval_T *argvars UNUSED, typval_T *rettv)
 {
     int		id;
 
-#ifdef FEAT_SYN_HL
-    id = (int)tv_get_number(&argvars[0]);
-
-    if (id > 0)
-	id = syn_get_final_id(id);
-    else
-#endif
 	id = 0;
 
     rettv->vval.v_number = id;
@@ -13033,55 +12924,9 @@ f_synIDtrans(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_synconcealed(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#if defined(FEAT_SYN_HL) && defined(FEAT_CONCEAL)
-    linenr_T	lnum;
-    colnr_T	col;
-    int		syntax_flags = 0;
-    int		cchar;
-    int		matchid = 0;
-    char_u	str[NUMBUFLEN];
-#endif
 
     rettv_list_set(rettv, NULL);
 
-#if defined(FEAT_SYN_HL) && defined(FEAT_CONCEAL)
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (colnr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-
-    vim_memset(str, NUL, sizeof(str));
-
-    if (rettv_list_alloc(rettv) != FAIL)
-    {
-	if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col <= (long)STRLEN(ml_get(lnum))
-	    && curwin->w_p_cole > 0)
-	{
-	    (void)syn_get_id(curwin, lnum, col, FALSE, NULL, FALSE);
-	    syntax_flags = get_syntax_info(&matchid);
-
-	    /* get the conceal character */
-	    if ((syntax_flags & HL_CONCEAL) && curwin->w_p_cole < 3)
-	    {
-		cchar = syn_get_sub_char();
-		if (cchar == NUL && curwin->w_p_cole == 1)
-		    cchar = (lcs_conceal == NUL) ? ' ' : lcs_conceal;
-		if (cchar != NUL)
-		{
-		    if (has_mbyte)
-			(*mb_char2bytes)(cchar, str);
-		    else
-			str[0] = cchar;
-		}
-	    }
-	}
-
-	list_append_number(rettv->vval.v_list,
-					    (syntax_flags & HL_CONCEAL) != 0);
-	/* -1 to auto-determine strlen */
-	list_append_string(rettv->vval.v_list, str, -1);
-	list_append_number(rettv->vval.v_list, matchid);
-    }
-#endif
 }
 
 /*
@@ -13090,34 +12935,9 @@ f_synconcealed(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_synstack(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_SYN_HL
-    linenr_T	lnum;
-    colnr_T	col;
-    int		i;
-    int		id;
-#endif
 
     rettv_list_set(rettv, NULL);
 
-#ifdef FEAT_SYN_HL
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (colnr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-
-    if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col <= (long)STRLEN(ml_get(lnum))
-	    && rettv_list_alloc(rettv) != FAIL)
-    {
-	(void)syn_get_id(curwin, lnum, (colnr_T)col, FALSE, NULL, TRUE);
-	for (i = 0; ; ++i)
-	{
-	    id = syn_get_stack_item(i);
-	    if (id < 0)
-		break;
-	    if (list_append_number(rettv->vval.v_list, id) == FAIL)
-		break;
-	}
-    }
-#endif
 }
 
     static void

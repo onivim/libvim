@@ -374,7 +374,7 @@ transstr(char_u *s)
 }
 #endif
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_INS_EXPAND) || defined(PROTO)
+#if  defined(FEAT_INS_EXPAND) || defined(PROTO)
 /*
  * Convert the string "str[orglen]" to do ignore-case comparing.  Uses the
  * current locale.
@@ -1479,7 +1479,7 @@ skipdigits(char_u *q)
     return p;
 }
 
-#if defined(FEAT_SYN_HL) || defined(PROTO)
+#if defined(PROTO)
 /*
  * skip over binary digits
  */
