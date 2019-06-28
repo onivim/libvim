@@ -37,6 +37,15 @@ typedef enum
     MSG_ERROR,
 } msgPriority_T;
 
+typedef enum
+{
+    HORIZONTAL_SPLIT,
+    VERTICAL_SPLIT,
+    TAB_EDIT
+} windowSplit_T;
+
+typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
+
 typedef struct
 {
     sds contents;
@@ -2377,7 +2386,6 @@ typedef struct {
 } bufferUpdate_T;
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
-
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 
 #ifdef FEAT_DIFF

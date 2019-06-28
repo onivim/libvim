@@ -48,6 +48,7 @@ EXTERN char_u	*LineWraps INIT(= NULL);	/* line wraps to next line */
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
+EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine

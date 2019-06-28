@@ -6656,6 +6656,12 @@ ex_splitview(exarg_T *eap)
 		       || eap->cmdidx == CMD_tabfind
 		       || eap->cmdidx == CMD_tabnew;
 
+
+    
+
+    /* libvim - noop */
+    return;
+
     if (NOT_IN_POPUP_WINDOW)
 	return;
 
