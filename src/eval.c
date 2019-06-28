@@ -8597,8 +8597,9 @@ printf("echo - 3\n");
 	{
 printf("echo - 4\n");
 	    p = echo_string(&rettv, &tofree, numbuf, get_copyID());
-        printf("ECHO STRING? %s\n");
 	    if (p != NULL) {
+        printf("ECHO STRING? %s\n", p);
+        msg2_put(p, msg);
 		for ( ; *p != NUL && !got_int; ++p)
 		{
 		    if (*p == '\n' || *p == '\r' || *p == TAB)
@@ -8624,7 +8625,6 @@ printf("echo - 4\n");
 			    (void)msg_outtrans_len_attr(p, 1, echo_attr);
 		    }
 		}
-        msg2_put(p, msg);
         }
 	    vim_free(tofree);
 	}

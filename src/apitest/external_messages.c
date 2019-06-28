@@ -40,8 +40,13 @@ MU_TEST(test_msg2_put_multiple) {
 
   msg2_free(msg);
 };
-
 MU_TEST(test_echo) {
+  vimExecute("echo 'hello'");
+
+  mu_check(1 == 0);
+}
+
+MU_TEST(test_echom) {
   vimExecute("echomsg 'hi'");
 
   mu_check(1 == 0);
@@ -71,6 +76,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_msg2_put);
   MU_RUN_TEST(test_msg2_put_multiple);
   MU_RUN_TEST(test_echo);
+  MU_RUN_TEST(test_echom);
   MU_RUN_TEST(test_error);
   MU_RUN_TEST(test_autocmd);
   MU_RUN_TEST(test_changes);
