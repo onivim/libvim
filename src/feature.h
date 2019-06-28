@@ -846,15 +846,6 @@
 # define FIND_REPLACE_DIALOG 1
 #endif
 
-/*
- * +termresponse	send t_RV to obtain terminal response.  Used for xterm
- *			to check if mouse dragging can be used and if term
- *			codes can be obtained.
- */
-#if (defined(FEAT_NORMAL)) && defined(HAVE_TGETENT)
-# define FEAT_TERMRESPONSE
-#endif
-
 #if defined(FEAT_MZSCHEME) && (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)    \
 	|| defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)	\
 	|| defined(FEAT_GUI_MAC))
@@ -970,6 +961,7 @@
 #undef FEAT_SPELL
 #undef FEAT_STL_OPT
 #undef FEAT_SYN_HL
+#undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE
 /*
  * +vtp: Win32 virtual console.
