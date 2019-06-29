@@ -16,6 +16,16 @@ void onWindowSplit(windowSplit_T splitType, char_u* filename) {
   lastSplitType = splitType;
 };
 
+windowMovement_T lastMovement;
+int lastMovementCount;
+
+void onWindowMovement(windowMovement_T movementType, int count) {
+  printf("onWindowMovement - type: |%d| count: |%d|\n", movementType, count);
+
+  lastMovement = movementType;
+  lastMovementCount = count;
+};
+
 void test_setup(void) {
   vimInput("<esc>");
   vimInput("<esc>");
@@ -48,18 +58,31 @@ MU_TEST(test_tabnew) {
   mu_check(lastSplitType == TAB_PAGE);
 }
 
+MU_TEST(test_win_move_down) {
+
+  printf("Entering <c-w>\n");
+  vimInput("<c-w>");
+  printf("Entering <c-j>\n");
+  vimInput("<c-j>");
+
+  mu_check(lastMovement  == ONE_DOWN);
+  mu_check(lastMovementCount == 1);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_vsplit);
   MU_RUN_TEST(test_hsplit);
   MU_RUN_TEST(test_tabnew);
+  MU_RUN_TEST(test_win_move_down);
 }
 
 int main(int argc, char **argv) {
   vimInit(argc, argv);
 
   vimSetWindowSplitCallback(&onWindowSplit);
+  vimSetWindowMovementCallback(&onWindowMovement);
 
   win_setwidth(5);
   win_setheight(100);
