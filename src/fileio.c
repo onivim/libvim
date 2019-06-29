@@ -6048,38 +6048,6 @@ shorten_fnames(int force)
     redraw_tabline = TRUE;
 }
 
-#if defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_GUI_MSWIN) \
-	|| defined(FEAT_GUI_MAC) \
-	|| defined(PROTO)
-/*
- * Shorten all filenames in "fnames[count]" by current directory.
- */
-    void
-shorten_filenames(char_u **fnames, int count)
-{
-    int		i;
-    char_u	dirname[MAXPATHL];
-    char_u	*p;
-
-    if (fnames == NULL || count < 1)
-	return;
-    mch_dirname(dirname, sizeof(dirname));
-    for (i = 0; i < count; ++i)
-    {
-	if ((p = shorten_fname(fnames[i], dirname)) != NULL)
-	{
-	    /* shorten_fname() returns pointer in given "fnames[i]".  If free
-	     * "fnames[i]" first, "p" becomes invalid.  So we need to copy
-	     * "p" first then free fnames[i]. */
-	    p = vim_strsave(p);
-	    vim_free(fnames[i]);
-	    fnames[i] = p;
-	}
-    }
-}
-#endif
-
 /*
  * Add extension to file name - change path/fo.o.h to path/fo.o.h.ext or
  * fo_o_h.ext for MSDOS or when shortname option set.
@@ -6618,9 +6586,6 @@ buf_check_timestamp(
     int		helpmesg = FALSE;
     int		reload = FALSE;
     char	*reason;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-    int		can_reload = FALSE;
-#endif
     off_T	orig_size = buf->b_orig_size;
     int		orig_mode = buf->b_orig_mode;
 #ifdef FEAT_GUI
@@ -6742,9 +6707,6 @@ buf_check_timestamp(
 		else
 		{
 		    helpmesg = TRUE;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-		    can_reload = TRUE;
-#endif
 		    if (reason[2] == 'n')
 		    {
 			mesg = _("W12: Warning: File \"%s\" has changed and the buffer was changed in Vim as well");
@@ -6775,9 +6737,6 @@ buf_check_timestamp(
 	retval = 1;
 	mesg = _("W13: Warning: File \"%s\" has been created after editing started");
 	buf->b_flags |= BF_NEW_W;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-	can_reload = TRUE;
-#endif
     }
 
     if (mesg != NULL)
@@ -6793,21 +6752,6 @@ buf_check_timestamp(
 	    /* Set warningmsg here, before the unimportant and output-specific
 	     * mesg2 has been appended. */
 	    set_vim_var_string(VV_WARNINGMSG, (char_u *)tbuf, -1);
-#endif
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-	    if (can_reload)
-	    {
-		if (*mesg2 != NUL)
-		{
-		    STRCAT(tbuf, "\n");
-		    STRCAT(tbuf, mesg2);
-		}
-		if (do_dialog(VIM_WARNING, (char_u *)_("Warning"),
-			    (char_u *)tbuf,
-			  (char_u *)_("&OK\n&Load File"), 1, NULL, TRUE) == 2)
-		    reload = TRUE;
-	    }
-	    else
 #endif
 	    if (State > NORMAL_BUSY || (State & CMDLINE) || already_warned)
 	    {
