@@ -154,14 +154,14 @@
 #define BOL 1 /*	Match "" at beginning of line. */
 #define EOL 2 /*	Match "" at end of line. */
 #define BRANCH                                                                                     \
-  3 /* node Match this alternative, or the                       \  \ \ \               \          \
+  3 /* node Match this alternative, or the                       \  \ \ \               \ \                                                                                                 \
        next... */
 #define BACK 4    /*	Match "", "next" ptr points backward. */
 #define EXACTLY 5 /* str	Match this string. */
 #define NOTHING 6 /*	Match empty string. */
 #define STAR 7    /* node Match this (simple) thing 0 or more \ times. */
 #define PLUS                                                                                       \
-  8 /* node Match this (simple) thing 1 or more                \   \ \ \                 \         \
+  8 /* node Match this (simple) thing 1 or more                \   \ \ \                 \ \                                                                                                 \
        times. */
 #define MATCH 9     /* node match the operand zero-width */
 #define NOMATCH 10  /* node check for no match with operand */
@@ -169,7 +169,7 @@
 #define NOBEHIND 12 /* node look behind for no match with operand */
 #define SUBPAT 13   /* node match the operand here */
 #define BRACE_SIMPLE                                                                               \
-  14 /* node Match this (simple) thing between m and                 \ \ n \ \           \ \                                                                                                 \
+  14 /* node Match this (simple) thing between m and                 \ \ n \ \           \ \ \                                                                                                 \
       *times (\{m,n\}). */
 #define BOW 15 /*	Match "" after [^a-zA-Z0-9_] */
 #define EOW 16 /*	Match "" at    [^a-zA-Z0-9_] */
@@ -184,7 +184,7 @@
 #define ANY 20   /*	Match any one character. */
 #define ANYOF 21 /* str	Match any character in this string. */
 #define ANYBUT                                                                                     \
-  22 /* str	Match any character not in this                       \ \ \ \              \           \
+  22 /* str	Match any character not in this                       \ \ \ \              \ \                                                                                                 \
         string. */
 #define IDENT 23  /*	Match identifier char */
 #define SIDENT 24 /*	Match identifier char but no digit */
@@ -216,7 +216,7 @@
 #define WITH_NL(op) ((op) >= FIRST_NL && (op) <= LAST_NL)
 
 #define MOPEN                                                                                      \
-  80 /* -89	 Mark this point in input as start of \ \ \ \ \ \                                                                                                 \
+  80 /* -89	 Mark this point in input as start of \ \ \ \ \ \ \                                                                                                 \
       *	 \( subexpr.  MOPEN + 0 marks start of \ match. */
 #define MCLOSE                                                                                     \
   90 /* -99	 Analogous to MOPEN.  MCLOSE + 0 marks              \ \ \ \ \ end of match. */
@@ -225,8 +225,8 @@
 #define BRACE_COMPLEX 140 /* -149 node Match nodes between m & n times */
 
 #define NOPEN                                                                                      \
-  150 /*	Mark this point in input as start of                     \ \ \        \      \            \
-         \                                                                     \      \            \
+  150 /*	Mark this point in input as start of                     \ \ \        \      \ \                                                                                                 \
+         \                                                                     \      \ \                                                                                                 \
               \%( subexpr. */
 #define NCLOSE 151 /*	Analogous to NOPEN. */
 
