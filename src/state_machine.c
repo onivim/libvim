@@ -66,6 +66,7 @@ void sm_execute_normal(char_u *keys) {
 void sm_execute(char_u *keys) {
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
+  vim_free(keys_esc);
 
   // Reset abbr_cnt after each input here,
   // to enable correct cabbrev expansions
