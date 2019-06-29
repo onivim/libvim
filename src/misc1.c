@@ -1266,10 +1266,6 @@ get_keystroke(void)
 	    n = TO_SPECIAL(buf[1], buf[2]);
 	    if (buf[1] == KS_MODIFIER
 		    || n == K_IGNORE
-#ifdef FEAT_GUI
-		    || n == K_VER_SCROLLBAR
-		    || n == K_HOR_SCROLLBAR
-#endif
 	       )
 	    {
 		if (buf[1] == KS_MODIFIER)
@@ -1480,11 +1476,6 @@ vim_beep(
 		ELAPSED_INIT(start_tv);
 #endif
 		if (p_vb
-#ifdef FEAT_GUI
-			/* While the GUI is starting up the termcap is set for
-			 * the GUI but the output still goes to a terminal. */
-			&& !(gui.in_use && gui.starting)
-#endif
 			)
 		{
 		    out_str_cf(T_VB);
@@ -3006,14 +2997,6 @@ prepare_to_exit(void)
     signal(SIGHUP, SIG_IGN);
 #endif
 
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-	gui.dying = TRUE;
-	out_trash();	/* trash any pending output */
-    }
-    else
-#endif
     {
 	windgoto((int)Rows - 1, 0);
 
@@ -3090,11 +3073,7 @@ vim_fexists(char_u *fname)
  */
 
 #ifndef BREAKCHECK_SKIP
-# ifdef FEAT_GUI		    /* assume the GUI only runs on fast computers */
-#  define BREAKCHECK_SKIP 200
-# else
 #  define BREAKCHECK_SKIP 32
-# endif
 #endif
 
 static int	breakcheck_count = 0;
