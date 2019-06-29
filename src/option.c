@@ -353,16 +353,14 @@ struct vimoption {
 #define P_NUM 0x02    /* the option is numeric */
 #define P_STRING 0x04 /* the option is a string */
 #define P_ALLOCED                                                                                  \
-  0x08 /* the string option is in allocated memory, \ \ \ \ \ \ \ \ \ \ \ \ \                                                                                                 \
-          must use free_string_option() when \ \ \ assigning new value. Not \ \ \ set if default \ \
-          \ \ \ \ \ \ is \ the same. */
+  0x08 /* the string option is in allocated memory, must use free_string_option() when assigning   \
+          new value. Not set if default is  the same. */
 #define P_EXPAND                                                                                   \
-  0x10 /* environment expansion.  NOTE: P_EXPAND can         \ \ \ never be \                   \  \
-          \ \ \ \ \ \ \ \ used for local or hidden options! */
+  0x10 /* environment expansion.  NOTE: P_EXPAND can          never be                       used  \
+          for local or hidden options! */
 #define P_NODEFAULT 0x40 /* don't set to default value */
 #define P_DEF_ALLOCED                                                                              \
-  0x80 /* default value is in allocated memory, must          \ \ use \ \ \ vim_free() when \ \ \  \
-          \ \ \ \ \ assigning new value */
+  0x80 /* default value is in allocated memory, must use vim_free() when assigning new value */
 #define P_WAS_SET 0x100 /* option has been set/reset */
 #define P_NO_MKRC 0x200 /* don't include in :mkvimrc output */
 #define P_VI_DEF 0x400  /* Use Vi default for Vim */
