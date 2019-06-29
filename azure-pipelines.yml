@@ -32,9 +32,9 @@ jobs:
     displayName: 'docker run'
   - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && pwd'
     displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test install'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy install'
     displayName: 'docker run'
-  - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy @test build'
+  - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy build'
 
 - job: UbuntuDocker
   displayName: "Linux - Ubuntu 18.10 (Docker)"
