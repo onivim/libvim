@@ -22,7 +22,7 @@ MU_TEST(test_cmdline_null) {
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 0);
 
-  FreeWild(&count, &completions);
+  FreeWild(count, completions);
 }
 
 MU_TEST(test_cmdline_get_type) {
@@ -63,12 +63,12 @@ MU_TEST(test_cmdline_completions) {
   vimInput("e");
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 20);
-  FreeWild(&count, &completions);
+  FreeWild(count, completions);
 
   vimInput("d");
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 1);
-  FreeWild(&count, &completions);
+  FreeWild(count, completions);
 
   vimInput(" ");
   vimInput(".");
@@ -77,7 +77,7 @@ MU_TEST(test_cmdline_completions) {
   vimInput("o");
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 1);
-  FreeWild(&count, &completions);
+  FreeWild(count, completions);
 }
 
 MU_TEST_SUITE(test_suite) {
