@@ -39,11 +39,17 @@ char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum) {
 
 size_t vimBufferGetLineCount(buf_T *buf) { return buf->b_ml.ml_line_count; }
 
-void vimSetBufferUpdateCallback(BufferUpdateCallback f) { bufferUpdateCallback = f; }
+void vimSetBufferUpdateCallback(BufferUpdateCallback f) {
+  bufferUpdateCallback = f;
+}
 
-void vimSetAutoCommandCallback(AutoCommandCallback f) { autoCommandCallback = f; }
+void vimSetAutoCommandCallback(AutoCommandCallback f) {
+  autoCommandCallback = f;
+}
 
-void vimSetMessageCallback(MessageCallback f) { messageCallback = f; }
+void vimSetMessageCallback(MessageCallback f) {
+  messageCallback = f;
+}
 
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
@@ -94,7 +100,8 @@ void vimInput(char_u *input) {
     vim_free((char_u *)ptr);
   }
   /* Trigger CursorMoved if the cursor moved. */
-  if (!finish_op && (has_cursormoved()) && !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
+  if (!finish_op && (has_cursormoved()) &&
+      !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
     if (has_cursormoved())
       apply_autocmds(EVENT_CURSORMOVED, NULL, NULL, FALSE, curbuf);
     last_cursormoved = curwin->w_cursor;
@@ -127,7 +134,8 @@ struct shlNode_elem {
   shlNode_T *next;
 };
 
-void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_highlights,
+void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
+                            int *num_highlights,
                             searchHighlight_T **highlights) {
 
   int v = 1;
@@ -153,8 +161,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_hig
   shlNode_T *cur = head;
 
   while (v == 1) {
-    v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1, SEARCH_KEEP, RE_SEARCH,
-                 end_lnum, NULL, NULL);
+    v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1,
+                 SEARCH_KEEP, RE_SEARCH, end_lnum, NULL, NULL);
 
     if (v == 0) {
       break;

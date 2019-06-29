@@ -15,71 +15,77 @@
  *	      console kills Vim.  Now it only kills vimrun.
  */
 
-#include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
 
-int main(void) {
-  const wchar_t *p;
-  int retval;
-  int inquote = 0;
-  int silent = 0;
-  HANDLE hstdout;
-  DWORD written;
+    int
+main(void)
+{
+    const wchar_t   *p;
+    int		    retval;
+    int		    inquote = 0;
+    int		    silent = 0;
+    HANDLE	    hstdout;
+    DWORD	    written;
 
-  p = (const wchar_t *)GetCommandLineW();
+    p = (const wchar_t *)GetCommandLineW();
 
-  /*
-   * Skip the executable name, which might be in "".
-   */
-  while (*p) {
-    if (*p == L'"')
-      inquote = !inquote;
-    else if (!inquote && *p == L' ') {
-      ++p;
-      break;
+    /*
+     * Skip the executable name, which might be in "".
+     */
+    while (*p)
+    {
+	if (*p == L'"')
+	    inquote = !inquote;
+	else if (!inquote && *p == L' ')
+	{
+	    ++p;
+	    break;
+	}
+	++p;
     }
-    ++p;
-  }
-  while (*p == L' ')
-    ++p;
-
-  /*
-   * "-s" argument: don't wait for a key hit.
-   */
-  if (p[0] == L'-' && p[1] == L's' && p[2] == L' ') {
-    silent = 1;
-    p += 3;
     while (*p == L' ')
-      ++p;
-  }
+	++p;
 
-  /* Print the command, including quotes and redirection. */
-  hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-  WriteConsoleW(hstdout, p, wcslen(p), &written, NULL);
-  WriteConsoleW(hstdout, L"\r\n", 2, &written, NULL);
+    /*
+     * "-s" argument: don't wait for a key hit.
+     */
+    if (p[0] == L'-' && p[1] == L's' && p[2] == L' ')
+    {
+	silent = 1;
+	p += 3;
+	while (*p == L' ')
+	    ++p;
+    }
 
-  /*
-   * Do it!
-   */
-  retval = _wsystem(p);
+    /* Print the command, including quotes and redirection. */
+    hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    WriteConsoleW(hstdout, p, wcslen(p), &written, NULL);
+    WriteConsoleW(hstdout, L"\r\n", 2, &written, NULL);
 
-  if (retval == -1)
-    perror("vimrun system(): ");
-  else if (retval != 0)
-    printf("shell returned %d\n", retval);
+    /*
+     * Do it!
+     */
+    retval = _wsystem(p);
 
-  if (!silent) {
-    puts("Hit any key to close this window...");
+    if (retval == -1)
+	perror("vimrun system(): ");
+    else if (retval != 0)
+	printf("shell returned %d\n", retval);
 
-    while (_kbhit())
-      (void)_getch();
-    (void)_getch();
-  }
+    if (!silent)
+    {
+	puts("Hit any key to close this window...");
 
-  return retval;
+	while (_kbhit())
+	    (void)_getch();
+	(void)_getch();
+    }
+
+    return retval;
 }
