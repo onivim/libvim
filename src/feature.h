@@ -949,8 +949,10 @@
 
 /* GUI features */
 #undef FEAT_GUI
+#undef FEAT_GUI_GTK
 #undef FEAT_GUI_MSWIN
 #undef FEAT_GUI_MAC
+#undef FEAT_GUI_X11
 #undef ALWAYS_USE_GUI
 
 /*
