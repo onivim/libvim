@@ -274,4 +274,18 @@ void vimInit(int argc, char **argv) {
   vimWindowSetWidth(80);
   vimWindowSetHeight(40);
   screenalloc(FALSE);
+
+  // Enable auto-closing pairs by default
+  autoClosingPair_T *pairs =
+      (autoClosingPair_T *)(alloc(sizeof(autoClosingPair_T) * 3));
+  pairs[0].open = '{';
+  pairs[0].close = '}';
+  pairs[1].open = '[';
+  pairs[1].close = ']';
+  pairs[2].open = '(';
+  pairs[2].close = ')';
+
+  p_acp = TRUE;
+  acp_set_pairs(pairs, 3);
+  vim_free(pairs);
 }
