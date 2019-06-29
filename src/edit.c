@@ -2740,58 +2740,6 @@ void insertchar(int c,             /* character to insert or NUL */
    * Do the check for InsertCharPre before the call to vpeekc() because the
    * InsertCharPre autocommand could change the input buffer.
    */
-    if (!ISSPECIAL(c) && (!has_mbyte || (*mb_char2len)(c) == 1) &&	
-      !has_insertcharpre() && vpeekc() != NUL && !(State & REPLACE_FLAG)	
-#ifdef FEAT_RIGHTLEFT	
-      && !p_ri	
-#endif	
-  ) {	
-#define INPUT_BUFLEN 100	
-    char_u buf[INPUT_BUFLEN + 1];	
-    int i;	
-    colnr_T virtcol = 0;	
-
-     buf[0] = c;	
-    i = 1;	
-    if (textwidth > 0)	
-      virtcol = get_nolist_virtcol();	
-    /*	
-     * Stop the string when:	
-     * - no more chars available	
-     * - finding a special character (command key)	
-     * - buffer is full	
-     * - running into the 'textwidth' boundary	
-     * - need to check for abbreviation: A non-word char after a word-char	
-     */	
-    while ((c = vpeekc()) != NUL && !ISSPECIAL(c) &&	
-           (!has_mbyte || MB_BYTE2LEN_CHECK(c) == 1) && i < INPUT_BUFLEN &&	
-           (textwidth == 0 ||	
-            (virtcol += byte2cells(buf[i - 1])) < (colnr_T)textwidth) &&	
-           !(!no_abbr && !vim_iswordc(c) && vim_iswordc(buf[i - 1]))) {	
-#ifdef FEAT_RIGHTLEFT	
-      c = vgetc();	
-      if (p_hkmap && KeyTyped)	
-        c = hkmap(c); /* Hebrew mode mapping */	
-      buf[i++] = c;	
-#else	
-      buf[i++] = vgetc();	
-#endif	
-    }	
-
- #ifdef FEAT_DIGRAPHS	
-    do_digraph(-1);         /* clear digraphs */	
-    do_digraph(buf[i - 1]); /* may be the start of a digraph */	
-#endif	
-    buf[i] = NUL;	
-    ins_str(buf);	
-    if (flags & INSCHAR_CTRLV) {	
-      redo_literal(*buf);	
-      i = 1;	
-    } else	
-      i = 0;	
-    if (buf[i] != NUL)	
-      AppendToRedobuffLit(buf + i, -1);	
-  } else {
     int cc;
 
     if (has_mbyte && (cc = (*mb_char2len)(c)) > 1) {
@@ -2808,7 +2756,6 @@ void insertchar(int c,             /* character to insert or NUL */
       else
         AppendCharToRedobuff(c);
     }
-  }
 }
 
 /*
@@ -5017,12 +4964,17 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
 	    printf("charAfter: %c\n", charAfter);
 		
       colnr_T vcol;
+      if (charBefore == '{' && charAfter == '}') {
       getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
       printf("vcol: %d\n", vcol);
       ins_bs_one(&vcol);
       del_char(TRUE);
       /* ins_del(); */
       printf("vcol after: %d\n", vcol);
+      } else {
+      getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
+      ins_bs_one(&vcol);
+      }
     }
 
     /*
