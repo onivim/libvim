@@ -2473,8 +2473,8 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     ccline.cmdindent = (context->firstc > 0 ? context->indent : 0);
 
     /* alloc initial ccline.cmdbuff */
-    alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
-    if (ccline.cmdbuff == NULL) {
+    int v = realloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
+    if (v == FAIL) {
 	    // out of memory
 	    context->bail_immediately = TRUE;
 	    return context;
