@@ -836,8 +836,8 @@ getcmdline_int(
     ccline.cmdindent = (firstc > 0 ? indent : 0);
 
     /* alloc initial ccline.cmdbuff */
-    alloc_cmdbuff(exmode_active ? 250 : indent + 1);
-    if (ccline.cmdbuff == NULL)
+    int v = realloc_cmdbuff(exmode_active ? 250 : indent + 1);
+    if (v == FAIL)
 	goto theend;	// out of memory
     ccline.cmdlen = ccline.cmdpos = 0;
     ccline.cmdbuff[0] = NUL;
