@@ -232,6 +232,7 @@ typedef enum
  * Only to be used in option.c!
  */
 static int	p_ai;
+static int    p_acp;
 static int	p_bin;
 static int	p_bomb;
 static char_u	*p_bh;
@@ -489,6 +490,9 @@ static struct vimoption options[] =
 			    {(char_u *)0L, (char_u *)0L}
 #endif
 			    SCTX_INIT},
+    {"autoclosingpairs",  "acp",   P_BOOL|P_VI_DEF,
+			    (char_u *)&p_acp, PV_NONE,
+			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
     {"autoindent",  "ai",   P_BOOL|P_VI_DEF,
 			    (char_u *)&p_ai, PV_AI,
 			    {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
