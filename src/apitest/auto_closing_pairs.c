@@ -187,6 +187,31 @@ MU_TEST(test_enter_between_pairs_undo) {
     mu_check(strcmp(vimBufferGetLine(curbuf, 4), "This is the second line of a test file") == 0);
 }
 
+MU_TEST(test_enter_between_pairs_dot) {
+    vimInput("I");
+    vimInput("{");
+    vimInput("<cr>");
+    vimInput("a");
+    vimInput("b");
+    vimInput("<esc>");
+
+    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
+    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
+
+    vimInput("4");
+    vimInput("G");
+    mu_check(vimCursorGetLine() == 4);
+    vimInput(".");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{") == 0);
+    mu_check(strcmp(vimBufferGetLine(curbuf, 2),  "\tab") == 0);
+    mu_check(strcmp(vimBufferGetLine(curbuf, 3), "}This is the first line of a test file") == 0);
+    mu_check(strcmp(vimBufferGetLine(curbuf, 4), "{") == 0);
+    mu_check(strcmp(vimBufferGetLine(curbuf, 5), "\tab") == 0);
+    mu_check(strcmp(vimBufferGetLine(curbuf, 6), "}This is the second line of a test file") == 0);
+}
+
 MU_TEST(test_pass_through_in_pairs) {
     vimInput("I");
     vimInput("{");
@@ -247,6 +272,8 @@ MU_TEST(test_acp_should_pass_through) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+  MU_RUN_TEST(test_setting_acp_option);
+  MU_RUN_TEST(test_acp_should_pass_through);
   MU_RUN_TEST(test_matching_pair_undo_redo);
   MU_RUN_TEST(test_matching_pair_dot);
   MU_RUN_TEST(test_matching_pair_macro);
@@ -254,10 +281,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_enter_between_pairs);
   MU_RUN_TEST(test_enter_between_pairs_undo);
   MU_RUN_TEST(test_enter_between_pairs_dot);
-  /*MU_RUN_TEST(test_pass_through_in_pairs);
-  MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
-  MU_RUN_TEST(test_setting_acp_option);
-  MU_RUN_TEST(test_acp_should_pass_through);*/
+  MU_RUN_TEST(test_pass_through_in_pairs);
+  /*MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);*/
 }
 
 int main(int argc, char **argv) {
