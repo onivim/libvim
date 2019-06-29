@@ -3071,15 +3071,15 @@ int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap, t
 
       /* temporary buffer for simple numeric->string conversion */
 #if defined(FEAT_FLOAT)
-#define TMP_LEN                                                                                    \
-  350 /* On my system 1e308 is the biggest number possible. \ \ That sounds \  \ \ \ \ \ \                                                                                                 \
-       * reasonable to use as the maximum \ printable. */
+#define TMP_LEN
+      350 /* On my system 1e308 is the biggest number possible. That sounds reasonable to use as
+             the maximum  printable. */
 #elif defined(FEAT_NUM64)
 #define TMP_LEN 66
 #else
 #define TMP_LEN 34
 #endif
-      char tmp[TMP_LEN];
+          char tmp[TMP_LEN];
 
       /* string address in case of string argument */
       const char *str_arg = NULL;
