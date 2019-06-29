@@ -43,8 +43,6 @@ MU_TEST(test_matching_pair_undo_redo) {
 }
 
 MU_TEST(test_matching_pair_dot) {
-    /* vimInput("q"); */
-    /* vimInput("a"); */
     vimInput("A");
     vimInput("a");
     vimInput("b");
@@ -111,31 +109,13 @@ MU_TEST(test_backspace_matching_pair) {
 }
 
 MU_TEST(test_enter_between_pairs) {
-    /* vimInput("q"); */
-    /* vimInput("a"); */
     vimInput("I");
     vimInput("{");
     vimInput("<cr>");
     vimInput("a");
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
     vimInput("b");
     vimInput("<esc>");
-
-    printf("REDO BUFFER: |%s|\n", get_inserted());
-
-    /* printf("dot!\n"); */
-    /* vimInput("j"); */
-    /* vimInput("."); */
-    /* /1* vimInput("a"); *1/ */
-    /* vimInput("j"); */
-    /* vimInput("."); */
-
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
-    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
-
+    
     mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 2),  "\tab") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 3), "}This is the first line of a test file") == 0);
@@ -143,41 +123,22 @@ MU_TEST(test_enter_between_pairs) {
 }
 
 MU_TEST(test_enter_between_pairs_undo) {
-    /* vimInput("q"); */
-    /* vimInput("a"); */
     vimInput("I");
     vimInput("{");
     vimInput("<cr>");
     vimInput("a");
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
     vimInput("b");
     vimInput("<esc>");
-
-    /* printf("dot!\n"); */
-    /* vimInput("j"); */
-    /* vimInput("."); */
-    /* /1* vimInput("a"); *1/ */
-    /* vimInput("j"); */
-    /* vimInput("."); */
 
     mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 2),  "\tab") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 3), "}This is the first line of a test file") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 4), "This is the second line of a test file") == 0);
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
-    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
 
     vimInput("u");
     mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 2),  "This is the second line of a test file") == 0);
     mu_check(strcmp(vimBufferGetLine(curbuf, 3), "This is the third line of a test file") == 0);
-
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
-    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
     
     vimInput("<c-r>");
 
@@ -194,10 +155,6 @@ MU_TEST(test_enter_between_pairs_dot) {
     vimInput("a");
     vimInput("b");
     vimInput("<esc>");
-
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
-    printf("Third line: |%s\n", vimBufferGetLine(curbuf, 3));
 
     vimInput("4");
     vimInput("G");
