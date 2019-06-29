@@ -2966,7 +2966,6 @@ highlight_list_two(int cnt, int attr)
 {
     msg_puts_attr(&("N \bI \b!  \b"[cnt / 11]), attr);
     msg_clr_eos();
-    out_flush();
     ui_delay(cnt == 99 ? 40L : (long)cnt * 50L, FALSE);
 }
 

@@ -2573,7 +2573,6 @@ vgetorpeek(int advance)
 			}
 		    }
 		    setcursor();
-		    out_flush();
 		    curwin->w_wcol = old_wcol;
 		    curwin->w_wrow = old_wrow;
 		}
@@ -2826,7 +2825,6 @@ inchar(
     if (wait_time == -1L || wait_time > 100L)  /* flush output before waiting */
     {
 	cursor_on();
-	out_flush_cursor(FALSE, FALSE);
     }
 
     /*
@@ -2903,13 +2901,6 @@ inchar(
 	    }
 	    return retesc;
 	}
-
-	/*
-	 * Always flush the output characters when getting input characters
-	 * from the user and not just peeking.
-	 */
-	if (wait_time == -1L || wait_time > 10L)
-	    out_flush();
 
 	/*
 	 * Fill up to a third of the buffer, because each character may be
@@ -3914,7 +3905,6 @@ showmap(
     if (p_verbose > 0)
 	last_set_msg(mp->m_script_ctx);
 #endif
-    out_flush();			/* show one line at a time */
 }
 
 #if defined(FEAT_EVAL) || defined(PROTO)

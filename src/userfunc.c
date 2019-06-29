@@ -2146,7 +2146,6 @@ ex_function(exarg_T *eap)
 		    if (j < 99)
 			msg_putchar(' ');
 		    msg_prt_line(FUNCLINE(fp, j), FALSE);
-		    out_flush();	/* show a line at a time */
 		    ui_breakcheck();
 		}
 		if (!got_int)

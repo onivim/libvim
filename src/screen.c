@@ -325,14 +325,6 @@ redraw_after_callback(int call_update_screen)
 	setcursor();
     }
     cursor_on();
-#ifdef FEAT_GUI
-    if (gui.in_use && !gui_mch_is_blink_off())
-	// Don't update the cursor when it is blinking and off to avoid
-	// flicker.
-	out_flush_cursor(FALSE, FALSE);
-    else
-#endif
-	out_flush();
 
     --redrawing_for_callback;
 }
@@ -662,10 +654,6 @@ update_screen(int type_arg)
     {
 	if (did_undraw && !gui_mch_is_blink_off())
 	{
-	    mch_disable_flush();
-	    out_flush();	/* required before updating the cursor */
-	    mch_enable_flush();
-
 	    /* Put the GUI position where the cursor was, gui_update_cursor()
 	     * uses that. */
 	    gui.col = gui_cursor_col;
@@ -676,8 +664,6 @@ update_screen(int type_arg)
 	    screen_cur_col = gui.col;
 	    screen_cur_row = gui.row;
 	}
-	else
-	    out_flush();
 	gui_update_scrollbars(FALSE);
     }
 #endif
@@ -725,7 +711,6 @@ update_finish(void)
      * done. */
     if (gui.in_use)
     {
-	out_flush_cursor(FALSE, FALSE);
 	gui_update_scrollbars(FALSE);
     }
 # endif
@@ -5011,14 +4996,6 @@ win_line(
 						      + (unsigned)Columns - 1,
 					  screen_row - 1, (int)(Columns - 1));
 
-		    /* When there is a multi-byte character, just output a
-		     * space to keep it simple. */
-		    if (has_mbyte && MB_BYTE2LEN(ScreenLines[LineOffset[
-					screen_row - 1] + (Columns - 1)]) > 1)
-			out_char(' ');
-		    else
-			out_char(ScreenLines[LineOffset[screen_row - 1]
-							    + (Columns - 1)]);
 		    /* force a redraw of the first char on the next line */
 		    ScreenAttrs[LineOffset[screen_row]] = (sattr_T)-1;
 		    screen_start();	/* don't know where cursor is now */
@@ -7070,14 +7047,6 @@ screen_char(unsigned off, int row, int col)
 	buf[utfc_char2bytes(off, buf)] = NUL;
 	out_str(buf);
     }
-    else
-    {
-	out_flush_check();
-	out_char(ScreenLines[off]);
-	/* double-byte character in single-width cell */
-	if (enc_dbcs == DBCS_JPNU && ScreenLines[off] == 0x8e)
-	    out_char(ScreenLines2[off]);
-    }
 
     screen_cur_col++;
 }
@@ -7106,7 +7075,6 @@ screen_char_2(unsigned off, int row, int col)
     /* Output the first byte normally (positions the cursor), then write the
      * second byte directly. */
     screen_char(off, row, col);
-    out_char(ScreenLines[off + 1]);
     ++screen_cur_col;
 }
 
@@ -7383,8 +7351,6 @@ check_for_delay(int check_msg_scroll)
 	    && !did_wait_return
 	    && emsg_silent == 0)
     {
-	out_flush();
-	ui_delay(1000L, TRUE);
 	emsg_on_display = FALSE;
 	if (check_msg_scroll)
 	    msg_scroll = FALSE;
@@ -8066,18 +8032,13 @@ windgoto(int row, int col)
 		{
 		    if (noinvcurs)
 			screen_stop_highlight();
-		    out_char('\r');
 		    screen_cur_col = 0;
 		}
 		else if (plan == PLAN_NL)
 		{
 		    if (noinvcurs)
 			screen_stop_highlight();
-		    while (screen_cur_row < row)
-		    {
-			out_char('\n');
-			++screen_cur_row;
-		    }
+            screen_cur_row = row;
 		    screen_cur_col = 0;
 		}
 
@@ -8091,8 +8052,6 @@ windgoto(int row, int col)
 		     */
 		    if (T_ND[0] != NUL && T_ND[1] == NUL)
 		    {
-			while (i-- > 0)
-			    out_char(*T_ND);
 		    }
 		    else
 		    {
@@ -8103,11 +8062,8 @@ windgoto(int row, int col)
 			{
 			    if (ScreenAttrs[off] != screen_attr)
 				screen_stop_highlight();
-			    out_flush_check();
-			    out_char(ScreenLines[off]);
 			    if (enc_dbcs == DBCS_JPNU
 						  && ScreenLines[off] == 0x8e)
-				out_char(ScreenLines2[off]);
 			    ++off;
 			}
 		    }
@@ -8629,8 +8585,6 @@ screen_ins_lines(
 
 #ifdef FEAT_GUI
     gui_can_update_cursor();
-    if (gui.in_use)
-	out_flush();	/* always flush after a scroll */
 #endif
     return OK;
 }
@@ -8838,8 +8792,6 @@ screen_del_lines(
     else if (type == USE_NL)
     {
 	windgoto(cursor_end - 1, cursor_col);
-	for (i = line_count; --i >= 0; )
-	    out_char('\n');		/* cursor will remain on same line */
     }
     else
     {
@@ -8875,8 +8827,6 @@ screen_del_lines(
 
 #ifdef FEAT_GUI
     gui_can_update_cursor();
-    if (gui.in_use)
-	out_flush();	/* always flush after a scroll */
 #endif
 
     return OK;
