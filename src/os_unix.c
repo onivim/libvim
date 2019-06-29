@@ -3017,8 +3017,8 @@ static int mch_call_shell_system(char_u *cmd, int options) /* SHELL_*, see vim.h
 #else /* USE_SYSTEM */
 
 #define EXEC_FAILED                                                                                \
-  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells \  \ \ \ \ use that \                                                                                                 \
-         already */
+  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells \  \ \ \ \ use that \  \
+         \ \ already */
 #define OPEN_NULL_FAILED 123 /* Exit code if /dev/null can't be opened */
 
 /*
