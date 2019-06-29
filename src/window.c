@@ -3427,18 +3427,6 @@ close_others(
 	    }
 	    if (!r)
 	    {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-		if (message && (p_confirm || cmdmod.confirm) && p_write)
-		{
-		    dialog_changed(wp->w_buffer, FALSE);
-		    if (!win_valid(wp))		/* autocommands messed wp up */
-		    {
-			nextwp = firstwin;
-			continue;
-		    }
-		}
-		if (bufIsChanged(wp->w_buffer))
-#endif
 		    continue;
 	    }
 	    win_close(wp, !buf_hide(wp->w_buffer)
