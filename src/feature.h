@@ -947,6 +947,12 @@
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
 
+/* GUI features */
+#undef FEAT_GUI
+#undef FEAT_GUI_MSWIN
+#undef FEAT_GUI_MAC
+#undef ALWAYS_USE_GUI
+
 /*
  * The Netbeans feature
  */
