@@ -870,7 +870,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   default:
 
   normalchar:
-    printf("normalchar? %c\n", c);
     /*
      * Insert a normal character.
      */
@@ -887,10 +886,8 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
             c = PTR2CHAR(p);
             if (c == CAR || c == K_KENTER || c == NL)
               ins_eol(c);
-            else  {
+            else
               ins_char(c);
-			printf("ins_char? %c\n", c);
-				    }
           }
           AppendToRedobuffLit(str, -1);
         }
@@ -1823,10 +1820,8 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
               c = PTR2CHAR(p);
               if (c == CAR || c == K_KENTER || c == NL)
                 ins_eol(c);
-              else {
+              else
                 ins_char(c);
-						    printf("ins_char: %c\n", c);
-						    }
             }
             AppendToRedobuffLit(str, -1);
           }
@@ -1861,7 +1856,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
                // what check_abbr() expects.
                (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
            c != Ctrl_RSB)) {
-		    printf("insert_special: %c\n", c);
         insert_special(c, FALSE, FALSE);
 #ifdef FEAT_RIGHTLEFT
         revins_legal++;
@@ -4954,11 +4948,8 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
       colnr_T vcol;
       if (acp_is_cursor_between_pair()) {
       getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
-      printf("vcol: %d\n", vcol);
       ins_bs_one(&vcol);
       del_char(TRUE);
-      //ins_del();
-      printf("vcol after: %d\n", vcol);
       } else {
       getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
       ins_bs_one(&vcol);
@@ -5686,9 +5677,6 @@ int ins_eol(int c) {
 
   int prev_indent = get_indent();
   char_u cur = *ml_get_cursor();
-  printf("CUR is :%c\n", cur);
-  printf("old_indent is: %d\n", old_indent);
-  printf("prev_indent is: %d\n", prev_indent);
 
   /* Put cursor on NUL if on the last char and coladd is 1 (happens after
    * CTRL-O). */
@@ -5712,8 +5700,7 @@ int ins_eol(int c) {
    set_indent(prev_indent, SIN_INSERT);
 
 
-  if (cur == '}') {
-      printf("opening extra line\n");
+  if (acp_is_closing_pair(cur)) {
   i = open_line(FORWARD,
 #ifdef FEAT_COMMENTS
                 has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
