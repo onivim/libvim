@@ -557,9 +557,9 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define VALID_NO_UPDATE                                                        \
   5 /* no new changes, keep the command line if \ possible */
 #define VALID                                                                  \
-  10                /* buffer not changed, or changes marked               \   \
-                       with b_mod_* */
-#define INVERTED 20 /* redisplay inverted part that changed */
+  10 /* buffer not changed, or changes marked               \   \              \
+        with b_mod_* */
+#define INVERTED 20     /* redisplay inverted part that changed */
 #define INVERTED_ALL 25 /* redisplay whole inverted part */
 #define REDRAW_TOP 30   /* display first w_upd_rows screen lines */
 #define SOME_VALID 35   /* like NOT_VALID but may scroll */
@@ -627,7 +627,7 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define NORMAL 0x01 /* Normal mode, command expected */
 #define VISUAL 0x02 /* Visual mode - use get_real_state() */
 #define OP_PENDING                                                             \
-  0x04 /* Normal mode, operator is pending - use                 \             \
+  0x04 /* Normal mode, operator is pending - use                 \ \                                                                             \
           get_real_state() */
 #define CMDLINE 0x08 /* Editing command line */
 #define INSERT 0x10  /* Insert mode */
@@ -671,20 +671,20 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 /* flags for b_flags */
 #define BF_RECOVERED 0x01 /* buffer has been recovered */
 #define BF_CHECK_RO                                                            \
-  0x02 /* need to check readonly when loading file \                                                                             \
-          into buffer (set by ":e", may be reset by \                                                                             \
+  0x02 /* need to check readonly when loading file \ \                                                                             \
+          into buffer (set by ":e", may be reset by \ \                                                                             \
           ":buf" */
 #define BF_NEVERLOADED                                                         \
-  0x04 /* file has never been loaded into buffer, \                                                                             \
-          many variables still need to be set */
+  0x04 /* file has never been loaded into buffer, \ \ many variables still                                                          \
+          need to be set */
 #define BF_NOTEDITED                                                           \
-  0x08                  /* Set when file name is changed after              \  \
-                           starting to edit, reset when file is             \  \
-                           written out. */
-#define BF_NEW 0x10     /* file didn't exist when editing started */
-#define BF_NEW_W 0x20   /* Warned for BF_NEW and file created */
-#define BF_READERR 0x40 /* got errors while reading the file */
-#define BF_DUMMY 0x80   /* dummy buffer, only used internally */
+  0x08                /* Set when file name is changed after              \  \ \
+                         starting to edit, reset when file is             \  \ \
+                         written out. */
+#define BF_NEW 0x10   /* file didn't exist when editing started */
+#define BF_NEW_W 0x20 /* Warned for BF_NEW and file created */
+#define BF_READERR 0x40    /* got errors while reading the file */
+#define BF_DUMMY 0x80      /* dummy buffer, only used internally */
 #define BF_PRESERVED 0x100 /* ":preserve" was used */
 
 /* Mask to check for flags that prevent normal writing */
@@ -842,7 +842,7 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define FNAME_HYP 4  /* check for hypertext link */
 #define FNAME_INCL 8 /* apply 'includeexpr' */
 #define FNAME_REL                                                              \
-  16 /* ".." and "./" are relative to the (current)          \                 \
+  16 /* ".." and "./" are relative to the (current)          \ \                                                                             \
         file instead of the current directory */
 #define FNAME_UNESC 32 /* remove backslashes used for escaping */
 
@@ -891,8 +891,8 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 /* Values returned by mch_nodetype() */
 #define NODE_NORMAL 0 /* file or directory, check with mch_isdir()*/
 #define NODE_WRITABLE                                                          \
-  1 /* something we can write to (character                   \                \
-       device, fifo, socket, ..) */
+  1 /* something we can write to (character                   \ \ device,                                                                       \
+       fifo, socket, ..) */
 #define NODE_OTHER 2 /* non-writable thing (e.g., block device) */
 
 /* Values for readfile() flags */
@@ -952,8 +952,8 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 /* flags for do_ecmd() */
 #define ECMD_HIDE 0x01 /* don't free the current buffer */
 #define ECMD_SET_HELP                                                          \
-  0x02 /* set b_help flag of (new) buffer before            \                  \
-          opening file */
+  0x02 /* set b_help flag of (new) buffer before            \ \ opening file                                                                  \
+        */
 #define ECMD_OLDBUF 0x04  /* use existing buffer if it exists */
 #define ECMD_FORCEIT 0x08 /* ! used in Ex command */
 #define ECMD_ADDBUF 0x10  /* don't edit, just add to buffer list */
@@ -1439,8 +1439,8 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OP_FORMAT2 26      /* "gw" format operator, keeps cursor pos */
 #define OP_FUNCTION 27     /* "g@" call 'operatorfunc' */
 #define OP_NR_ADD                                                              \
-  28 /* "<C-A>" Add to the number or alphabetic \                                                                             \
-        character (OP_ADD conflicts with Perl) */
+  28 /* "<C-A>" Add to the number or alphabetic \ \ character (OP_ADD                                                             \
+        conflicts with Perl) */
 #define OP_NR_SUB                                                              \
   29 /* "<C-X>" Subtract from the number or \ alphabetic character */
 
@@ -1478,8 +1478,8 @@ typedef UINT32_TYPEDEF UINT32_T;
 
 #define MSG_BUF_LEN 480 /* length of buffer for small messages */
 #define MSG_BUF_CLEN                                                           \
-  (MSG_BUF_LEN / 6) /* cell length (worst case: utf-8 \                                                                             \
-                        takes 6 bytes for one cell) */
+  (MSG_BUF_LEN /                                                               \
+   6) /* cell length (worst case: utf-8 \ \ takes 6 bytes for one cell) */
 
 #define FOLD_TEXT_LEN 51 /* buffer size for get_foldtext() */
 
@@ -2113,8 +2113,8 @@ typedef enum {
 #endif
 
 #define SIGN_BYTE                                                              \
-  1 /* byte value used where sign is displayed; \                                                                             \
-       attribute value is sign type */
+  1 /* byte value used where sign is displayed; \ \ attribute value is sign                                                       \
+       type */
 
 #if defined(FEAT_GUI) && defined(FEAT_XCLIPBOARD)
 #ifdef FEAT_GUI_GTK
