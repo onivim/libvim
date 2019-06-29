@@ -27,20 +27,6 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_backspace_matching_pair) {
-    vimInput("i");
-    vimInput("{");
-    vimInput("[");
-
-    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
-    
-    vimInput("<bs>");
-    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}This is the first line of a test file") == 0);
-    
-    vimInput("<bs>");
-    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
-}
-
 MU_TEST(test_matching_pair_undo_redo) {
     vimInput("i");
     vimInput("{");
@@ -56,7 +42,7 @@ MU_TEST(test_matching_pair_undo_redo) {
     mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
 }
 
-MU_TEST(test_backspace_matching_macro_insert) {
+MU_TEST(test_matching_pair_dot) {
     /* vimInput("q"); */
     /* vimInput("a"); */
     vimInput("A");
@@ -67,24 +53,61 @@ MU_TEST(test_backspace_matching_macro_insert) {
     vimInput("[");
     vimInput("{");
     vimInput("d");
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
-    /* vimInput("<bs>"); */
     vimInput("<esc>");
-    /* vimInput("q"); */
 
-    printf("REDO BUFFER: |%s|\n", get_inserted());
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test fileabc{[{d}]}") == 0);
 
-    printf("dot!\n");
-    vimInput("j");
-    vimInput(".");
-    /* vimInput("a"); */
     vimInput("j");
     vimInput(".");
 
-    printf("First line: %s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: %s\n", vimBufferGetLine(curbuf, 2));
-    printf("Third line: %s\n", vimBufferGetLine(curbuf, 3));
+    mu_check(strcmp(vimBufferGetLine(curbuf, 2), "This is the second line of a test fileabc{[{d}]}") == 0);
+
+    vimInput("j");
+    vimInput(".");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 3), "This is the third line of a test fileabc{[{d}]}") == 0);
+}
+
+MU_TEST(test_matching_pair_macro) {
+    vimInput("q");
+    vimInput("a");
+    vimInput("I");
+    vimInput("{");
+    vimInput("[");
+    vimInput("{");
+    vimInput("<bs>");
+    vimInput("d");
+    vimInput("<esc>");
+    vimInput("q");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[d]}This is the first line of a test file") == 0);
+
+    vimInput("j");
+    vimInput("@");
+    vimInput("a");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 2), "{[d]}This is the second line of a test file") == 0);
+
+    vimInput("j");
+    vimInput("@");
+    vimInput("@");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 3), "{[d]}This is the third line of a test file") == 0);
+}
+
+
+MU_TEST(test_backspace_matching_pair) {
+    vimInput("i");
+    vimInput("{");
+    vimInput("[");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
+    
+    vimInput("<bs>");
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}This is the first line of a test file") == 0);
+    
+    vimInput("<bs>");
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
 }
 
 MU_TEST(test_enter_between_pairs) {
@@ -223,8 +246,10 @@ MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_matching_pair_undo_redo);
+  MU_RUN_TEST(test_matching_pair_dot);
+  MU_RUN_TEST(test_matching_pair_macro);
   MU_RUN_TEST(test_backspace_matching_pair);
-/*  MU_RUN_TEST(test_backspace_matching_macro_insert);
+  /*MU_RUN_TEST(test_backspace_matching_macro_insert);
   MU_RUN_TEST(test_enter_between_pairs);
   MU_RUN_TEST(test_enter_between_pairs_undo);
   MU_RUN_TEST(test_pass_through_in_pairs);
