@@ -6588,9 +6588,6 @@ buf_check_timestamp(
     char	*reason;
     off_T	orig_size = buf->b_orig_size;
     int		orig_mode = buf->b_orig_mode;
-#ifdef FEAT_GUI
-    int		save_mouse_correct = need_mouse_correct;
-#endif
     static int	busy = FALSE;
     int		n;
 #ifdef FEAT_EVAL
@@ -6776,9 +6773,6 @@ buf_check_timestamp(
 		    if (emsg_silent == 0)
 		    {
 			out_flush();
-#ifdef FEAT_GUI
-			if (!focus)
-#endif
 			    /* give the user some time to think about it */
 			    ui_delay(1000L, TRUE);
 
@@ -6817,11 +6811,6 @@ buf_check_timestamp(
     if (bufref_valid(&bufref) && retval != 0)
 	(void)apply_autocmds(EVENT_FILECHANGEDSHELLPOST,
 				      buf->b_fname, buf->b_fname, FALSE, buf);
-#ifdef FEAT_GUI
-    /* restore this in case an autocommand has set it; it would break
-     * 'mousefocus' */
-    need_mouse_correct = save_mouse_correct;
-#endif
 
     return retval;
 }
