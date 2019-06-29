@@ -144,13 +144,13 @@ MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   /* MU_RUN_TEST(test_search_forward_esc); */
-  /*MU_RUN_TEST(test_cmdline_autocmds);
+  MU_RUN_TEST(test_cmdline_autocmds);
   MU_RUN_TEST(test_cmdline_no_execute_with_esc);
   MU_RUN_TEST(test_cmdline_esc);
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);
   MU_RUN_TEST(test_cmdline_substitution);
-  MU_RUN_TEST(test_cmdline_get_type); */
+  MU_RUN_TEST(test_cmdline_get_type);
 }
 
 int main(int argc, char **argv) {
