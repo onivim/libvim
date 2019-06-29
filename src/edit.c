@@ -1803,7 +1803,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
     normalchar:
-	printf("normal char?\n");
       /*
        * Insert a normal character.
        */
