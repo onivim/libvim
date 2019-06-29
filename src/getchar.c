@@ -1492,17 +1492,6 @@ close_all_scripts(void)
 }
 #endif
 
-#if defined(FEAT_INS_EXPAND) || defined(PROTO)
-/*
- * Return TRUE when reading keys from a script file.
- */
-    int
-using_script(void)
-{
-    return scriptin[curscript] != NULL;
-}
-#endif
-
 /*
  * This function is called just before doing a blocking wait.  Thus after
  * waiting 'updatetime' for a character to arrive.
@@ -1816,7 +1805,7 @@ vpeekc(void)
     return vgetorpeek(FALSE);
 }
 
-#if defined(FEAT_TERMRESPONSE) || defined(FEAT_TERMINAL) || defined(PROTO)
+#if defined(FEAT_TERMINAL) || defined(PROTO)
 /*
  * Like vpeekc(), but don't allow mapping.  Do allow checking for terminal
  * codes.
@@ -1835,7 +1824,7 @@ vpeekc_nomap(void)
 }
 #endif
 
-#if defined(FEAT_INS_EXPAND) || defined(FEAT_EVAL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Check if any character is available, also half an escape sequence.
  * Trick: when no typeahead found, but there is something in the typeahead
@@ -2069,12 +2058,6 @@ vgetorpeek(int advance)
 			    && !(State == HITRETURN && (c1 == CAR || c1 == ' '))
 			    && State != ASKMORE
 			    && State != CONFIRM
-#ifdef FEAT_INS_EXPAND
-			    && !((ctrl_x_mode_not_default()
-						      && vim_is_ctrl_x_key(c1))
-				    || ((compl_cont_status & CONT_LOCAL)
-					&& (c1 == Ctrl_N || c1 == Ctrl_P)))
-#endif
 			    )
 		    {
 #ifdef FEAT_LANGMAP
@@ -2590,7 +2573,6 @@ vgetorpeek(int advance)
 			}
 		    }
 		    setcursor();
-		    out_flush();
 		    curwin->w_wcol = old_wcol;
 		    curwin->w_wrow = old_wrow;
 		}
@@ -2843,7 +2825,6 @@ inchar(
     if (wait_time == -1L || wait_time > 100L)  /* flush output before waiting */
     {
 	cursor_on();
-	out_flush_cursor(FALSE, FALSE);
     }
 
     /*
@@ -2920,13 +2901,6 @@ inchar(
 	    }
 	    return retesc;
 	}
-
-	/*
-	 * Always flush the output characters when getting input characters
-	 * from the user and not just peeking.
-	 */
-	if (wait_time == -1L || wait_time > 10L)
-	    out_flush();
 
 	/*
 	 * Fill up to a third of the buffer, because each character may be
@@ -3931,7 +3905,6 @@ showmap(
     if (p_verbose > 0)
 	last_set_msg(mp->m_script_ctx);
 #endif
-    out_flush();			/* show one line at a time */
 }
 
 #if defined(FEAT_EVAL) || defined(PROTO)

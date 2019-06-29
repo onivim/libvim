@@ -804,37 +804,6 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define ACTION_GOTO	2
 #define ACTION_SPLIT	3
 #define ACTION_SHOW_ALL	4
-#ifdef FEAT_INS_EXPAND
-# define ACTION_EXPAND	5
-#endif
-
-#ifdef FEAT_SYN_HL
-# define SST_MIN_ENTRIES 150	/* minimal size for state stack array */
-# define SST_MAX_ENTRIES 1000	/* maximal size for state stack array */
-# define SST_FIX_STATES	 7	/* size of sst_stack[]. */
-# define SST_DIST	 16	/* normal distance between entries */
-# define SST_INVALID	(synstate_T *)-1	/* invalid syn_state pointer */
-
-# define HL_CONTAINED	0x01	/* not used on toplevel */
-# define HL_TRANSP	0x02	/* has no highlighting	*/
-# define HL_ONELINE	0x04	/* match within one line only */
-# define HL_HAS_EOL	0x08	/* end pattern that matches with $ */
-# define HL_SYNC_HERE	0x10	/* sync point after this item (syncing only) */
-# define HL_SYNC_THERE	0x20	/* sync point at current line (syncing only) */
-# define HL_MATCH	0x40	/* use match ID instead of item ID */
-# define HL_SKIPNL	0x80	/* nextgroup can skip newlines */
-# define HL_SKIPWHITE	0x100	/* nextgroup can skip white space */
-# define HL_SKIPEMPTY	0x200	/* nextgroup can skip empty lines */
-# define HL_KEEPEND	0x400	/* end match always kept */
-# define HL_EXCLUDENL	0x800	/* exclude NL from match */
-# define HL_DISPLAY	0x1000	/* only used for displaying, not syncing */
-# define HL_FOLD	0x2000	/* define fold */
-# define HL_EXTEND	0x4000	/* ignore a keepend */
-# define HL_MATCHCONT	0x8000	/* match continued from previous line */
-# define HL_TRANS_CONT	0x10000 /* transparent item without contains arg */
-# define HL_CONCEAL	0x20000 /* can be concealed */
-# define HL_CONCEALENDS	0x40000 /* can be concealed */
-#endif
 
 /* Values for 'options' argument in do_search() and searchit() */
 #define SEARCH_REV    0x01  /* go in reverse of previous dir. */
@@ -960,12 +929,6 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define RE_STRICT	4	/* don't allow [abc] without ] */
 #define RE_AUTO		8	/* automatic engine selection */
 
-#ifdef FEAT_SYN_HL
-/* values for reg_do_extmatch */
-# define REX_SET	1	/* to allow \z\(...\), */
-# define REX_USE	2	/* to allow \z\1 et al. */
-# define REX_ALL	(REX_SET | REX_USE)
-#endif
 
 /* Return values for fullpathcmp() */
 /* Note: can use (fullpathcmp() & FPC_SAME) to check for equal files */
@@ -1576,33 +1539,13 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OUT_STR_NF(s)		    out_str_nf((char_u *)(s))
 
 #ifdef FEAT_GUI
-# ifdef FEAT_TERMGUICOLORS
-#  define GUI_FUNCTION(f)	    (gui.in_use ? gui_##f : termgui_##f)
-#  define GUI_FUNCTION2(f, pixel)   (gui.in_use \
-				    ?  ((pixel) != INVALCOLOR \
-					? gui_##f((pixel)) \
-					: INVALCOLOR) \
-				    : termgui_##f((pixel)))
-#  define USE_24BIT		    (gui.in_use || p_tgc)
-# else
 #  define GUI_FUNCTION(f)	    gui_##f
 #  define GUI_FUNCTION2(f,pixel)    ((pixel) != INVALCOLOR \
 				     ? gui_##f((pixel)) \
 				     : INVALCOLOR)
 #  define USE_24BIT		    gui.in_use
-# endif
-#else
-# ifdef FEAT_TERMGUICOLORS
-#  define GUI_FUNCTION(f)	    termgui_##f
-#  define GUI_FUNCTION2(f, pixel)   termgui_##f((pixel))
-#  define USE_24BIT		    p_tgc
-# endif
 #endif
-#ifdef FEAT_TERMGUICOLORS
-# define IS_CTERM		    (t_colors > 1 || p_tgc)
-#else
 # define IS_CTERM		    (t_colors > 1)
-#endif
 #ifdef GUI_FUNCTION
 # define GUI_MCH_GET_RGB	    GUI_FUNCTION(mch_get_rgb)
 # define GUI_MCH_GET_RGB2(pixel)    GUI_FUNCTION2(mch_get_rgb, (pixel))
@@ -1747,6 +1690,7 @@ typedef int sock_T;
 
 /* Note that gui.h is included by structs.h */
 
+#include "sds.h"
 #include "structs.h"	/* defines many structures */
 
 #include "alloc.h"
@@ -1969,19 +1913,6 @@ typedef enum {
 #include "ex_cmds.h"	    /* Ex command defines */
 
 #include "proto.h"	    /* function prototypes */
-
-/* This has to go after the include of proto.h, as proto/gui.pro declares
- * functions of these names. The declarations would break if the defines had
- * been seen at that stage.  But it must be before globals.h, where error_ga
- * is declared. */
-#if !defined(MSWIN) && !defined(FEAT_GUI_X11) \
-	&& !defined(FEAT_GUI_GTK) && !defined(FEAT_GUI_MAC) && !defined(PROTO)
-# define mch_errmsg(str)	fprintf(stderr, "%s", (str))
-# define display_errors()	fflush(stderr)
-# define mch_msg(str)		printf("%s", (str))
-#else
-# define USE_MCH_ERRMSG
-#endif
 
 # if defined(FEAT_EVAL) \
 	&& (!defined(FEAT_GUI_MSWIN) \

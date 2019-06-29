@@ -144,17 +144,13 @@ static void	ex_nogui(exarg_T *eap);
 # define ex_cscope		ex_ni
 # define ex_scscope		ex_ni
 # define ex_cstag		ex_ni
-#ifndef FEAT_SYN_HL
 # define ex_syntax		ex_ni
 # define ex_ownsyntax		ex_ni
-#endif
 #ifndef FEAT_EVAL
 # define ex_packadd		ex_ni
 # define ex_packloadall		ex_ni
 #endif
-#if !defined(FEAT_SYN_HL) || !defined(FEAT_PROFILE)
 # define ex_syntime		ex_ni
-#endif
 # define ex_spell		ex_ni
 # define ex_mkspell		ex_ni
 # define ex_spelldump		ex_ni
@@ -3773,7 +3769,6 @@ set_one_cmd_context(
 	    if (*arg == NUL || !ends_excmd(*arg))
 	    {
 		/* also complete "None" */
-		set_context_in_echohl_cmd(xp, arg);
 		arg = skipwhite(skiptowhite(arg));
 		if (*arg != NUL)
 		{
@@ -3896,11 +3891,6 @@ set_one_cmd_context(
 	    xp->xp_context = EXPAND_AUGROUP;
 	    xp->xp_pattern = arg;
 	    break;
-#ifdef FEAT_SYN_HL
-	case CMD_syntax:
-	    set_context_in_syntax_cmd(xp, arg);
-	    break;
-#endif
 #ifdef FEAT_EVAL
 	case CMD_let:
 	case CMD_if:
@@ -3945,7 +3935,6 @@ set_one_cmd_context(
 	    break;
 
 	case CMD_echohl:
-	    set_context_in_echohl_cmd(xp, arg);
 	    break;
 #endif
 	case CMD_highlight:
@@ -5507,7 +5496,7 @@ ends_excmd(int c)
     return (c == NUL || c == '|' || c == '"' || c == '\n');
 }
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SEARCH_EXTRA) || defined(FEAT_EVAL) \
+#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_EVAL) \
 	|| defined(PROTO)
 /*
  * Return the next command, after the first '|' or '\n'.
@@ -6170,10 +6159,7 @@ ex_stop(exarg_T *eap)
 	if (!eap->forceit)
 	    autowrite_all();
 	windgoto((int)Rows - 1, 0);
-	out_char('\n');
-	out_flush();
 	stoptermcap();
-	out_flush();		/* needed for SUN to restore xterm buffer */
 	ui_suspend();		/* call machine specific function */
 	starttermcap();
 	scroll_start();		/* scroll screen before redrawing */
@@ -6242,7 +6228,6 @@ ex_print(exarg_T *eap)
 		    eap->cmdidx == CMD_list || (eap->flags & EXFLAG_LIST));
 	    if (++eap->line1 > eap->line2)
 		break;
-	    out_flush();	    /* show one line at a time */
 	}
 	setpcmark();
 	/* put cursor at last line */
@@ -6878,7 +6863,6 @@ ex_tabs(exarg_T *eap UNUSED)
 	msg_putchar('\n');
 	vim_snprintf((char *)IObuff, IOSIZE, _("Tab page %d"), tabcount++);
 	msg_outtrans_attr(IObuff, HL_ATTR(HLF_T));
-	out_flush();	    /* output one line at a time */
 	ui_breakcheck();
 
 	if (tp  == curtab)
@@ -6898,7 +6882,6 @@ ex_tabs(exarg_T *eap UNUSED)
 		home_replace(wp->w_buffer, wp->w_buffer->b_fname,
 							IObuff, IOSIZE, TRUE);
 	    msg_outtrans(IObuff);
-	    out_flush();	    /* output one line at a time */
 	    ui_breakcheck();
 	}
     }
@@ -7610,7 +7593,6 @@ do_sleep(long msec)
     long	wait_now;
 
     cursor_on();
-    out_flush_cursor(FALSE, FALSE);
     for (done = 0; !got_int && done < msec; done += wait_now)
     {
 	wait_now = msec - done > 1000L ? 1000L : msec - done;
@@ -8228,7 +8210,6 @@ ex_redraw(exarg_T *eap)
     /* No need to wait after an intentional redraw. */
     need_wait_return = FALSE;
 
-    out_flush();
 }
 
 /*
@@ -8237,19 +8218,7 @@ ex_redraw(exarg_T *eap)
     static void
 ex_redrawstatus(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-    if (eap->forceit)
-	status_redraw_all();
-    else
-	status_redraw_curbuf();
-    update_screen(VIsual_active ? INVERTED : 0);
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - no-op */
 }
 
 /*
@@ -8258,17 +8227,7 @@ ex_redrawstatus(exarg_T *eap UNUSED)
     static void
 ex_redrawtabline(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-
-    draw_tabline();
-
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - noop */
 }
 
     static void

@@ -4726,7 +4726,6 @@ restore_backup:
 		if (got_int)
 		{
 		    msg(_(e_interr));
-		    out_flush();
 		}
 		if ((fd = mch_open((char *)backup, O_RDONLY | O_EXTRA, 0)) >= 0)
 		{
@@ -6545,7 +6544,6 @@ check_timestamps(
 	{
 	    /* make sure msg isn't overwritten */
 	    msg_puts("\n");
-	    out_flush();
 	}
     }
     return didit;
@@ -6831,7 +6829,6 @@ buf_check_timestamp(
 		    (void)msg_end();
 		    if (emsg_silent == 0)
 		    {
-			out_flush();
 #ifdef FEAT_GUI
 			if (!focus)
 #endif

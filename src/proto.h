@@ -75,9 +75,6 @@ extern int _stricoll(char *a, char *b);
 # endif
 # include "hashtab.pro"
 # include "indent.pro"
-# ifdef FEAT_INS_EXPAND
-# include "insexpand.pro"
-# endif
 # include "json.pro"
 # include "list.pro"
 # include "blob.pro"
@@ -138,6 +135,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap);
 int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap, typval_T *tvs);
 
 # include "message.pro"
+# include "message2.pro"
 # include "misc1.pro"
 # include "misc2.pro"
 #ifndef HAVE_STRPBRK	    /* not generated automatically from misc2.c */
@@ -152,7 +150,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 # include "normal.pro"
 # include "ops.pro"
 # include "option.pro"
-# include "popupmnu.pro"
 # ifdef FEAT_QUICKFIX
 #  include "quickfix.pro"
 # endif

@@ -1457,7 +1457,6 @@ BASIC_SRC = \
 	getchar.c \
 	hashtab.c \
 	indent.c \
-	insexpand.c \
 	json.c \
 	list.c \
 	libvim.c \
@@ -1466,6 +1465,7 @@ BASIC_SRC = \
 	memfile.c \
 	memline.c \
 	message.c \
+	message2.c \
 	misc1.c \
 	misc2.c \
 	move.c \
@@ -1475,7 +1475,6 @@ BASIC_SRC = \
 	option.c \
 	os_unix.c \
 	auto/pathdef.c \
-	popupmnu.c \
 	popupwin.c \
 	pty.c \
 	quickfix.c \
@@ -1568,11 +1567,11 @@ OBJ_COMMON = \
 	objects/hashtab.o \
 	$(HANGULIN_OBJ) \
 	objects/indent.o \
-	objects/insexpand.o \
 	objects/libvim.o \
 	objects/list.o \
 	objects/mark.o \
 	objects/memline.o \
+	objects/message2.o \
 	objects/misc1.o \
 	objects/misc2.o \
 	objects/move.o \
@@ -1582,12 +1581,12 @@ OBJ_COMMON = \
 	objects/option.o \
 	objects/os_unix.o \
 	objects/pathdef.o \
-	objects/popupmnu.o \
 	objects/popupwin.o \
 	objects/pty.o \
 	objects/quickfix.o \
 	objects/regexp.o \
 	objects/screen.o \
+	objects/sds.o \
 	objects/search.o \
 	objects/sha256.o \
 	objects/sign.o \
@@ -1695,7 +1694,6 @@ PRO_AUTO = \
 	if_python.pro \
 	if_python3.pro \
 	indent.pro \
-	insexpand.pro \
 	json.pro \
 	list.pro \
 	main.pro \
@@ -1704,6 +1702,7 @@ PRO_AUTO = \
 	memfile.pro \
 	memline.pro \
 	message.pro \
+	message2.pro \
 	misc1.pro \
 	misc2.pro \
 	move.pro \
@@ -1712,7 +1711,6 @@ PRO_AUTO = \
 	option.pro \
 	os_mac_conv.pro \
 	os_unix.pro \
-	popupmnu.pro \
 	popupwin.pro \
 	pty.pro \
 	quickfix.pro \
@@ -2856,9 +2854,6 @@ objects/if_python3.o: if_python3.c if_py_both.h
 objects/indent.o: indent.c
 	$(CCC) -o $@ indent.c
 
-objects/insexpand.o: insexpand.c
-	$(CCC) -o $@ insexpand.c
-
 objects/json.o: json.c
 	$(CCC) -o $@ json.c
 
@@ -2891,6 +2886,9 @@ objects/memline.o: memline.c
 
 objects/message.o: message.c
 	$(CCC) -o $@ message.c
+
+objects/message2.o: message2.c
+	$(CCC) -o $@ message2.c
 
 objects/message_test.o: message_test.c
 	$(CCC) -o $@ message_test.c
@@ -2940,9 +2938,6 @@ objects/winclip.o: winclip.c
 objects/pathdef.o: auto/pathdef.c
 	$(CCC) -o $@ auto/pathdef.c
 
-objects/popupmnu.o: popupmnu.c
-	$(CCC) -o $@ popupmnu.c
-
 objects/popupwin.o: popupwin.c
 	$(CCC) -o $@ popupwin.c
 
@@ -2957,6 +2952,9 @@ objects/regexp.o: regexp.c regexp_nfa.c
 
 objects/screen.o: screen.c
 	$(CCC) -o $@ screen.c
+
+objects/sds.o: sds.c
+	$(CCC) -o $@ sds.c
 
 objects/search.o: search.c
 	$(CCC) -o $@ search.c
@@ -3244,10 +3242,6 @@ objects/indent.o: indent.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/insexpand.o: insexpand.c vim.h protodef.h auto/config.h feature.h \
- os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/json.o: json.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3273,6 +3267,10 @@ objects/memline.o: memline.c vim.h protodef.h auto/config.h feature.h os_unix.h 
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/message.o: message.c vim.h protodef.h auto/config.h feature.h os_unix.h \
+ auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
+  structs.h regexp.h  alloc.h ex_cmds.h \
+ proto.h globals.h
+objects/message2.o: message2.c message.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
@@ -3310,10 +3308,6 @@ objects/os_unix.o: os_unix.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  proto.h globals.h os_unixx.h
 objects/pathdef.o: auto/pathdef.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
-objects/popupmnu.o: popupmnu.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
 objects/popupwin.o: popupwin.c vim.h protodef.h auto/config.h feature.h os_unix.h \

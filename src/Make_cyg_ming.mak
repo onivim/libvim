@@ -577,7 +577,6 @@ OBJ = \
 	$(OUTDIR)/getchar.o \
 	$(OUTDIR)/hashtab.o \
 	$(OUTDIR)/indent.o \
-	$(OUTDIR)/insexpand.o \
 	$(OUTDIR)/json.o \
 	$(OUTDIR)/libvim.o \
 	$(OUTDIR)/list.o \
@@ -586,6 +585,7 @@ OBJ = \
 	$(OUTDIR)/memfile.o \
 	$(OUTDIR)/memline.o \
 	$(OUTDIR)/message.o \
+	$(OUTDIR)/message2.o \
 	$(OUTDIR)/misc1.o \
 	$(OUTDIR)/misc2.o \
 	$(OUTDIR)/move.o \
@@ -596,11 +596,11 @@ OBJ = \
 	$(OUTDIR)/os_mswin.o \
 	$(OUTDIR)/os_win32.o \
 	$(OUTDIR)/pathdef.o \
-	$(OUTDIR)/popupmnu.o \
 	$(OUTDIR)/popupwin.o \
 	$(OUTDIR)/quickfix.o \
 	$(OUTDIR)/regexp.o \
 	$(OUTDIR)/screen.o \
+	$(OUTDIR)/sds.o \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
 	$(OUTDIR)/sign.o \

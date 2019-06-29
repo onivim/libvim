@@ -390,11 +390,6 @@ EXTERN long	p_ch;		/* 'cmdheight' */
 EXTERN int	p_confirm;	/* 'confirm' */
 #endif
 EXTERN int	p_cp;		/* 'compatible' */
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_cot;		/* 'completeopt' */
-EXTERN long	p_ph;		/* 'pumheight' */
-EXTERN long	p_pw;		/* 'pumwidth' */
-#endif
 EXTERN char_u	*p_cpo;		/* 'cpoptions' */
 EXTERN char_u	*p_debug;	/* 'debug' */
 #ifdef FEAT_FIND_ID
@@ -406,9 +401,6 @@ EXTERN char_u	*p_dip;		/* 'diffopt' */
 # ifdef FEAT_EVAL
 EXTERN char_u	*p_dex;		/* 'diffexpr' */
 # endif
-#endif
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_dict;	/* 'dictionary' */
 #endif
 #ifdef FEAT_DIGRAPHS
 EXTERN int	p_dg;		/* 'digraph' */
@@ -555,10 +547,6 @@ EXTERN char_u	*p_mp;		/* 'makeprg' */
 #ifdef FEAT_SIGNS
 EXTERN char_u  *p_scl;		/* signcolumn */
 #endif
-#ifdef FEAT_SYN_HL
-EXTERN char_u   *p_cc;		/* 'colorcolumn' */
-EXTERN int      p_cc_cols[256]; /* array for 'colorcolumn' columns */
-#endif
 EXTERN long	p_mat;		/* 'matchtime' */
 EXTERN long	p_mco;		/* 'maxcombine' */
 #ifdef FEAT_EVAL
@@ -568,9 +556,6 @@ EXTERN long	p_mmd;		/* 'maxmapdepth' */
 EXTERN long	p_mm;		/* 'maxmem' */
 EXTERN long	p_mmp;		/* 'maxmempattern' */
 EXTERN long	p_mmt;		/* 'maxmemtot' */
-#ifdef FEAT_SPELL
-EXTERN char_u	*p_msm;		/* 'mkspellmem' */
-#endif
 EXTERN long	p_mle;		/* 'modelineexpr' */
 EXTERN long	p_mls;		/* 'modelines' */
 EXTERN char_u	*p_mouse;	/* 'mouse' */
@@ -715,9 +700,6 @@ EXTERN long	p_tpm;		/* 'tabpagemax' */
 # if defined(FEAT_STL_OPT)
 EXTERN char_u	*p_tal;		/* 'tabline' */
 # endif
-#ifdef FEAT_SPELL
-EXTERN char_u	*p_sps;		/* 'spellsuggest' */
-#endif
 EXTERN int	p_spr;		/* 'splitright' */
 EXTERN int	p_sol;		/* 'startofline' */
 EXTERN char_u	*p_su;		/* 'suffixes' */
@@ -754,9 +736,6 @@ EXTERN char_u	*p_tcldll;	/* 'tcldll' */
 EXTERN int	p_tbidi;	/* 'termbidi' */
 #endif
 EXTERN char_u	*p_tenc;	/* 'termencoding' */
-#ifdef FEAT_TERMGUICOLORS
-EXTERN int	p_tgc;		/* 'termguicolors' */
-#endif
 #if defined(MSWIN) && defined(FEAT_TERMINAL)
 EXTERN char_u	*p_twt;		// 'termwintype'
 #endif
@@ -770,9 +749,6 @@ EXTERN int	p_title;	/* 'title' */
 EXTERN long	p_titlelen;	/* 'titlelen' */
 EXTERN char_u	*p_titleold;	/* 'titleold' */
 EXTERN char_u	*p_titlestring;	/* 'titlestring' */
-#endif
-#ifdef FEAT_INS_EXPAND
-EXTERN char_u	*p_tsr;		/* 'thesaurus' */
 #endif
 EXTERN int	p_ttimeout;	/* 'ttimeout' */
 EXTERN long	p_ttm;		/* 'ttimeoutlen' */
@@ -900,11 +876,6 @@ enum
 #ifdef FEAT_COMMENTS
     , BV_COM
 #endif
-#ifdef FEAT_INS_EXPAND
-    , BV_CPT
-    , BV_DICT
-    , BV_TSR
-#endif
 #ifdef FEAT_FIND_ID
     , BV_DEF
     , BV_INC
@@ -957,15 +928,6 @@ enum
     , BV_SI
 #endif
     , BV_SN
-#ifdef FEAT_SYN_HL
-    , BV_SMC
-    , BV_SYN
-#endif
-#ifdef FEAT_SPELL
-    , BV_SPC
-    , BV_SPF
-    , BV_SPL
-#endif
     , BV_STS
 #ifdef FEAT_SEARCHPATH
     , BV_SUA
@@ -1003,10 +965,6 @@ enum
     WV_LIST = 0
 #ifdef FEAT_ARABIC
     , WV_ARAB
-#endif
-#ifdef FEAT_CONCEAL
-    , WV_COCU
-    , WV_COLE
 #endif
 #ifdef FEAT_TERMINAL
     , WV_TWK
@@ -1054,14 +1012,6 @@ enum
     , WV_SCROLL
     , WV_SISO
     , WV_SO
-#ifdef FEAT_SPELL
-    , WV_SPELL
-#endif
-#ifdef FEAT_SYN_HL
-    , WV_CUC
-    , WV_CUL
-    , WV_CC
-#endif
 #ifdef FEAT_STL_OPT
     , WV_STL
 #endif

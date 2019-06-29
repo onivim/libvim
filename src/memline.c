@@ -341,9 +341,6 @@ ml_open(buf_T *buf)
     STRNCPY(b0p->b0_version + 4, Version, 6);
     long_to_char((long)mfp->mf_page_size, b0p->b0_page_size);
 
-#ifdef FEAT_SPELL
-    if (!buf->b_spell)
-#endif
     {
 	b0p->b0_dirty = buf->b_changed ? B0_DIRTY : 0;
 	b0p->b0_flags = get_fileformat(buf) + 1;
@@ -752,18 +749,6 @@ ml_open_file(buf_T *buf)
     if (mfp == NULL || mfp->mf_fd >= 0 || !buf->b_p_swf || cmdmod.noswapfile)
 	return;		/* nothing to do */
 
-#ifdef FEAT_SPELL
-    /* For a spell buffer use a temp file name. */
-    if (buf->b_spell)
-    {
-	fname = vim_tempname('s', FALSE);
-	if (fname != NULL)
-	    (void)mf_open_file(mfp, fname);	/* consumes fname! */
-	buf->b_may_swap = FALSE;
-	return;
-    }
-#endif
-
     /*
      * Try all directories in 'directory' option.
      */
@@ -870,9 +855,6 @@ ml_close_all(int del_file)
     FOR_ALL_BUFFERS(buf)
 	ml_close(buf, del_file && ((buf->b_flags & BF_PRESERVED) == 0
 				 || vim_strchr(p_cpo, CPO_PRESERVE) == NULL));
-#ifdef FEAT_SPELL
-    spell_delete_wordlist();	/* delete the internal wordlist */
-#endif
 #ifdef TEMPDIRNAMES
     vim_deltempdir();		/* delete created temp directory */
 #endif
@@ -1362,7 +1344,6 @@ ml_recover(int checkext)
 		    && org_stat.st_mtime > swp_stat.st_mtime)
 		|| org_stat.st_mtime != mtime))
 	emsg(_("E308: Warning: Original file may have been changed"));
-    out_flush();
 
     /* Get the 'fileformat' and 'fileencoding' from block zero. */
     b0_ff = (b0p->b0_flags & B0_FF_MASK);
@@ -1987,7 +1968,6 @@ recover_names(
 	    }
 	    else
 		msg_puts(_("      -- none --\n"));
-	    out_flush();
 	}
 	else
 	    file_count += num_files;
@@ -2738,7 +2718,7 @@ ml_append(
     return ml_append_int(curbuf, lnum, line, len, newfile, FALSE);
 }
 
-#if defined(FEAT_SPELL) || defined(FEAT_QUICKFIX) || defined(PROTO)
+#if defined(FEAT_QUICKFIX) || defined(PROTO)
 /*
  * Like ml_append() but for an arbitrary buffer.  The buffer must already have
  * a memline.

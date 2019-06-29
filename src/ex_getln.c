@@ -464,7 +464,6 @@ may_do_incsearch_highlighting(
 	int search_flags = SEARCH_OPT + SEARCH_NOOF + SEARCH_PEEK;
 
 	cursor_off();	// so the user knows we're busy
-	out_flush();
 	++emsg_off;	// so it doesn't beep if bad expr
 #ifdef FEAT_RELTIME
 	// Set the time limit to half a second.
@@ -605,7 +604,6 @@ may_adjust_incsearch_highlighting(
 	pat = ccline.cmdbuff + skiplen;
 
     cursor_off();
-    out_flush();
     if (c == Ctrl_G)
     {
 	t = is_state->match_end;
@@ -1354,7 +1352,6 @@ getcmdline_int(
 		if (!cmd_silent)
 		{
 		    windgoto(msg_row, 0);
-		    out_flush();
 		}
 		break;
 	    }
@@ -2958,7 +2955,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		if (!cmd_silent)
 		{
 		    windgoto(msg_row, 0);
-		    out_flush();
 		}
 		goto returncmd;
 	    }
@@ -4665,7 +4661,6 @@ nextwild(
     }
 
     msg_puts("...");	    /* show that we are busy */
-    out_flush();
 
     i = (int)(xp->xp_pattern - ccline.cmdbuff);
     xp->xp_pattern_len = ccline.cmdpos - i;
@@ -5261,7 +5256,6 @@ showmatches(expand_T *xp, int wildmenu UNUSED)
 	msg_didany = FALSE;		/* lines_left will be set */
 	msg_start();			/* prepare for paging */
 	msg_putchar('\n');
-	out_flush();
 	cmdline_row = msg_row;
 	msg_didany = FALSE;		/* lines_left will be set again */
 	msg_start();			/* prepare for paging */
@@ -5379,7 +5373,6 @@ showmatches(expand_T *xp, int wildmenu UNUSED)
 		msg_clr_eos();
 		msg_putchar('\n');
 	    }
-	    out_flush();		    /* show one line at a time */
 	    if (got_int)
 	    {
 		got_int = FALSE;
@@ -5992,12 +5985,6 @@ ExpandFromContext(
 	    {EXPAND_USER_FUNC, get_user_func_name, FALSE, TRUE},
 	    {EXPAND_EXPRESSION, get_expr_name, FALSE, TRUE},
 #endif
-#ifdef FEAT_SYN_HL
-	    {EXPAND_SYNTAX, get_syntax_name, TRUE, TRUE},
-#endif
-#ifdef FEAT_PROFILE
-	    {EXPAND_SYNTIME, get_syntime_arg, TRUE, TRUE},
-#endif
 	    {EXPAND_HIGHLIGHT, get_highlight_name, TRUE, TRUE},
 	    {EXPAND_EVENTS, get_event_name, TRUE, TRUE},
 	    {EXPAND_AUGROUP, get_augroup_name, TRUE, TRUE},
@@ -6118,12 +6105,6 @@ ExpandGeneric(
 	else
 	    sort_strings(*file, *num_file);
     }
-
-#ifdef FEAT_CMDL_COMPL
-    /* Reset the variables used for special highlight names expansion, so that
-     * they don't show up when getting normal highlight names by ID. */
-    reset_expand_highlight();
-#endif
 
     return OK;
 }
@@ -7383,7 +7364,6 @@ ex_history(exarg_T *eap)
 		    else
 			STRCAT(IObuff, hist[i].hisstr);
 		    msg_outtrans(IObuff);
-		    out_flush();
 		}
 		if (i == idx)
 		    break;

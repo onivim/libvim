@@ -428,7 +428,6 @@ hangul_input_state_toggle(void)
     if (showmode())
     {
 	setcursor();
-	out_flush();
     }
 
     gui_update_cursor(TRUE, FALSE);

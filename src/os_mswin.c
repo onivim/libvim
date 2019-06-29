@@ -504,52 +504,6 @@ mch_suspend(void)
     suspend_shell();
 }
 
-#if defined(USE_MCH_ERRMSG) || defined(PROTO)
-
-# ifdef display_errors
-#  undef display_errors
-# endif
-
-/*
- * Display the saved error message(s).
- */
-    void
-display_errors(void)
-{
-# ifdef FEAT_GUI
-    char *p;
-
-#  ifdef VIMDLL
-    if (gui.in_use || gui.starting)
-#  endif
-    {
-	if (error_ga.ga_data != NULL)
-	{
-	    /* avoid putting up a message box with blanks only */
-	    for (p = (char *)error_ga.ga_data; *p; ++p)
-		if (!isspace(*p))
-		{
-		    (void)gui_mch_dialog(
-				     gui.starting ? VIM_INFO :
-					     VIM_ERROR,
-				     gui.starting ? (char_u *)_("Message") :
-					     (char_u *)_("Error"),
-				     (char_u *)p, (char_u *)_("&Ok"),
-					1, NULL, FALSE);
-		    break;
-		}
-	    ga_clear(&error_ga);
-	}
-	return;
-    }
-# endif
-# if !defined(FEAT_GUI) || defined(VIMDLL)
-    FlushFileBuffers(GetStdHandle(STD_ERROR_HANDLE));
-# endif
-}
-#endif
-
-
 /*
  * Return TRUE if "p" contain a wildcard that can be expanded by
  * dos_expandpath().

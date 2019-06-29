@@ -1614,9 +1614,6 @@ call_func(
 		     * redo buffer.
 		     */
 		    save_search_patterns();
-#ifdef FEAT_INS_EXPAND
-		    if (!ins_compl_active())
-#endif
 		    {
 			saveRedobuff(&save_redo);
 			did_save_redo = TRUE;
@@ -2149,7 +2146,6 @@ ex_function(exarg_T *eap)
 		    if (j < 99)
 			msg_putchar(' ');
 		    msg_prt_line(FUNCLINE(fp, j), FALSE);
-		    out_flush();	/* show a line at a time */
 		    ui_breakcheck();
 		}
 		if (!got_int)

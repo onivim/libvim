@@ -1374,10 +1374,6 @@ getcount:
     }
     setcursor();
     cursor_on();
-    out_flush();
-    if (msg_scroll || emsg_on_display)
-      ui_delay(1000L, TRUE); /* wait at least one second */
-    ui_delay(3000L, FALSE);  /* wait up to three seconds */
     State = save_State;
 
     msg_scroll = FALSE;
@@ -3169,9 +3165,6 @@ static void nv_zet(cmdarg_T *cap) {
   long old_fdl = curwin->w_p_fdl;
   int old_fen = curwin->w_p_fen;
 #endif
-#ifdef FEAT_SPELL
-  int undo = FALSE;
-#endif
   long siso = get_sidescrolloff_value();
 
   if (VIM_ISDIGIT(nchar)) {
@@ -3544,59 +3537,6 @@ dozet:
 
 #endif /* FEAT_FOLDING */
 
-#ifdef FEAT_SPELL
-  case 'u': /* "zug" and "zuw": undo "zg" and "zw" */
-    ++no_mapping;
-    ++allow_keys; /* no mapping for nchar, but allow key codes */
-    nchar = plain_vgetc();
-    LANGMAP_ADJUST(nchar, TRUE);
-    --no_mapping;
-    --allow_keys;
-    if (vim_strchr((char_u *)"gGwW", nchar) == NULL) {
-      clearopbeep(cap->oap);
-      break;
-    }
-    undo = TRUE;
-    /* FALLTHROUGH */
-
-  case 'g': /* "zg": add good word to word list */
-  case 'w': /* "zw": add wrong word to word list */
-  case 'G': /* "zG": add good word to temp word list */
-  case 'W': /* "zW": add wrong word to temp word list */
-  {
-    char_u *ptr = NULL;
-    int len;
-
-    if (checkclearop(cap->oap))
-      break;
-    if (VIsual_active && get_visual_text(cap, &ptr, &len) == FAIL)
-      return;
-    if (ptr == NULL) {
-      pos_T pos = curwin->w_cursor;
-
-      /* Find bad word under the cursor.  When 'spell' is
-       * off this fails and find_ident_under_cursor() is
-       * used below. */
-      emsg_off++;
-      len = spell_move_to(curwin, FORWARD, TRUE, TRUE, NULL);
-      emsg_off--;
-      if (len != 0 && curwin->w_cursor.col <= pos.col)
-        ptr = ml_get_pos(&curwin->w_cursor);
-      curwin->w_cursor = pos;
-    }
-
-    if (ptr == NULL && (len = find_ident_under_cursor(&ptr, FIND_IDENT)) == 0)
-      return;
-    spell_add_word(ptr, len, nchar == 'w' || nchar == 'W',
-                   (nchar == 'G' || nchar == 'W') ? 0 : (int)cap->count1, undo);
-  } break;
-
-  case '=': /* "z=": suggestions for a badly spelled word  */
-    if (!checkclearop(cap->oap))
-      spell_suggest((int)cap->count0);
-    break;
-#endif
-
   default:
     clearopbeep(cap->oap);
   }
@@ -3745,18 +3685,6 @@ static void nv_clear(cmdarg_T *cap) {
      * manually with CTRL-L instead
      */
     ui_get_shellsize();
-#endif
-#ifdef FEAT_SYN_HL
-    /* Clear all syntax states to force resyncing. */
-    syn_stack_free_all(curwin->w_s);
-#ifdef FEAT_RELTIME
-    {
-      win_T *wp;
-
-      FOR_ALL_WINDOWS(wp)
-      wp->w_s->b_syn_slow = FALSE;
-    }
-#endif
 #endif
     redraw_later(CLEAR);
 #if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
@@ -4820,26 +4748,6 @@ static void nv_brackets(cmdarg_T *cap) {
   }
 #endif
 
-#ifdef FEAT_SPELL
-  /*
-   * "[s", "[S", "]s" and "]S": move to next spell error.
-   */
-  else if (cap->nchar == 's' || cap->nchar == 'S') {
-    setpcmark();
-    for (n = 0; n < cap->count1; ++n)
-      if (spell_move_to(curwin, cap->cmdchar == ']' ? FORWARD : BACKWARD,
-                        cap->nchar == 's' ? TRUE : FALSE, FALSE, NULL) == 0) {
-        clearopbeep(cap->oap);
-        break;
-      } else
-        curwin->w_set_curswant = TRUE;
-#ifdef FEAT_FOLDING
-    if (cap->oap->op_type == OP_NOP && (fdo_flags & FDO_SEARCH) && KeyTyped)
-      foldOpenCursor();
-#endif
-  }
-#endif
-
   /* Not a valid cap->nchar. */
   else
     clearopbeep(cap->oap);
@@ -5620,11 +5528,6 @@ void may_start_select(int c) {
  * Should set VIsual_select before calling this.
  */
 static void n_start_visual_mode(int c) {
-#ifdef FEAT_CONCEAL
-  /* Check for redraw before changing the state. */
-  conceal_check_cursor_line();
-#endif
-
   VIsual_mode = c;
   VIsual_active = TRUE;
   VIsual_reselect = TRUE;
@@ -5639,11 +5542,6 @@ static void n_start_visual_mode(int c) {
 
 #ifdef FEAT_FOLDING
   foldAdjustVisual();
-#endif
-
-#ifdef FEAT_CONCEAL
-  /* Check for redraw after changing the state. */
-  conceal_check_cursor_line();
 #endif
 
   if (p_smd && msg_silent == 0)
@@ -6198,9 +6096,6 @@ static void nv_g_cmd(cmdarg_T *cap) {
  * Handle "o" and "O" commands.
  */
 static void n_opencmd(cmdarg_T *cap) {
-#ifdef FEAT_CONCEAL
-  linenr_T oldline = curwin->w_cursor.lnum;
-#endif
 
   if (!checkclearopq(cap->oap)) {
 #ifdef FEAT_FOLDING
@@ -6221,15 +6116,6 @@ static void n_opencmd(cmdarg_T *cap) {
 #endif
                                                   0,
                   0) == OK) {
-#ifdef FEAT_CONCEAL
-      if (curwin->w_p_cole > 0 && oldline != curwin->w_cursor.lnum)
-        redrawWinline(curwin, oldline);
-#endif
-#ifdef FEAT_SYN_HL
-      if (curwin->w_p_cul)
-        /* force redraw of cursorline */
-        curwin->w_valid &= ~VALID_CROW;
-#endif
       /* When '#' is in 'cpoptions' ignore the count. */
       if (vim_strchr(p_cpo, CPO_HASH) != NULL)
         cap->count1 = 1;

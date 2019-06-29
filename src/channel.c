@@ -2315,7 +2315,6 @@ channel_exe_cmd(channel_T *channel, ch_part_T part, typval_T *argv)
 	ex_redraw(&ea);
 	showruler(FALSE);
 	setcursor();
-	out_flush_cursor(TRUE, FALSE);
     }
     else if (STRCMP(cmd, "expr") == 0 || STRCMP(cmd, "call") == 0)
     {
@@ -4931,7 +4930,7 @@ get_job_options(typval_T *tv, jobopt_T *opt, int supported, int supported2)
 		}
 		opt->jo_tty_type = p[0];
 	    }
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
 	    else if (STRCMP(hi->hi_key, "ansi_colors") == 0)
 	    {
 		int		n = 0;

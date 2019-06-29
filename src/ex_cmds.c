@@ -1661,9 +1661,6 @@ do_shell(
 	    starttermcap();	// start termcap if not done by wait_return()
     }
 
-    /* display any error messages now */
-    display_errors();
-
     apply_autocmds(EVENT_SHELLCMDPOST, NULL, NULL, FALSE, curbuf);
 }
 
@@ -3019,7 +3016,6 @@ print_line(linenr_T lnum, int use_number, int list)
     {
 	msg_putchar('\n');
 	cursor_on();		/* msg_start() switches it off */
-	out_flush();
 	silent_mode = save_silent;
     }
     info_message = FALSE;
@@ -4037,15 +4033,6 @@ do_ecmd(
 		    auto_buf = TRUE;
 		else
 		{
-#ifdef FEAT_SYN_HL
-		    /*
-		     * <VN> We could instead free the synblock
-		     * and re-attach to buffer, perhaps.
-		     */
-		    if (curwin->w_buffer == NULL
-			    || curwin->w_s == &(curwin->w_buffer->b_s))
-			curwin->w_s = &(buf->b_s);
-#endif
 		    curwin->w_buffer = buf;
 		    curbuf = buf;
 		    ++curbuf->b_nwindows;
@@ -4063,9 +4050,6 @@ do_ecmd(
 		 * before, reset the local window options to the global
 		 * values.  Also restores old folding stuff. */
 		get_winopts(curbuf);
-#ifdef FEAT_SPELL
-		did_get_winopts = TRUE;
-#endif
 	    }
 	    vim_free(new_name);
 	    au_new_curbuf.br_buf = NULL;
@@ -4287,12 +4271,6 @@ do_ecmd(
     }
 #endif
 
-#ifdef FEAT_SPELL
-    /* If the window options were changed may need to set the spell language.
-     * Can only do this after the buffer has been properly setup. */
-    if (did_get_winopts && curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
-	(void)did_set_spelllang(curwin);
-#endif
 
     if (command == NULL)
     {
@@ -5466,12 +5444,6 @@ do_sub(exarg_T *eap)
 			    subflags.do_ask = FALSE;
 			    break;
 			}
-#ifdef FEAT_INS_EXPAND
-			if (typed == Ctrl_E)
-			    scrollup_clamp();
-			else if (typed == Ctrl_Y)
-			    scrolldown_clamp();
-#endif
 		    }
 		    State = save_State;
 		    if (vim_strchr(p_cpo, CPO_UNDO) != NULL)
@@ -6850,9 +6822,6 @@ prepare_help_buffer(void)
 #ifdef FEAT_DIFF
     curwin->w_p_diff = FALSE;	/* No 'diff' */
 #endif
-#ifdef FEAT_SPELL
-    curwin->w_p_spell = FALSE;	/* No spell checking */
-#endif
 
     set_buflisted(FALSE);
 }
@@ -6881,9 +6850,6 @@ fix_help_buffer(void)
 	--curbuf_lock;
     }
 
-#ifdef FEAT_SYN_HL
-    if (!syntax_present(curwin))
-#endif
     {
 	for (lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
 	{
@@ -7662,7 +7628,6 @@ ex_oldfiles(exarg_T *eap UNUSED)
 		msg_outtrans(fname);
 		msg_clr_eos();
 		msg_putchar('\n');
-		out_flush();	    /* output one line at a time */
 		ui_breakcheck();
 	    }
 	}

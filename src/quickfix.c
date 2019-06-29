@@ -3551,7 +3551,6 @@ qf_list_entry(qfline_T *qfp, int qf_idx, int cursel)
 				? skipwhite(qfp->qf_text) : qfp->qf_text,
 				IObuff, IOSIZE);
     msg_prt_line(IObuff, FALSE);
-    out_flush();		// show one line at a time
 }
 
 /*
@@ -5639,7 +5638,6 @@ vgr_display_fname(char_u *fname)
     msg_didout = FALSE;	    // overwrite this message
     msg_nowait = TRUE;	    // don't wait for this message
     msg_col = 0;
-    out_flush();
 }
 
 /*
@@ -5652,16 +5650,8 @@ vgr_load_dummy_buf(
 	char_u *dirname_now)
 {
     int		save_mls;
-#if defined(FEAT_SYN_HL)
-    char_u	*save_ei = NULL;
-#endif
     buf_T	*buf;
 
-#if defined(FEAT_SYN_HL)
-    // Don't do Filetype autocommands to avoid loading syntax and
-    // indent scripts, a great speed improvement.
-    save_ei = au_event_disable(",Filetype");
-#endif
     // Don't use modelines here, it's useless.
     save_mls = p_mls;
     p_mls = 0;
@@ -5671,9 +5661,6 @@ vgr_load_dummy_buf(
     buf = load_dummy_buffer(fname, dirname_start, dirname_now);
 
     p_mls = save_mls;
-#if defined(FEAT_SYN_HL)
-    au_event_restore(save_ei);
-#endif
 
     return buf;
 }
@@ -6022,10 +6009,6 @@ ex_vimgrep(exarg_T *eap)
 		    // need to be done (again).  But not the window-local
 		    // options!
 		    aucmd_prepbuf(&aco, buf);
-#if defined(FEAT_SYN_HL)
-		    apply_autocmds(EVENT_FILETYPE, buf->b_p_ft,
-						     buf->b_fname, TRUE, buf);
-#endif
 		    do_modelines(OPT_NOWIN);
 		    aucmd_restbuf(&aco);
 		}

@@ -101,12 +101,6 @@ static void f_chdir(typval_T *argvars, typval_T *rettv);
 static void f_cindent(typval_T *argvars, typval_T *rettv);
 static void f_clearmatches(typval_T *argvars, typval_T *rettv);
 static void f_col(typval_T *argvars, typval_T *rettv);
-#if defined(FEAT_INS_EXPAND)
-static void f_complete(typval_T *argvars, typval_T *rettv);
-static void f_complete_add(typval_T *argvars, typval_T *rettv);
-static void f_complete_check(typval_T *argvars, typval_T *rettv);
-static void f_complete_info(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_confirm(typval_T *argvars, typval_T *rettv);
 static void f_copy(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
@@ -582,12 +576,6 @@ static struct fst
     {"cindent",		1, 1, f_cindent},
     {"clearmatches",	0, 1, f_clearmatches},
     {"col",		1, 1, f_col},
-#if defined(FEAT_INS_EXPAND)
-    {"complete",	2, 2, f_complete},
-    {"complete_add",	1, 1, f_complete_add},
-    {"complete_check",	0, 0, f_complete_check},
-    {"complete_info",	0, 1, f_complete_info},
-#endif
     {"confirm",		1, 4, f_confirm},
     {"copy",		1, 1, f_copy},
 #ifdef FEAT_FLOAT
@@ -942,7 +930,7 @@ static struct fst
     {"term_dumpload",	1, 2, f_term_dumpload},
     {"term_dumpwrite",	2, 3, f_term_dumpwrite},
     {"term_getaltscreen", 1, 1, f_term_getaltscreen},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     {"term_getansicolors", 1, 1, f_term_getansicolors},
 # endif
     {"term_getattr",	2, 2, f_term_getattr},
@@ -957,7 +945,7 @@ static struct fst
     {"term_list",	0, 0, f_term_list},
     {"term_scrape",	2, 2, f_term_scrape},
     {"term_sendkeys",	2, 2, f_term_sendkeys},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     {"term_setansicolors", 2, 2, f_term_setansicolors},
 # endif
     {"term_setkill",	2, 2, f_term_setkill},
@@ -2556,85 +2544,6 @@ f_col(typval_T *argvars, typval_T *rettv)
     rettv->vval.v_number = col;
 }
 
-#if defined(FEAT_INS_EXPAND)
-/*
- * "complete()" function
- */
-    static void
-f_complete(typval_T *argvars, typval_T *rettv UNUSED)
-{
-    int	    startcol;
-
-    if ((State & INSERT) == 0)
-    {
-	emsg(_("E785: complete() can only be used in Insert mode"));
-	return;
-    }
-
-    /* Check for undo allowed here, because if something was already inserted
-     * the line was already saved for undo and this check isn't done. */
-    if (!undo_allowed())
-	return;
-
-    if (argvars[1].v_type != VAR_LIST || argvars[1].vval.v_list == NULL)
-    {
-	emsg(_(e_invarg));
-	return;
-    }
-
-    startcol = (int)tv_get_number_chk(&argvars[0], NULL);
-    if (startcol <= 0)
-	return;
-
-    set_completion(startcol - 1, argvars[1].vval.v_list);
-}
-
-/*
- * "complete_add()" function
- */
-    static void
-f_complete_add(typval_T *argvars, typval_T *rettv)
-{
-    rettv->vval.v_number = ins_compl_add_tv(&argvars[0], 0);
-}
-
-/*
- * "complete_check()" function
- */
-    static void
-f_complete_check(typval_T *argvars UNUSED, typval_T *rettv)
-{
-    int		saved = RedrawingDisabled;
-
-    RedrawingDisabled = 0;
-    ins_compl_check_keys(0, TRUE);
-    rettv->vval.v_number = ins_compl_interrupted();
-    RedrawingDisabled = saved;
-}
-
-/*
- * "complete_info()" function
- */
-    static void
-f_complete_info(typval_T *argvars, typval_T *rettv)
-{
-    list_T	*what_list = NULL;
-
-    if (rettv_dict_alloc(rettv) != OK)
-	return;
-
-    if (argvars[0].v_type != VAR_UNKNOWN)
-    {
-	if (argvars[0].v_type != VAR_LIST)
-	{
-	    emsg(_(e_listreq));
-	    return;
-	}
-	what_list = argvars[0].vval.v_list;
-    }
-    get_complete_info(what_list, rettv->vval.v_dict);
-}
-#endif
 
 /*
  * "confirm(message, buttons[, default [, type]])" function
@@ -5495,15 +5404,6 @@ f_getmatches(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 	dict_add_string(dict, "group", syn_id2name(cur->hlg_id));
 	dict_add_number(dict, "priority", (long)cur->priority);
 	dict_add_number(dict, "id", (long)cur->id);
-# if defined(FEAT_CONCEAL)
-	if (cur->conceal_char)
-	{
-	    char_u buf[MB_MAXBYTES + 1];
-
-	    buf[(*mb_char2bytes)((int)cur->conceal_char, buf)] = NUL;
-	    dict_add_string(dict, "conceal", (char_u *)&buf);
-	}
-# endif
 	list_append_dict(rettv->vval.v_list, dict);
 	cur = cur->next;
     }
@@ -6014,18 +5914,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	varnumber_T timeout = 100;
-
-	if (argvars[0].v_type != VAR_UNKNOWN)
-	    timeout = tv_get_number(&argvars[0]);
-
-	(void)ui_get_winpos(&x, &y, timeout);
-    }
-#endif
     list_append_number(rettv->vval.v_list, (varnumber_T)x);
     list_append_number(rettv->vval.v_list, (varnumber_T)y);
 }
@@ -6038,17 +5926,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = x;
-    }
-#endif
 }
 
 /*
@@ -6058,16 +5935,6 @@ f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposy(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = y;
-    }
-#endif
 }
 
 /*
@@ -6287,9 +6154,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_COMMENTS
 	"comments",
 #endif
-#ifdef FEAT_CONCEAL
-	"conceal",
-#endif
 #ifdef FEAT_CRYPT
 	"cryptv",
 	"crypt-blowfish",
@@ -6384,9 +6248,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #if defined(HAVE_ICONV_H) && defined(USE_ICONV)
 	"iconv",
-#endif
-#ifdef FEAT_INS_EXPAND
-	"insert_expand",
 #endif
 #ifdef FEAT_JOB_CHANNEL
 	"job",
@@ -6492,26 +6353,17 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef STARTUPTIME
 	"startuptime",
 #endif
-#ifdef FEAT_SYN_HL
-	"syntax",
-#endif
 #if defined(USE_SYSTEM) || !defined(UNIX)
 	"system",
 #endif
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
 #endif
-#ifdef FEAT_TERMGUICOLORS
-	"termguicolors",
-#endif
 #if defined(FEAT_TERMINAL) && !defined(MSWIN)
 	"terminal",
 #endif
 #ifdef TERMINFO
 	"terminfo",
-#endif
-#ifdef FEAT_TERMRESPONSE
-	"termresponse",
 #endif
 #ifdef FEAT_TEXTOBJ
 	"textobjects",
@@ -6679,10 +6531,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 	else if (STRICMP(name, "browse") == 0)
 	    n = gui.in_use;	/* gui_mch_browse() works when GUI is running */
 # endif
-#endif
-#ifdef FEAT_SYN_HL
-	else if (STRICMP(name, "syntax_items") == 0)
-	    n = syntax_present(curwin);
 #endif
 #if defined(FEAT_TERMINAL) && defined(MSWIN)
 	else if (STRICMP(name, "terminal") == 0)
@@ -8610,12 +8458,6 @@ f_mode(typval_T *argvars, typval_T *rettv)
 		buf[0] = 'R';
 	    else
 		buf[0] = 'i';
-#ifdef FEAT_INS_EXPAND
-	    if (ins_compl_active())
-		buf[1] = 'c';
-	    else if (ctrl_x_mode_not_defined_yet())
-		buf[1] = 'x';
-#endif
 	}
     }
     else if ((State & CMDLINE) || exmode_active)
@@ -8909,10 +8751,6 @@ f_prompt_setprompt(typval_T *argvars, typval_T *rettv UNUSED)
     static void
 f_pumvisible(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_INS_EXPAND
-    if (pum_visible())
-	rettv->vval.v_number = 1;
-#endif
 }
 
 #ifdef FEAT_PYTHON3
@@ -12897,20 +12735,6 @@ f_swapname(typval_T *argvars, typval_T *rettv)
 f_synID(typval_T *argvars UNUSED, typval_T *rettv)
 {
     int		id = 0;
-#ifdef FEAT_SYN_HL
-    linenr_T	lnum;
-    colnr_T	col;
-    int		trans;
-    int		transerr = FALSE;
-
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (linenr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-    trans = (int)tv_get_number_chk(&argvars[2], &transerr);
-
-    if (!transerr && lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col < (long)STRLEN(ml_get(lnum)))
-	id = syn_get_id(curwin, lnum, (colnr_T)col, trans, NULL, FALSE);
-#endif
 
     rettv->vval.v_number = id;
 }
@@ -12922,87 +12746,6 @@ f_synID(typval_T *argvars UNUSED, typval_T *rettv)
 f_synIDattr(typval_T *argvars UNUSED, typval_T *rettv)
 {
     char_u	*p = NULL;
-#ifdef FEAT_SYN_HL
-    int		id;
-    char_u	*what;
-    char_u	*mode;
-    char_u	modebuf[NUMBUFLEN];
-    int		modec;
-
-    id = (int)tv_get_number(&argvars[0]);
-    what = tv_get_string(&argvars[1]);
-    if (argvars[2].v_type != VAR_UNKNOWN)
-    {
-	mode = tv_get_string_buf(&argvars[2], modebuf);
-	modec = TOLOWER_ASC(mode[0]);
-	if (modec != 't' && modec != 'c' && modec != 'g')
-	    modec = 0;	/* replace invalid with current */
-    }
-    else
-    {
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
-	if (USE_24BIT)
-	    modec = 'g';
-	else
-#endif
-	    if (t_colors > 1)
-	    modec = 'c';
-	else
-	    modec = 't';
-    }
-
-    switch (TOLOWER_ASC(what[0]))
-    {
-	case 'b':
-		if (TOLOWER_ASC(what[1]) == 'g')	/* bg[#] */
-		    p = highlight_color(id, what, modec);
-		else					/* bold */
-		    p = highlight_has_attr(id, HL_BOLD, modec);
-		break;
-
-	case 'f':					/* fg[#] or font */
-		p = highlight_color(id, what, modec);
-		break;
-
-	case 'i':
-		if (TOLOWER_ASC(what[1]) == 'n')	/* inverse */
-		    p = highlight_has_attr(id, HL_INVERSE, modec);
-		else					/* italic */
-		    p = highlight_has_attr(id, HL_ITALIC, modec);
-		break;
-
-	case 'n':					/* name */
-		p = get_highlight_name_ext(NULL, id - 1, FALSE);
-		break;
-
-	case 'r':					/* reverse */
-		p = highlight_has_attr(id, HL_INVERSE, modec);
-		break;
-
-	case 's':
-		if (TOLOWER_ASC(what[1]) == 'p')	/* sp[#] */
-		    p = highlight_color(id, what, modec);
-							/* strikeout */
-		else if (TOLOWER_ASC(what[1]) == 't' &&
-			TOLOWER_ASC(what[2]) == 'r')
-		    p = highlight_has_attr(id, HL_STRIKETHROUGH, modec);
-		else					/* standout */
-		    p = highlight_has_attr(id, HL_STANDOUT, modec);
-		break;
-
-	case 'u':
-		if (STRLEN(what) <= 5 || TOLOWER_ASC(what[5]) != 'c')
-							/* underline */
-		    p = highlight_has_attr(id, HL_UNDERLINE, modec);
-		else
-							/* undercurl */
-		    p = highlight_has_attr(id, HL_UNDERCURL, modec);
-		break;
-    }
-
-    if (p != NULL)
-	p = vim_strsave(p);
-#endif
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = p;
 }
@@ -13015,13 +12758,6 @@ f_synIDtrans(typval_T *argvars UNUSED, typval_T *rettv)
 {
     int		id;
 
-#ifdef FEAT_SYN_HL
-    id = (int)tv_get_number(&argvars[0]);
-
-    if (id > 0)
-	id = syn_get_final_id(id);
-    else
-#endif
 	id = 0;
 
     rettv->vval.v_number = id;
@@ -13033,55 +12769,9 @@ f_synIDtrans(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_synconcealed(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#if defined(FEAT_SYN_HL) && defined(FEAT_CONCEAL)
-    linenr_T	lnum;
-    colnr_T	col;
-    int		syntax_flags = 0;
-    int		cchar;
-    int		matchid = 0;
-    char_u	str[NUMBUFLEN];
-#endif
 
     rettv_list_set(rettv, NULL);
 
-#if defined(FEAT_SYN_HL) && defined(FEAT_CONCEAL)
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (colnr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-
-    vim_memset(str, NUL, sizeof(str));
-
-    if (rettv_list_alloc(rettv) != FAIL)
-    {
-	if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col <= (long)STRLEN(ml_get(lnum))
-	    && curwin->w_p_cole > 0)
-	{
-	    (void)syn_get_id(curwin, lnum, col, FALSE, NULL, FALSE);
-	    syntax_flags = get_syntax_info(&matchid);
-
-	    /* get the conceal character */
-	    if ((syntax_flags & HL_CONCEAL) && curwin->w_p_cole < 3)
-	    {
-		cchar = syn_get_sub_char();
-		if (cchar == NUL && curwin->w_p_cole == 1)
-		    cchar = (lcs_conceal == NUL) ? ' ' : lcs_conceal;
-		if (cchar != NUL)
-		{
-		    if (has_mbyte)
-			(*mb_char2bytes)(cchar, str);
-		    else
-			str[0] = cchar;
-		}
-	    }
-	}
-
-	list_append_number(rettv->vval.v_list,
-					    (syntax_flags & HL_CONCEAL) != 0);
-	/* -1 to auto-determine strlen */
-	list_append_string(rettv->vval.v_list, str, -1);
-	list_append_number(rettv->vval.v_list, matchid);
-    }
-#endif
 }
 
 /*
@@ -13090,34 +12780,9 @@ f_synconcealed(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_synstack(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_SYN_HL
-    linenr_T	lnum;
-    colnr_T	col;
-    int		i;
-    int		id;
-#endif
 
     rettv_list_set(rettv, NULL);
 
-#ifdef FEAT_SYN_HL
-    lnum = tv_get_lnum(argvars);		/* -1 on type error */
-    col = (colnr_T)tv_get_number(&argvars[1]) - 1;	/* -1 on type error */
-
-    if (lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count
-	    && col >= 0 && col <= (long)STRLEN(ml_get(lnum))
-	    && rettv_list_alloc(rettv) != FAIL)
-    {
-	(void)syn_get_id(curwin, lnum, (colnr_T)col, FALSE, NULL, TRUE);
-	for (i = 0; ; ++i)
-	{
-	    id = syn_get_stack_item(i);
-	    if (id < 0)
-		break;
-	    if (list_append_number(rettv->vval.v_list, id) == FAIL)
-		break;
-	}
-    }
-#endif
 }
 
     static void

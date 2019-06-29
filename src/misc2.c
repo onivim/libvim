@@ -1055,15 +1055,6 @@ free_all_mem(void)
     if (!ONE_WINDOW)
 	do_cmdline_cmd((char_u *)"only!");
 
-# if defined(FEAT_SPELL)
-    /* Free all spell info. */
-    spell_free_all();
-# endif
-
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_BEVAL_TERM)
-    ui_remove_balloon();
-# endif
-
     // Clear user commands (before deleting buffers).
     ex_comclear(NULL);
 
@@ -1107,9 +1098,6 @@ free_all_mem(void)
     free_search_patterns();
     free_old_sub();
     free_last_insert();
-# if defined(FEAT_INS_EXPAND)
-    free_insexpand_stuff();
-# endif
     free_prev_shellcmd();
     free_regexp_stuff();
     free_tag_stuff();
@@ -1553,7 +1541,7 @@ vim_strup(
     }
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Make string "s" all upper-case and return it in allocated memory.
  * Handles multi-byte characters as well as possible.
@@ -3097,7 +3085,6 @@ call_shell(char_u *cmd, int opt)
 	verbose_enter();
 	smsg(_("Calling shell to execute: \"%s\""),
 						    cmd == NULL ? p_sh : cmd);
-	out_char('\n');
 	cursor_on();
 	verbose_leave();
     }
@@ -3642,7 +3629,7 @@ vimpty_getenv(const char_u *string)
 
 #endif /* !defined(HAVE_SETENV) && !defined(HAVE_PUTENV) */
 
-#if defined(FEAT_EVAL) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Return 0 for not writable, 1 for writable file, 2 for a dir which we have
  * rights to write into.
@@ -3677,7 +3664,7 @@ filewritable(char_u *fname)
 }
 #endif
 
-#if defined(FEAT_SPELL) || defined(FEAT_PERSISTENT_UNDO) || defined(PROTO)
+#if defined(FEAT_PERSISTENT_UNDO) || defined(PROTO)
 /*
  * Read 2 bytes from "fd" and turn them into an int, MSB first.
  * Returns -1 when encountering EOF.
@@ -3869,7 +3856,7 @@ time_to_bytes(time_T the_time, char_u *buf)
 
 #endif
 
-#if defined(FEAT_QUICKFIX) || defined(FEAT_SPELL) || defined(PROTO)
+#if defined(FEAT_QUICKFIX) || defined(PROTO)
 /*
  * Return TRUE if string "s" contains a non-ASCII character (128 or higher).
  * When "s" is NULL FALSE is returned.

@@ -167,14 +167,6 @@
 #endif
 
 /*
- * +insert_expand	CTRL-N/CTRL-P/CTRL-X in insert mode. Takes about
- *			4Kbyte of code.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_INS_EXPAND
-#endif
-
-/*
  * +cmdline_compl	completion of mappings/abbreviations in cmdline mode.
  *			Takes a few Kbyte of code.
  */
@@ -411,22 +403,6 @@
 #endif
 
 /*
- * +syntax		syntax highlighting.  When using this, it's a good
- *			idea to have +autocmd and +eval too.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_SYN_HL
-#endif
-
-/*
- * +conceal		'conceal' option.  Needs syntax highlighting
- *			as this is how the concealed text is defined.
- */
-#if defined(FEAT_BIG) && defined(FEAT_SYN_HL)
-# define FEAT_CONCEAL
-#endif
-
-/*
  * +textprop		Text properties and popup windows
  */
 #if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
@@ -597,13 +573,6 @@
 # ifndef ALWAYS_USE_GUI
 #  define FEAT_CON_DIALOG
 # endif
-#endif
-
-/*
- * +termguicolors	'termguicolors' option.
- */
-#if (defined(FEAT_BIG) && defined(FEAT_SYN_HL)) && !defined(ALWAYS_USE_GUI)
-# define FEAT_TERMGUICOLORS
 #endif
 
 /* Mac specific thing: Codewarrior interface. */
@@ -870,15 +839,6 @@
 # define FIND_REPLACE_DIALOG 1
 #endif
 
-/*
- * +termresponse	send t_RV to obtain terminal response.  Used for xterm
- *			to check if mouse dragging can be used and if term
- *			codes can be obtained.
- */
-#if (defined(FEAT_NORMAL)) && defined(HAVE_TGETENT)
-# define FEAT_TERMRESPONSE
-#endif
-
 #if defined(FEAT_MZSCHEME) && (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)    \
 	|| defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)	\
 	|| defined(FEAT_GUI_MAC))
@@ -975,12 +935,14 @@
 #undef FEAT_AUTOSERVERNAME
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
+#undef FEAT_CONCEAL
 #undef FEAT_CRYPT
 /*
  * +footer		Motif only: Add a message area at the bottom of the
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_INS_EXPAND
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
@@ -989,7 +951,11 @@
  * The Netbeans feature
  */
 #undef FEAT_NETBEANS_INTG
+#undef FEAT_SPELL
 #undef FEAT_STL_OPT
+#undef FEAT_SYN_HL
+#undef FEAT_TERMGUICOLORS
+#undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE
 /*
  * +vtp: Win32 virtual console.
