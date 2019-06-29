@@ -218,14 +218,15 @@ MU_TEST(test_pass_through_in_pairs) {
     vimInput("}");
     vimInput("a");
     vimInput("<esc>");
+    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
 
-    printf("REDO BUFFER: |%s|\n", get_inserted());
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}aThis is the first line of a test file") == 0);
 
     vimInput("j");
     vimInput(".");
-
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
     printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 2), "{}aThis is the second line of a test file") == 0);
 }
 
 MU_TEST(test_pass_through_in_pairs_undo_redo) {

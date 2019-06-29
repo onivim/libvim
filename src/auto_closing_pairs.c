@@ -94,7 +94,7 @@ int acp_is_closing_pair(char_u c) {
     return FALSE;
   }
 
-  return openCharacter[c] != NULL;
+  return closeCharacter[c] != NULL;
 }
 
 int acp_is_cursor_between_pair(void) {

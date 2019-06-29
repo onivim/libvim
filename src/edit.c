@@ -929,17 +929,14 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 
         if (acp_is_closing_pair(c) && (*ml_get_cursor() == c)) {
              AppendCharToRedobuff(c);
-			oneright();
-
-	     } else {
-
-      insert_special(c, FALSE, FALSE);
-       if (acp_is_opening_pair(c)) {
-
-          char_u close = acp_get_closing_character(c);
-          ins_char(close);
-          oneleft();
-         }
+             oneright();
+         } else {
+           insert_special(c, FALSE, FALSE);
+           if (acp_is_opening_pair(c)) {
+             char_u close = acp_get_closing_character(c);
+             ins_char(close);
+             oneleft();
+           }
        }
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
