@@ -836,7 +836,7 @@ getcmdline_int(
     ccline.cmdindent = (firstc > 0 ? indent : 0);
 
     /* alloc initial ccline.cmdbuff */
-    vim_free(ccline.cmdbuff);
+    VIM_CLEAR(ccline.cmdbuff);
     alloc_cmdbuff(exmode_active ? 250 : indent + 1);
     if (ccline.cmdbuff == NULL)
 	goto theend;	// out of memory
@@ -2435,14 +2435,16 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	context->b_im_ptr = NULL;
 	context->did_save_ccline = FALSE;
 
-    if (ccline.cmdbuff != NULL)
-    {
+    // if (ccline.cmdbuff != NULL)
+    // {
 	// Being called recursively.  Since ccline is global, we need to save
 	// the current buffer and restore it when returning.
-	save_cmdline(&context->save_ccline);
-	context->did_save_ccline = TRUE;
-    }
+	// save_cmdline(&context->save_ccline);
+	// context->did_save_ccline = TRUE;
+    // }
 
+    VIM_CLEAR(ccline.cmdbuff);
+    
     /* TODO: Where does init_ccline come from? When is it not TRUE? */
     /* if (init_ccline) */
 	vim_memset(&ccline, 0, sizeof(struct cmdline_info));
@@ -2474,7 +2476,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     ccline.cmdindent = (context->firstc > 0 ? context->indent : 0);
 
     /* alloc initial ccline.cmdbuff */
-    vim_free(ccline.cmdbuff);
     alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
     if (ccline.cmdbuff == NULL) {
 	    // out of memory
