@@ -190,6 +190,10 @@ MU_TEST(test_setting_acp_option) {
     mu_check(p_acp == FALSE);
 }
 
+MU_TEST(test_acp_should_pass_through) {
+    mu_check(acp_should_pass_through('a') == FALSE);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -200,6 +204,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_pass_through_in_pairs);
   MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
   MU_RUN_TEST(test_setting_acp_option);
+  MU_RUN_TEST(test_acp_should_pass_through);
 }
 
 int main(int argc, char **argv) {
