@@ -1190,7 +1190,8 @@ static PyObject *VimPathHook(PyObject *self UNUSED, PyObject *args) {
  */
 
 static struct PyMethodDef VimMethods[] = {
-    /* name,	    function,			calling,			documentation
+    /* name,	    function,			calling,
+     * documentation
      */
     {"command", VimCommand, METH_O, "Execute a Vim ex-mode command"},
     {"eval", VimEval, METH_VARARGS,

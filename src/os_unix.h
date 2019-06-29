@@ -375,12 +375,12 @@ typedef struct dsc$descriptor DESC;
 #ifdef RUNTIME_GLOBAL_AFTER
 #define DFLT_RUNTIMEPATH                                                       \
   "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL_AFTER ",~/.vim/"     \
-                                                                "after"
+  "after"
 #define CLEAN_RUNTIMEPATH RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL_AFTER
 #else
 #define DFLT_RUNTIMEPATH                                                       \
   "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL "/after,~/.vim/"     \
-                                                          "after"
+  "after"
 #define CLEAN_RUNTIMEPATH RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL "/after"
 #endif
 #else
@@ -421,7 +421,7 @@ typedef struct dsc$descriptor DESC;
 #define MAXPATHL 1024
 #endif
 
-#define CHECK_INODE /* used when checking if a swap file already               \
+#define CHECK_INODE /* used when checking if a swap file already \                                                                             \
                         exists for a file */
 #ifdef VMS          /* Use less memory because of older systems  */
 #ifndef DFLT_MAXMEM

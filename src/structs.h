@@ -1214,8 +1214,8 @@ typedef struct {
 /* Values for "dv_scope". */
 #define VAR_SCOPE 1 /* a:, v:, s:, etc. scope dictionaries */
 #define VAR_DEF_SCOPE                                                          \
-  2 /* l:, g: scope dictionaries: here funcrefs are not                        \
-       allowed to mask existing functions */
+  2 /* l:, g: scope dictionaries: here funcrefs are not \ allowed to mask                                                               \
+       existing functions */
 
 /* Values for "v_lock". */
 #define VAR_LOCKED 1 /* locked with lock(), can use unlock() */
@@ -1350,8 +1350,8 @@ typedef struct {
   int uf_tml_idx;             // index of line being timed; -1 if none
   int uf_tml_execed;          // line being timed was executed
 #endif
-  sctx_T uf_script_ctx; // SCTX where function was defined,
-                        // used for s: variables
+  sctx_T uf_script_ctx;  // SCTX where function was defined,
+                         // used for s: variables
   int uf_refcount;       // reference count, see func_name_refcount()
   funccall_T *uf_scoped; // l: local variables for closure
   char_u uf_name[1];     // name of function (actually longer); can
@@ -1640,11 +1640,11 @@ struct channel_S {
   int ch_keep_open; /* do not close on read error */
   int ch_nonblock;
 
-  job_T *ch_job; // Job that uses this channel; this does not
-                 // count as a reference to avoid a circular
-                 // reference, the job refers to the channel.
-  int ch_job_killed; // TRUE when there was a job and it was killed
-                     // or we know it died.
+  job_T *ch_job;         // Job that uses this channel; this does not
+                         // count as a reference to avoid a circular
+                         // reference, the job refers to the channel.
+  int ch_job_killed;     // TRUE when there was a job and it was killed
+                         // or we know it died.
   int ch_anonymous_pipe; // ConPTY
   int ch_killing;        // TerminateJobObject() was called
 
@@ -1916,8 +1916,8 @@ struct file_buffer {
   char_u *b_ffname; // full path file name, allocated
   char_u *b_sfname; // short file name, allocated, may be equal to
                     // b_ffname
-  char_u *b_fname; // current file name, points to b_ffname or
-                   // b_sfname
+  char_u *b_fname;  // current file name, points to b_ffname or
+                    // b_sfname
 
 #ifdef UNIX
   int b_dev_valid; /* TRUE when b_dev has a valid number */
@@ -2402,9 +2402,9 @@ struct frame_S {
   int fr_newheight;   // new height used in win_equal_rec()
   frame_T *fr_parent; // containing frame or NULL
   frame_T *fr_next;   // frame right or below in same parent, NULL
-                    // for last
-  frame_T *fr_prev; // frame left or above in same parent, NULL
-                    // for first
+                      // for last
+  frame_T *fr_prev;   // frame left or above in same parent, NULL
+                      // for first
   // fr_child and fr_win are mutually exclusive
   frame_T *fr_child; // first contained frame
   win_T *fr_win;     // window that fills this frame
