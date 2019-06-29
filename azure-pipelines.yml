@@ -3,6 +3,23 @@
 name: $(Build.SourceVersion)
 jobs:
 - job: ArchDocker
+  displayName: "Linux - Arch"
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  steps:
+  - script: docker build -t arch-libvim src/build/docker/arch
+    displayName: 'docker build'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'echo hello'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'cd libvim/src && ls'
+    displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'cd libvim/src && pwd'
+    displayName: 'docker run'
+  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'cd libvim/src && esy @test install'
+    displayName: 'docker run'
+  - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind arch-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
+    displayName: 'docker run'
+
+- job: AlpineDocker
   displayName: "Linux - Alpine 3.8 (Docker)"
   pool:
     vmImage: 'Ubuntu 16.04'
