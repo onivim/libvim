@@ -62,7 +62,8 @@ MU_TEST(test_change_redo) {
   vimInput(".");
 
   printf("LINE: %s\n", vimBufferGetLine(curbuf, 2));
-  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "abc is the second line of a test file") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2),
+                  "abc is the second line of a test file") == 0);
 }
 
 MU_TEST(test_change_macro) {
@@ -76,7 +77,6 @@ MU_TEST(test_change_macro) {
   vimInput("3");
   vimInput("<c-c>");
   vimInput("q");
-
 
   vimInput("j");
   vimInput("@");

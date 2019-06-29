@@ -1,6 +1,6 @@
-#include "vim.h"
 #include "libvim.h"
 #include "minunit.h"
+#include "vim.h"
 
 #define MAX_TEST_MESSAGE 8192
 
@@ -8,7 +8,7 @@ char_u lastMessage[MAX_TEST_MESSAGE];
 char_u lastTitle[MAX_TEST_MESSAGE];
 msgPriority_T lastPriority;
 
-void onMessage(char_u *title, char_u* msg, msgPriority_T priority) {
+void onMessage(char_u *title, char_u *msg, msgPriority_T priority) {
   printf("onMessage - title: |%s| contents: |%s|", title, msg);
 
   assert(strlen(msg) < MAX_TEST_MESSAGE);
@@ -34,7 +34,7 @@ void test_setup(void) {
 void test_teardown(void) {}
 
 MU_TEST(test_msg2_put) {
-  msg_T* msg = msg2_create(MSG_INFO);  
+  msg_T *msg = msg2_create(MSG_INFO);
   msg2_put("a", msg);
 
   mu_check(strcmp(msg2_get_contents(msg), "a") == 0);
@@ -43,7 +43,7 @@ MU_TEST(test_msg2_put) {
 };
 
 MU_TEST(test_msg2_put_multiple) {
-  msg_T* msg = msg2_create(MSG_INFO);  
+  msg_T *msg = msg2_create(MSG_INFO);
   msg2_put("ab", msg);
   msg2_put("\n", msg);
   msg2_put("c", msg);
@@ -54,8 +54,8 @@ MU_TEST(test_msg2_put_multiple) {
 };
 
 MU_TEST(test_msg2_send_triggers_callback) {
-  
-  msg_T* msg = msg2_create(MSG_INFO);  
+
+  msg_T *msg = msg2_create(MSG_INFO);
   msg2_put("testing", msg);
   msg2_send(msg);
   msg2_free(msg);
@@ -65,7 +65,7 @@ MU_TEST(test_msg2_send_triggers_callback) {
 };
 
 MU_TEST(test_msg2_title) {
-  msg_T* msg = msg2_create(MSG_INFO);  
+  msg_T *msg = msg2_create(MSG_INFO);
   msg2_set_title("test-title", msg);
   msg2_put("test-contents", msg);
   msg2_send(msg);
@@ -134,11 +134,13 @@ MU_TEST(test_print_marks) {
   /* Set a mark */
   vimInput("m");
   vimInput("a");
-  
+
   vimExecute("marks a");
 
   mu_check(strcmp(lastTitle, "mark line  col file/text") == 0);
-  mu_check(strcmp(lastMessage, "\n a      1    0 This is the first line of a test file") == 0);
+  mu_check(strcmp(lastMessage,
+                  "\n a      1    0 This is the first line of a test file") ==
+           0);
   mu_check(lastPriority == MSG_INFO);
 }
 

@@ -31,7 +31,8 @@ MU_TEST(insert_abbrev_multiple) {
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   printf("LINE: %s\n", line);
-  mu_check(strcmp(line, "what what This is the first line of a test file") == 0);
+  mu_check(strcmp(line, "what what This is the first line of a test file") ==
+           0);
 }
 
 MU_TEST(insert_abbrev_no_recursive) {
@@ -52,7 +53,8 @@ MU_TEST(insert_abbrev_no_recursive) {
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   printf("LINE: %s\n", line);
-  mu_check(strcmp(line, "what what2 This is the first line of a test file") == 0);
+  mu_check(strcmp(line, "what what2 This is the first line of a test file") ==
+           0);
 }
 
 MU_TEST(insert_abbrev_expr) {
