@@ -47,9 +47,7 @@ void vimSetAutoCommandCallback(AutoCommandCallback f) {
   autoCommandCallback = f;
 }
 
-void vimSetMessageCallback(MessageCallback f) {
-  messageCallback = f;
-}
+void vimSetMessageCallback(MessageCallback f) { messageCallback = f; }
 
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 

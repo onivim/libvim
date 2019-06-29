@@ -2039,7 +2039,6 @@ void op_tilde(oparg_T *oap) {
       pos.col = bd.textcol;
       one_change = swapchars(oap->op_type, &pos, bd.textlen);
       did_change |= one_change;
-
     }
     if (did_change)
       changed_lines(oap->start.lnum, 0, oap->end.lnum + 1, 0L);
@@ -2348,20 +2347,20 @@ void op_insert(oparg_T *oap, long count1) {
 }
 
 typedef struct {
-    oparg_T* oap;
-    void* editContext;
-    colnr_T l;
-    int retval;
-    long offset;
-    linenr_T linenr;
-    long ins_len;
-    long pre_textlen;
-    long pre_indent;
-    char_u *firstline;
-    char_u *ins_text;
-    char_u *newp;
-    char_u *oldp;
-    struct block_def bd;
+  oparg_T *oap;
+  void *editContext;
+  colnr_T l;
+  int retval;
+  long offset;
+  linenr_T linenr;
+  long ins_len;
+  long pre_textlen;
+  long pre_indent;
+  char_u *firstline;
+  char_u *ins_text;
+  char_u *newp;
+  char_u *oldp;
+  struct block_def bd;
 } changeState_T;
 
 void *state_change_initialize(oparg_T *oap) {
@@ -2375,8 +2374,7 @@ void *state_change_initialize(oparg_T *oap) {
   if (oap->motion_type == MLINE) {
     context->l = 0;
 #ifdef FEAT_SMARTINDENT
-    if (!p_paste && curbuf->b_p_si
-    )
+    if (!p_paste && curbuf->b_p_si)
       can_si = TRUE; /* It's like opening a new line, do si */
 #endif
   }
@@ -2389,8 +2387,8 @@ void *state_change_initialize(oparg_T *oap) {
   } else if (op_delete(oap) == FAIL)
     return FALSE;
 
-  if ((context->l > curwin->w_cursor.col) && !LINEEMPTY(curwin->w_cursor.lnum) &&
-      !virtual_op)
+  if ((context->l > curwin->w_cursor.col) &&
+      !LINEEMPTY(curwin->w_cursor.lnum) && !virtual_op)
     inc_cursor();
 
   /* check for still on same line (<CR> in inserted text meaningless) */
@@ -2426,7 +2424,8 @@ void state_change_cleanup(void *ctx) {
    * block.
    * Don't repeat the insert when Insert mode ended with CTRL-C.
    */
-  if (context->oap->block_mode && context->oap->start.lnum != context->oap->end.lnum && !got_int) {
+  if (context->oap->block_mode &&
+      context->oap->start.lnum != context->oap->end.lnum && !got_int) {
     /* Auto-indenting may have changed the indent.  If the cursor was past
      * the indent, exclude that indent change from the inserted text. */
     context->firstline = ml_get(context->oap->start.lnum);
@@ -2442,8 +2441,10 @@ void state_change_cleanup(void *ctx) {
       /* Subsequent calls to ml_get() flush the firstline data - take a
        * copy of the inserted text.  */
       if ((context->ins_text = alloc(context->ins_len + 1)) != NULL) {
-        vim_strncpy(context->ins_text, context->firstline + context->bd.textcol, (size_t)context->ins_len);
-        for (context->linenr = context->oap->start.lnum + 1; context->linenr <= context->oap->end.lnum; context->linenr++) {
+        vim_strncpy(context->ins_text, context->firstline + context->bd.textcol,
+                    (size_t)context->ins_len);
+        for (context->linenr = context->oap->start.lnum + 1;
+             context->linenr <= context->oap->end.lnum; context->linenr++) {
           block_prep(context->oap, &context->bd, context->linenr, TRUE);
           if (!context->bd.is_short || virtual_op) {
             pos_T vpos;
@@ -2456,15 +2457,19 @@ void state_change_cleanup(void *ctx) {
             } else
               vpos.coladd = 0;
             context->oldp = ml_get(context->linenr);
-            context->newp = alloc(STRLEN(context->oldp) + vpos.coladd + context->ins_len + 1);
+            context->newp = alloc(STRLEN(context->oldp) + vpos.coladd +
+                                  context->ins_len + 1);
             if (context->newp == NULL)
               continue;
             /* copy up to block start */
-            mch_memmove(context->newp, context->oldp, (size_t)context->bd.textcol);
+            mch_memmove(context->newp, context->oldp,
+                        (size_t)context->bd.textcol);
             context->offset = context->bd.textcol;
-            vim_memset(context->newp + context->offset, ' ', (size_t)vpos.coladd);
+            vim_memset(context->newp + context->offset, ' ',
+                       (size_t)vpos.coladd);
             context->offset += vpos.coladd;
-            mch_memmove(context->newp + context->offset, context->ins_text, (size_t)context->ins_len);
+            mch_memmove(context->newp + context->offset, context->ins_text,
+                        (size_t)context->ins_len);
             context->offset += context->ins_len;
             context->oldp += context->bd.textcol;
             STRMOVE(context->newp + context->offset, context->oldp);
@@ -2473,7 +2478,8 @@ void state_change_cleanup(void *ctx) {
         }
         check_cursor();
 
-        changed_lines(context->oap->start.lnum + 1, 0, context->oap->end.lnum + 1, 0L);
+        changed_lines(context->oap->start.lnum + 1, 0,
+                      context->oap->end.lnum + 1, 0L);
       }
       vim_free(context->ins_text);
     }
@@ -3494,7 +3500,7 @@ void adjust_cursor_eol(void) {
   }
 }
 
-#if defined(FEAT_SMARTINDENT) ||  defined(PROTO)
+#if defined(FEAT_SMARTINDENT) || defined(PROTO)
 /*
  * Return TRUE if lines starting with '#' should be left aligned.
  */
@@ -3503,7 +3509,7 @@ int preprocs_left(void) {
 #ifdef FEAT_SMARTINDENT
       curbuf->b_p_si
 #endif
-          ;
+      ;
 }
 #endif
 

@@ -398,7 +398,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   }
 #endif
 
-
   context->did_backspace = FALSE;
 
   validate_cursor(); /* may set must_redraw */
@@ -574,7 +573,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
      * still puts the cursor back after the inserted text. */
     if (ins_at_eol && gchar_cursor() == NUL)
       o_lnum = curwin->w_cursor.lnum;
-    
 
     if (ins_esc(&context->count, context->cmdchar, context->nomove)) {
       // When CTRL-C was typed got_int will be set, with the result
@@ -1131,7 +1129,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    * here with something in the stuff buffer.
    */
   if (restart_edit != 0 && stuff_empty()) {
-      arrow_used = TRUE;
+    arrow_used = TRUE;
     restart_edit = 0;
 
     /*
@@ -1217,8 +1215,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     if (update_Insstart_orig)
       Insstart_orig = Insstart;
 
-    if (stop_insert_mode
-    ) {
+    if (stop_insert_mode) {
       /* ":stopinsert" used or 'insertmode' reset */
       count = 0;
       goto doESCkey;
@@ -1770,15 +1767,15 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
     case Ctrl_L: /* Whole line completion after ^X */
-      {
-        /* CTRL-L with 'insertmode' set: Leave Insert mode */
-        if (p_im) {
-          if (echeck_abbr(Ctrl_L + ABBR_OFF))
-            break;
-          goto doESCkey;
-        }
-        goto normalchar;
+    {
+      /* CTRL-L with 'insertmode' set: Leave Insert mode */
+      if (p_im) {
+        if (echeck_abbr(Ctrl_L + ABBR_OFF))
+          break;
+        goto doESCkey;
       }
+      goto normalchar;
+    }
     case Ctrl_Y: /* copy from previous line or scroll down */
     case Ctrl_E: /* copy from next line	   or scroll up */
       c = ins_ctrl_ey(c);
@@ -1861,8 +1858,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     } /* end of switch (c) */
 
     /* If typed something may trigger CursorHoldI again. */
-    if (c != K_CURSORHOLD
-    )
+    if (c != K_CURSORHOLD)
       did_cursorhold = FALSE;
 
     /* If the cursor was moved we didn't just insert a space */
@@ -1896,8 +1892,7 @@ void ins_redraw(int ready) // not busy with something
        || popup_visible
 #endif
        ) &&
-      !EQUAL_POS(last_cursormoved, curwin->w_cursor)
-  ) {
+      !EQUAL_POS(last_cursormoved, curwin->w_cursor)) {
     if (has_cursormovedI()) {
       /* Make sure curswant is correct, an autocommand may call
        * getcurpos(). */
@@ -1913,8 +1908,7 @@ void ins_redraw(int ready) // not busy with something
 
   /* Trigger TextChangedI if b_changedtick differs. */
   if (ready && has_textchangedI() &&
-      curbuf->b_last_changedtick != CHANGEDTICK(curbuf)
-  ) {
+      curbuf->b_last_changedtick != CHANGEDTICK(curbuf)) {
     aco_save_T aco;
     varnumber_T tick = CHANGEDTICK(curbuf);
 
@@ -1926,7 +1920,6 @@ void ins_redraw(int ready) // not busy with something
     if (tick != CHANGEDTICK(curbuf)) // see ins_apply_autocmds()
       u_save(curwin->w_cursor.lnum, (linenr_T)(curwin->w_cursor.lnum + 1));
   }
-
 
   if (must_redraw)
     update_screen(0);
@@ -4302,7 +4295,7 @@ static void ins_reg(void) {
     LANGMAP_ADJUST(regname, TRUE);
   }
   --no_mapping;
-	edit_putchar('"', TRUE);
+  edit_putchar('"', TRUE);
 
 #ifdef FEAT_EVAL
   /* Don't call u_sync() while typing the expression or giving an error
@@ -4364,7 +4357,6 @@ static void ins_reg(void) {
  */
 static void ins_ctrl_g(void) {
   int c;
-
 
   /*
    * Don't map the second key. This also prevents the mode message to be
@@ -4900,9 +4892,7 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
 #endif
     mincol = 0;
     /* keep indent */
-    if (mode == BACKSPACE_LINE &&
-        (curbuf->b_p_ai
-             )
+    if (mode == BACKSPACE_LINE && (curbuf->b_p_ai)
 #ifdef FEAT_RIGHTLEFT
         && !revins_on
 #endif
@@ -5837,27 +5827,27 @@ int ins_copychar(linenr_T lnum) {
 static int ins_ctrl_ey(int tc) {
   int c = tc;
 
-    c = ins_copychar(curwin->w_cursor.lnum + (c == Ctrl_Y ? -1 : 1));
-    if (c != NUL) {
-      long tw_save;
+  c = ins_copychar(curwin->w_cursor.lnum + (c == Ctrl_Y ? -1 : 1));
+  if (c != NUL) {
+    long tw_save;
 
-      /* The character must be taken literally, insert like it
-       * was typed after a CTRL-V, and pretend 'textwidth'
-       * wasn't set.  Digits, 'o' and 'x' are special after a
-       * CTRL-V, don't use it for these. */
-      if (c < 256 && !isalnum(c))
-        AppendToRedobuff((char_u *)CTRL_V_STR); /* CTRL-V */
-      tw_save = curbuf->b_p_tw;
-      curbuf->b_p_tw = -1;
-      insert_special(c, TRUE, FALSE);
-      curbuf->b_p_tw = tw_save;
+    /* The character must be taken literally, insert like it
+     * was typed after a CTRL-V, and pretend 'textwidth'
+     * wasn't set.  Digits, 'o' and 'x' are special after a
+     * CTRL-V, don't use it for these. */
+    if (c < 256 && !isalnum(c))
+      AppendToRedobuff((char_u *)CTRL_V_STR); /* CTRL-V */
+    tw_save = curbuf->b_p_tw;
+    curbuf->b_p_tw = -1;
+    insert_special(c, TRUE, FALSE);
+    curbuf->b_p_tw = tw_save;
 #ifdef FEAT_RIGHTLEFT
-      revins_chars++;
-      revins_legal++;
+    revins_chars++;
+    revins_legal++;
 #endif
-      c = Ctrl_V; /* pretend CTRL-V is last character */
-      auto_format(FALSE, TRUE);
-    }
+    c = Ctrl_V; /* pretend CTRL-V is last character */
+    auto_format(FALSE, TRUE);
+  }
   return c;
 }
 
