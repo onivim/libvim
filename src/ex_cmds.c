@@ -1552,11 +1552,6 @@ do_shell(
     if (cmd != NULL)
 	keep_termcap = winstart = (STRNICMP(cmd, "start ", 6) == 0);
 
-# if defined(FEAT_GUI) && defined(FEAT_TERMINAL)
-    // Don't stop termcap mode when using a terminal window for the shell.
-    if (gui.in_use && vim_strchr(p_go, GO_TERMINAL) != NULL)
-	keep_termcap = TRUE;
-# endif
 #endif
 
     /*
@@ -1581,15 +1576,7 @@ do_shell(
 	FOR_ALL_BUFFERS(buf)
 	    if (bufIsChangedNotTerm(buf))
 	    {
-#ifdef FEAT_GUI_MSWIN
-		if (!keep_termcap)
-		    starttermcap();	// don't want a message box here
-#endif
 		msg_puts(_("[No write since last change]\n"));
-#ifdef FEAT_GUI_MSWIN
-		if (!keep_termcap)
-		    stoptermcap();
-#endif
 		break;
 	    }
 
@@ -3230,16 +3217,6 @@ do_write(exarg_T *eap)
 		&& !eap->append
 		&& !p_wa)
 	{
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	    if (p_confirm || cmdmod.confirm)
-	    {
-		if (vim_dialog_yesno(VIM_QUESTION, NULL,
-			       (char_u *)_("Write partial file?"), 2) != VIM_YES)
-		    goto theend;
-		eap->forceit = TRUE;
-	    }
-	    else
-#endif
 	    {
 		emsg(_("E140: Use ! to write partial buffer"));
 		goto theend;
@@ -3382,18 +3359,6 @@ check_overwrite(
 		return FAIL;
 	    }
 #endif
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	    if (p_confirm || cmdmod.confirm)
-	    {
-		char_u	buff[DIALOG_MSG_SIZE];
-
-		dialog_msg(buff, _("Overwrite existing file \"%s\"?"), fname);
-		if (vim_dialog_yesno(VIM_QUESTION, NULL, buff, 2) != VIM_YES)
-		    return FAIL;
-		eap->forceit = TRUE;
-	    }
-	    else
-#endif
 	    {
 		emsg(_(e_exists));
 		return FAIL;
@@ -3433,24 +3398,6 @@ check_overwrite(
 	    r = vim_fexists(swapname);
 	    if (r)
 	    {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-		if (p_confirm || cmdmod.confirm)
-		{
-		    char_u	buff[DIALOG_MSG_SIZE];
-
-		    dialog_msg(buff,
-			    _("Swap file \"%s\" exists, overwrite anyway?"),
-								    swapname);
-		    if (vim_dialog_yesno(VIM_QUESTION, NULL, buff, 2)
-								   != VIM_YES)
-		    {
-			vim_free(swapname);
-			return FAIL;
-		    }
-		    eap->forceit = TRUE;
-		}
-		else
-#endif
 		{
 		    semsg(_("E768: Swap file exists: %s (:silent! overrides)"),
 								    swapname);
@@ -3588,29 +3535,6 @@ check_readonly(int *forceit, buf_T *buf)
 		|| (mch_stat((char *)buf->b_ffname, &st) >= 0
 		    && check_file_readonly(buf->b_ffname, 0777))))
     {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	if ((p_confirm || cmdmod.confirm) && buf->b_fname != NULL)
-	{
-	    char_u	buff[DIALOG_MSG_SIZE];
-
-	    if (buf->b_p_ro)
-		dialog_msg(buff, _("'readonly' option is set for \"%s\".\nDo you wish to write anyway?"),
-		    buf->b_fname);
-	    else
-		dialog_msg(buff, _("File permissions of \"%s\" are read-only.\nIt may still be possible to write it.\nDo you wish to try?"),
-		    buf->b_fname);
-
-	    if (vim_dialog_yesno(VIM_QUESTION, NULL, buff, 2) == VIM_YES)
-	    {
-		/* Set forceit, to force the writing of a readonly file */
-		*forceit = TRUE;
-		return FALSE;
-	    }
-	    else
-		return TRUE;
-	}
-	else
-#endif
 	if (buf->b_p_ro)
 	    emsg(_(e_readonly));
 	else
@@ -3668,11 +3592,6 @@ getfile(
     if (other && !forceit && curbuf->b_nwindows == 1 && !buf_hide(curbuf)
 		   && curbufIsChanged() && autowrite(curbuf, forceit) == FAIL)
     {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	if (p_confirm && p_write)
-	    dialog_changed(curbuf, FALSE);
-	if (curbufIsChanged())
-#endif
 	{
 	    if (other)
 		--no_wait_return;
@@ -3787,9 +3706,6 @@ do_ecmd(
 	if (cmdmod.browse)
 	{
 	    if (
-# ifdef FEAT_GUI
-		!gui.in_use &&
-# endif
 		    au_has_group((char_u *)"FileExplorer"))
 	    {
 		/* No browsing supported but we do have the file explorer:
@@ -6180,9 +6096,6 @@ prepare_tagpreview(
 {
     win_T	*wp;
 
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
 
     /*
      * If there is already a preview window open, use that one.
@@ -6326,9 +6239,6 @@ ex_help(exarg_T *eap)
     tag = vim_strsave(matches[i]);
     FreeWild(num_matches, matches);
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
 
     /*
      * Re-use an existing help window or open a new one.

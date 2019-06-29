@@ -807,22 +807,7 @@ static long range_end;
 /* MzScheme threads scheduling stuff */
 static int mz_threads_allow = 0;
 
-#if defined(FEAT_GUI_MSWIN)
-static void CALLBACK timer_proc(HWND, UINT, UINT_PTR, DWORD);
-static UINT timer_id = 0;
-#elif defined(FEAT_GUI_GTK)
-static gboolean timer_proc(gpointer);
-static guint timer_id = 0;
-#elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-static void timer_proc(XtPointer, XtIntervalId *);
-static XtIntervalId timer_id = (XtIntervalId)0;
-#elif defined(FEAT_GUI_MAC)
-pascal void timer_proc(EventLoopTimerRef, void *);
-static EventLoopTimerRef timer_id = NULL;
-static EventLoopTimerUPP timerUPP;
-#endif
-
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL) /* Win32 console and Unix */
+#if defined(VIMDLL) /* Win32 console and Unix */
     void
 mzvim_check_threads(void)
 {
@@ -841,79 +826,6 @@ mzvim_check_threads(void)
     }
 }
 #endif
-
-#if defined(MZSCHEME_GUI_THREADS) || defined(PROTO)
-static void setup_timer(void);
-static void remove_timer(void);
-
-/* timers are presented in GUI only */
-# if defined(FEAT_GUI_MSWIN)
-    static void CALLBACK
-timer_proc(HWND hwnd UNUSED, UINT uMsg UNUSED, UINT_PTR idEvent UNUSED, DWORD dwTime UNUSED)
-# elif defined(FEAT_GUI_GTK)
-    static gboolean
-timer_proc(gpointer data UNUSED)
-# elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-    static void
-timer_proc(XtPointer timed_out UNUSED, XtIntervalId *interval_id UNUSED)
-# elif defined(FEAT_GUI_MAC)
-    pascal void
-timer_proc(EventLoopTimerRef theTimer UNUSED, void *userData UNUSED)
-# endif
-{
-    scheme_check_threads();
-# if defined(FEAT_GUI_GTK)
-    return TRUE; /* continue receiving notifications */
-# elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-    /* renew timeout */
-    if (mz_threads_allow && p_mzq > 0)
-	timer_id = XtAppAddTimeOut(app_context, p_mzq,
-		timer_proc, NULL);
-# endif
-}
-
-    static void
-setup_timer(void)
-{
-# if defined(FEAT_GUI_MSWIN)
-    timer_id = SetTimer(NULL, 0, p_mzq, timer_proc);
-# elif defined(FEAT_GUI_GTK)
-    timer_id = g_timeout_add((guint)p_mzq, (GSourceFunc)timer_proc, NULL);
-# elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-    timer_id = XtAppAddTimeOut(app_context, p_mzq, timer_proc, NULL);
-# elif defined(FEAT_GUI_MAC)
-    timerUPP = NewEventLoopTimerUPP(timer_proc);
-    InstallEventLoopTimer(GetMainEventLoop(), p_mzq * kEventDurationMillisecond,
-		p_mzq * kEventDurationMillisecond, timerUPP, NULL, &timer_id);
-# endif
-}
-
-    static void
-remove_timer(void)
-{
-# if defined(FEAT_GUI_MSWIN)
-    KillTimer(NULL, timer_id);
-# elif defined(FEAT_GUI_GTK)
-    g_source_remove(timer_id);
-# elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-    XtRemoveTimeOut(timer_id);
-# elif defined(FEAT_GUI_MAC)
-    RemoveEventLoopTimer(timer_id);
-    DisposeEventLoopTimerUPP(timerUPP);
-# endif
-    timer_id = 0;
-}
-
-    void
-mzvim_reset_timer(void)
-{
-    if (timer_id != 0)
-	remove_timer();
-    if (mz_threads_allow && p_mzq > 0 && gui.in_use)
-	setup_timer();
-}
-
-#endif /* MZSCHEME_GUI_THREADS */
 
     static void
 notify_multithread(int on)
@@ -1990,9 +1902,6 @@ set_window_height(void *data, int argc, Scheme_Object **argv)
     win = get_window_arg(prim->name, 1, argc, argv);
     height = SCHEME_INT_VAL(GUARANTEE_INTEGER(prim->name, 0));
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
 
     savewin = curwin;
     curwin = win->win;
@@ -2025,9 +1934,6 @@ set_window_width(void *data, int argc, Scheme_Object **argv)
     win = get_window_arg(prim->name, 1, argc, argv);
     width = SCHEME_INT_VAL(GUARANTEE_INTEGER(prim->name, 0));
 
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
 
     savewin = curwin;
     curwin = win->win;

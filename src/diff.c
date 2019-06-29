@@ -1295,9 +1295,6 @@ ex_diffpatch(exarg_T *eap)
 		STRCAT(newname, ".new");
 	}
 
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 	/* don't use a new tab page, each tab page has its own diffs */
 	cmdmod.tab = 0;
 
@@ -1358,9 +1355,6 @@ ex_diffsplit(exarg_T *eap)
     bufref_T	old_curbuf;
 
     set_bufref(&old_curbuf, curbuf);
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     /* Need to compute w_fraction when no redraw happened yet. */
     validate_cursor();
     set_fraction(curwin);

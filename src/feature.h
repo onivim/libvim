@@ -480,14 +480,6 @@
  *			Now always enabled.
  */
 
-/*
- * +multi_byte_ime	Win32 IME input method.  Only for far-east Windows, so
- *			IME can be used to input chars.  Not tested much!
- */
-#if defined(FEAT_GUI_MSWIN) && !defined(FEAT_MBYTE_IME)
-/* #define FEAT_MBYTE_IME */
-# endif
-
 /* Use iconv() when it's available. */
 #if (defined(HAVE_ICONV_H) && defined(HAVE_ICONV)) || defined(DYNAMIC_ICONV)
 # define USE_ICONV
@@ -536,48 +528,6 @@
  */
 #if defined(FEAT_NORMAL)
 # define FEAT_BROWSE_CMD
-# if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC)
-#  define FEAT_BROWSE
-# endif
-#endif
-
-/*
- * On some systems, when we compile with the GUI, we always use it.  On Mac
- * there is no terminal version, and on Windows we can't figure out how to
- * fork one off with :gui.
- */
-#if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) \
-	    || (defined(FEAT_GUI_MAC) && !defined(MACOS_X_DARWIN))
-# define ALWAYS_USE_GUI
-#endif
-
-/*
- * +dialog_gui		Use GUI dialog.
- * +dialog_con		May use Console dialog.
- *			When none of these defined there is no dialog support.
- */
-#ifdef FEAT_NORMAL
-#  define FEAT_CON_DIALOG
-#endif
-#if !defined(FEAT_GUI_DIALOG) && (defined(FEAT_GUI_MOTIF) \
-	|| defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_GTK) \
-	|| defined(FEAT_GUI_MSWIN))
-/* need a dialog to show error messages when starting from the desktop */
-# define FEAT_GUI_DIALOG
-#endif
-#if defined(FEAT_GUI_DIALOG) && \
-	(defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) \
-	 || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN) \
-	 || defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC))
-# define FEAT_GUI_TEXTDIALOG
-# ifndef ALWAYS_USE_GUI
-#  define FEAT_CON_DIALOG
-# endif
-#endif
-
-/* Mac specific thing: Codewarrior interface. */
-#ifdef FEAT_GUI_MAC
-# define FEAT_CW_EDITOR
 #endif
 
 /*
@@ -784,7 +734,7 @@
  * +X11			Unix only.  Include code for xterm title saving and X
  *			clipboard.  Only works if HAVE_X11 is also defined.
  */
-#if (defined(FEAT_NORMAL) || defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA))
+#if (defined(FEAT_NORMAL))
 # define WANT_X11
 #endif
 
@@ -814,12 +764,6 @@
 # define FEAT_CLIPBOARD
 #endif
 
-#ifdef FEAT_GUI
-# ifndef FEAT_CLIPBOARD
-#  define FEAT_CLIPBOARD
-# endif
-#endif
-
 #if defined(FEAT_NORMAL) \
 	&& (defined(UNIX) || defined(VMS)) \
 	&& defined(WANT_X11) && defined(HAVE_X11)
@@ -829,21 +773,6 @@
 # endif
 #endif
 
-#if defined(FEAT_GUI_MSWIN) && defined(FEAT_SMALL)
-# define MSWIN_FIND_REPLACE	/* include code for find/replace dialog */
-# define MSWIN_FR_BUFSIZE 256
-#endif
-
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MOTIF) \
-	|| defined(MSWIN_FIND_REPLACE)
-# define FIND_REPLACE_DIALOG 1
-#endif
-
-#if defined(FEAT_MZSCHEME) && (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)    \
-	|| defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)	\
-	|| defined(FEAT_GUI_MAC))
-# define MZSCHEME_GUI_THREADS
-#endif
 
 /*
  * +ARP			Amiga only. Use arp.library, DOS 2.0 is not required.
@@ -901,11 +830,6 @@
 # define FEAT_SIGNS
 #endif
 
-/* both Motif and Athena are X11 and share some code */
-#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-# define FEAT_GUI_X11
-#endif
-
 /*
  * +autochdir		'autochdir' option.
  */
@@ -946,6 +870,16 @@
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
+
+/* GUI features */
+#undef FEAT_CON_DIALOG
+#undef FEAT_GUI
+#undef FEAT_GUI_DIALOG
+#undef FEAT_GUI_GTK
+#undef FEAT_GUI_MSWIN
+#undef FEAT_GUI_MAC
+#undef FEAT_GUI_X11
+#undef ALWAYS_USE_GUI
 
 /*
  * The Netbeans feature
