@@ -1,3 +1,4 @@
+#include "vim.h"
 #include "libvim.h"
 #include "minunit.h"
 
@@ -173,7 +174,20 @@ MU_TEST(test_pass_through_in_pairs_undo_redo) {
     
     printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
     printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+}
 
+MU_TEST(test_setting_acp_option) {
+    vimExecute("set autoclosingpairs");
+    mu_check(p_acp == TRUE);
+
+    vimExecute("set noautoclosingpairs");
+    mu_check(p_acp == FALSE);
+
+    vimExecute("set acp");
+    mu_check(p_acp == TRUE);
+
+    vimExecute("set noacp");
+    mu_check(p_acp == FALSE);
 }
 
 MU_TEST_SUITE(test_suite) {
@@ -185,6 +199,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_enter_between_pairs_undo);
   MU_RUN_TEST(test_pass_through_in_pairs);
   MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
+  MU_RUN_TEST(test_setting_acp_option);
 }
 
 int main(int argc, char **argv) {

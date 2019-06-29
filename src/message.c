@@ -171,7 +171,6 @@ msg_attr_keep(
     if ((char_u *)s == keep_msg)
 	keep_msg = NULL;
 
-    printf("[msg_attr_keep: %s]\n", s);
     /* Truncate the message if needed. */
     msg_start();
     buf = msg_strtrunc((char_u *)s, FALSE);

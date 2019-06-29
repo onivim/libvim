@@ -232,7 +232,6 @@ typedef enum
  * Only to be used in option.c!
  */
 static int	p_ai;
-static int    p_acp;
 static int	p_bin;
 static int	p_bomb;
 static char_u	*p_bh;
