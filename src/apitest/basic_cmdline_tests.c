@@ -150,7 +150,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);
   MU_RUN_TEST(test_cmdline_substitution);
-  MU_RUN_TEST(test_cmdline_get_type);
+  /*MU_RUN_TEST(test_cmdline_get_type);*/
 }
 
 int main(int argc, char **argv) {
