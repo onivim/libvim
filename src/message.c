@@ -1036,20 +1036,6 @@ set_keep_msg(char_u *s, int attr)
     keep_msg_attr = attr;
 }
 
-#if defined(FEAT_TERMRESPONSE) || defined(PROTO)
-/*
- * If there currently is a message being displayed, set "keep_msg" to it, so
- * that it will be displayed again after redraw.
- */
-    void
-set_keep_msg_from_hist(void)
-{
-    if (keep_msg == NULL && last_msg_hist != NULL && msg_scrolled == 0
-							  && (State & NORMAL))
-	set_keep_msg(last_msg_hist->msg, last_msg_hist->attr);
-}
-#endif
-
 /*
  * Prepare for outputting characters in the command line.
  */
@@ -2604,18 +2590,6 @@ msg_clr_cmdline(void)
     int
 msg_end(void)
 {
-    /*
-     * If the string is larger than the window,
-     * or the ruler option is set and we run into it,
-     * we have to redraw the window.
-     * Do not do this if we are abandoning the file or editing the command line.
-     */
-    if (!exiting && need_wait_return && !(State & CMDLINE))
-    {
-	wait_return(FALSE);
-	return FALSE;
-    }
-    out_flush();
     return TRUE;
 }
 
@@ -2922,9 +2896,6 @@ do_dialog(
 	emsg_on_display = FALSE;
 	cmdline_row = msg_row;
 
-	/* Flush output to avoid that further messages and redrawing is done
-	 * in the wrong order. */
-	out_flush();
 	gui_mch_update();
 
 	return c;

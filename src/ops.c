@@ -3612,7 +3612,6 @@ void ex_display(exarg_T *eap) {
       }
       if (n > 1 && yb->y_type == MLINE)
         msg_puts_attr("^J", attr);
-      out_flush(); /* show one line at a time */
     }
     ui_breakcheck();
   }

@@ -2367,13 +2367,8 @@ static struct vimoption options[] =
 			    {(char_u *)"", (char_u *)0L}
 			    SCTX_INIT},
     {"termguicolors", "tgc", P_BOOL|P_VI_DEF|P_VIM|P_RCLR,
-#ifdef FEAT_TERMGUICOLORS
-			    (char_u *)&p_tgc, PV_NONE,
-			    {(char_u *)FALSE, (char_u *)FALSE}
-#else
 			    (char_u*)NULL, PV_NONE,
 			    {(char_u *)FALSE, (char_u *)FALSE}
-#endif
 			    SCTX_INIT},
     {"termwinkey", "twk",   P_STRING|P_ALLOCED|P_RWIN|P_VI_DEF,
 #ifdef FEAT_TERMINAL
@@ -4880,7 +4875,6 @@ theend:
 	info_message = TRUE;	/* use mch_msg(), not mch_errmsg() */
 	msg_putchar('\n');
 	cursor_on();		/* msg_start() switches it off */
-	out_flush();
 	silent_mode = TRUE;
 	info_message = FALSE;	/* use mch_msg(), not mch_errmsg() */
     }
@@ -6572,7 +6566,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -6587,7 +6580,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -7695,17 +7687,6 @@ set_bool_option(
 	}
     }
 
-#endif
-
-#ifdef FEAT_TERMGUICOLORS
-    /* 'termguicolors' */
-    else if ((int *)varp == &p_tgc)
-    {
-# ifdef FEAT_GUI
-	if (!gui.in_use && !gui.starting)
-# endif
-	    highlight_gui_started();
-    }
 #endif
 
     /*
@@ -8912,7 +8893,6 @@ showoptions(
 		showoneopt(items[i], opt_flags);
 		col += INC;
 	    }
-	    out_flush();
 	    ui_breakcheck();
 	}
     }

@@ -1167,7 +1167,6 @@ ask_yesno(char_u *str, int direct)
 	if (r == Ctrl_C || r == ESC)
 	    r = 'n';
 	msg_putchar(r);	    /* show what you typed */
-	out_flush();
     }
     --no_wait_return;
     State = save_State;
@@ -1200,7 +1199,6 @@ get_keystroke(void)
     for (;;)
     {
 	cursor_on();
-	out_flush();
 
 	/* Leave some room for check_termcode() to insert a key code into (max
 	 * 5 chars plus NUL).  And fix_input_buffer() can triple the number of
@@ -1266,10 +1264,6 @@ get_keystroke(void)
 	    n = TO_SPECIAL(buf[1], buf[2]);
 	    if (buf[1] == KS_MODIFIER
 		    || n == K_IGNORE
-#ifdef FEAT_GUI
-		    || n == K_VER_SCROLLBAR
-		    || n == K_HOR_SCROLLBAR
-#endif
 	       )
 	    {
 		if (buf[1] == KS_MODIFIER)
@@ -1480,17 +1474,10 @@ vim_beep(
 		ELAPSED_INIT(start_tv);
 #endif
 		if (p_vb
-#ifdef FEAT_GUI
-			/* While the GUI is starting up the termcap is set for
-			 * the GUI but the output still goes to a terminal. */
-			&& !(gui.in_use && gui.starting)
-#endif
 			)
 		{
 		    out_str_cf(T_VB);
 		}
-		else
-		    out_char(BELL);
 #ifdef ELAPSED_FUNC
 	    }
 #endif
@@ -3006,14 +2993,6 @@ prepare_to_exit(void)
     signal(SIGHUP, SIG_IGN);
 #endif
 
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-	gui.dying = TRUE;
-	out_trash();	/* trash any pending output */
-    }
-    else
-#endif
     {
 	windgoto((int)Rows - 1, 0);
 
@@ -3023,7 +3002,6 @@ prepare_to_exit(void)
 	 */
 	settmode(TMODE_COOK);
 	stoptermcap();
-	out_flush();
     }
 }
 
@@ -3046,7 +3024,6 @@ preserve_exit(void)
 
     out_str(IObuff);
     screen_start();		    /* don't know where cursor is now */
-    out_flush();
 
     ml_close_notmod();		    /* close all not-modified buffers */
 
@@ -3056,7 +3033,6 @@ preserve_exit(void)
 	{
 	    OUT_STR("Vim: preserving files...\n");
 	    screen_start();	    /* don't know where cursor is now */
-	    out_flush();
 	    ml_sync_all(FALSE, FALSE);	/* preserve all swap files */
 	    break;
 	}
@@ -3090,11 +3066,7 @@ vim_fexists(char_u *fname)
  */
 
 #ifndef BREAKCHECK_SKIP
-# ifdef FEAT_GUI		    /* assume the GUI only runs on fast computers */
-#  define BREAKCHECK_SKIP 200
-# else
 #  define BREAKCHECK_SKIP 32
-# endif
 #endif
 
 static int	breakcheck_count = 0;

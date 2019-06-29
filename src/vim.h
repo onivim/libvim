@@ -1539,33 +1539,13 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OUT_STR_NF(s)		    out_str_nf((char_u *)(s))
 
 #ifdef FEAT_GUI
-# ifdef FEAT_TERMGUICOLORS
-#  define GUI_FUNCTION(f)	    (gui.in_use ? gui_##f : termgui_##f)
-#  define GUI_FUNCTION2(f, pixel)   (gui.in_use \
-				    ?  ((pixel) != INVALCOLOR \
-					? gui_##f((pixel)) \
-					: INVALCOLOR) \
-				    : termgui_##f((pixel)))
-#  define USE_24BIT		    (gui.in_use || p_tgc)
-# else
 #  define GUI_FUNCTION(f)	    gui_##f
 #  define GUI_FUNCTION2(f,pixel)    ((pixel) != INVALCOLOR \
 				     ? gui_##f((pixel)) \
 				     : INVALCOLOR)
 #  define USE_24BIT		    gui.in_use
-# endif
-#else
-# ifdef FEAT_TERMGUICOLORS
-#  define GUI_FUNCTION(f)	    termgui_##f
-#  define GUI_FUNCTION2(f, pixel)   termgui_##f((pixel))
-#  define USE_24BIT		    p_tgc
-# endif
 #endif
-#ifdef FEAT_TERMGUICOLORS
-# define IS_CTERM		    (t_colors > 1 || p_tgc)
-#else
 # define IS_CTERM		    (t_colors > 1)
-#endif
 #ifdef GUI_FUNCTION
 # define GUI_MCH_GET_RGB	    GUI_FUNCTION(mch_get_rgb)
 # define GUI_MCH_GET_RGB2(pixel)    GUI_FUNCTION2(mch_get_rgb, (pixel))

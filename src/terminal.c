@@ -1006,7 +1006,6 @@ update_cursor(term_T *term, int redraw)
     {
 	if (term->tl_buffer == curbuf && term->tl_cursor_visible)
 	    cursor_on();
-	out_flush();
 #ifdef FEAT_GUI
 	if (gui.in_use)
 	{
@@ -1286,20 +1285,6 @@ term_try_stop_job(buf_T *buf)
     int	    count;
     char    *how = (char *)buf->b_term->tl_kill;
 
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-    if ((how == NULL || *how == NUL) && (p_confirm || cmdmod.confirm))
-    {
-	char_u	buff[DIALOG_MSG_SIZE];
-	int	ret;
-
-	dialog_msg(buff, _("Kill job in \"%s\"?"), buf->b_fname);
-	ret = vim_dialog_yesnocancel(VIM_QUESTION, NULL, buff, 1);
-	if (ret == VIM_YES)
-	    how = "kill";
-	else if (ret == VIM_CANCEL)
-	    return FAIL;
-    }
-#endif
     if (how == NULL || *how == NUL)
 	return FAIL;
 
@@ -2304,18 +2289,6 @@ cell2attr(VTermScreenCellAttrs cellattrs, VTermColor cellfg, VTermColor cellbg)
     }
     else
 #endif
-#ifdef FEAT_TERMGUICOLORS
-    if (p_tgc)
-    {
-	guicolor_T fg, bg;
-
-	fg = gui_get_rgb_color_cmn(cellfg.red, cellfg.green, cellfg.blue);
-	bg = gui_get_rgb_color_cmn(cellbg.red, cellbg.green, cellbg.blue);
-
-	return get_tgc_attr_idx(attr, fg, bg);
-    }
-    else
-#endif
     {
 	int bold = MAYBE;
 	int fg = color2index(&cellfg, TRUE, &bold);
@@ -2492,7 +2465,6 @@ handle_settermprop(
 	case VTERM_PROP_CURSORVISIBLE:
 	    term->tl_cursor_visible = value->boolean;
 	    may_toggle_cursor(term);
-	    out_flush();
 	    break;
 
 	case VTERM_PROP_CURSORBLINK:
@@ -3233,13 +3205,10 @@ init_default_colors(term_T *term)
     id = syn_name2id((char_u *)"Terminal");
 
     /* Use the actual color for the GUI and when 'termguicolors' is set. */
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (0
 # ifdef FEAT_GUI
 	    || gui.in_use
-# endif
-# ifdef FEAT_TERMGUICOLORS
-	    || p_tgc
 # endif
        )
     {
@@ -3256,17 +3225,6 @@ init_default_colors(term_T *term)
 		fg_rgb = gui.norm_pixel;
 	    if (bg_rgb == INVALCOLOR)
 		bg_rgb = gui.back_pixel;
-	}
-#  ifdef FEAT_TERMGUICOLORS
-	else
-#  endif
-# endif
-# ifdef FEAT_TERMGUICOLORS
-	{
-	    if (fg_rgb == INVALCOLOR)
-		fg_rgb = cterm_normal_fg_gui_color;
-	    if (bg_rgb == INVALCOLOR)
-		bg_rgb = cterm_normal_bg_gui_color;
 	}
 # endif
 	if (fg_rgb != INVALCOLOR)
@@ -3316,10 +3274,6 @@ init_default_colors(term_T *term)
 	    }
 # endif
 	}
-# ifdef FEAT_TERMRESPONSE
-	else
-	    term_get_fg_color(&fg->red, &fg->green, &fg->blue);
-# endif
 
 	if (cterm_normal_bg_color > 0)
 	{
@@ -3335,14 +3289,10 @@ init_default_colors(term_T *term)
 	    }
 # endif
 	}
-# ifdef FEAT_TERMRESPONSE
-	else
-	    term_get_bg_color(&bg->red, &bg->green, &bg->blue);
-# endif
     }
 }
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
 /*
  * Set the 16 ANSI colors from array of RGB values
  */
@@ -3617,14 +3567,6 @@ parse_csi(
     // We recognize only CSI 13 t
     if (command != 't' || argcount != 1 || args[0] != 13)
 	return 0; // not handled
-
-    // When getting the window position is not possible or it fails it results
-    // in zero/zero.
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    (void)ui_get_winpos(&x, &y, (varnumber_T)100);
-#endif
 
     FOR_ALL_WINDOWS(wp)
 	if (wp->w_buffer == term->tl_buffer)
@@ -5187,7 +5129,7 @@ f_term_sendkeys(typval_T *argvars, typval_T *rettv)
     }
 }
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS) || defined(PROTO)
+#if defined(FEAT_GUI) || defined(PROTO)
 /*
  * "term_getansicolors(buf)" function
  */
@@ -5652,7 +5594,7 @@ conpty_term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	goto failed;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else
@@ -5982,7 +5924,7 @@ winpty_term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	goto failed;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else
@@ -6242,7 +6184,7 @@ term_and_job_init(
     if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
 	return FAIL;
 
-#if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+#if defined(FEAT_GUI)
     if (opt->jo_set2 & JO2_ANSI_COLORS)
 	set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
     else

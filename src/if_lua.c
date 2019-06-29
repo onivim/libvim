@@ -1527,9 +1527,6 @@ luaV_window_newindex(lua_State *L)
     else if (strncmp(s, "width", 5) == 0)
     {
 	win_T *win = curwin;
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 	curwin = w;
 	win_setwidth(v);
 	curwin = win;
@@ -1537,9 +1534,6 @@ luaV_window_newindex(lua_State *L)
     else if (strncmp(s, "height", 6) == 0)
     {
 	win_T *win = curwin;
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 	curwin = w;
 	win_setheight(v);
 	curwin = win;

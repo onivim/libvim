@@ -574,7 +574,6 @@ vim_main2(void)
 	vim_snprintf((char *)IObuff, IOSIZE, "cfile %s", p_ef);
 	if (qf_init(NULL, p_ef, p_efm, TRUE, IObuff, enc) < 0)
 	{
-	    out_char('\n');
 	    mch_exit(3);
 	}
 	TIME_MSG("reading errorfile");
@@ -779,25 +778,12 @@ vim_main2(void)
     /* Must come before the may_req_ calls. */
     starting = 0;
 
-#if defined(FEAT_TERMRESPONSE)
-    /* Must be done before redrawing, puts a few characters on the screen. */
-    may_req_ambiguous_char_width();
-#endif
-
     RedrawingDisabled = 0;
     redraw_all_later(NOT_VALID);
     no_wait_return = FALSE;
 
     /* 'autochdir' has been postponed */
     DO_AUTOCHDIR;
-
-#ifdef FEAT_TERMRESPONSE
-    /* Requesting the termresponse is postponed until here, so that a "-c q"
-     * argument doesn't make it appear in the shell Vim was started from. */
-    may_req_termresponse();
-
-    may_req_bg_color();
-#endif
 
     /* start in insert mode */
     if (p_im)
@@ -845,7 +831,6 @@ vim_main2(void)
      * scrollbars.  This is skipped while creating them. */
     if (first_tabpage->tp_next != NULL)
     {
-	out_flush();
 	gui_init_which_components(NULL);
 	gui_update_scrollbars(TRUE);
     }
@@ -2490,7 +2475,6 @@ check_tty(mparm_T *parmp)
 	    mch_errmsg(_("Vim: Warning: Output is not to a terminal\n"));
 	if (!input_isatty)
 	    mch_errmsg(_("Vim: Warning: Input is not from a terminal\n"));
-	out_flush();
 	if (parmp->tty_fail && (!stdout_isatty || !input_isatty))
 	    exit(1);
 	if (scriptin[0] == NULL)
@@ -4096,7 +4080,6 @@ eval_client_expr_to_string(char_u *expr)
     /* A client can tell us to redraw, but not to display the cursor, so do
      * that here. */
     setcursor();
-    out_flush_cursor(FALSE, FALSE);
 
     return res;
 }

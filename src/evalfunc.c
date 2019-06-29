@@ -436,9 +436,6 @@ static void f_test_null_job(typval_T *argvars, typval_T *rettv);
 static void f_test_null_list(typval_T *argvars, typval_T *rettv);
 static void f_test_null_partial(typval_T *argvars, typval_T *rettv);
 static void f_test_null_string(typval_T *argvars, typval_T *rettv);
-#ifdef FEAT_GUI
-static void f_test_scrollbar(typval_T *argvars, typval_T *rettv);
-#endif
 static void f_test_settime(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
 static void f_tan(typval_T *argvars, typval_T *rettv);
@@ -930,9 +927,6 @@ static struct fst
     {"term_dumpload",	1, 2, f_term_dumpload},
     {"term_dumpwrite",	2, 3, f_term_dumpwrite},
     {"term_getaltscreen", 1, 1, f_term_getaltscreen},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
-    {"term_getansicolors", 1, 1, f_term_getansicolors},
-# endif
     {"term_getattr",	2, 2, f_term_getattr},
     {"term_getcursor",	1, 1, f_term_getcursor},
     {"term_getjob",	1, 1, f_term_getjob},
@@ -945,9 +939,6 @@ static struct fst
     {"term_list",	0, 0, f_term_list},
     {"term_scrape",	2, 2, f_term_scrape},
     {"term_sendkeys",	2, 2, f_term_sendkeys},
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
-    {"term_setansicolors", 2, 2, f_term_setansicolors},
-# endif
     {"term_setkill",	2, 2, f_term_setkill},
     {"term_setrestore",	2, 2, f_term_setrestore},
     {"term_setsize",	3, 3, f_term_setsize},
@@ -974,9 +965,6 @@ static struct fst
     {"test_option_not_set", 1, 1, f_test_option_not_set},
     {"test_override",	2, 2, f_test_override},
     {"test_refcount",	1, 1, f_test_refcount},
-#ifdef FEAT_GUI
-    {"test_scrollbar",	3, 3, f_test_scrollbar},
-#endif
     {"test_settime",	1, 1, f_test_settime},
 #ifdef FEAT_TIMERS
     {"timer_info",	0, 1, f_timer_info},
@@ -2551,54 +2539,6 @@ f_col(typval_T *argvars, typval_T *rettv)
     static void
 f_confirm(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-    char_u	*message;
-    char_u	*buttons = NULL;
-    char_u	buf[NUMBUFLEN];
-    char_u	buf2[NUMBUFLEN];
-    int		def = 1;
-    int		type = VIM_GENERIC;
-    char_u	*typestr;
-    int		error = FALSE;
-
-    message = tv_get_string_chk(&argvars[0]);
-    if (message == NULL)
-	error = TRUE;
-    if (argvars[1].v_type != VAR_UNKNOWN)
-    {
-	buttons = tv_get_string_buf_chk(&argvars[1], buf);
-	if (buttons == NULL)
-	    error = TRUE;
-	if (argvars[2].v_type != VAR_UNKNOWN)
-	{
-	    def = (int)tv_get_number_chk(&argvars[2], &error);
-	    if (argvars[3].v_type != VAR_UNKNOWN)
-	    {
-		typestr = tv_get_string_buf_chk(&argvars[3], buf2);
-		if (typestr == NULL)
-		    error = TRUE;
-		else
-		{
-		    switch (TOUPPER_ASC(*typestr))
-		    {
-			case 'E': type = VIM_ERROR; break;
-			case 'Q': type = VIM_QUESTION; break;
-			case 'I': type = VIM_INFO; break;
-			case 'W': type = VIM_WARNING; break;
-			case 'G': type = VIM_GENERIC; break;
-		    }
-		}
-	    }
-	}
-    }
-
-    if (buttons == NULL || *buttons == NUL)
-	buttons = (char_u *)_("&Ok");
-
-    if (!error)
-	rettv->vval.v_number = do_dialog(type, NULL, message, buttons,
-							    def, NULL, FALSE);
-#endif
 }
 
 /*
@@ -4125,16 +4065,6 @@ f_foldtextresult(typval_T *argvars UNUSED, typval_T *rettv)
     static void
 f_foreground(typval_T *argvars UNUSED, typval_T *rettv UNUSED)
 {
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-	gui_mch_set_foreground();
-	return;
-    }
-#endif
-#if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
-    win32_set_foreground();
-#endif
 }
 
     static void
@@ -5091,33 +5021,6 @@ f_getfontname(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = NULL;
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-	GuiFont font;
-	char_u	*name = NULL;
-
-	if (argvars[0].v_type == VAR_UNKNOWN)
-	{
-	    /* Get the "Normal" font.  Either the name saved by
-	     * hl_set_font_name() or from the font ID. */
-	    font = gui.norm_font;
-	    name = hl_get_font_name();
-	}
-	else
-	{
-	    name = tv_get_string(&argvars[0]);
-	    if (STRCMP(name, "*") == 0)	    /* don't use font dialog */
-		return;
-	    font = gui_mch_get_font(name, FALSE);
-	    if (font == NOFONT)
-		return;	    /* Invalid font name, return empty string. */
-	}
-	rettv->vval.v_string = gui_mch_get_fontname(font, name);
-	if (argvars[0].v_type != VAR_UNKNOWN)
-	    gui_mch_free_font(font);
-    }
-#endif
 }
 
 /*
@@ -5914,18 +5817,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 
     if (rettv_list_alloc(rettv) == FAIL)
 	return;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	varnumber_T timeout = 100;
-
-	if (argvars[0].v_type != VAR_UNKNOWN)
-	    timeout = tv_get_number(&argvars[0]);
-
-	(void)ui_get_winpos(&x, &y, timeout);
-    }
-#endif
     list_append_number(rettv->vval.v_list, (varnumber_T)x);
     list_append_number(rettv->vval.v_list, (varnumber_T)y);
 }
@@ -5938,17 +5829,6 @@ f_getwinpos(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = x;
-    }
-#endif
 }
 
 /*
@@ -5958,16 +5838,6 @@ f_getwinposx(typval_T *argvars UNUSED, typval_T *rettv)
 f_getwinposy(typval_T *argvars UNUSED, typval_T *rettv)
 {
     rettv->vval.v_number = -1;
-#if defined(FEAT_GUI) \
-	|| (defined(HAVE_TGETENT) && defined(FEAT_TERMRESPONSE)) \
-	|| defined(MSWIN)
-    {
-	int	    x, y;
-
-	if (ui_get_winpos(&x, &y, 100) == OK)
-	    rettv->vval.v_number = y;
-    }
-#endif
 }
 
 /*
@@ -6199,9 +6069,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_CON_DIALOG
 	"dialog_con",
 #endif
-#ifdef FEAT_GUI_DIALOG
-	"dialog_gui",
-#endif
 #ifdef FEAT_DIFF
 	"diff",
 #endif
@@ -6242,39 +6109,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_GETTEXT
 	"gettext",
-#endif
-#ifdef FEAT_GUI
-	"gui",
-#endif
-#ifdef FEAT_GUI_ATHENA
-# ifdef FEAT_GUI_NEXTAW
-	"gui_neXtaw",
-# else
-	"gui_athena",
-# endif
-#endif
-#ifdef FEAT_GUI_GTK
-	"gui_gtk",
-# ifdef USE_GTK3
-	"gui_gtk3",
-# else
-	"gui_gtk2",
-# endif
-#endif
-#ifdef FEAT_GUI_GNOME
-	"gui_gnome",
-#endif
-#ifdef FEAT_GUI_MAC
-	"gui_mac",
-#endif
-#ifdef FEAT_GUI_MOTIF
-	"gui_motif",
-#endif
-#ifdef FEAT_GUI_PHOTON
-	"gui_photon",
-#endif
-#ifdef FEAT_GUI_MSWIN
-	"gui_win32",
 #endif
 #ifdef FEAT_HANGULIN
 	"hangul_input",
@@ -6392,17 +6226,11 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_TAG_BINS
 	"tag_binary",
 #endif
-#ifdef FEAT_TERMGUICOLORS
-	"termguicolors",
-#endif
 #if defined(FEAT_TERMINAL) && !defined(MSWIN)
 	"terminal",
 #endif
 #ifdef TERMINFO
 	"terminfo",
-#endif
-#ifdef FEAT_TERMRESPONSE
-	"termresponse",
 #endif
 #ifdef FEAT_TEXTOBJ
 	"textobjects",
@@ -6562,14 +6390,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef DYNAMIC_PERL
 	else if (STRICMP(name, "perl") == 0)
 	    n = perl_enabled(FALSE);
-#endif
-#ifdef FEAT_GUI
-	else if (STRICMP(name, "gui_running") == 0)
-	    n = (gui.in_use || gui.starting);
-# ifdef FEAT_BROWSE
-	else if (STRICMP(name, "browse") == 0)
-	    n = gui.in_use;	/* gui_mch_browse() works when GUI is running */
-# endif
 #endif
 #if defined(FEAT_TERMINAL) && defined(MSWIN)
 	else if (STRICMP(name, "terminal") == 0)
@@ -6933,38 +6753,6 @@ f_input(typval_T *argvars, typval_T *rettv)
     static void
 f_inputdialog(typval_T *argvars, typval_T *rettv)
 {
-#if defined(FEAT_GUI_TEXTDIALOG)
-    /* Use a GUI dialog if the GUI is running and 'c' is not in 'guioptions' */
-    if (gui.in_use && vim_strchr(p_go, GO_CONDIALOG) == NULL)
-    {
-	char_u	*message;
-	char_u	buf[NUMBUFLEN];
-	char_u	*defstr = (char_u *)"";
-
-	message = tv_get_string_chk(&argvars[0]);
-	if (argvars[1].v_type != VAR_UNKNOWN
-		&& (defstr = tv_get_string_buf_chk(&argvars[1], buf)) != NULL)
-	    vim_strncpy(IObuff, defstr, IOSIZE - 1);
-	else
-	    IObuff[0] = NUL;
-	if (message != NULL && defstr != NULL
-		&& do_dialog(VIM_QUESTION, NULL, message,
-			  (char_u *)_("&OK\n&Cancel"), 1, IObuff, FALSE) == 1)
-	    rettv->vval.v_string = vim_strsave(IObuff);
-	else
-	{
-	    if (message != NULL && defstr != NULL
-					&& argvars[1].v_type != VAR_UNKNOWN
-					&& argvars[2].v_type != VAR_UNKNOWN)
-		rettv->vval.v_string = vim_strsave(
-				      tv_get_string_buf(&argvars[2], buf));
-	    else
-		rettv->vval.v_string = NULL;
-	}
-	rettv->v_type = VAR_STRING;
-    }
-    else
-#endif
 	get_user_input(argvars, rettv, TRUE, inputsecret_flag);
 }
 
@@ -13557,43 +13345,6 @@ f_test_null_string(typval_T *argvars UNUSED, typval_T *rettv)
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = NULL;
 }
-
-#ifdef FEAT_GUI
-    static void
-f_test_scrollbar(typval_T *argvars, typval_T *rettv UNUSED)
-{
-    char_u	*which;
-    long	value;
-    int		dragging;
-    scrollbar_T *sb = NULL;
-
-    if (argvars[0].v_type != VAR_STRING
-	    || (argvars[1].v_type) != VAR_NUMBER
-	    || (argvars[2].v_type) != VAR_NUMBER)
-    {
-	emsg(_(e_invarg));
-	return;
-    }
-    which = tv_get_string(&argvars[0]);
-    value = tv_get_number(&argvars[1]);
-    dragging = tv_get_number(&argvars[2]);
-
-    if (STRCMP(which, "left") == 0)
-	sb = &curwin->w_scrollbars[SBAR_LEFT];
-    else if (STRCMP(which, "right") == 0)
-	sb = &curwin->w_scrollbars[SBAR_RIGHT];
-    else if (STRCMP(which, "hor") == 0)
-	sb = &gui.bottom_sbar;
-    if (sb == NULL)
-    {
-	semsg(_(e_invarg2), which);
-	return;
-    }
-    gui_drag_scrollbar(sb, value, dragging);
-    // need to loop through normal_cmd() to handle the scroll events
-    exec_normal(FALSE, TRUE, FALSE);
-}
-#endif
 
     static void
 f_test_settime(typval_T *argvars, typval_T *rettv UNUSED)

@@ -1049,33 +1049,6 @@ check_changed(buf_T *buf, int flags)
 	    && ((flags & CCGD_MULTWIN) || buf->b_nwindows <= 1)
 	    && (!(flags & CCGD_AW) || autowrite(buf, forceit) == FAIL))
     {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	if ((p_confirm || cmdmod.confirm) && p_write)
-	{
-	    buf_T	*buf2;
-	    int		count = 0;
-
-	    if (flags & CCGD_ALLBUF)
-		FOR_ALL_BUFFERS(buf2)
-		    if (bufIsChanged(buf2)
-				     && (buf2->b_ffname != NULL
-# ifdef FEAT_BROWSE
-					 || cmdmod.browse
-# endif
-					))
-			++count;
-	    if (!bufref_valid(&bufref))
-		/* Autocommand deleted buffer, oops!  It's not changed now. */
-		return FALSE;
-
-	    dialog_changed(buf, count > 1);
-
-	    if (!bufref_valid(&bufref))
-		/* Autocommand deleted buffer, oops!  It's not changed now. */
-		return FALSE;
-	    return bufIsChanged(buf);
-	}
-#endif
 	if (flags & CCGD_EXCMD)
 	    no_write_message();
 	else
@@ -1084,116 +1057,6 @@ check_changed(buf_T *buf, int flags)
     }
     return FALSE;
 }
-
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG) || defined(PROTO)
-
-#if defined(FEAT_BROWSE) || defined(PROTO)
-/*
- * When wanting to write a file without a file name, ask the user for a name.
- */
-    void
-browse_save_fname(buf_T *buf)
-{
-    if (buf->b_fname == NULL)
-    {
-	char_u *fname;
-
-	fname = do_browse(BROWSE_SAVE, (char_u *)_("Save As"),
-						 NULL, NULL, NULL, NULL, buf);
-	if (fname != NULL)
-	{
-	    if (setfname(buf, fname, NULL, TRUE) == OK)
-		buf->b_flags |= BF_NOTEDITED;
-	    vim_free(fname);
-	}
-    }
-}
-#endif
-
-/*
- * Ask the user what to do when abandoning a changed buffer.
- * Must check 'write' option first!
- */
-    void
-dialog_changed(
-    buf_T	*buf,
-    int		checkall)	/* may abandon all changed buffers */
-{
-    char_u	buff[DIALOG_MSG_SIZE];
-    int		ret;
-    buf_T	*buf2;
-    exarg_T     ea;
-
-    dialog_msg(buff, _("Save changes to \"%s\"?"), buf->b_fname);
-    if (checkall)
-	ret = vim_dialog_yesnoallcancel(VIM_QUESTION, NULL, buff, 1);
-    else
-	ret = vim_dialog_yesnocancel(VIM_QUESTION, NULL, buff, 1);
-
-    // Init ea pseudo-structure, this is needed for the check_overwrite()
-    // function.
-    vim_memset(&ea, 0, sizeof(ea));
-
-    if (ret == VIM_YES)
-    {
-#ifdef FEAT_BROWSE
-	/* May get file name, when there is none */
-	browse_save_fname(buf);
-#endif
-	if (buf->b_fname != NULL && check_overwrite(&ea, buf,
-				    buf->b_fname, buf->b_ffname, FALSE) == OK)
-	    /* didn't hit Cancel */
-	    (void)buf_write_all(buf, FALSE);
-    }
-    else if (ret == VIM_NO)
-    {
-	unchanged(buf, TRUE);
-    }
-    else if (ret == VIM_ALL)
-    {
-	/*
-	 * Write all modified files that can be written.
-	 * Skip readonly buffers, these need to be confirmed
-	 * individually.
-	 */
-	FOR_ALL_BUFFERS(buf2)
-	{
-	    if (bufIsChanged(buf2)
-		    && (buf2->b_ffname != NULL
-#ifdef FEAT_BROWSE
-			|| cmdmod.browse
-#endif
-			)
-		    && !buf2->b_p_ro)
-	    {
-		bufref_T bufref;
-
-		set_bufref(&bufref, buf2);
-#ifdef FEAT_BROWSE
-		/* May get file name, when there is none */
-		browse_save_fname(buf2);
-#endif
-		if (buf2->b_fname != NULL && check_overwrite(&ea, buf2,
-				  buf2->b_fname, buf2->b_ffname, FALSE) == OK)
-		    /* didn't hit Cancel */
-		    (void)buf_write_all(buf2, FALSE);
-
-		/* an autocommand may have deleted the buffer */
-		if (!bufref_valid(&bufref))
-		    buf2 = firstbuf;
-	    }
-	}
-    }
-    else if (ret == VIM_DISCARDALL)
-    {
-	/*
-	 * mark all buffers as unchanged
-	 */
-	FOR_ALL_BUFFERS(buf2)
-	    unchanged(buf2, TRUE);
-    }
-}
-#endif
 
 /*
  * Return TRUE if the buffer "buf" can be abandoned, either by making it
@@ -1307,12 +1170,6 @@ check_changed_any(
     /* Get here if "buf" cannot be abandoned. */
     ret = TRUE;
     exiting = FALSE;
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-    /*
-     * When ":confirm" used, don't give an error message.
-     */
-    if (!(p_confirm || cmdmod.confirm))
-#endif
     {
 	/* There must be a wait_return for this message, do_buffer()
 	 * may cause a redraw.  But wait_return() is a no-op when vgetc()
@@ -1828,9 +1685,6 @@ do_argfile(exarg_T *eap, int argn)
     else
     {
 	setpcmark();
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 
 	/* split window or create new tab page first */
 	if (*eap->cmd == 's' || cmdmod.tab != 0)

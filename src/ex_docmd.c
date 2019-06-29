@@ -125,22 +125,14 @@ static void	ex_wrongmodifier(exarg_T *eap);
 static void	ex_find(exarg_T *eap);
 static void	ex_open(exarg_T *eap);
 static void	ex_edit(exarg_T *eap);
-#ifndef FEAT_GUI
 # define ex_gui			ex_nogui
 static void	ex_nogui(exarg_T *eap);
-#endif
 # define ex_tearoff		ex_ni
 # define ex_popup		ex_ni
-#ifndef FEAT_GUI_MSWIN
 # define ex_simalt		ex_ni
-#endif
-#if !defined(FEAT_GUI_MSWIN) && !defined(FEAT_GUI_GTK) && !defined(FEAT_GUI_MOTIF)
 # define gui_mch_find_dialog	ex_ni
 # define gui_mch_replace_dialog ex_ni
-#endif
-#if !defined(FEAT_GUI_GTK)
 # define ex_helpfind		ex_ni
-#endif
 # define ex_cscope		ex_ni
 # define ex_scscope		ex_ni
 # define ex_cstag		ex_ni
@@ -208,7 +200,7 @@ static void	ex_sleep(exarg_T *eap);
 static void	do_exmap(exarg_T *eap, int isabbrev);
 static void	ex_winsize(exarg_T *eap);
 static void	ex_wincmd(exarg_T *eap);
-#if defined(FEAT_GUI) || defined(UNIX) || defined(VMS) || defined(MSWIN)
+#if defined(UNIX) || defined(VMS) || defined(MSWIN)
 static void	ex_winpos(exarg_T *eap);
 #else
 # define ex_winpos	    ex_ni
@@ -493,10 +485,6 @@ do_exmode(
     save_msg_scroll = msg_scroll;
     ++RedrawingDisabled;	    /* don't redisplay the window */
     ++no_wait_return;		    /* don't wait for return */
-#ifdef FEAT_GUI
-    /* Ignore scrollbar and mouse events in Ex mode */
-    ++hold_gui_events;
-#endif
 
     msg(_("Entering Ex mode.  Type \"visual\" to go to Normal mode."));
     while (exmode_active)
@@ -552,9 +540,6 @@ do_exmode(
 	}
     }
 
-#ifdef FEAT_GUI
-    --hold_gui_events;
-#endif
     --RedrawingDisabled;
     --no_wait_return;
     update_screen(CLEAR);
@@ -2646,9 +2631,6 @@ parse_command_modifiers(exarg_T *eap, char **errormsg, int skip_only)
 
 	    case 'c':	if (!checkforcmd(&eap->cmd, "confirm", 4))
 			    break;
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-			cmdmod.confirm = TRUE;
-#endif
 			continue;
 
 	    case 'k':	if (checkforcmd(&eap->cmd, "keepmarks", 3))
@@ -5550,19 +5532,6 @@ check_more(
     {
 	if (message)
 	{
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	    if ((p_confirm || cmdmod.confirm) && curbuf->b_fname != NULL)
-	    {
-		char_u	buff[DIALOG_MSG_SIZE];
-
-		vim_snprintf((char *)buff, DIALOG_MSG_SIZE,
-			NGETTEXT("%d more file to edit.  Quit anyway?",
-			    "%d more files to edit.  Quit anyway?", n), n);
-		if (vim_dialog_yesno(VIM_QUESTION, NULL, buff, 1) == VIM_YES)
-		    return OK;
-		return FAIL;
-	    }
-#endif
 	    semsg(NGETTEXT("E173: %d more file to edit",
 			"E173: %d more files to edit", n), n);
 	    quitmore = 2;	    /* next try to quit is allowed */
@@ -5723,9 +5692,6 @@ ex_quit(exarg_T *eap)
 	if (only_one_window() && (ONE_WINDOW || eap->addr_count == 0))
 	    getout(0);
 	not_exiting();
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 	/* close window; may free buffer */
 	win_close(wp, !buf_hide(wp->w_buffer) || eap->forceit);
     }
@@ -5824,28 +5790,12 @@ ex_win_close(
     need_hide = (bufIsChanged(buf) && buf->b_nwindows <= 1);
     if (need_hide && !buf_hide(buf) && !forceit)
     {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	if ((p_confirm || cmdmod.confirm) && p_write)
-	{
-	    bufref_T bufref;
-
-	    set_bufref(&bufref, buf);
-	    dialog_changed(buf, FALSE);
-	    if (bufref_valid(&bufref) && bufIsChanged(buf))
-		return;
-	    need_hide = FALSE;
-	}
-	else
-#endif
 	{
 	    no_write_message();
 	    return;
 	}
     }
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
 
     /* free buffer when not hiding it or when it's a scratch buffer */
     if (tp == NULL)
@@ -6040,9 +5990,6 @@ tabpage_close(int forceit)
 	close_others(TRUE, forceit);
     if (ONE_WINDOW)
 	ex_win_close(forceit, curwin, NULL);
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
 }
 
 /*
@@ -6086,9 +6033,6 @@ ex_only(exarg_T *eap)
 {
     win_T   *wp;
     int	    wnr;
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
     if (eap->addr_count > 0)
     {
 	wnr = eap->line2;
@@ -6122,9 +6066,6 @@ ex_hide(exarg_T *eap UNUSED)
     /* ":hide" or ":hide | cmd": hide current window */
     if (!eap->skip)
     {
-#ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-#endif
 	if (eap->addr_count == 0)
 	    win_close(curwin, FALSE);	/* don't free buffer */
 	else
@@ -6159,10 +6100,7 @@ ex_stop(exarg_T *eap)
 	if (!eap->forceit)
 	    autowrite_all();
 	windgoto((int)Rows - 1, 0);
-	out_char('\n');
-	out_flush();
 	stoptermcap();
-	out_flush();		/* needed for SUN to restore xterm buffer */
 	ui_suspend();		/* call machine specific function */
 	starttermcap();
 	scroll_start();		/* scroll screen before redrawing */
@@ -6205,9 +6143,6 @@ ex_exit(exarg_T *eap)
 	if (only_one_window())	    /* quit last window, exit Vim */
 	    getout(0);
 	not_exiting();
-# ifdef FEAT_GUI
-	need_mouse_correct = TRUE;
-# endif
 	/* Quit current window, may free the buffer. */
 	win_close(curwin, !buf_hide(curwin->w_buffer));
     }
@@ -6231,7 +6166,6 @@ ex_print(exarg_T *eap)
 		    eap->cmdidx == CMD_list || (eap->flags & EXFLAG_LIST));
 	    if (++eap->line1 > eap->line2)
 		break;
-	    out_flush();	    /* show one line at a time */
 	}
 	setpcmark();
 	/* put cursor at last line */
@@ -6686,9 +6620,6 @@ ex_splitview(exarg_T *eap)
     if (NOT_IN_POPUP_WINDOW)
 	return;
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
 
 #ifdef FEAT_QUICKFIX
     /* A ":split" in the quickfix window works like ":new".  Don't want two
@@ -6721,9 +6652,6 @@ ex_splitview(exarg_T *eap)
 	    && eap->cmdidx != CMD_new)
     {
 	if (
-# ifdef FEAT_GUI
-	    !gui.in_use &&
-# endif
 		au_has_group((char_u *)"FileExplorer"))
 	{
 	    /* No browsing supported but we do have the file explorer:
@@ -6894,7 +6822,6 @@ ex_tabs(exarg_T *eap UNUSED)
 	msg_putchar('\n');
 	vim_snprintf((char *)IObuff, IOSIZE, _("Tab page %d"), tabcount++);
 	msg_outtrans_attr(IObuff, HL_ATTR(HLF_T));
-	out_flush();	    /* output one line at a time */
 	ui_breakcheck();
 
 	if (tp  == curtab)
@@ -6914,7 +6841,6 @@ ex_tabs(exarg_T *eap UNUSED)
 		home_replace(wp->w_buffer, wp->w_buffer->b_fname,
 							IObuff, IOSIZE, TRUE);
 	    msg_outtrans(IObuff);
-	    out_flush();	    /* output one line at a time */
 	    ui_breakcheck();
 	}
     }
@@ -6950,9 +6876,6 @@ ex_resize(exarg_T *eap)
 	    ;
     }
 
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
     n = atol((char *)eap->arg);
     if (cmdmod.split & WSP_VERT)
     {
@@ -7083,9 +7006,6 @@ do_exedit(
 		int	rd = RedrawingDisabled;
 		int	nwr = no_wait_return;
 		int	ms = msg_scroll;
-#ifdef FEAT_GUI
-		int	he = hold_gui_events;
-#endif
 
 		if (eap->nextcmd != NULL)
 		{
@@ -7099,9 +7019,6 @@ do_exedit(
 		no_wait_return = 0;
 		need_wait_return = FALSE;
 		msg_scroll = 0;
-#ifdef FEAT_GUI
-		hold_gui_events = 0;
-#endif
 		must_redraw = CLEAR;
 
 		main_loop(FALSE, TRUE);
@@ -7109,9 +7026,6 @@ do_exedit(
 		RedrawingDisabled = rd;
 		no_wait_return = nwr;
 		msg_scroll = ms;
-#ifdef FEAT_GUI
-		hold_gui_events = he;
-#endif
 	    }
 	    return;
 	}
@@ -7173,9 +7087,6 @@ do_exedit(
 		     * aborting() returns FALSE when closing a window. */
 		    enter_cleanup(&cs);
 #endif
-#ifdef FEAT_GUI
-		    need_mouse_correct = TRUE;
-#endif
 		    win_close(curwin, !need_hide && !buf_hide(curbuf));
 
 #if defined(FEAT_EVAL)
@@ -7219,7 +7130,6 @@ do_exedit(
     ex_no_reprint = TRUE;
 }
 
-#ifndef FEAT_GUI
 /*
  * ":gui" and ":gvim" when there is no GUI.
  */
@@ -7228,7 +7138,6 @@ ex_nogui(exarg_T *eap)
 {
     eap->errmsg = e_nogvim;
 }
-#endif
 
     static void
 ex_swapname(exarg_T *eap UNUSED)
@@ -7626,7 +7535,6 @@ do_sleep(long msec)
     long	wait_now;
 
     cursor_on();
-    out_flush_cursor(FALSE, FALSE);
     for (done = 0; !got_int && done < msec; done += wait_now)
     {
 	wait_now = msec - done > 1000L ? 1000L : msec - done;
@@ -7737,7 +7645,7 @@ ex_wincmd(exarg_T *eap)
     }
 }
 
-#if defined(FEAT_GUI) || defined(UNIX) || defined(VMS) || defined(MSWIN)
+#if defined(UNIX) || defined(VMS) || defined(MSWIN)
 /*
  * ":winpos".
  */
@@ -7750,12 +7658,10 @@ ex_winpos(exarg_T *eap)
 
     if (*arg == NUL)
     {
-# if defined(FEAT_GUI) || defined(MSWIN)
+# if defined(MSWIN)
 #  ifdef VIMDLL
 	if (gui.in_use ? gui_mch_get_winpos(&x, &y) != FAIL :
 		mch_get_winpos(&x, &y) != FAIL)
-#  elif defined(FEAT_GUI)
-	if (gui.in_use && gui_mch_get_winpos(&x, &y) != FAIL)
 #  else
 	if (mch_get_winpos(&x, &y) != FAIL)
 #  endif
@@ -7778,20 +7684,7 @@ ex_winpos(exarg_T *eap)
 	    emsg(_("E466: :winpos requires two number arguments"));
 	    return;
 	}
-# ifdef FEAT_GUI
-	if (gui.in_use)
-	    gui_mch_set_winpos(x, y);
-	else if (gui.starting)
-	{
-	    /* Remember the coordinates for when the window is opened. */
-	    gui_win_x = x;
-	    gui_win_y = y;
-	}
-#  if defined(HAVE_TGETENT) || defined(VIMDLL)
-	else
-#  endif
-# endif
-# if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
+# if defined(MSWIN) && (defined(VIMDLL))
 	    mch_set_winpos(x, y);
 # endif
 # ifdef HAVE_TGETENT
@@ -8228,7 +8121,7 @@ ex_redraw(exarg_T *eap)
     validate_cursor();
     update_topline();
     update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN) && (defined(VIMDLL))
 # ifdef VIMDLL
     if (!gui.in_use)
 # endif
@@ -8244,7 +8137,6 @@ ex_redraw(exarg_T *eap)
     /* No need to wait after an intentional redraw. */
     need_wait_return = FALSE;
 
-    out_flush();
 }
 
 /*
@@ -8253,19 +8145,7 @@ ex_redraw(exarg_T *eap)
     static void
 ex_redrawstatus(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-    if (eap->forceit)
-	status_redraw_all();
-    else
-	status_redraw_curbuf();
-    update_screen(VIsual_active ? INVERTED : 0);
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - no-op */
 }
 
 /*
@@ -8274,17 +8154,7 @@ ex_redrawstatus(exarg_T *eap UNUSED)
     static void
 ex_redrawtabline(exarg_T *eap UNUSED)
 {
-    int		r = RedrawingDisabled;
-    int		p = p_lz;
-
-    RedrawingDisabled = 0;
-    p_lz = FALSE;
-
-    draw_tabline();
-
-    RedrawingDisabled = r;
-    p_lz = p;
-    out_flush();
+    /* libvim - noop */
 }
 
     static void
@@ -8706,15 +8576,8 @@ ex_normal(exarg_T *eap)
 	/* Count the number of characters to be escaped. */
 	for (p = eap->arg; *p != NUL; ++p)
 	{
-#ifdef FEAT_GUI
-	    if (*p == CSI)  /* leadbyte CSI */
-		len += 2;
-#endif
 	    for (l = (*mb_ptr2len)(p) - 1; l > 0; --l)
 		if (*++p == K_SPECIAL	  /* trailbyte K_SPECIAL or CSI */
-#ifdef FEAT_GUI
-			|| *p == CSI
-#endif
 			)
 		    len += 2;
 	}
@@ -8727,13 +8590,6 @@ ex_normal(exarg_T *eap)
 		for (p = eap->arg; *p != NUL; ++p)
 		{
 		    arg[len++] = *p;
-#ifdef FEAT_GUI
-		    if (*p == CSI)
-		    {
-			arg[len++] = KS_EXTRA;
-			arg[len++] = (int)KE_CSI;
-		    }
-#endif
 		    for (l = (*mb_ptr2len)(p) - 1; l > 0; --l)
 		    {
 			arg[len++] = *++p;
@@ -8742,13 +8598,6 @@ ex_normal(exarg_T *eap)
 			    arg[len++] = KS_SPECIAL;
 			    arg[len++] = KE_FILLER;
 			}
-#ifdef FEAT_GUI
-			else if (*p == CSI)
-			{
-			    arg[len++] = KS_EXTRA;
-			    arg[len++] = (int)KE_CSI;
-			}
-#endif
 		    }
 		    arg[len] = NUL;
 		}
@@ -9665,19 +9514,6 @@ makeopens(
 	    return FAIL;
     }
 
-#ifdef FEAT_GUI
-    if (gui.in_use && (ssop_flags & SSOP_WINPOS))
-    {
-	int	x, y;
-
-	if (gui_mch_get_winpos(&x, &y) == OK)
-	{
-	    /* Note: after the restore we still check it worked!*/
-	    if (fprintf(fd, "winpos %d %d", x, y) < 0 || put_eol(fd) == FAIL)
-		return FAIL;
-	}
-    }
-#endif
 
     /*
      * When there are two or more tabpages and 'showtabline' is 1 the tabline
@@ -10572,19 +10408,6 @@ ex_viminfo(
 }
 #endif
 
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG) || defined(PROTO)
-/*
- * Make a dialog message in "buff[DIALOG_MSG_SIZE]".
- * "format" must contain "%s".
- */
-    void
-dialog_msg(char_u *buff, char *format, char_u *fname)
-{
-    if (fname == NULL)
-	fname = (char_u *)_("Untitled");
-    vim_snprintf((char *)buff, DIALOG_MSG_SIZE, format, fname);
-}
-#endif
 
 /*
  * ":behave {mswin,xterm}"

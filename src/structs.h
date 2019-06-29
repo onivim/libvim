@@ -1010,10 +1010,6 @@ typedef struct attr_entry
 	    /* These colors need to be > 8 bits to hold 256. */
 	    short_u	    fg_color;	/* foreground color number */
 	    short_u	    bg_color;	/* background color number */
-# ifdef FEAT_TERMGUICOLORS
-	    guicolor_T	    fg_rgb;	/* foreground color RGB */
-	    guicolor_T	    bg_rgb;	/* background color RGB */
-# endif
 	} cterm;
 # ifdef FEAT_GUI
 	struct
@@ -1875,7 +1871,7 @@ typedef struct
     int		jo_term_finish;
     char_u	*jo_eof_chars;
     char_u	*jo_term_kill;
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     long_u	jo_ansi_colors[16];
 # endif
     int		jo_tty_type;	    // first character of "tty_type"

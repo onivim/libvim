@@ -312,16 +312,6 @@ add_char_buff(buffheader_T *buf, int c)
 	    temp[2] = K_THIRD(c);
 	    temp[3] = NUL;
 	}
-#ifdef FEAT_GUI
-	else if (c == CSI)
-	{
-	    /* Translate a CSI to a CSI - KS_EXTRA - KE_CSI sequence */
-	    temp[0] = CSI;
-	    temp[1] = KS_EXTRA;
-	    temp[2] = (int)KE_CSI;
-	    temp[3] = NUL;
-	}
-#endif
 	else
 	{
 	    temp[0] = c;
@@ -750,10 +740,6 @@ read_redo(int init, int old_redo)
 		c = TO_SPECIAL(p[1], p[2]);
 		p += 2;
 	    }
-#ifdef FEAT_GUI
-	    if (c == CSI)	/* escaped CSI */
-		p += 2;
-#endif
 	    if (*++p == NUL && bp->b_next != NULL)
 	    {
 		bp = bp->b_next;
@@ -1570,9 +1556,6 @@ vgetc(void)
 	    int did_inc = FALSE;
 
 	    if (mod_mask
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-		    || im_is_preediting()
-#endif
 		    )
 	    {
 		// no mapping after modifier has been read
@@ -1589,9 +1572,6 @@ vgetc(void)
 
 	    // Get two extra bytes for special keys
 	    if (c == K_SPECIAL
-#ifdef FEAT_GUI
-		    || (gui.in_use && c == CSI)
-#endif
 	       )
 	    {
 		int	    save_allow_keys = allow_keys;
@@ -1609,25 +1589,6 @@ vgetc(void)
 		}
 		c = TO_SPECIAL(c2, c);
 
-#ifdef FEAT_GUI
-		if (gui.in_use)
-		{
-		    // Handle focus event here, so that the caller doesn't
-		    // need to know about it.  Return K_IGNORE so that we loop
-		    // once (needed if 'lazyredraw' is set).
-		    if (c == K_FOCUSGAINED || c == K_FOCUSLOST)
-		    {
-			ui_focus_change(c == K_FOCUSGAINED);
-			c = K_IGNORE;
-		    }
-
-		    // Translate K_CSI to CSI.  The special key is only used
-		    // to avoid it being recognized as the start of a special
-		    // key.
-		    if (c == K_CSI)
-			c = CSI;
-		}
-#endif
 	    }
 	    // a keypad or special function key was not mapped, use it like
 	    // its ASCII equivalent
@@ -1703,13 +1664,6 @@ vgetc(void)
 		{
 		    buf[i] = vgetorpeek(TRUE);
 		    if (buf[i] == K_SPECIAL
-#ifdef FEAT_GUI
-			    || (
-# ifdef VIMDLL
-				gui.in_use &&
-# endif
-				buf[i] == CSI)
-#endif
 			    )
 		    {
 			// Must be a K_SPECIAL - KS_SPECIAL - KE_FILLER
@@ -1805,7 +1759,7 @@ vpeekc(void)
     return vgetorpeek(FALSE);
 }
 
-#if defined(FEAT_TERMRESPONSE) || defined(FEAT_TERMINAL) || defined(PROTO)
+#if defined(FEAT_TERMINAL) || defined(PROTO)
 /*
  * Like vpeekc(), but don't allow mapping.  Do allow checking for terminal
  * codes.
@@ -1917,9 +1871,6 @@ vgetorpeek(int advance)
     int		mlen;
     int		max_mlen;
     int		i;
-#ifdef FEAT_GUI
-    int		shape_changed = FALSE;  /* adjusted cursor shape */
-#endif
     int		n;
 #ifdef FEAT_LANGMAP
     int		nolmaplen;
@@ -2502,19 +2453,6 @@ vgetorpeek(int advance)
 			unshowmode(TRUE);
 			mode_deleted = TRUE;
 		    }
-#ifdef FEAT_GUI
-		    /* may show a different cursor shape */
-		    if (gui.in_use && State != NORMAL && !cmd_silent)
-		    {
-			int	    save_State;
-
-			save_State = State;
-			State = NORMAL;
-			gui_update_cursor(TRUE, FALSE);
-			State = save_State;
-			shape_changed = TRUE;
-		    }
-#endif
 		    validate_cursor();
 		    old_wcol = curwin->w_wcol;
 		    old_wrow = curwin->w_wrow;
@@ -2573,7 +2511,6 @@ vgetorpeek(int advance)
 			}
 		    }
 		    setcursor();
-		    out_flush();
 		    curwin->w_wcol = old_wcol;
 		    curwin->w_wrow = old_wrow;
 		}
@@ -2767,11 +2704,6 @@ vgetorpeek(int advance)
 		showmode();
 	}
     }
-#ifdef FEAT_GUI
-    /* may unshow different cursor shape */
-    if (gui.in_use && shape_changed)
-	gui_update_cursor(TRUE, FALSE);
-#endif
     if (timedout && c == ESC)
     {
 	char_u nop_buf[3];
@@ -2826,7 +2758,6 @@ inchar(
     if (wait_time == -1L || wait_time > 100L)  /* flush output before waiting */
     {
 	cursor_on();
-	out_flush_cursor(FALSE, FALSE);
     }
 
     /*
@@ -2905,13 +2836,6 @@ inchar(
 	}
 
 	/*
-	 * Always flush the output characters when getting input characters
-	 * from the user and not just peeking.
-	 */
-	if (wait_time == -1L || wait_time > 10L)
-	    out_flush();
-
-	/*
 	 * Fill up to a third of the buffer, because each character may be
 	 * tripled below.
 	 */
@@ -2952,31 +2876,10 @@ fix_input_buffer(char_u *buf, int len)
      */
     for (i = len; --i >= 0; ++p)
     {
-#ifdef FEAT_GUI
-	/* When the GUI is used any character can come after a CSI, don't
-	 * escape it. */
-	if (gui.in_use && p[0] == CSI && i >= 2)
-	{
-	    p += 2;
-	    i -= 2;
-	}
-# ifndef MSWIN
-	/* When the GUI is not used CSI needs to be escaped. */
-	else if (!gui.in_use && p[0] == CSI)
-	{
-	    mch_memmove(p + 3, p + 1, (size_t)i);
-	    *p++ = K_SPECIAL;
-	    *p++ = KS_EXTRA;
-	    *p = (int)KE_CSI;
-	    len += 2;
-	}
-# endif
-	else
-#endif
 	if (p[0] == NUL || (p[0] == K_SPECIAL
 		    // timeout may generate K_CURSORHOLD
 		    && (i < 2 || p[1] != KS_EXTRA || p[2] != (int)KE_CURSORHOLD)
-#if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
+#if defined(MSWIN) && (defined(VIMDLL))
 		    // Win32 console passes modifiers
 		    && (
 # ifdef VIMDLL
@@ -3914,7 +3817,6 @@ showmap(
     if (p_verbose > 0)
 	last_set_msg(mp->m_script_ctx);
 #endif
-    out_flush();			/* show one line at a time */
 }
 
 #if defined(FEAT_EVAL) || defined(PROTO)
@@ -5096,23 +4998,8 @@ struct initmap
     int		mode;
 };
 
-# ifdef FEAT_GUI_MSWIN
-/* Use the Windows (CUA) keybindings. (GUI) */
-static struct initmap initmappings[] =
-{
-	/* paste, copy and cut */
-	{(char_u *)"<S-Insert> \"*P", NORMAL},
-	{(char_u *)"<S-Insert> \"-d\"*P", VIS_SEL},
-	{(char_u *)"<S-Insert> <C-R><C-O>*", INSERT+CMDLINE},
-	{(char_u *)"<C-Insert> \"*y", VIS_SEL},
-	{(char_u *)"<S-Del> \"*d", VIS_SEL},
-	{(char_u *)"<C-Del> \"*d", VIS_SEL},
-	{(char_u *)"<C-X> \"*d", VIS_SEL},
-	/* Missing: CTRL-C (cancel) and CTRL-V (block selection) */
-};
-# endif
 
-# if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
+# if defined(MSWIN) && (defined(VIMDLL))
 /* Use the Windows (CUA) keybindings. (Console) */
 static struct initmap cinitmappings[] =
 {
@@ -5167,7 +5054,7 @@ init_mappings(void)
 #if defined(MSWIN) || defined(MACOS_X)
     int		i;
 
-# if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+# if defined(MSWIN) && (defined(VIMDLL))
 #  ifdef VIMDLL
     if (!gui.starting)
 #  endif
@@ -5177,7 +5064,7 @@ init_mappings(void)
 	    add_map(cinitmappings[i].arg, cinitmappings[i].mode);
     }
 # endif
-# if defined(FEAT_GUI_MSWIN) || defined(MACOS_X)
+# if defined(MACOS_X)
     for (i = 0; i < (int)(sizeof(initmappings) / sizeof(struct initmap)); ++i)
 	add_map(initmappings[i].arg, initmappings[i].mode);
 # endif

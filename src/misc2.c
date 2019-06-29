@@ -3085,7 +3085,6 @@ call_shell(char_u *cmd, int opt)
 	verbose_enter();
 	smsg(_("Calling shell to execute: \"%s\""),
 						    cmd == NULL ? p_sh : cmd);
-	out_char('\n');
 	cursor_on();
 	verbose_leave();
     }

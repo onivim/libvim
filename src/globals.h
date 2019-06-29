@@ -352,19 +352,9 @@ EXTERN int	highlight_user[9];		/* User[1-9] attributes */
 		// typing ':' at the more prompt.
 EXTERN int	skip_term_loop INIT(= FALSE);
 #endif
-#ifdef FEAT_GUI
-EXTERN char_u	*use_gvimrc INIT(= NULL);	/* "-U" cmdline argument */
-#endif
 EXTERN int	cterm_normal_fg_color INIT(= 0);
 EXTERN int	cterm_normal_fg_bold INIT(= 0);
 EXTERN int	cterm_normal_bg_color INIT(= 0);
-#ifdef FEAT_TERMGUICOLORS
-EXTERN guicolor_T cterm_normal_fg_gui_color INIT(= INVALCOLOR);
-EXTERN guicolor_T cterm_normal_bg_gui_color INIT(= INVALCOLOR);
-#endif
-#ifdef FEAT_TERMRESPONSE
-EXTERN int	is_mac_terminal INIT(= FALSE);  /* recognized Terminal.app */
-#endif
 
 EXTERN int	autocmd_busy INIT(= FALSE);	/* Is apply_autocmds() busy? */
 EXTERN int	autocmd_no_enter INIT(= FALSE); /* *Enter autocmds disabled */
@@ -397,45 +387,6 @@ EXTERN int	diff_need_scrollbind INIT(= FALSE);
 /* While redrawing the screen this flag is set.  It means the screen size
  * ('lines' and 'rows') must not be changed. */
 EXTERN int	updating_screen INIT(= FALSE);
-
-#ifdef FEAT_GUI
-/* Scrollbar moved and new value, set by check_termcode() */
-EXTERN int	current_scrollbar;
-EXTERN long_u	scrollbar_value;
-
-/* found "-rv" or "-reverse" in command line args */
-EXTERN int	found_reverse_arg INIT(= FALSE);
-
-/* "-fn" or "-font" command line argument */
-EXTERN char	*font_argument INIT(= NULL);
-
-# ifdef FEAT_GUI_GTK
-/* "-bg" or "-background" command line argument */
-EXTERN char	*background_argument INIT(= NULL);
-
-/* "-fg" or "-foreground" command line argument */
-EXTERN char	*foreground_argument INIT(= NULL);
-# endif
-
-/*
- * While executing external commands or in Ex mode, should not insert GUI
- * events in the input buffer: Set hold_gui_events to non-zero.
- *
- * volatile because it is used in signal handler sig_sysmouse().
- */
-EXTERN volatile sig_atomic_t hold_gui_events INIT(= 0);
-
-/*
- * When resizing the shell is postponed, remember the new size, and call
- * gui_resize_shell() later.
- */
-EXTERN int	new_pixel_width INIT(= 0);
-EXTERN int	new_pixel_height INIT(= 0);
-
-/* Window position from ":winpos", to be used when opening the GUI window. */
-EXTERN int	gui_win_x INIT(= -1);
-EXTERN int	gui_win_y INIT(= -1);
-#endif
 
 #ifdef FEAT_CLIPBOARD
 EXTERN VimClipboard clip_star;	/* PRIMARY selection in X11 */
@@ -769,31 +720,6 @@ EXTERN int* (*iconv_errno) (void);
 # endif
 
 
-#ifdef FEAT_XIM
-# ifdef FEAT_GUI_GTK
-EXTERN GtkIMContext	*xic INIT(= NULL);
-/*
- * Start and end column of the preedit area in virtual columns from the start
- * of the text line.  When there is no preedit area they are set to MAXCOL.
- * "preedit_end_col" is needed for coloring the preedited string.  Drawing the
- * color between "preedit_start_col" and curpos did not work, because some XIM
- * set the cursor position to the first char of the string.
- */
-EXTERN colnr_T		preedit_start_col INIT(= MAXCOL);
-EXTERN colnr_T		preedit_end_col INIT(= MAXCOL);
-
-/* "xim_changed_while_preediting" is set when changed() can set the 'modified'
- * flag even while preediting. */
-EXTERN int		xim_changed_while_preediting INIT(= FALSE);
-# else
-EXTERN XIC		xic INIT(= NULL);
-# endif
-# ifdef FEAT_GUI
-EXTERN guicolor_T	xim_fg_color INIT(= INVALCOLOR);
-EXTERN guicolor_T	xim_bg_color INIT(= INVALCOLOR);
-# endif
-#endif
-
 #ifdef FEAT_HANGULIN
 EXTERN int		composing_hangul INIT(= 0);
 EXTERN char_u		composing_hangul_buffer[5];
@@ -1076,12 +1002,6 @@ EXTERN char_u	wim_flags[4];
 EXTERN int	no_hlsearch INIT(= FALSE);
 #endif
 
-#if (defined(FEAT_PRINTER) && defined(FEAT_STL_OPT)) \
-	    || defined(FEAT_GUI_TABLINE)
-/* Page number used for %N in 'pageheader' and 'guitablabel'. */
-EXTERN linenr_T printer_page_num;
-#endif
-
 #ifdef FEAT_XCLIPBOARD
 // xterm display name
 EXTERN char	*xterm_display INIT(= NULL);
@@ -1092,21 +1012,8 @@ EXTERN int	xterm_display_allocated INIT(= FALSE);
 // xterm display pointer
 EXTERN Display	*xterm_dpy INIT(= NULL);
 #endif
-#if defined(FEAT_XCLIPBOARD) || defined(FEAT_GUI_X11)
+#if defined(FEAT_XCLIPBOARD)
 EXTERN XtAppContext app_context INIT(= (XtAppContext)NULL);
-#endif
-
-#ifdef FEAT_GUI_GTK
-EXTERN guint32	gtk_socket_id INIT(= 0);
-EXTERN int	echo_wid_arg INIT(= FALSE);	/* --echo-wid argument */
-#endif
-
-#ifdef FEAT_GUI_MSWIN
-/*
- * The value of the --windowid argument.
- * For embedding gvim inside another application.
- */
-EXTERN long_u	win_socket_id INIT(= 0);
 #endif
 
 #if defined(FEAT_EVAL)
@@ -1157,16 +1064,6 @@ EXTERN char e_for[]		INIT(= N_("E588: :endfor without :for"));
 #endif
 EXTERN char e_exists[]	INIT(= N_("E13: File exists (add ! to override)"));
 EXTERN char e_failed[]	INIT(= N_("E472: Command failed"));
-#if defined(FEAT_GUI) && defined(FEAT_XFONTSET)
-EXTERN char e_fontset[]	INIT(= N_("E234: Unknown fontset: %s"));
-#endif
-#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MAC) \
-	|| defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MSWIN)
-EXTERN char e_font[]		INIT(= N_("E235: Unknown font: %s"));
-#endif
-#if defined(FEAT_GUI_X11) && !defined(FEAT_GUI_GTK)
-EXTERN char e_fontwidth[]	INIT(= N_("E236: Font \"%s\" is not fixed-width"));
-#endif
 EXTERN char e_internal[]	INIT(= N_("E473: Internal error"));
 EXTERN char e_intern2[]	INIT(= N_("E685: Internal error: %s"));
 EXTERN char e_interr[]	INIT(= N_("Interrupted"));
@@ -1209,9 +1106,7 @@ EXTERN char e_nesting[]	INIT(= N_("E22: Scripts nested too deep"));
 EXTERN char e_noalt[]		INIT(= N_("E23: No alternate file"));
 EXTERN char e_noabbr[]	INIT(= N_("E24: No such abbreviation"));
 EXTERN char e_nobang[]	INIT(= N_("E477: No ! allowed"));
-#if !defined(FEAT_GUI) || defined(VIMDLL)
 EXTERN char e_nogvim[]	INIT(= N_("E25: GUI cannot be used: Not enabled at compile time"));
-#endif
 #ifndef FEAT_RIGHTLEFT
 EXTERN char e_nohebrew[]	INIT(= N_("E26: Hebrew cannot be used: Not enabled at compile time\n"));
 #endif
@@ -1243,9 +1138,6 @@ EXTERN char e_number_exp[]	INIT(= N_("E39: Number expected"));
 #endif
 #ifdef FEAT_QUICKFIX
 EXTERN char e_openerrf[]	INIT(= N_("E40: Can't open errorfile %s"));
-#endif
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
-EXTERN char e_opendisp[]	INIT(= N_("E233: cannot open display"));
 #endif
 EXTERN char e_outofmem[]	INIT(= N_("E41: Out of memory!"));
 EXTERN char e_patnotf2[]	INIT(= N_("E486: Pattern not found: %s"));
@@ -1289,7 +1181,7 @@ EXTERN char e_screenmode[]	INIT(= N_("E359: Screen mode setting not supported"))
 #endif
 EXTERN char e_scroll[]	INIT(= N_("E49: Invalid scroll size"));
 EXTERN char e_shellempty[]	INIT(= N_("E91: 'shell' option is empty"));
-#if defined(FEAT_SIGN_ICONS) && !defined(FEAT_GUI_GTK)
+#if defined(FEAT_SIGN_ICONS)
 EXTERN char e_signdata[]	INIT(= N_("E255: Couldn't read in sign data!"));
 #endif
 EXTERN char e_swapclose[]	INIT(= N_("E72: Close error on swap file"));
@@ -1320,9 +1212,6 @@ EXTERN char e_invalidreg[]    INIT(= N_("E850: Invalid register name"));
 EXTERN char e_dirnotf[]	INIT(= N_("E919: Directory not found in '%s': \"%s\""));
 EXTERN char e_au_recursive[]	INIT(= N_("E952: Autocommand caused recursive behavior"));
 
-#ifdef FEAT_GUI_MAC
-EXTERN short disallow_gui	INIT(= FALSE);
-#endif
 
 EXTERN char top_bot_msg[] INIT(= N_("search hit TOP, continuing at BOTTOM"));
 EXTERN char bot_top_msg[] INIT(= N_("search hit BOTTOM, continuing at TOP"));
