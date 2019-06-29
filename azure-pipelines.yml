@@ -75,7 +75,7 @@ jobs:
     parameters:
         testRunner: run-tests.bat
 
-- job: Hygiene Checks
+- job: HygieneChecks
   displayName: "Hygiene Checks"
   pool:
     vmImage: 'Ubuntu 16.04'
