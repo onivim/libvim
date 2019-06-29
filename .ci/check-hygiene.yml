@@ -1,0 +1,12 @@
+# Cross-platform set of build steps for building esy projects
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '8.9'
+  - script: npm install -g clang-format
+    displayName: 'npm install -g clang-format'
+  - script: clang-format -i src/*.c src/*.h src/proto/*.pro src/apitest/*.c
+    displayName: 'format check'
+  - script: git diff --exit-code
+    displayName: 'check that code is formatted correctly. If not, run clang-format -i on changed files.'
