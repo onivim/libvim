@@ -1982,12 +1982,6 @@ message_filtered(char_u *msg)
     static void
 msg_scroll_up(void)
 {
-#ifdef FEAT_GUI
-    /* Remove the cursor before scrolling, ScreenLines[] is going
-     * to become invalid. */
-    if (gui.in_use)
-	gui_undraw_cursor();
-#endif
     /* scrolling up always works */
     mch_disable_flush();
     screen_del_lines(0, 0, 1, (int)Rows, TRUE, 0, NULL);
@@ -2897,26 +2891,6 @@ do_dialog(
 	return dfltbutton;   /* return default option */
 #endif
 
-#ifdef FEAT_GUI_DIALOG
-    /* When GUI is running and 'c' not in 'guioptions', use the GUI dialog */
-    if (gui.in_use && vim_strchr(p_go, GO_CONDIALOG) == NULL)
-    {
-	c = gui_mch_dialog(type, title, message, buttons, dfltbutton,
-							   textfield, ex_cmd);
-	/* avoid a hit-enter prompt without clearing the cmdline */
-	need_wait_return = FALSE;
-	emsg_on_display = FALSE;
-	cmdline_row = msg_row;
-
-	/* Flush output to avoid that further messages and redrawing is done
-	 * in the wrong order. */
-	out_flush();
-	gui_mch_update();
-
-	return c;
-    }
-#endif
-
     oldState = State;
     State = CONFIRM;
 #ifdef FEAT_MOUSE
@@ -3205,64 +3179,6 @@ display_confirm_msg(void)
 
 #endif /* FEAT_CON_DIALOG */
 
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-
-    int
-vim_dialog_yesno(
-    int		type,
-    char_u	*title,
-    char_u	*message,
-    int		dflt)
-{
-    if (do_dialog(type,
-		title == NULL ? (char_u *)_("Question") : title,
-		message,
-		(char_u *)_("&Yes\n&No"), dflt, NULL, FALSE) == 1)
-	return VIM_YES;
-    return VIM_NO;
-}
-
-    int
-vim_dialog_yesnocancel(
-    int		type,
-    char_u	*title,
-    char_u	*message,
-    int		dflt)
-{
-    switch (do_dialog(type,
-		title == NULL ? (char_u *)_("Question") : title,
-		message,
-		(char_u *)_("&Yes\n&No\n&Cancel"), dflt, NULL, FALSE))
-    {
-	case 1: return VIM_YES;
-	case 2: return VIM_NO;
-    }
-    return VIM_CANCEL;
-}
-
-    int
-vim_dialog_yesnoallcancel(
-    int		type,
-    char_u	*title,
-    char_u	*message,
-    int		dflt)
-{
-    switch (do_dialog(type,
-		title == NULL ? (char_u *)"Question" : title,
-		message,
-		(char_u *)_("&Yes\n&No\nSave &All\n&Discard All\n&Cancel"),
-							   dflt, NULL, FALSE))
-    {
-	case 1: return VIM_YES;
-	case 2: return VIM_NO;
-	case 3: return VIM_ALL;
-	case 4: return VIM_DISCARDALL;
-    }
-    return VIM_CANCEL;
-}
-
-#endif /* FEAT_GUI_DIALOG || FEAT_CON_DIALOG */
-
 #if defined(FEAT_BROWSE) || defined(PROTO)
 /*
  * Generic browse function.  Calls gui_mch_browse() when possible.
@@ -3347,52 +3263,6 @@ do_browse(
 	 * default already, leave initdir empty. */
     }
 
-# ifdef FEAT_GUI
-    if (gui.in_use)		/* when this changes, also adjust f_has()! */
-    {
-	if (filter == NULL
-#  ifdef FEAT_EVAL
-		&& (filter = get_var_value((char_u *)"b:browsefilter")) == NULL
-		&& (filter = get_var_value((char_u *)"g:browsefilter")) == NULL
-#  endif
-	)
-	    filter = BROWSE_FILTER_DEFAULT;
-	if (flags & BROWSE_DIR)
-	{
-#  if defined(FEAT_GUI_GTK) || defined(MSWIN)
-	    /* For systems that have a directory dialog. */
-	    fname = gui_mch_browsedir(title, initdir);
-#  else
-	    /* Generic solution for selecting a directory: select a file and
-	     * remove the file name. */
-	    fname = gui_mch_browse(0, title, dflt, ext, initdir, (char_u *)"");
-#  endif
-#  if !defined(FEAT_GUI_GTK)
-	    /* Win32 adds a dummy file name, others return an arbitrary file
-	     * name.  GTK+ 2 returns only the directory, */
-	    if (fname != NULL && *fname != NUL && !mch_isdir(fname))
-	    {
-		/* Remove the file name. */
-		char_u	    *tail = gettail_sep(fname);
-
-		if (tail == fname)
-		    *tail++ = '.';	/* use current dir */
-		*tail = NUL;
-	    }
-#  endif
-	}
-	else
-	    fname = gui_mch_browse(flags & BROWSE_SAVE,
-			       title, dflt, ext, initdir, (char_u *)_(filter));
-
-	/* We hang around in the dialog for a while, the user might do some
-	 * things to our files.  The Win32 dialog allows deleting or renaming
-	 * a file, check timestamps. */
-	need_check_timestamps = TRUE;
-	did_check_timestamps = FALSE;
-    }
-    else
-# endif
     {
 	/* TODO: non-GUI file selector here */
 	emsg(_("E338: Sorry, no file browser in console mode"));
