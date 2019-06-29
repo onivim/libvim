@@ -3062,8 +3062,8 @@ static int mch_call_shell_system(char_u *cmd,
 #else /* USE_SYSTEM */
 
 #define EXEC_FAILED                                                            \
-  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells                                                              \
-         use that already */
+  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells \  \
+         \ use that already */
 #define OPEN_NULL_FAILED 123 /* Exit code if /dev/null can't be opened */
 
 /*
@@ -4755,8 +4755,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
 #define STYLE_GLOB 1    /* use "glob", for csh */
 #define STYLE_VIMGLOB 2 /* use "vimglob", for Posix sh */
 #define STYLE_PRINT 3   /* use "print -N", for zsh */
-#define STYLE_BT                                                               \
-  4 /* `cmd` expansion, execute the pattern \ directly */
+#define STYLE_BT 4      /* `cmd` expansion, execute the pattern \ directly */
   int shell_style = STYLE_ECHO;
   int check_spaces;
   static int did_find_nul = FALSE;
