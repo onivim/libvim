@@ -67,7 +67,7 @@ int acp_should_pass_through(char_u c) {
     return closeCharacter[c] != NULL;
 }
 
-char_u acp_get_closing_pair(char_u c) {
+char_u acp_get_closing_character(char_u c) {
   if (!p_acp) {
     return NUL;
   }
@@ -97,6 +97,21 @@ int acp_is_closing_pair(char_u c) {
   return openCharacter[c] != NULL;
 }
 
-int acp_is_cursor_between_pair() {
+int acp_is_cursor_between_pair(void) {
+    if (!p_acp) {
+     return FALSE;
+    }
+
+    char_u charBefore = *(ml_get_cursor() - 1);
+    printf("charBefore: %c\n", charBefore);
+
+    if (!openCharacter[charBefore]) {
     return FALSE;
+    }
+
+
+    char_u charAfter = *(ml_get_cursor());
+    printf("charAfter: %c\n", charAfter);
+
+    return charAfter == openCharacter[charBefore]->close;
 }

@@ -10,6 +10,19 @@ void test_setup(void) {
   vimInput("g");
   vimInput("g");
   vimInput("0");
+
+  vimExecute("set acp");
+
+  autoClosingPair_T *pairs = (autoClosingPair_T*)(alloc(sizeof(autoClosingPair_T) * 3));
+  pairs[0].open = '{';
+  pairs[0].close = '}';
+  pairs[1].open = '[';
+  pairs[1].close =']';
+  pairs[2].open ='"';
+  pairs[2].close ='"';
+
+  acp_set_pairs(pairs, 3);
+  vim_free(pairs);
 }
 
 void test_teardown(void) {}
@@ -18,17 +31,29 @@ MU_TEST(test_backspace_matching_pair) {
     vimInput("i");
     vimInput("{");
     vimInput("[");
-    printf("LINE before backspace: %s\n", vimBufferGetLine(curbuf, 1));
-    vimInput("<bs>");
-    printf("LINE after backspace: %s\n", vimBufferGetLine(curbuf, 1));
-    vimInput("<bs>");
-    printf("LINE after another backspace: %s\n", vimBufferGetLine(curbuf, 1));
 
-    vimInput("<c-c>");
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
+    
+    vimInput("<bs>");
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}This is the first line of a test file") == 0);
+    
+    vimInput("<bs>");
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
+}
+
+MU_TEST(test_matching_pair_undo_redo) {
+    vimInput("i");
+    vimInput("{");
+    vimInput("[");
+    vimInput("<esc>");
+
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
+
     vimInput("u");
-    printf("LINE after undo: %s\n", vimBufferGetLine(curbuf, 1));
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
+
     vimInput("<c-r>");
-    printf("LINE after redo: %s\n", vimBufferGetLine(curbuf, 1));
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{[]}This is the first line of a test file") == 0);
 }
 
 MU_TEST(test_backspace_matching_macro_insert) {
@@ -197,14 +222,15 @@ MU_TEST(test_acp_should_pass_through) {
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+  MU_RUN_TEST(test_matching_pair_undo_redo);
   MU_RUN_TEST(test_backspace_matching_pair);
-  MU_RUN_TEST(test_backspace_matching_macro_insert);
+/*  MU_RUN_TEST(test_backspace_matching_macro_insert);
   MU_RUN_TEST(test_enter_between_pairs);
   MU_RUN_TEST(test_enter_between_pairs_undo);
   MU_RUN_TEST(test_pass_through_in_pairs);
   MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
   MU_RUN_TEST(test_setting_acp_option);
-  MU_RUN_TEST(test_acp_should_pass_through);
+  MU_RUN_TEST(test_acp_should_pass_through);*/
 }
 
 int main(int argc, char **argv) {

@@ -925,25 +925,22 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
              // what check_abbr() expects.
              (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
          c != Ctrl_RSB)) {
-	    printf("insert special? %c\n", c); 
 
 
-        if (acp_is_closing_pair(c) && (*ml_get_cursor() == 'c')) {
-             AppendToRedobuff(c);
+        if (acp_is_closing_pair(c) && (*ml_get_cursor() == c)) {
+             AppendCharToRedobuff(c);
 			oneright();
 
 	     } else {
 
       insert_special(c, FALSE, FALSE);
-		    if (c == '{') {
+       if (acp_is_opening_pair(c)) {
 
-          ins_char('}');
-	      oneleft();
-	      } else if (c == '[') {
-	    ins_char(']');
-		  oneleft();
-	      }
-	     }
+          char_u close = acp_get_closing_character(c);
+          ins_char(close);
+          oneleft();
+         }
+       }
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
       revins_chars++;
@@ -4954,22 +4951,16 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
        * happen when using 'sts' and 'linebreak'. */
       if (vcol >= start_vcol)
         ins_bs_one(&vcol);
-    } else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0) {
-
-	    char_u charBefore = *(ml_get_cursor() - 1);
-	    char_u charAfter = *(ml_get_cursor());
-
-
-	    printf("charBefore: %c\n", charBefore);
-	    printf("charAfter: %c\n", charAfter);
-		
+    } 
+    else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0) {
+	
       colnr_T vcol;
-      if (charBefore == '{' && charAfter == '}') {
+      if (acp_is_cursor_between_pair()) {
       getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
       printf("vcol: %d\n", vcol);
       ins_bs_one(&vcol);
       del_char(TRUE);
-      /* ins_del(); */
+      //ins_del();
       printf("vcol after: %d\n", vcol);
       } else {
       getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
