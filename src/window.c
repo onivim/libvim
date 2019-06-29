@@ -790,12 +790,6 @@ win_split_ins(
 	need_status = STATUS_HEIGHT;
     }
 
-#ifdef FEAT_GUI
-    /* May be needed for the scrollbars that are going to change. */
-    if (gui.in_use)
-	out_flush();
-#endif
-
     if (flags & WSP_VERT)
     {
 	int	wmw1;
@@ -2426,13 +2420,6 @@ win_close(win_T *win, int free_buf)
 	    return FAIL;
 #endif
     }
-
-#ifdef FEAT_GUI
-    // Avoid trouble with scrollbars that are going to be deleted in
-    // win_free().
-    if (gui.in_use)
-	out_flush();
-#endif
 
     win_close_buffer(win, free_buf, TRUE);
 

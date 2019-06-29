@@ -743,7 +743,6 @@ sign_define_init_icon(sign_T *sp, char_u *icon)
 # ifdef FEAT_SIGN_ICONS
     if (gui.in_use)
     {
-	out_flush();
 	if (sp->sn_image != NULL)
 	    gui_mch_destroy_sign(sp->sn_image);
 	sp->sn_image = gui_mch_register_sign(sp->sn_icon);
@@ -1636,7 +1635,6 @@ sign_undefine(sign_T *sp, sign_T *sp_prev)
 # ifdef FEAT_SIGN_ICONS
     if (sp->sn_image != NULL)
     {
-	out_flush();
 	gui_mch_destroy_sign(sp->sn_image);
     }
 # endif

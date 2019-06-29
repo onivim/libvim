@@ -1167,7 +1167,6 @@ ask_yesno(char_u *str, int direct)
 	if (r == Ctrl_C || r == ESC)
 	    r = 'n';
 	msg_putchar(r);	    /* show what you typed */
-	out_flush();
     }
     --no_wait_return;
     State = save_State;
@@ -1200,7 +1199,6 @@ get_keystroke(void)
     for (;;)
     {
 	cursor_on();
-	out_flush();
 
 	/* Leave some room for check_termcode() to insert a key code into (max
 	 * 5 chars plus NUL).  And fix_input_buffer() can triple the number of
@@ -1480,8 +1478,6 @@ vim_beep(
 		{
 		    out_str_cf(T_VB);
 		}
-		else
-		    out_char(BELL);
 #ifdef ELAPSED_FUNC
 	    }
 #endif
@@ -3006,7 +3002,6 @@ prepare_to_exit(void)
 	 */
 	settmode(TMODE_COOK);
 	stoptermcap();
-	out_flush();
     }
 }
 
@@ -3029,7 +3024,6 @@ preserve_exit(void)
 
     out_str(IObuff);
     screen_start();		    /* don't know where cursor is now */
-    out_flush();
 
     ml_close_notmod();		    /* close all not-modified buffers */
 
@@ -3039,7 +3033,6 @@ preserve_exit(void)
 	{
 	    OUT_STR("Vim: preserving files...\n");
 	    screen_start();	    /* don't know where cursor is now */
-	    out_flush();
 	    ml_sync_all(FALSE, FALSE);	/* preserve all swap files */
 	    break;
 	}

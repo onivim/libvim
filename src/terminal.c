@@ -1006,7 +1006,6 @@ update_cursor(term_T *term, int redraw)
     {
 	if (term->tl_buffer == curbuf && term->tl_cursor_visible)
 	    cursor_on();
-	out_flush();
 #ifdef FEAT_GUI
 	if (gui.in_use)
 	{
@@ -2466,7 +2465,6 @@ handle_settermprop(
 	case VTERM_PROP_CURSORVISIBLE:
 	    term->tl_cursor_visible = value->boolean;
 	    may_toggle_cursor(term);
-	    out_flush();
 	    break;
 
 	case VTERM_PROP_CURSORBLINK:

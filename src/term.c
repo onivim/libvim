@@ -1595,9 +1595,6 @@ report_default_term(char_u *term)
     if (emsg_silent == 0)
     {
 	screen_start();	/* don't know where cursor is now */
-	out_flush();
-	if (!is_not_a_term())
-	    ui_delay(2000L, TRUE);
     }
 }
 
@@ -1716,7 +1713,6 @@ set_termname(char_u *term)
 		set_string_option_direct((char_u *)"term", -1, term,
 								 OPT_FREE, 0);
 	    }
-	    out_flush();
 #ifdef HAVE_TGETENT
 	    if (!termcap_cleared)
 	    {
@@ -1730,7 +1726,6 @@ set_termname(char_u *term)
 #ifdef FEAT_GUI
 	    if (term_is_gui(term))
 	    {
-		out_flush();
 		gui_init();
 		/* If starting the GUI failed, don't do any of the other
 		 * things for this terminal */
@@ -2245,61 +2240,6 @@ static int		out_pos = 0;	// number of chars in out_buf
 #define MAX_ESC_SEQ_LEN	80
 
 /*
- * out_flush(): flush the output buffer
- */
-    void
-out_flush(void)
-{
-    /* No-op */
-}
-
-/*
- * out_flush_cursor(): flush the output buffer and redraw the cursor.
- * Does not flush recursively in the GUI to avoid slow drawing.
- */
-    void
-out_flush_cursor(
-    int	    force UNUSED,   /* when TRUE, update cursor even when not moved */
-    int	    clear_selection UNUSED) /* clear selection under cursor */
-{
-    /* No-op */
-}
-
-
-/*
- * Sometimes a byte out of a multi-byte character is written with out_char().
- * To avoid flushing half of the character, call this function first.
- */
-    void
-out_flush_check(void)
-{
-    /* No-op */
-}
-
-/*
- * out_char(c): put a byte into the output buffer.
- *		Flush it if it becomes full.
- * This should not be used for outputting text on the screen (use functions
- * like msg_puts() and screen_putchar() for that).
- */
-    void
-out_char(unsigned c)
-{
-    /* No-op */
-}
-
-static void out_char_nf(unsigned);
-
-/*
- * out_char_nf(c): like out_char(), but don't flush when p_wd is set
- */
-    static void
-out_char_nf(unsigned c)
-{
-    /* No-op */
-}
-
-/*
  * A conditional-flushing out_str, mainly for visualbell.
  * Handles a delay internally, because termlib may not respect the delay or do
  * it at the wrong time.
@@ -2360,7 +2300,6 @@ term_set_winpos(int x, int y)
 	y = 0;
     OUT_STR(tgoto((char *)T_CWP, y, x));
 }
-
 
     void
 term_set_winsize(int height, int width)
@@ -2835,7 +2774,6 @@ set_shellsize(int width, int height, int mustset)
 	}
 	cursor_on();	    /* redrawing may have switched it off */
     }
-    out_flush();
     --busy;
 }
 
@@ -2872,10 +2810,8 @@ settmode(int tmode)
 		    out_str(T_BE);	// enable bracketed paste mode (should
 					// be before mch_settmode().
 	    }
-	    out_flush();
 	    mch_settmode(tmode);	// machine specific function
 	    cur_tmode = tmode;
-	    out_flush();
 	}
     }
 }
@@ -2888,7 +2824,6 @@ starttermcap(void)
 	out_str(T_TI);			/* start termcap mode */
 	out_str(T_KS);			/* start "keypad transmit" mode */
 	out_str(T_BE);			/* enable bracketed paste mode */
-	out_flush();
 	termcap_active = TRUE;
 	screen_start();			/* don't know where cursor is now */
     }
@@ -2903,15 +2838,12 @@ stoptermcap(void)
     {
 	out_str(T_BD);			/* disable bracketed paste mode */
 	out_str(T_KE);			/* stop "keypad transmit" mode */
-	out_flush();
 	termcap_active = FALSE;
 	cursor_on();			/* just in case it is still off */
 	out_str(T_TE);			/* stop termcap mode */
 	screen_start();			/* don't know where cursor is now */
-	out_flush();
     }
 }
-
 
 /*
  * Return TRUE when saving and restoring the screen.
@@ -3500,7 +3432,6 @@ check_termcode(
 	    }
 	}
 
-
 	if (key_name[0] == NUL)
 	    continue;	    /* No match at this position, try next one */
 
@@ -4036,7 +3967,6 @@ show_termcodes(void)
 		else
 		    col += INC3;
 	    }
-	    out_flush();
 	    ui_breakcheck();
 	}
     }
@@ -4094,7 +4024,6 @@ show_one_termcode(char_u *name, char_u *code, int printit)
     }
     return len;
 }
-
 
 #if defined(FEAT_CMDL_COMPL) || defined(PROTO)
 /*

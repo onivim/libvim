@@ -1344,7 +1344,6 @@ ml_recover(int checkext)
 		    && org_stat.st_mtime > swp_stat.st_mtime)
 		|| org_stat.st_mtime != mtime))
 	emsg(_("E308: Warning: Original file may have been changed"));
-    out_flush();
 
     /* Get the 'fileformat' and 'fileencoding' from block zero. */
     b0_ff = (b0p->b0_flags & B0_FF_MASK);
@@ -1969,7 +1968,6 @@ recover_names(
 	    }
 	    else
 		msg_puts(_("      -- none --\n"));
-	    out_flush();
 	}
 	else
 	    file_count += num_files;

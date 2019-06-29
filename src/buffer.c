@@ -1922,11 +1922,6 @@ buflist_new(
 	if (top_file_num < 0)		/* wrap around (may cause duplicates) */
 	{
 	    emsg(_("W14: Warning: List of file names overflow"));
-	    if (emsg_silent == 0)
-	    {
-		out_flush();
-		ui_delay(3000L, TRUE);	/* make sure it is noticed */
-	    }
 	    top_file_num = 1;
 	}
 	buf_hashtab_add(buf);

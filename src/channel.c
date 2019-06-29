@@ -2117,7 +2117,6 @@ channel_exe_cmd(channel_T *channel, ch_part_T part, typval_T *argv)
 	ex_redraw(&ea);
 	showruler(FALSE);
 	setcursor();
-	out_flush_cursor(TRUE, FALSE);
     }
     else if (STRCMP(cmd, "expr") == 0 || STRCMP(cmd, "call") == 0)
     {
