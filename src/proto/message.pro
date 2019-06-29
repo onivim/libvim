@@ -16,8 +16,8 @@ void internal_error(char *where);
 void emsg_invreg(int name);
 char *msg_trunc_attr(char *s, int force, int attr);
 char_u *msg_may_trunc(int force, char_u *s);
-char_u * get_emsg_source(void);
-char_u * get_emsg_lnum(void);
+char_u *get_emsg_source(void);
+char_u *get_emsg_lnum(void);
 int delete_first_msg(void);
 void ex_messages(exarg_T *eap);
 void msg_end_prompt(void);
@@ -74,10 +74,13 @@ int verbose_open(void);
 void give_warning(char_u *message, int hl);
 void give_warning2(char_u *message, char_u *a1, int hl);
 void msg_advance(int col);
-int do_dialog(int type, char_u *title, char_u *message, char_u *buttons, int dfltbutton, char_u *textfield, int ex_cmd);
+int do_dialog(int type, char_u *title, char_u *message, char_u *buttons,
+              int dfltbutton, char_u *textfield, int ex_cmd);
 void display_confirm_msg(void);
 int vim_dialog_yesno(int type, char_u *title, char_u *message, int dflt);
 int vim_dialog_yesnocancel(int type, char_u *title, char_u *message, int dflt);
-int vim_dialog_yesnoallcancel(int type, char_u *title, char_u *message, int dflt);
-char_u *do_browse(int flags, char_u *title, char_u *dflt, char_u *ext, char_u *initdir, char_u *filter, buf_T *buf);
+int vim_dialog_yesnoallcancel(int type, char_u *title, char_u *message,
+                              int dflt);
+char_u *do_browse(int flags, char_u *title, char_u *dflt, char_u *ext,
+                  char_u *initdir, char_u *filter, buf_T *buf);
 /* vim: set ft=c : */

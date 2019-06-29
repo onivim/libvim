@@ -21,7 +21,8 @@ int mch_has_wildcard(char_u *p);
 int mch_chdir(char *path);
 int mch_screenmode(char_u *arg);
 int mch_icon_load(HANDLE *iconp);
-int mch_libcall(char_u *libname, char_u *funcname, char_u *argstring, int argint, char_u **string_result, int *number_result);
+int mch_libcall(char_u *libname, char_u *funcname, char_u *argstring,
+                int argint, char_u **string_result, int *number_result);
 void DumpPutS(const char *psz);
 int mch_get_winpos(int *x, int *y);
 void mch_set_winpos(int x, int y);
@@ -43,9 +44,11 @@ void serverInitMessaging(void);
 void serverSetName(char_u *name);
 char_u *serverGetVimNames(void);
 int serverSendReply(char_u *name, char_u *reply);
-int serverSendToVim(char_u *name, char_u *cmd, char_u **result, void *ptarget, int asExpr, int timeout, int silent);
+int serverSendToVim(char_u *name, char_u *cmd, char_u **result, void *ptarget,
+                    int asExpr, int timeout, int silent);
 void serverForeground(char_u *name);
-char_u *serverGetReply(HWND server, int *expr_res, int remove, int wait, int timeout);
+char_u *serverGetReply(HWND server, int *expr_res, int remove, int wait,
+                       int timeout);
 void serverProcessPendingMessages(void);
 char *charset_id2name(int id);
 char *quality_id2name(DWORD id);

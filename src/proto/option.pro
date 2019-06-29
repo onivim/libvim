@@ -21,17 +21,23 @@ void clear_string_option(char_u **pp);
 int get_term_opt_idx(char_u **p);
 int set_term_option_alloced(char_u **p);
 int was_set_insecurely(char_u *opt, int opt_flags);
-void set_string_option_direct(char_u *name, int opt_idx, char_u *val, int opt_flags, int set_sid);
-void set_string_option_direct_in_win(win_T *wp, char_u *name, int opt_idx, char_u *val, int opt_flags, int set_sid);
-void set_string_option_direct_in_buf(buf_T *buf, char_u *name, int opt_idx, char_u *val, int opt_flags, int set_sid);
+void set_string_option_direct(char_u *name, int opt_idx, char_u *val,
+                              int opt_flags, int set_sid);
+void set_string_option_direct_in_win(win_T *wp, char_u *name, int opt_idx,
+                                     char_u *val, int opt_flags, int set_sid);
+void set_string_option_direct_in_buf(buf_T *buf, char_u *name, int opt_idx,
+                                     char_u *val, int opt_flags, int set_sid);
 int valid_spellang(char_u *val);
 char *check_colorcolumn(win_T *wp);
 char *check_stl_option(char_u *s);
 void set_term_option_sctx_idx(char *name, int opt_idx);
-int get_option_value(char_u *name, long *numval, char_u **stringval, int opt_flags);
-int get_option_value_strict(char_u *name, long *numval, char_u **stringval, int opt_type, void *from);
+int get_option_value(char_u *name, long *numval, char_u **stringval,
+                     int opt_flags);
+int get_option_value_strict(char_u *name, long *numval, char_u **stringval,
+                            int opt_type, void *from);
 char_u *option_iter_next(void **option, int opt_type);
-char *set_option_value(char_u *name, long number, char_u *string, int opt_flags);
+char *set_option_value(char_u *name, long number, char_u *string,
+                       int opt_flags);
 char_u *get_term_code(char_u *tname);
 char_u *get_highlight_default(void);
 char_u *get_encoding_default(void);
@@ -53,7 +59,8 @@ void reset_modifiable(void);
 void set_iminsert_global(void);
 void set_imsearch_global(void);
 void set_context_in_set_cmd(expand_T *xp, char_u *arg, int opt_flags);
-int ExpandSettings(expand_T *xp, regmatch_T *regmatch, int *num_file, char_u ***file);
+int ExpandSettings(expand_T *xp, regmatch_T *regmatch, int *num_file,
+                   char_u ***file);
 int ExpandOldSetting(int *num_file, char_u ***file);
 int langmap_adjust_mb(int c);
 int has_format_option(int x);
@@ -70,7 +77,8 @@ int tabstop_set(char_u *var, int **array);
 int tabstop_padding(colnr_T col, int ts_arg, int *vts);
 int tabstop_at(colnr_T col, int ts, int *vts);
 colnr_T tabstop_start(colnr_T col, int ts, int *vts);
-void tabstop_fromto(colnr_T start_col, colnr_T end_col, int ts_arg, int *vts, int *ntabs, int *nspcs);
+void tabstop_fromto(colnr_T start_col, colnr_T end_col, int ts_arg, int *vts,
+                    int *ntabs, int *nspcs);
 int tabstop_eq(int *ts1, int *ts2);
 int *tabstop_copy(int *oldts);
 int tabstop_count(int *ts);
