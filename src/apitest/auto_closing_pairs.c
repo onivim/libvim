@@ -218,13 +218,11 @@ MU_TEST(test_pass_through_in_pairs) {
     vimInput("}");
     vimInput("a");
     vimInput("<esc>");
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
 
     mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}aThis is the first line of a test file") == 0);
 
     vimInput("j");
     vimInput(".");
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
 
     mu_check(strcmp(vimBufferGetLine(curbuf, 2), "{}aThis is the second line of a test file") == 0);
 }
@@ -236,20 +234,11 @@ MU_TEST(test_pass_through_in_pairs_undo_redo) {
     vimInput("a");
     vimInput("<esc>");
 
-    printf("REDO BUFFER: |%s|\n", get_inserted());
-
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
-	
 	vimInput("u");
-    
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
 	
 	vimInput("<c-r>");
-    
-    printf("First line: |%s\n", vimBufferGetLine(curbuf, 1));
-    printf("Second line: |%s\n", vimBufferGetLine(curbuf, 2));
+    mu_check(strcmp(vimBufferGetLine(curbuf, 1), "{}aThis is the first line of a test file") == 0);
 }
 
 MU_TEST(test_setting_acp_option) {
@@ -283,7 +272,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_enter_between_pairs_undo);
   MU_RUN_TEST(test_enter_between_pairs_dot);
   MU_RUN_TEST(test_pass_through_in_pairs);
-  /*MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);*/
+  MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
 }
 
 int main(int argc, char **argv) {
