@@ -2474,6 +2474,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
     ccline.cmdindent = (context->firstc > 0 ? context->indent : 0);
 
     /* alloc initial ccline.cmdbuff */
+    vim_free(ccline.cmdbuff);
     alloc_cmdbuff(exmode_active ? 250 : context->indent + 1);
     if (ccline.cmdbuff == NULL) {
 	    // out of memory
