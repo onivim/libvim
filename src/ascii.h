@@ -89,21 +89,18 @@
  * There are gaps in the code table.
  * 'a' + 1 == 'b', but: 'i' + 7 == 'j' and 'r' + 8 == 's'
  */
-#define CharOrd__(c)                                                           \
-  ((c) < ('j' - 'a') ? (c) : ((c) < ('s' - 'a') ? (c)-7 : (c)-7 - 8))
+#define CharOrd__(c) ((c) < ('j' - 'a') ? (c) : ((c) < ('s' - 'a') ? (c)-7 : (c)-7 - 8))
 #define CharOrdLow(x) (CharOrd__((x) - 'a'))
 #define CharOrdUp(x) (CharOrd__((x) - 'A'))
 #define CharOrd(x) (isupper(x) ? CharOrdUp(x) : CharOrdLow(x))
 
-#define EBCDIC_CHAR_ADD_(x)                                                    \
-  ((x) < 0 ? 'a' : (x) > 25 ? 'z' : "abcdefghijklmnopqrstuvwxyz"[x])
-#define EBCDIC_CHAR_ADD(c, s)                                                  \
-  (isupper(c) ? toupper(EBCDIC_CHAR_ADD_(CharOrdUp(c) + (s)))                  \
+#define EBCDIC_CHAR_ADD_(x) ((x) < 0 ? 'a' : (x) > 25 ? 'z' : "abcdefghijklmnopqrstuvwxyz"[x])
+#define EBCDIC_CHAR_ADD(c, s)                                                                      \
+  (isupper(c) ? toupper(EBCDIC_CHAR_ADD_(CharOrdUp(c) + (s)))                                      \
               : EBCDIC_CHAR_ADD_(CharOrdLow(c) + (s)))
 
 #define R13_(c) ("abcdefghijklmnopqrstuvwxyz"[((c) + 13) % 26])
-#define ROT13(c, a)                                                            \
-  (isupper(c) ? toupper(R13_(CharOrdUp(c))) : R13_(CharOrdLow(c)))
+#define ROT13(c, a) (isupper(c) ? toupper(R13_(CharOrdUp(c))) : R13_(CharOrdLow(c)))
 
 #define NUL '\000'
 #define BELL '\x2f'

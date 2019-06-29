@@ -24,18 +24,18 @@
 
 #if defined(FEAT_CRYPT) || defined(FEAT_PERSISTENT_UNDO)
 
-#define GET_UINT32(n, b, i)                                                    \
-  {                                                                            \
-    (n) = ((UINT32_T)(b)[(i)] << 24) | ((UINT32_T)(b)[(i) + 1] << 16) |        \
-          ((UINT32_T)(b)[(i) + 2] << 8) | ((UINT32_T)(b)[(i) + 3]);            \
+#define GET_UINT32(n, b, i)                                                                        \
+  {                                                                                                \
+    (n) = ((UINT32_T)(b)[(i)] << 24) | ((UINT32_T)(b)[(i) + 1] << 16) |                            \
+          ((UINT32_T)(b)[(i) + 2] << 8) | ((UINT32_T)(b)[(i) + 3]);                                \
   }
 
-#define PUT_UINT32(n, b, i)                                                    \
-  {                                                                            \
-    (b)[(i)] = (char_u)((n) >> 24);                                            \
-    (b)[(i) + 1] = (char_u)((n) >> 16);                                        \
-    (b)[(i) + 2] = (char_u)((n) >> 8);                                         \
-    (b)[(i) + 3] = (char_u)((n));                                              \
+#define PUT_UINT32(n, b, i)                                                                        \
+  {                                                                                                \
+    (b)[(i)] = (char_u)((n) >> 24);                                                                \
+    (b)[(i) + 1] = (char_u)((n) >> 16);                                                            \
+    (b)[(i) + 2] = (char_u)((n) >> 8);                                                             \
+    (b)[(i) + 3] = (char_u)((n));                                                                  \
   }
 
 void sha256_start(context_sha256_T *ctx) {
@@ -87,12 +87,12 @@ static void sha256_process(context_sha256_T *ctx, char_u data[64]) {
 
 #define R(t) (W[t] = S1(W[t - 2]) + W[t - 7] + S0(W[t - 15]) + W[t - 16])
 
-#define P(a, b, c, d, e, f, g, h, x, K)                                        \
-  {                                                                            \
-    temp1 = h + S3(e) + F1(e, f, g) + K + x;                                   \
-    temp2 = S2(a) + F0(a, b, c);                                               \
-    d += temp1;                                                                \
-    h = temp1 + temp2;                                                         \
+#define P(a, b, c, d, e, f, g, h, x, K)                                                            \
+  {                                                                                                \
+    temp1 = h + S3(e) + F1(e, f, g) + K + x;                                                       \
+    temp2 = S2(a) + F0(a, b, c);                                                                   \
+    d += temp1;                                                                                    \
+    h = temp1 + temp2;                                                                             \
   }
 
   A = ctx->state[0];
@@ -212,10 +212,10 @@ void sha256_update(context_sha256_T *ctx, char_u *input, UINT32_T length) {
     memcpy((void *)(ctx->buffer + left), (void *)input, length);
 }
 
-static char_u sha256_padding[64] = {
-    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static char_u sha256_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 void sha256_finish(context_sha256_T *ctx, char_u digest[32]) {
   UINT32_T last, padn;
@@ -314,8 +314,8 @@ int sha256_self_test(void) {
 
   for (i = 0; i < 3; i++) {
     if (i < 2) {
-      hexit = sha256_bytes((char_u *)sha_self_test_msg[i],
-                           (int)STRLEN(sha_self_test_msg[i]), NULL, 0);
+      hexit =
+          sha256_bytes((char_u *)sha_self_test_msg[i], (int)STRLEN(sha_self_test_msg[i]), NULL, 0);
       STRCPY(output, hexit);
     } else {
       sha256_start(&ctx);

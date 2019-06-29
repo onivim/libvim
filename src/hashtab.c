@@ -85,9 +85,7 @@ void hash_clear(hashtab_T *ht) {
  * WARNING: The returned pointer becomes invalid when the hashtable is changed
  * (adding, setting or removing an item)!
  */
-hashitem_T *hash_find(hashtab_T *ht, char_u *key) {
-  return hash_lookup(ht, key, hash_hash(key));
-}
+hashitem_T *hash_find(hashtab_T *ht, char_u *key) { return hash_lookup(ht, key, hash_hash(key)); }
 
 /*
  * Like hash_find(), but caller computes "hash".
@@ -137,8 +135,7 @@ hashitem_T *hash_lookup(hashtab_T *ht, char_u *key, hash_T hash) {
     hi = &ht->ht_array[idx & ht->ht_mask];
     if (hi->hi_key == NULL)
       return freeitem == NULL ? hi : freeitem;
-    if (hi->hi_hash == hash && hi->hi_key != HI_KEY_REMOVED &&
-        STRCMP(hi->hi_key, key) == 0)
+    if (hi->hi_hash == hash && hi->hi_key != HI_KEY_REMOVED && STRCMP(hi->hi_key, key) == 0)
       return hi;
     if (hi->hi_key == HI_KEY_REMOVED && freeitem == NULL)
       freeitem = hi;
@@ -263,8 +260,7 @@ void hash_unlock(hashtab_T *ht) {
  * Grow a hashtable when there is not enough empty space.
  * Returns OK or FAIL (out of memory).
  */
-static int hash_may_resize(hashtab_T *ht,
-                           int minitems) /* minimal number of items */
+static int hash_may_resize(hashtab_T *ht, int minitems) /* minimal number of items */
 {
   hashitem_T temparray[HT_INIT_SIZE];
   hashitem_T *oldarray, *newarray;

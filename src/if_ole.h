@@ -63,8 +63,7 @@ EXTERN_C const IID IID_IVim;
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
 
-interface DECLSPEC_UUID("0F0BFAE2-4C90-11d1-82D7-0004AC368519") IVim
-    : public IDispatch {
+interface DECLSPEC_UUID("0F0BFAE2-4C90-11d1-82D7-0004AC368519") IVim : public IDispatch {
 public:
   virtual HRESULT STDMETHODCALLTYPE SendKeys(
       /* [in] */ BSTR keys) = 0;
@@ -146,26 +145,25 @@ interface IVim {
 
 #ifdef COBJMACROS
 
-#define IVim_QueryInterface(This, riid, ppvObject)                             \
+#define IVim_QueryInterface(This, riid, ppvObject)                                                 \
   (This)->lpVtbl->QueryInterface(This, riid, ppvObject)
 
 #define IVim_AddRef(This) (This)->lpVtbl->AddRef(This)
 
 #define IVim_Release(This) (This)->lpVtbl->Release(This)
 
-#define IVim_GetTypeInfoCount(This, pctinfo)                                   \
-  (This)->lpVtbl->GetTypeInfoCount(This, pctinfo)
+#define IVim_GetTypeInfoCount(This, pctinfo) (This)->lpVtbl->GetTypeInfoCount(This, pctinfo)
 
-#define IVim_GetTypeInfo(This, iTInfo, lcid, ppTInfo)                          \
+#define IVim_GetTypeInfo(This, iTInfo, lcid, ppTInfo)                                              \
   (This)->lpVtbl->GetTypeInfo(This, iTInfo, lcid, ppTInfo)
 
-#define IVim_GetIDsOfNames(This, riid, rgszNames, cNames, lcid, rgDispId)      \
+#define IVim_GetIDsOfNames(This, riid, rgszNames, cNames, lcid, rgDispId)                          \
   (This)->lpVtbl->GetIDsOfNames(This, riid, rgszNames, cNames, lcid, rgDispId)
 
-#define IVim_Invoke(This, dispIdMember, riid, lcid, wFlags, pDispParams,       \
-                    pVarResult, pExcepInfo, puArgErr)                          \
-  (This)->lpVtbl->Invoke(This, dispIdMember, riid, lcid, wFlags, pDispParams,  \
-                         pVarResult, pExcepInfo, puArgErr)
+#define IVim_Invoke(This, dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo,   \
+                    puArgErr)                                                                      \
+  (This)->lpVtbl->Invoke(This, dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult,          \
+                         pExcepInfo, puArgErr)
 
 #define IVim_SendKeys(This, keys) (This)->lpVtbl->SendKeys(This, keys)
 
@@ -182,35 +180,26 @@ interface IVim {
 HRESULT STDMETHODCALLTYPE IVim_SendKeys_Proxy(IVim __RPC_FAR *This,
                                               /* [in] */ BSTR keys);
 
-void __RPC_STUB IVim_SendKeys_Stub(IRpcStubBuffer *This,
-                                   IRpcChannelBuffer *_pRpcChannelBuffer,
-                                   PRPC_MESSAGE _pRpcMessage,
-                                   DWORD *_pdwStubPhase);
+void __RPC_STUB IVim_SendKeys_Stub(IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
+                                   PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
-HRESULT STDMETHODCALLTYPE
-IVim_Eval_Proxy(IVim __RPC_FAR *This,
-                /* [in] */ BSTR expr,
-                /* [retval][out] */ BSTR __RPC_FAR *result);
+HRESULT STDMETHODCALLTYPE IVim_Eval_Proxy(IVim __RPC_FAR *This,
+                                          /* [in] */ BSTR expr,
+                                          /* [retval][out] */ BSTR __RPC_FAR *result);
 
-void __RPC_STUB IVim_Eval_Stub(IRpcStubBuffer *This,
-                               IRpcChannelBuffer *_pRpcChannelBuffer,
+void __RPC_STUB IVim_Eval_Stub(IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
                                PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 HRESULT STDMETHODCALLTYPE IVim_SetForeground_Proxy(IVim __RPC_FAR *This);
 
-void __RPC_STUB IVim_SetForeground_Stub(IRpcStubBuffer *This,
-                                        IRpcChannelBuffer *_pRpcChannelBuffer,
-                                        PRPC_MESSAGE _pRpcMessage,
-                                        DWORD *_pdwStubPhase);
+void __RPC_STUB IVim_SetForeground_Stub(IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
+                                        PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
-HRESULT STDMETHODCALLTYPE
-IVim_GetHwnd_Proxy(IVim __RPC_FAR *This,
-                   /* [retval][out] */ UINT_PTR __RPC_FAR *result);
+HRESULT STDMETHODCALLTYPE IVim_GetHwnd_Proxy(IVim __RPC_FAR *This,
+                                             /* [retval][out] */ UINT_PTR __RPC_FAR *result);
 
-void __RPC_STUB IVim_GetHwnd_Stub(IRpcStubBuffer *This,
-                                  IRpcChannelBuffer *_pRpcChannelBuffer,
-                                  PRPC_MESSAGE _pRpcMessage,
-                                  DWORD *_pdwStubPhase);
+void __RPC_STUB IVim_GetHwnd_Stub(IRpcStubBuffer *This, IRpcChannelBuffer *_pRpcChannelBuffer,
+                                  PRPC_MESSAGE _pRpcMessage, DWORD *_pdwStubPhase);
 
 #endif /* __IVim_INTERFACE_DEFINED__ */
 
@@ -235,13 +224,11 @@ class DECLSPEC_UUID("0F0BFAE1-4C90-11d1-82D7-0004AC368519") Vim;
 
 /* Additional Prototypes for ALL interfaces */
 
-unsigned long __RPC_USER BSTR_UserSize(unsigned long __RPC_FAR *, unsigned long,
-                                       BSTR __RPC_FAR *);
+unsigned long __RPC_USER BSTR_UserSize(unsigned long __RPC_FAR *, unsigned long, BSTR __RPC_FAR *);
 unsigned char __RPC_FAR *__RPC_USER BSTR_UserMarshal(unsigned long __RPC_FAR *,
-                                                     unsigned char __RPC_FAR *,
-                                                     BSTR __RPC_FAR *);
-unsigned char __RPC_FAR *__RPC_USER BSTR_UserUnmarshal(
-    unsigned long __RPC_FAR *, unsigned char __RPC_FAR *, BSTR __RPC_FAR *);
+                                                     unsigned char __RPC_FAR *, BSTR __RPC_FAR *);
+unsigned char __RPC_FAR *__RPC_USER BSTR_UserUnmarshal(unsigned long __RPC_FAR *,
+                                                       unsigned char __RPC_FAR *, BSTR __RPC_FAR *);
 void __RPC_USER BSTR_UserFree(unsigned long __RPC_FAR *, BSTR __RPC_FAR *);
 
 /* end of Additional Prototypes */

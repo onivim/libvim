@@ -270,8 +270,7 @@ main2
      * For GTK we can't be sure, but when started from the desktop it doesn't
      * make sense to try using a terminal.
      */
-#if defined(ALWAYS_USE_GUI) || defined(FEAT_GUI_X11) ||                        \
-    defined(FEAT_GUI_GTK) || defined(VIMDLL)
+#if defined(ALWAYS_USE_GUI) || defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(VIMDLL)
   if (gui.starting
 #ifdef FEAT_GUI_GTK
       && !isatty(2)
@@ -290,8 +289,7 @@ main2
     /* Avoid always using "/" as the current directory.  Note that when
      * started from Finder the arglist will be filled later in
      * HandleODocAE() and "fname" will be NULL. */
-    if (getcwd((char *)NameBuff, MAXPATHL) != NULL &&
-        STRCMP(NameBuff, "/") == 0) {
+    if (getcwd((char *)NameBuff, MAXPATHL) != NULL && STRCMP(NameBuff, "/") == 0) {
       if (params.fname != NULL)
         (void)vim_chdirfile(params.fname, "drop");
       else {
@@ -387,8 +385,8 @@ main2
 
   /* Reset 'loadplugins' for "-u NONE" before "--cmd" arguments.
    * Allows for setting 'loadplugins' there. */
-  if (params.use_vimrc != NULL && (STRCMP(params.use_vimrc, "NONE") == 0 ||
-                                   STRCMP(params.use_vimrc, "DEFAULTS") == 0))
+  if (params.use_vimrc != NULL &&
+      (STRCMP(params.use_vimrc, "NONE") == 0 || STRCMP(params.use_vimrc, "DEFAULTS") == 0))
     p_lpl = FALSE;
 
   /* Execute --cmd arguments. */
@@ -542,8 +540,7 @@ int vim_main2(void) {
 
     enc = p_menc;
     if (params.use_ef != NULL)
-      set_string_option_direct((char_u *)"ef", -1, params.use_ef, OPT_FREE,
-                               SID_CARG);
+      set_string_option_direct((char_u *)"ef", -1, params.use_ef, OPT_FREE, SID_CARG);
     vim_snprintf((char *)IObuff, IOSIZE, "cfile %s", p_ef);
     if (qf_init(NULL, p_ef, p_efm, TRUE, IObuff, enc) < 0) {
       mch_exit(3);
@@ -1047,8 +1044,7 @@ void main_loop(int cmdwin,   /* TRUE when working in the command-line window */
       }
 
       /* Trigger TextChanged if b:changedtick differs. */
-      if (!finish_op && has_textchanged() &&
-          curbuf->b_last_changedtick != CHANGEDTICK(curbuf)) {
+      if (!finish_op && has_textchanged() && curbuf->b_last_changedtick != CHANGEDTICK(curbuf)) {
         apply_autocmds(EVENT_TEXTCHANGED, NULL, NULL, FALSE, curbuf);
         curbuf->b_last_changedtick = CHANGEDTICK(curbuf);
       }
@@ -1178,8 +1174,8 @@ void main_loop(int cmdwin,   /* TRUE when working in the command-line window */
       do_exmode(exmode_active == EXMODE_VIM);
     } else {
 #ifdef FEAT_TERMINAL
-      if (term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL &&
-          !VIsual_active && !skip_term_loop) {
+      if (term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active &&
+          !skip_term_loop) {
         /* If terminal_loop() returns OK we got a key that is handled
          * in Normal model.  With FAIL we first need to position the
          * cursor and the screen needs to be redrawn. */
@@ -1264,8 +1260,7 @@ void getout(int exitval) {
           bufref_T bufref;
 
           set_bufref(&bufref, buf);
-          apply_autocmds(EVENT_BUFWINLEAVE, buf->b_fname, buf->b_fname, FALSE,
-                         buf);
+          apply_autocmds(EVENT_BUFWINLEAVE, buf->b_fname, buf->b_fname, FALSE, buf);
           if (bufref_valid(&bufref))
             CHANGEDTICK(buf) = -1; /* note we did it already */
 
@@ -1914,8 +1909,7 @@ static void command_line_scan(mparm_T *parmp) {
         /* default is 10: a little bit verbose */
         p_verbose = get_number_arg((char_u *)argv[0], &argv_idx, 10);
         if (argv[0][argv_idx] != NUL) {
-          set_option_value((char_u *)"verbosefile", 0L,
-                           (char_u *)argv[0] + argv_idx, 0);
+          set_option_value((char_u *)"verbosefile", 0L, (char_u *)argv[0] + argv_idx, 0);
           argv_idx = (int)STRLEN(argv[0]);
         }
         break;
@@ -2112,8 +2106,7 @@ static void command_line_scan(mparm_T *parmp) {
         case 'W': /* "-W {scriptout}" overwrite script file */
           if (scriptout != NULL)
             goto scripterror;
-          if ((scriptout = mch_fopen(argv[0], c == 'w' ? APPENDBIN
-                                                       : WRITEBIN)) == NULL) {
+          if ((scriptout = mch_fopen(argv[0], c == 'w' ? APPENDBIN : WRITEBIN)) == NULL) {
             mch_errmsg(_("Cannot open for script output: \""));
             mch_errmsg(argv[0]);
             mch_errmsg("\"\n");
@@ -2149,8 +2142,7 @@ static void command_line_scan(mparm_T *parmp) {
 #endif
 
       /* Add the file to the global argument list. */
-      if (ga_grow(&global_alist.al_ga, 1) == FAIL ||
-          (p = vim_strsave((char_u *)argv[0])) == NULL)
+      if (ga_grow(&global_alist.al_ga, 1) == FAIL || (p = vim_strsave((char_u *)argv[0])) == NULL)
         mch_exit(2);
 #ifdef FEAT_DIFF
       if (parmp->diff_mode && mch_isdir(p) && GARGCOUNT > 0 &&
@@ -2361,8 +2353,7 @@ static void create_windows(mparm_T *parmp UNUSED) {
       parmp->window_count = make_tabpages(parmp->window_count);
       TIME_MSG("making tab pages");
     } else if (firstwin->w_next == NULL) {
-      parmp->window_count =
-          make_windows(parmp->window_count, parmp->window_layout == WIN_VER);
+      parmp->window_count = make_windows(parmp->window_count, parmp->window_layout == WIN_VER);
       TIME_MSG("making windows");
     } else
       parmp->window_count = win_count();
@@ -2517,9 +2508,8 @@ static void edit_buffers(mparm_T *parmp, char_u *cwd) /* current working dir */
       /* Edit file from arg list, if there is one.  When "Quit" selected
        * at the ATTENTION prompt close the window. */
       swap_exists_did_quit = FALSE;
-      (void)do_ecmd(0,
-                    arg_idx < GARGCOUNT ? alist_name(&GARGLIST[arg_idx]) : NULL,
-                    NULL, NULL, ECMD_LASTL, ECMD_HIDE, curwin);
+      (void)do_ecmd(0, arg_idx < GARGCOUNT ? alist_name(&GARGLIST[arg_idx]) : NULL, NULL, NULL,
+                    ECMD_LASTL, ECMD_HIDE, curwin);
       if (swap_exists_did_quit) {
         /* abort or quit selected */
         if (got_int || only_one_window()) {
@@ -2658,8 +2648,7 @@ static void source_startup_scripts(mparm_T *parmp) {
   if (parmp->use_vimrc != NULL) {
     if (STRCMP(parmp->use_vimrc, "DEFAULTS") == 0)
       do_source((char_u *)VIM_DEFAULTS_FILE, FALSE, DOSO_NONE);
-    else if (STRCMP(parmp->use_vimrc, "NONE") == 0 ||
-             STRCMP(parmp->use_vimrc, "NORC") == 0) {
+    else if (STRCMP(parmp->use_vimrc, "NONE") == 0 || STRCMP(parmp->use_vimrc, "NORC") == 0) {
 #ifdef FEAT_GUI
       if (use_gvimrc == NULL) /* don't load gvimrc either */
         use_gvimrc = parmp->use_vimrc;
@@ -2729,19 +2718,15 @@ static void source_startup_scripts(mparm_T *parmp) {
         secure = p_secure;
 
       i = FAIL;
-      if (fullpathcmp((char_u *)USR_VIMRC_FILE, (char_u *)VIMRC_FILE, FALSE,
-                      TRUE) != FPC_SAME
+      if (fullpathcmp((char_u *)USR_VIMRC_FILE, (char_u *)VIMRC_FILE, FALSE, TRUE) != FPC_SAME
 #ifdef USR_VIMRC_FILE2
-          && fullpathcmp((char_u *)USR_VIMRC_FILE2, (char_u *)VIMRC_FILE, FALSE,
-                         TRUE) != FPC_SAME
+          && fullpathcmp((char_u *)USR_VIMRC_FILE2, (char_u *)VIMRC_FILE, FALSE, TRUE) != FPC_SAME
 #endif
 #ifdef USR_VIMRC_FILE3
-          && fullpathcmp((char_u *)USR_VIMRC_FILE3, (char_u *)VIMRC_FILE, FALSE,
-                         TRUE) != FPC_SAME
+          && fullpathcmp((char_u *)USR_VIMRC_FILE3, (char_u *)VIMRC_FILE, FALSE, TRUE) != FPC_SAME
 #endif
 #ifdef SYS_VIMRC_FILE
-          && fullpathcmp((char_u *)SYS_VIMRC_FILE, (char_u *)VIMRC_FILE, FALSE,
-                         TRUE) != FPC_SAME
+          && fullpathcmp((char_u *)SYS_VIMRC_FILE, (char_u *)VIMRC_FILE, FALSE, TRUE) != FPC_SAME
 #endif
       )
         i = do_source((char_u *)VIMRC_FILE, TRUE, DOSO_VIMRC);
@@ -2754,11 +2739,9 @@ static void source_startup_scripts(mparm_T *parmp) {
         else
           secure = 0;
 #endif
-        if (fullpathcmp((char_u *)USR_EXRC_FILE, (char_u *)EXRC_FILE, FALSE,
-                        TRUE) != FPC_SAME
+        if (fullpathcmp((char_u *)USR_EXRC_FILE, (char_u *)EXRC_FILE, FALSE, TRUE) != FPC_SAME
 #ifdef USR_EXRC_FILE2
-            && fullpathcmp((char_u *)USR_EXRC_FILE2, (char_u *)EXRC_FILE, FALSE,
-                           TRUE) != FPC_SAME
+            && fullpathcmp((char_u *)USR_EXRC_FILE2, (char_u *)EXRC_FILE, FALSE, TRUE) != FPC_SAME
 #endif
         )
           (void)do_source((char_u *)EXRC_FILE, FALSE, DOSO_NONE);
@@ -2964,8 +2947,7 @@ static void usage(void) {
   main_msg(_("-H\t\t\tStart in Hebrew mode"));
 #endif
   main_msg(_("-T <terminal>\tSet terminal type to <terminal>"));
-  main_msg(
-      _("--not-a-term\t\tSkip warning for input/output not being a terminal"));
+  main_msg(_("--not-a-term\t\tSkip warning for input/output not being a terminal"));
   main_msg(_("--ttyfail\t\tExit if input or output is not a terminal"));
   main_msg(_("-u <vimrc>\t\tUse <vimrc> instead of any .vimrc"));
 #ifdef FEAT_GUI
@@ -2977,11 +2959,9 @@ static void usage(void) {
   main_msg(_("-O[N]\t\tLike -o but split vertically"));
   main_msg(_("+\t\t\tStart at end of file"));
   main_msg(_("+<lnum>\t\tStart at line <lnum>"));
-  main_msg(
-      _("--cmd <command>\tExecute <command> before loading any vimrc file"));
+  main_msg(_("--cmd <command>\tExecute <command> before loading any vimrc file"));
   main_msg(_("-c <command>\t\tExecute <command> after loading the first file"));
-  main_msg(
-      _("-S <session>\t\tSource file <session> after loading the first file"));
+  main_msg(_("-S <session>\t\tSource file <session> after loading the first file"));
   main_msg(_("-s <scriptin>\tRead Normal mode commands from file <scriptin>"));
   main_msg(_("-w <scriptout>\tAppend all typed commands to file <scriptout>"));
   main_msg(_("-W <scriptout>\tWrite all typed commands to file <scriptout>"));
@@ -2996,8 +2976,7 @@ static void usage(void) {
 #endif
 #ifdef FEAT_CLIENTSERVER
   main_msg(_("--remote <files>\tEdit <files> in a Vim server if possible"));
-  main_msg(
-      _("--remote-silent <files>  Same, don't complain if there is no server"));
+  main_msg(_("--remote-silent <files>  Same, don't complain if there is no server"));
   main_msg(_("--remote-wait <files>  As --remote but wait for files to have "
              "been edited"));
   main_msg(_("--remote-wait-silent <files>  Same, don't complain if there is "
@@ -3016,8 +2995,7 @@ static void usage(void) {
 #ifdef FEAT_VIMINFO
   main_msg(_("-i <viminfo>\t\tUse <viminfo> instead of .viminfo"));
 #endif
-  main_msg(
-      _("--clean\t\t'nocompatible', Vim defaults, no plugins, no viminfo"));
+  main_msg(_("--clean\t\t'nocompatible', Vim defaults, no plugins, no viminfo"));
   main_msg(_("-h  or  --help\tPrint Help (this message) and exit"));
   main_msg(_("--version\t\tPrint version information and exit"));
 
@@ -3035,21 +3013,16 @@ static void usage(void) {
 #endif
   main_msg(_("-display <display>\tRun vim on <display>"));
   main_msg(_("-iconic\t\tStart vim iconified"));
-  main_msg(
-      _("-background <color>\tUse <color> for the background (also: -bg)"));
+  main_msg(_("-background <color>\tUse <color> for the background (also: -bg)"));
   main_msg(_("-foreground <color>\tUse <color> for normal text (also: -fg)"));
   main_msg(_("-font <font>\t\tUse <font> for normal text (also: -fn)"));
   main_msg(_("-boldfont <font>\tUse <font> for bold text"));
   main_msg(_("-italicfont <font>\tUse <font> for italic text"));
-  main_msg(
-      _("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
-  main_msg(
-      _("-borderwidth <width>\tUse a border width of <width> (also: -bw)"));
-  main_msg(_(
-      "-scrollbarwidth <width>  Use a scrollbar width of <width> (also: -sw)"));
+  main_msg(_("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
+  main_msg(_("-borderwidth <width>\tUse a border width of <width> (also: -bw)"));
+  main_msg(_("-scrollbarwidth <width>  Use a scrollbar width of <width> (also: -sw)"));
 #ifdef FEAT_GUI_ATHENA
-  main_msg(
-      _("-menuheight <height>\tUse a menu bar height of <height> (also: -mh)"));
+  main_msg(_("-menuheight <height>\tUse a menu bar height of <height> (also: -mh)"));
 #endif
   main_msg(_("-reverse\t\tUse reverse video (also: -rv)"));
   main_msg(_("+reverse\t\tDon't use reverse video (also: +rv)"));
@@ -3058,8 +3031,7 @@ static void usage(void) {
 #ifdef FEAT_GUI_GTK
   mch_msg(_("\nArguments recognised by gvim (GTK+ version):\n"));
   main_msg(_("-font <font>\t\tUse <font> for normal text (also: -fn)"));
-  main_msg(
-      _("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
+  main_msg(_("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
   main_msg(_("-reverse\t\tUse reverse video (also: -rv)"));
   main_msg(_("-display <display>\tRun vim on <display> (also: --display)"));
   main_msg(_("--role <role>\tSet a unique role to identify the main window"));
@@ -3121,10 +3093,8 @@ static int gettimeofday(struct timeval *tv, char *dummy) {
 void time_push(void *tv_rel, void *tv_start) {
   *((struct timeval *)tv_rel) = prev_timeval;
   gettimeofday(&prev_timeval, NULL);
-  ((struct timeval *)tv_rel)->tv_usec =
-      prev_timeval.tv_usec - ((struct timeval *)tv_rel)->tv_usec;
-  ((struct timeval *)tv_rel)->tv_sec =
-      prev_timeval.tv_sec - ((struct timeval *)tv_rel)->tv_sec;
+  ((struct timeval *)tv_rel)->tv_usec = prev_timeval.tv_usec - ((struct timeval *)tv_rel)->tv_usec;
+  ((struct timeval *)tv_rel)->tv_sec = prev_timeval.tv_sec - ((struct timeval *)tv_rel)->tv_sec;
   if (((struct timeval *)tv_rel)->tv_usec < 0) {
     ((struct timeval *)tv_rel)->tv_usec += 1000000;
     --((struct timeval *)tv_rel)->tv_sec;
@@ -3153,8 +3123,7 @@ static void time_diff(struct timeval *then, struct timeval *now) {
   long msec;
 
   usec = now->tv_usec - then->tv_usec;
-  msec = (now->tv_sec - then->tv_sec) * 1000L + usec / 1000L,
-  usec = usec % 1000L;
+  msec = (now->tv_sec - then->tv_sec) * 1000L + usec / 1000L, usec = usec % 1000L;
   fprintf(time_fd, "%03ld.%03ld", msec, usec >= 0 ? usec : usec + 1000L);
 }
 
@@ -3252,8 +3221,7 @@ static void exec_on_server(mparm_T *parmp) {
      * on.  Remember the encoding used here in "serverStrEnc".
      */
     if (parmp->serverArg) {
-      cmdsrv_main(&parmp->argc, parmp->argv, parmp->serverName_arg,
-                  &parmp->serverStr);
+      cmdsrv_main(&parmp->argc, parmp->argv, parmp->serverName_arg, &parmp->serverStr);
       parmp->serverStrEnc = vim_strsave(p_enc);
     }
 
@@ -3282,8 +3250,7 @@ static void prepare_server(mparm_T *parmp) {
    * or when compiling with autoservername.
    * When running as root --servername is also required.
    */
-  if (X_DISPLAY != NULL && parmp->servername != NULL &&
-      (parmp->serverName_arg != NULL)) {
+  if (X_DISPLAY != NULL && parmp->servername != NULL && (parmp->serverName_arg != NULL)) {
     (void)serverRegisterName(X_DISPLAY, parmp->servername);
     vim_free(parmp->servername);
     TIME_MSG("register server name");
@@ -3298,14 +3265,12 @@ static void prepare_server(mparm_T *parmp) {
   if (parmp->serverStr != NULL) {
     char_u *p;
 
-    server_to_input_buf(
-        serverConvert(parmp->serverStrEnc, parmp->serverStr, &p));
+    server_to_input_buf(serverConvert(parmp->serverStrEnc, parmp->serverStr, &p));
     vim_free(p);
   }
 }
 
-static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg,
-                        char_u **serverStr) {
+static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg, char_u **serverStr) {
   char_u *res;
   int i;
   char_u *sname;
@@ -3379,8 +3344,8 @@ static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg,
         *serverStr = (char_u *)argv[i + 1];
         i++;
       } else {
-        *serverStr = build_drop_cmd(*argc - i - 1, argv + i + 1, tabs,
-                                    argtype == ARGTYPE_EDIT_WAIT);
+        *serverStr =
+            build_drop_cmd(*argc - i - 1, argv + i + 1, tabs, argtype == ARGTYPE_EDIT_WAIT);
         if (*serverStr == NULL) {
           /* Probably out of memory, exit. */
           didone = TRUE;
@@ -3394,8 +3359,7 @@ static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg,
         mch_errmsg(_("No display"));
         ret = -1;
       } else
-        ret = serverSendToVim(xterm_dpy, sname, *serverStr, NULL, &srv, 0, 0, 0,
-                              silent);
+        ret = serverSendToVim(xterm_dpy, sname, *serverStr, NULL, &srv, 0, 0, 0, silent);
 #else
       /* Win32 always works? */
       ret = serverSendToVim(sname, *serverStr, NULL, &srv, 0, 0, silent);
@@ -3479,13 +3443,12 @@ static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg,
         mainerr_arg_missing((char_u *)argv[i]);
 #ifdef MSWIN
       /* Win32 always works? */
-      if (serverSendToVim(sname, (char_u *)argv[i + 1], &res, NULL, 1, 0,
-                          FALSE) < 0)
+      if (serverSendToVim(sname, (char_u *)argv[i + 1], &res, NULL, 1, 0, FALSE) < 0)
 #else
       if (xterm_dpy == NULL)
         mch_errmsg(_("No display: Send expression failed.\n"));
-      else if (serverSendToVim(xterm_dpy, sname, (char_u *)argv[i + 1], &res,
-                               NULL, 1, 0, 1, FALSE) < 0)
+      else if (serverSendToVim(xterm_dpy, sname, (char_u *)argv[i + 1], &res, NULL, 1, 0, 1,
+                               FALSE) < 0)
 #endif
       {
         if (res != NULL && *res != NUL) {
@@ -3535,10 +3498,9 @@ static void cmdsrv_main(int *argc, char **argv, char_u *serverName_arg,
 /*
  * Build a ":drop" command to send to a Vim server.
  */
-static char_u *
-build_drop_cmd(int filec, char **filev,
-               int tabs, /* Use ":tab drop" instead of ":drop". */
-               int sendReply) {
+static char_u *build_drop_cmd(int filec, char **filev,
+                              int tabs, /* Use ":tab drop" instead of ":drop". */
+                              int sendReply) {
   garray_T ga;
   int i;
   char_u *inicmd = NULL;
@@ -3563,14 +3525,13 @@ build_drop_cmd(int filec, char **filev,
     vim_free(cwd);
     return NULL;
   }
-  cdp = vim_strsave_escaped_ext(
-      cwd,
+  cdp = vim_strsave_escaped_ext(cwd,
 #ifdef BACKSLASH_IN_FILENAME
-      (char_u *)"", /* rem_backslash() will tell what chars to escape */
+                                (char_u *)"", /* rem_backslash() will tell what chars to escape */
 #else
-      PATH_ESC_CHARS,
+                                PATH_ESC_CHARS,
 #endif
-      '\\', TRUE);
+                                '\\', TRUE);
   vim_free(cwd);
   if (cdp == NULL)
     return NULL;
@@ -3579,8 +3540,7 @@ build_drop_cmd(int filec, char **filev,
   ga_concat(&ga, cdp);
 
   /* Call inputsave() so that a prompt for an encryption key works. */
-  ga_concat(&ga,
-            (char_u *)"<CR>:if exists('*inputsave')|call inputsave()|endif|");
+  ga_concat(&ga, (char_u *)"<CR>:if exists('*inputsave')|call inputsave()|endif|");
   if (tabs)
     ga_concat(&ga, (char_u *)"tab ");
   ga_concat(&ga, (char_u *)"drop");
@@ -3603,9 +3563,7 @@ build_drop_cmd(int filec, char **filev,
     ga_concat(&ga, p);
     vim_free(p);
   }
-  ga_concat(
-      &ga,
-      (char_u *)"|if exists('*inputrestore')|call inputrestore()|endif<CR>");
+  ga_concat(&ga, (char_u *)"|if exists('*inputrestore')|call inputrestore()|endif<CR>");
 
   /* The :drop commands goes to Insert mode when 'insertmode' is set, use
    * CTRL-\ CTRL-N again. */
@@ -3781,8 +3739,7 @@ int sendToLocalVim(char_u *cmd, int asExpr, char_u **result) {
  * return an allocated string.  Otherwise return "data".
  * "*tofree" is set to the result when it needs to be freed later.
  */
-char_u *serverConvert(char_u *client_enc UNUSED, char_u *data,
-                      char_u **tofree) {
+char_u *serverConvert(char_u *client_enc UNUSED, char_u *data, char_u **tofree) {
   char_u *res = data;
 
   *tofree = NULL;
@@ -3790,8 +3747,7 @@ char_u *serverConvert(char_u *client_enc UNUSED, char_u *data,
     vimconv_T vimconv;
 
     vimconv.vc_type = CONV_NONE;
-    if (convert_setup(&vimconv, client_enc, p_enc) != FAIL &&
-        vimconv.vc_type != CONV_NONE) {
+    if (convert_setup(&vimconv, client_enc, p_enc) != FAIL && vimconv.vc_type != CONV_NONE) {
       res = string_convert(&vimconv, data, NULL);
       if (res == NULL)
         res = data;

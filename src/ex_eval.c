@@ -249,9 +249,8 @@ int cause_errthrow(char_u *mesg, int severe, int *ignore) {
 
             /* Skip the extra "Vim " prefix for message "E458". */
             tmsg = elem->msg;
-            if (STRNCMP(tmsg, "Vim E", 5) == 0 && VIM_ISDIGIT(tmsg[5]) &&
-                VIM_ISDIGIT(tmsg[6]) && VIM_ISDIGIT(tmsg[7]) &&
-                tmsg[8] == ':' && tmsg[9] == ' ')
+            if (STRNCMP(tmsg, "Vim E", 5) == 0 && VIM_ISDIGIT(tmsg[5]) && VIM_ISDIGIT(tmsg[6]) &&
+                VIM_ISDIGIT(tmsg[7]) && tmsg[8] == ':' && tmsg[9] == ' ')
               (*msg_list)->throw_msg = &tmsg[4];
             else
               (*msg_list)->throw_msg = tmsg;
@@ -368,8 +367,7 @@ int do_intthrow(struct condstack *cstack) {
 /*
  * Get an exception message that is to be stored in current_exception->value.
  */
-char *get_exception_string(void *value, except_type_T type, char_u *cmdname,
-                           int *should_free) {
+char *get_exception_string(void *value, except_type_T type, char_u *cmdname, int *should_free) {
   char *ret;
   char *mesg;
   int cmdlen;
@@ -380,8 +378,7 @@ char *get_exception_string(void *value, except_type_T type, char_u *cmdname,
     mesg = ((struct msglist *)value)->throw_msg;
     if (cmdname != NULL && *cmdname != NUL) {
       cmdlen = (int)STRLEN(cmdname);
-      ret = (char *)vim_strnsave((char_u *)"Vim(",
-                                 4 + cmdlen + 2 + (int)STRLEN(mesg));
+      ret = (char *)vim_strnsave((char_u *)"Vim(", 4 + cmdlen + 2 + (int)STRLEN(mesg));
       if (ret == NULL)
         return ret;
       STRCPY(&ret[4], cmdname);
@@ -398,17 +395,14 @@ char *get_exception_string(void *value, except_type_T type, char_u *cmdname,
      * name in quotes.  In the exception value, put the file name in
      * parentheses and move it to the end. */
     for (p = mesg;; p++) {
-      if (*p == NUL ||
-          (*p == 'E' && VIM_ISDIGIT(p[1]) &&
-           (p[2] == ':' ||
-            (VIM_ISDIGIT(p[2]) &&
-             (p[3] == ':' || (VIM_ISDIGIT(p[3]) && p[4] == ':')))))) {
+      if (*p == NUL || (*p == 'E' && VIM_ISDIGIT(p[1]) &&
+                        (p[2] == ':' || (VIM_ISDIGIT(p[2]) &&
+                                         (p[3] == ':' || (VIM_ISDIGIT(p[3]) && p[4] == ':')))))) {
         if (*p == NUL || p == mesg)
           STRCAT(val, mesg); /* 'E123' missing or at beginning */
         else {
           /* '"filename" E123: message text' */
-          if (mesg[0] != '"' || p - 2 < &mesg[1] || p[-2] != '"' ||
-              p[-1] != ' ')
+          if (mesg[0] != '"' || p - 2 < &mesg[1] || p[-2] != '"' || p[-1] != ' ')
             /* "E123:" is part of the file name. */
             continue;
 
@@ -466,8 +460,7 @@ static int throw_exception(void *value, except_type_T type, char_u *cmdname) {
     goto nomem;
 
   excp->type = type;
-  excp->throw_name =
-      vim_strsave(sourcing_name == NULL ? (char_u *)"" : sourcing_name);
+  excp->throw_name = vim_strsave(sourcing_name == NULL ? (char_u *)"" : sourcing_name);
   if (excp->throw_name == NULL) {
     if (should_free)
       vim_free(excp->value);
@@ -533,9 +526,7 @@ static void discard_exception(except_T *excp, int was_finished) {
     ++no_wait_return;
     if (debug_break_level > 0 || *p_vfile == NUL)
       msg_scroll = TRUE; /* always scroll up, don't overwrite */
-    smsg(was_finished ? _("Exception finished: %s")
-                      : _("Exception discarded: %s"),
-         excp->value);
+    smsg(was_finished ? _("Exception finished: %s") : _("Exception discarded: %s"), excp->value);
     msg_puts("\n"); /* don't overwrite this either */
     if (debug_break_level > 0 || *p_vfile == NUL)
       cmdline_row = msg_row;
@@ -620,8 +611,8 @@ static void finish_exception(except_T *excp) {
     set_vim_var_string(VV_EXCEPTION, (char_u *)caught_stack->value, -1);
     if (*caught_stack->throw_name != NUL) {
       if (caught_stack->throw_lnum != 0)
-        vim_snprintf((char *)IObuff, IOSIZE, _("%s, line %ld"),
-                     caught_stack->throw_name, (long)caught_stack->throw_lnum);
+        vim_snprintf((char *)IObuff, IOSIZE, _("%s, line %ld"), caught_stack->throw_name,
+                     (long)caught_stack->throw_lnum);
       else
         vim_snprintf((char *)IObuff, IOSIZE, "%s", caught_stack->throw_name);
       set_vim_var_string(VV_THROWPOINT, IObuff, -1);
@@ -782,8 +773,7 @@ void ex_if(exarg_T *eap) {
      * is a surrounding conditional and it was not active.
      */
     skip = did_emsg || got_int || did_throw ||
-           (cstack->cs_idx > 0 &&
-            !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
+           (cstack->cs_idx > 0 && !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
 
     result = eval_to_bool(eap->arg, &error, &eap->nextcmd, skip);
 
@@ -801,8 +791,8 @@ void ex_if(exarg_T *eap) {
  */
 void ex_endif(exarg_T *eap) {
   did_endif = TRUE;
-  if (eap->cstack->cs_idx < 0 || (eap->cstack->cs_flags[eap->cstack->cs_idx] &
-                                  (CSF_WHILE | CSF_FOR | CSF_TRY)))
+  if (eap->cstack->cs_idx < 0 ||
+      (eap->cstack->cs_flags[eap->cstack->cs_idx] & (CSF_WHILE | CSF_FOR | CSF_TRY)))
     eap->errmsg = N_("E580: :endif without :if");
   else {
     /*
@@ -814,8 +804,7 @@ void ex_endif(exarg_T *eap) {
      * Doing this here prevents an exception for a parsing error being
      * discarded by throwing the interrupt exception later on.
      */
-    if (!(eap->cstack->cs_flags[eap->cstack->cs_idx] & CSF_TRUE) &&
-        dbg_check_skipped(eap))
+    if (!(eap->cstack->cs_flags[eap->cstack->cs_idx] & CSF_TRUE) && dbg_check_skipped(eap))
       (void)do_intthrow(eap->cstack);
 
     --eap->cstack->cs_idx;
@@ -836,11 +825,9 @@ void ex_else(exarg_T *eap) {
    * a surrounding conditional and it was not active.
    */
   skip = did_emsg || got_int || did_throw ||
-         (cstack->cs_idx > 0 &&
-          !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
+         (cstack->cs_idx > 0 && !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
 
-  if (cstack->cs_idx < 0 ||
-      (cstack->cs_flags[cstack->cs_idx] & (CSF_WHILE | CSF_FOR | CSF_TRY))) {
+  if (cstack->cs_idx < 0 || (cstack->cs_flags[cstack->cs_idx] & (CSF_WHILE | CSF_FOR | CSF_TRY))) {
     if (eap->cmdidx == CMD_else) {
       eap->errmsg = N_("E581: :else without :if");
       return;
@@ -921,16 +908,14 @@ void ex_while(exarg_T *eap) {
       ++cstack->cs_looplevel;
       cstack->cs_line[cstack->cs_idx] = -1;
     }
-    cstack->cs_flags[cstack->cs_idx] =
-        eap->cmdidx == CMD_while ? CSF_WHILE : CSF_FOR;
+    cstack->cs_flags[cstack->cs_idx] = eap->cmdidx == CMD_while ? CSF_WHILE : CSF_FOR;
 
     /*
      * Don't do something after an error, interrupt, or throw, or when
      * there is a surrounding conditional and it was not active.
      */
     skip = did_emsg || got_int || did_throw ||
-           (cstack->cs_idx > 0 &&
-            !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
+           (cstack->cs_idx > 0 && !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
     if (eap->cmdidx == CMD_while) {
       /*
        * ":while bool-expr"
@@ -1102,8 +1087,7 @@ void ex_endwhile(exarg_T *eap) {
      * throwing the interrupt exception later on.
      */
     else if (cstack->cs_flags[cstack->cs_idx] & CSF_TRUE &&
-             !(cstack->cs_flags[cstack->cs_idx] & CSF_ACTIVE) &&
-             dbg_check_skipped(eap))
+             !(cstack->cs_flags[cstack->cs_idx] & CSF_ACTIVE) && dbg_check_skipped(eap))
       (void)do_intthrow(cstack);
 
     /*
@@ -1235,8 +1219,7 @@ void ex_try(exarg_T *eap) {
      * is a surrounding conditional and it was not active.
      */
     skip = did_emsg || got_int || did_throw ||
-           (cstack->cs_idx > 0 &&
-            !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
+           (cstack->cs_idx > 0 && !(cstack->cs_flags[cstack->cs_idx - 1] & CSF_ACTIVE));
 
     if (!skip) {
       /* Set ACTIVE and TRUE.  TRUE means that the corresponding ":catch"
@@ -1313,8 +1296,7 @@ void ex_catch(exarg_T *eap) {
       eap->errmsg = N_("E604: :catch after :finally");
       give_up = TRUE;
     } else
-      rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR,
-                          &cstack->cs_looplevel);
+      rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR, &cstack->cs_looplevel);
   }
 
   if (ends_excmd(*eap->arg)) /* no argument, catch all errors */
@@ -1341,8 +1323,7 @@ void ex_catch(exarg_T *eap) {
      * a previous ":catch".  An exception that has replaced a discarded
      * exception is not checked (THROWN is not set then).
      */
-    if (!skip && (cstack->cs_flags[idx] & CSF_THROWN) &&
-        !(cstack->cs_flags[idx] & CSF_CAUGHT)) {
+    if (!skip && (cstack->cs_flags[idx] & CSF_THROWN) && !(cstack->cs_flags[idx] & CSF_CAUGHT)) {
       if (end != NULL && *end != NUL && !ends_excmd(*skipwhite(end + 1))) {
         emsg(_(e_trailing));
         return;
@@ -1383,8 +1364,7 @@ void ex_catch(exarg_T *eap) {
            */
           prev_got_int = got_int;
           got_int = FALSE;
-          caught = vim_regexec_nl(&regmatch, (char_u *)current_exception->value,
-                                  (colnr_T)0);
+          caught = vim_regexec_nl(&regmatch, (char_u *)current_exception->value, (colnr_T)0);
           got_int |= prev_got_int;
           vim_regfree(regmatch.regprog);
         }
@@ -1452,8 +1432,7 @@ void ex_finally(exarg_T *eap) {
       eap->errmsg = N_("E607: multiple :finally");
       return;
     }
-    rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR,
-                        &cstack->cs_looplevel);
+    rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR, &cstack->cs_looplevel);
 
     /*
      * Don't do something when the corresponding try block never got active
@@ -1522,8 +1501,7 @@ void ex_finally(exarg_T *eap) {
          * exception.  When emsg() is called for a missing ":endif" or
          * a missing ":endwhile"/":endfor" detected here, the
          * exception will be discarded. */
-        if (did_throw &&
-            cstack->cs_exception[cstack->cs_idx] != current_exception)
+        if (did_throw && cstack->cs_exception[cstack->cs_idx] != current_exception)
           internal_error("ex_finally()");
       }
 
@@ -1564,8 +1542,7 @@ void ex_endtry(exarg_T *eap) {
      * made inactive by a ":continue", ":break", ":return", or ":finish" in
      * the finally clause.  The latter case need not be tested since then
      * anything pending has already been discarded. */
-    skip = did_emsg || got_int || did_throw ||
-           !(cstack->cs_flags[cstack->cs_idx] & CSF_TRUE);
+    skip = did_emsg || got_int || did_throw || !(cstack->cs_flags[cstack->cs_idx] & CSF_TRUE);
 
     if (!(cstack->cs_flags[cstack->cs_idx] & CSF_TRY)) {
       eap->errmsg = get_end_emsg(cstack);
@@ -1574,8 +1551,7 @@ void ex_endtry(exarg_T *eap) {
       do
         --idx;
       while (idx > 0 && !(cstack->cs_flags[idx] & CSF_TRY));
-      rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR,
-                          &cstack->cs_looplevel);
+      rewind_conditionals(cstack, idx, CSF_WHILE | CSF_FOR, &cstack->cs_looplevel);
       skip = TRUE;
 
       /*
@@ -1596,8 +1572,7 @@ void ex_endtry(exarg_T *eap) {
        * a finally clause, we need to rethrow it after closing the try
        * conditional.
        */
-      if (did_throw && (cstack->cs_flags[idx] & CSF_TRUE) &&
-          !(cstack->cs_flags[idx] & CSF_FINALLY))
+      if (did_throw && (cstack->cs_flags[idx] & CSF_TRUE) && !(cstack->cs_flags[idx] & CSF_FINALLY))
         rethrow = TRUE;
     }
 
@@ -1609,8 +1584,8 @@ void ex_endtry(exarg_T *eap) {
      * a ":break", ":continue", ":return", or ":finish" is pending.  These
      * actions are carried out immediately.
      */
-    if ((rethrow || (!skip && !(cstack->cs_flags[idx] & CSF_FINALLY) &&
-                     !cstack->cs_pending[idx])) &&
+    if ((rethrow ||
+         (!skip && !(cstack->cs_flags[idx] & CSF_FINALLY) && !cstack->cs_pending[idx])) &&
         dbg_check_skipped(eap)) {
       /* Handle a ">quit" debug command as if an interrupt had occurred
        * before the ":endtry".  That is, throw an interrupt exception and
@@ -1657,11 +1632,10 @@ void ex_endtry(exarg_T *eap) {
     --cstack->cs_trylevel;
 
     if (!skip) {
-      report_resume_pending(pending, (pending == CSTP_RETURN)
-                                         ? rettv
-                                         : (pending & CSTP_THROW)
-                                               ? (void *)current_exception
-                                               : NULL);
+      report_resume_pending(pending,
+                            (pending == CSTP_RETURN)
+                                ? rettv
+                                : (pending & CSTP_THROW) ? (void *)current_exception : NULL);
       switch (pending) {
       case CSTP_NONE:
         break;
@@ -1739,9 +1713,8 @@ void enter_cleanup(cleanup_T *csp) {
    * interrupt, or uncaught exception after this function ends.
    */
   if (did_emsg || got_int || did_throw || need_rethrow) {
-    csp->pending =
-        (did_emsg ? CSTP_ERROR : 0) | (got_int ? CSTP_INTERRUPT : 0) |
-        (did_throw ? CSTP_THROW : 0) | (need_rethrow ? CSTP_THROW : 0);
+    csp->pending = (did_emsg ? CSTP_ERROR : 0) | (got_int ? CSTP_INTERRUPT : 0) |
+                   (did_throw ? CSTP_THROW : 0) | (need_rethrow ? CSTP_THROW : 0);
 
     /* If we are currently throwing an exception (did_throw), save it as
      * well.  On an error not yet converted to an exception, update
@@ -1843,8 +1816,7 @@ void leave_cleanup(cleanup_T *csp) {
       need_rethrow = TRUE; /* did_throw will be set by do_one_cmd() */
 
     /* Report if required by the 'verbose' option or when debugging. */
-    report_resume_pending(
-        pending, (pending & CSTP_THROW) ? (void *)current_exception : NULL);
+    report_resume_pending(pending, (pending & CSTP_THROW) ? (void *)current_exception : NULL);
   }
 }
 
@@ -1864,8 +1836,7 @@ void leave_cleanup(cleanup_T *csp) {
  * entered, is restored (used by ex_endtry()).  This is normally done only
  * when such a try conditional is left.
  */
-int cleanup_conditionals(struct condstack *cstack, int searched_cond,
-                         int inclusive) {
+int cleanup_conditionals(struct condstack *cstack, int searched_cond, int inclusive) {
   int idx;
   int stop = FALSE;
 
@@ -1916,8 +1887,7 @@ int cleanup_conditionals(struct condstack *cstack, int searched_cond,
        * exception.
        */
       if (!(cstack->cs_flags[idx] & CSF_FINALLY)) {
-        if ((cstack->cs_flags[idx] & CSF_ACTIVE) &&
-            (cstack->cs_flags[idx] & CSF_CAUGHT))
+        if ((cstack->cs_flags[idx] & CSF_ACTIVE) && (cstack->cs_flags[idx] & CSF_CAUGHT))
           finish_exception((except_T *)cstack->cs_exception[idx]);
         /* Stop at this try conditional - except the try block never
          * got active (because of an inactive surrounding conditional
@@ -1949,8 +1919,7 @@ int cleanup_conditionals(struct condstack *cstack, int searched_cond,
      * entry after saving the original value, restore that value here and
      * free the memory used to store it.
      */
-    if ((cstack->cs_flags[idx] & CSF_TRY) &&
-        (cstack->cs_flags[idx] & CSF_SILENT)) {
+    if ((cstack->cs_flags[idx] & CSF_TRY) && (cstack->cs_flags[idx] & CSF_SILENT)) {
       eslist_T *elem;
 
       elem = cstack->cs_emsg_silent_list;
@@ -1983,8 +1952,7 @@ static char *get_end_emsg(struct condstack *cstack) {
  * type.
  * Also free "for info" structures where needed.
  */
-void rewind_conditionals(struct condstack *cstack, int idx, int cond_type,
-                         int *cond_level) {
+void rewind_conditionals(struct condstack *cstack, int idx, int cond_type, int *cond_level) {
   while (cstack->cs_idx > idx) {
     if (cstack->cs_flags[cstack->cs_idx] & cond_type)
       --*cond_level;
@@ -1997,9 +1965,7 @@ void rewind_conditionals(struct condstack *cstack, int idx, int cond_type,
 /*
  * ":endfunction" when not after a ":function"
  */
-void ex_endfunction(exarg_T *eap UNUSED) {
-  emsg(_("E193: :endfunction not inside a function"));
-}
+void ex_endfunction(exarg_T *eap UNUSED) { emsg(_("E193: :endfunction not inside a function")); }
 
 /*
  * Return TRUE if the string "p" looks like a ":while" or ":for" command.
@@ -2016,8 +1982,7 @@ int has_loop_cmd(char_u *p) {
       break;
     p += len;
   }
-  if ((p[0] == 'w' && p[1] == 'h') ||
-      (p[0] == 'f' && p[1] == 'o' && p[2] == 'r'))
+  if ((p[0] == 'w' && p[1] == 'h') || (p[0] == 'f' && p[1] == 'o' && p[2] == 'r'))
     return TRUE;
   return FALSE;
 }

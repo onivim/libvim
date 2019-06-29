@@ -83,20 +83,16 @@ static int include_link = 0;    /* when 2 include "link" and "clear" */
  * The "term", "cterm" and "gui" arguments can be any combination of the
  * following names, separated by commas (but no spaces!).
  */
-static char *(hl_name_table[]) = {
-    "bold",    "standout", "underline", "undercurl",     "italic",
-    "reverse", "inverse",  "nocombine", "strikethrough", "NONE"};
-static int hl_attr_table[] = {
-    HL_BOLD,    HL_STANDOUT, HL_UNDERLINE, HL_UNDERCURL,     HL_ITALIC,
-    HL_INVERSE, HL_INVERSE,  HL_NOCOMBINE, HL_STRIKETHROUGH, 0};
-#define ATTR_COMBINE(attr_a, attr_b)                                           \
-  ((((attr_b)&HL_NOCOMBINE) ? attr_b : (attr_a)) | (attr_b))
+static char *(hl_name_table[]) = {"bold",    "standout", "underline", "undercurl",     "italic",
+                                  "reverse", "inverse",  "nocombine", "strikethrough", "NONE"};
+static int hl_attr_table[] = {HL_BOLD,    HL_STANDOUT, HL_UNDERLINE, HL_UNDERCURL,     HL_ITALIC,
+                              HL_INVERSE, HL_INVERSE,  HL_NOCOMBINE, HL_STRIKETHROUGH, 0};
+#define ATTR_COMBINE(attr_a, attr_b) ((((attr_b)&HL_NOCOMBINE) ? attr_b : (attr_a)) | (attr_b))
 
 static void syn_unadd_group(void);
 static void set_hl_attr(int idx);
 static void highlight_list_one(int id);
-static int highlight_list_arg(int id, int didh, int type, int iarg,
-                              char_u *sarg, char *name);
+static int highlight_list_arg(int id, int didh, int type, int iarg, char_u *sarg, char *name);
 static int syn_add_group(char_u *name);
 static int syn_list_header(int did_header, int outlen, int id);
 static int hl_has_settings(int idx, int check_link);
@@ -106,10 +102,10 @@ static void highlight_clear(int idx);
 static void gui_do_one_color(int idx, int do_menu, int do_tooltip);
 #endif
 #ifdef FEAT_GUI
-static int set_group_colors(char_u *name, guicolor_T *fgp, guicolor_T *bgp,
-                            int do_menu, int use_norm, int do_tooltip);
-static void hl_do_font(int idx, char_u *arg, int do_normal, int do_menu,
-                       int do_tooltip, int free_font);
+static int set_group_colors(char_u *name, guicolor_T *fgp, guicolor_T *bgp, int do_menu,
+                            int use_norm, int do_tooltip);
+static void hl_do_font(int idx, char_u *arg, int do_normal, int do_menu, int do_tooltip,
+                       int free_font);
 #endif
 
 /*
@@ -139,10 +135,8 @@ static char *(highlight_init_both[]) = {
          "guifg=White"),
     CENT("IncSearch term=reverse cterm=reverse",
          "IncSearch term=reverse cterm=reverse gui=reverse"),
-    CENT("ModeMsg term=bold cterm=bold",
-         "ModeMsg term=bold cterm=bold gui=bold"),
-    CENT("NonText term=bold ctermfg=Blue",
-         "NonText term=bold ctermfg=Blue gui=bold guifg=Blue"),
+    CENT("ModeMsg term=bold cterm=bold", "ModeMsg term=bold cterm=bold gui=bold"),
+    CENT("NonText term=bold ctermfg=Blue", "NonText term=bold ctermfg=Blue gui=bold guifg=Blue"),
     CENT("StatusLine term=reverse,bold cterm=reverse,bold",
          "StatusLine term=reverse,bold cterm=reverse,bold gui=reverse,bold"),
     CENT("StatusLineNC term=reverse cterm=reverse",
@@ -159,8 +153,7 @@ static char *(highlight_init_both[]) = {
     CENT("DiffText term=reverse cterm=bold ctermbg=Red",
          "DiffText term=reverse cterm=bold ctermbg=Red gui=bold guibg=Red"),
 #endif
-    CENT("TabLineSel term=bold cterm=bold",
-         "TabLineSel term=bold cterm=bold gui=bold"),
+    CENT("TabLineSel term=bold cterm=bold", "TabLineSel term=bold cterm=bold gui=bold"),
     CENT("TabLineFill term=reverse cterm=reverse",
          "TabLineFill term=reverse cterm=reverse gui=reverse"),
 #ifdef FEAT_GUI
@@ -173,10 +166,8 @@ static char *(highlight_init_both[]) = {
 
 /* Default colors only used with a light background. */
 static char *(highlight_init_light[]) = {
-    CENT("Directory term=bold ctermfg=DarkBlue",
-         "Directory term=bold ctermfg=DarkBlue guifg=Blue"),
-    CENT("LineNr term=underline ctermfg=Brown",
-         "LineNr term=underline ctermfg=Brown guifg=Brown"),
+    CENT("Directory term=bold ctermfg=DarkBlue", "Directory term=bold ctermfg=DarkBlue guifg=Blue"),
+    CENT("LineNr term=underline ctermfg=Brown", "LineNr term=underline ctermfg=Brown guifg=Brown"),
     CENT("CursorLineNr term=bold ctermfg=Brown",
          "CursorLineNr term=bold ctermfg=Brown gui=bold guifg=Brown"),
     CENT("MoreMsg term=bold ctermfg=DarkGreen",
@@ -224,8 +215,7 @@ static char *(highlight_init_light[]) = {
          "ctermbg=LightGrey",
          "TabLine term=underline cterm=underline ctermfg=black "
          "ctermbg=LightGrey gui=underline guibg=LightGrey"),
-    CENT("MatchParen term=reverse ctermbg=Cyan",
-         "MatchParen term=reverse ctermbg=Cyan guibg=Cyan"),
+    CENT("MatchParen term=reverse ctermbg=Cyan", "MatchParen term=reverse ctermbg=Cyan guibg=Cyan"),
 #ifdef FEAT_TERMINAL
     CENT("StatusLineTerm term=reverse,bold cterm=bold ctermfg=White "
          "ctermbg=DarkGreen",
@@ -278,18 +268,16 @@ static char *(highlight_init_dark[]) = {
 #endif
     CENT("Visual term=reverse", "Visual term=reverse guibg=DarkGrey"),
 #ifdef FEAT_DIFF
-    CENT("DiffAdd term=bold ctermbg=DarkBlue",
-         "DiffAdd term=bold ctermbg=DarkBlue guibg=DarkBlue"),
+    CENT("DiffAdd term=bold ctermbg=DarkBlue", "DiffAdd term=bold ctermbg=DarkBlue guibg=DarkBlue"),
     CENT("DiffChange term=bold ctermbg=DarkMagenta",
          "DiffChange term=bold ctermbg=DarkMagenta guibg=DarkMagenta"),
     CENT("DiffDelete term=bold ctermfg=Blue ctermbg=DarkCyan",
          "DiffDelete term=bold ctermfg=Blue ctermbg=DarkCyan gui=bold "
          "guifg=Blue guibg=DarkCyan"),
 #endif
-    CENT(
-        "TabLine term=underline cterm=underline ctermfg=white ctermbg=DarkGrey",
-        "TabLine term=underline cterm=underline ctermfg=white ctermbg=DarkGrey "
-        "gui=underline guibg=DarkGrey"),
+    CENT("TabLine term=underline cterm=underline ctermfg=white ctermbg=DarkGrey",
+         "TabLine term=underline cterm=underline ctermfg=white ctermbg=DarkGrey "
+         "gui=underline guibg=DarkGrey"),
     CENT("MatchParen term=reverse ctermbg=DarkCyan",
          "MatchParen term=reverse ctermbg=DarkCyan guibg=DarkCyan"),
 #ifdef FEAT_TERMINAL
@@ -360,9 +348,8 @@ void init_highlight(int both,  /* include groups where 'bg' doesn't matter */
    * to avoid Statement highlighted text disappears.
    * Clear the attributes, needed when changing the t_Co value. */
   if (t_colors > 8)
-    do_highlight((char_u *)(*p_bg == 'l'
-                                ? "Visual cterm=NONE ctermbg=LightGrey"
-                                : "Visual cterm=NONE ctermbg=DarkGrey"),
+    do_highlight((char_u *)(*p_bg == 'l' ? "Visual cterm=NONE ctermbg=LightGrey"
+                                         : "Visual cterm=NONE ctermbg=DarkGrey"),
                  FALSE, TRUE);
   else {
     do_highlight((char_u *)"Visual cterm=reverse ctermbg=NONE", FALSE, TRUE);
@@ -401,12 +388,11 @@ int load_colors(char_u *name) {
 }
 
 static char *(color_names[28]) = {
-    "Black",       "DarkBlue",  "DarkGreen",  "DarkCyan",     "DarkRed",
-    "DarkMagenta", "Brown",     "DarkYellow", "Gray",         "Grey",
-    "LightGray",   "LightGrey", "DarkGray",   "DarkGrey",     "Blue",
-    "LightBlue",   "Green",     "LightGreen", "Cyan",         "LightCyan",
-    "Red",         "LightRed",  "Magenta",    "LightMagenta", "Yellow",
-    "LightYellow", "White",     "NONE"};
+    "Black",    "DarkBlue",    "DarkGreen", "DarkCyan",  "DarkRed",   "DarkMagenta",
+    "Brown",    "DarkYellow",  "Gray",      "Grey",      "LightGray", "LightGrey",
+    "DarkGray", "DarkGrey",    "Blue",      "LightBlue", "Green",     "LightGreen",
+    "Cyan",     "LightCyan",   "Red",       "LightRed",  "Magenta",   "LightMagenta",
+    "Yellow",   "LightYellow", "White",     "NONE"};
 /* indices:
  * 0, 1, 2, 3,
  * 4, 5, 6, 7,
@@ -415,22 +401,19 @@ static char *(color_names[28]) = {
  * 14, 15, 16, 17,
  * 18, 19, 20, 21, 22,
  * 23, 24, 25, 26, 27 */
-static int color_numbers_16[28] = {0,  1,  2,  3,  4,  5,  6,  6,  7,  7,
-                                   7,  7,  8,  8,  9,  9,  10, 10, 11, 11,
-                                   12, 12, 13, 13, 14, 14, 15, -1};
+static int color_numbers_16[28] = {0, 1, 2,  3,  4,  5,  6,  6,  7,  7,  7,  7,  8,  8,
+                                   9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, -1};
 /* for xterm with 88 colors... */
-static int color_numbers_88[28] = {0, 4,  2,  6,  1,  5,  32, 72, 84, 84,
-                                   7, 7,  82, 82, 12, 43, 10, 61, 14, 63,
-                                   9, 74, 13, 75, 11, 78, 15, -1};
+static int color_numbers_88[28] = {0,  4,  2,  6,  1,  5,  32, 72, 84, 84, 7,  7,  82, 82,
+                                   12, 43, 10, 61, 14, 63, 9,  74, 13, 75, 11, 78, 15, -1};
 /* for xterm with 256 colors... */
-static int color_numbers_256[28] = {
-    0,  4,  2,  6,   1,  5,   130, 130, 248, 248, 7,  7,   242, 242,
-    12, 81, 10, 121, 14, 159, 9,   224, 13,  225, 11, 229, 15,  -1};
+static int color_numbers_256[28] = {0,  4,  2,  6,   1,  5,   130, 130, 248, 248, 7,  7,   242, 242,
+                                    12, 81, 10, 121, 14, 159, 9,   224, 13,  225, 11, 229, 15,  -1};
 /* for terminals with less than 16 colors... */
-static int color_numbers_8[28] = {
-    0,     4,     2,     6,     1,     5,     3,     3,     7,     7,
-    7,     7,     0 + 8, 0 + 8, 4 + 8, 4 + 8, 2 + 8, 2 + 8, 6 + 8, 6 + 8,
-    1 + 8, 1 + 8, 5 + 8, 5 + 8, 3 + 8, 3 + 8, 7 + 8, -1};
+static int color_numbers_8[28] = {0,     4,     2,     6,     1,     5,     3,
+                                  3,     7,     7,     7,     7,     0 + 8, 0 + 8,
+                                  4 + 8, 4 + 8, 2 + 8, 2 + 8, 6 + 8, 6 + 8, 1 + 8,
+                                  1 + 8, 5 + 8, 5 + 8, 3 + 8, 3 + 8, 7 + 8, -1};
 
 /*
  * Lookup the "cterm" value to be used for color with index "idx" in
@@ -489,8 +472,7 @@ int lookup_color(int idx, int foreground, int *boldp) {
  * When using ":hi clear" this is called recursively for each group with
  * "forceit" and "init" both TRUE.
  */
-void do_highlight(char_u *line, int forceit,
-                  int init) /* TRUE when called for initializing */
+void do_highlight(char_u *line, int forceit, int init) /* TRUE when called for initializing */
 {
   char_u *name_end;
   char_u *p;
@@ -590,8 +572,7 @@ void do_highlight(char_u *line, int forceit,
     to_end = skiptowhite(to_start);
 
     if (ends_excmd(*from_start) || ends_excmd(*to_start)) {
-      semsg(_("E412: Not enough arguments: \":highlight link %s\""),
-            from_start);
+      semsg(_("E412: Not enough arguments: \":highlight link %s\""), from_start);
       return;
     }
 
@@ -611,14 +592,12 @@ void do_highlight(char_u *line, int forceit,
        * Don't allow a link when there already is some highlighting
        * for the group, unless '!' is used
        */
-      if (to_id > 0 && !forceit && !init &&
-          hl_has_settings(from_id - 1, dodefault)) {
+      if (to_id > 0 && !forceit && !init && hl_has_settings(from_id - 1, dodefault)) {
         if (sourcing_name == NULL && !dodefault)
           emsg(_("E414: group has settings, highlight link ignored"));
       } else if (HL_TABLE()[from_id - 1].sg_link != to_id
 #ifdef FEAT_EVAL
-                 || HL_TABLE()[from_id - 1].sg_script_ctx.sc_sid !=
-                        current_sctx.sc_sid
+                 || HL_TABLE()[from_id - 1].sg_script_ctx.sc_sid != current_sctx.sc_sid
 #endif
                  || HL_TABLE()[from_id - 1].sg_cleared) {
         if (!init)
@@ -811,8 +790,7 @@ void do_highlight(char_u *line, int forceit,
       /*
        * Store the argument.
        */
-      if (STRCMP(key, "TERM") == 0 || STRCMP(key, "CTERM") == 0 ||
-          STRCMP(key, "GUI") == 0) {
+      if (STRCMP(key, "TERM") == 0 || STRCMP(key, "CTERM") == 0 || STRCMP(key, "GUI") == 0) {
         attr = 0;
         off = 0;
         while (arg[off] != NUL) {
@@ -883,8 +861,7 @@ void do_highlight(char_u *line, int forceit,
 #ifdef FEAT_XFONTSET
           HL_TABLE()[idx].sg_fontset = NOFONTSET;
 #endif
-          hl_do_font(idx, arg, is_normal_group, is_menu_group, is_tooltip_group,
-                     FALSE);
+          hl_do_font(idx, arg, is_normal_group, is_menu_group, is_tooltip_group, FALSE);
 
 #ifdef FEAT_XFONTSET
           if (HL_TABLE()[idx].sg_fontset != NOFONTSET) {
@@ -951,12 +928,10 @@ void do_highlight(char_u *line, int forceit,
             /* reduce calls to STRICMP a bit, it can be slow */
             off = TOUPPER_ASC(*arg);
             for (i = (sizeof(color_names) / sizeof(char *)); --i >= 0;)
-              if (off == color_names[i][0] &&
-                  STRICMP(arg + 1, color_names[i] + 1) == 0)
+              if (off == color_names[i][0] && STRICMP(arg + 1, color_names[i] + 1) == 0)
                 break;
             if (i < 0) {
-              semsg(_("E421: Color name or number not recognized: %s"),
-                    key_start);
+              semsg(_("E421: Color name or number not recognized: %s"), key_start);
               error = TRUE;
               break;
             }
@@ -1011,10 +986,8 @@ void do_highlight(char_u *line, int forceit,
                     dark = (color < 7 || color == 8);
                   /* Set the 'background' option if the value is
                    * wrong. */
-                  if (dark != -1 && dark != (*p_bg == 'd') &&
-                      !option_was_set((char_u *)"bg")) {
-                    set_option_value((char_u *)"bg", 0L,
-                                     (char_u *)(dark ? "dark" : "light"), 0);
+                  if (dark != -1 && dark != (*p_bg == 'd') && !option_was_set((char_u *)"bg")) {
+                    set_option_value((char_u *)"bg", 0L, (char_u *)(dark ? "dark" : "light"), 0);
                     reset_option_was_set((char_u *)"bg");
                   }
                 }
@@ -1249,8 +1222,7 @@ void do_highlight(char_u *line, int forceit,
     }
 #ifdef FEAT_TERMINAL
     else if (is_terminal_group)
-      set_terminal_default_colors(HL_TABLE()[idx].sg_cterm_fg,
-                                  HL_TABLE()[idx].sg_cterm_bg);
+      set_terminal_default_colors(HL_TABLE()[idx].sg_cterm_fg, HL_TABLE()[idx].sg_cterm_bg);
 #endif
 #ifdef FEAT_GUI_X11
     else if (is_scrollbar_group) {
@@ -1277,8 +1249,7 @@ void do_highlight(char_u *line, int forceit,
 
   /* Only call highlight_changed() once, after a sequence of highlight
    * commands, and only if an attribute actually changed. */
-  if ((did_change ||
-       memcmp(&HL_TABLE()[idx], &item_before, sizeof(item_before)) != 0)
+  if ((did_change || memcmp(&HL_TABLE()[idx], &item_before, sizeof(item_before)) != 0)
 #if defined(FEAT_GUI)
       && !did_highlight_changed
 #endif
@@ -1333,14 +1304,11 @@ void restore_cterm_colors(void) {
  * When "check_link" is TRUE also check for an existing link.
  */
 static int hl_has_settings(int idx, int check_link) {
-  return (HL_TABLE()[idx].sg_term_attr != 0 ||
-          HL_TABLE()[idx].sg_cterm_attr != 0 ||
+  return (HL_TABLE()[idx].sg_term_attr != 0 || HL_TABLE()[idx].sg_cterm_attr != 0 ||
           HL_TABLE()[idx].sg_cterm_fg != 0 || HL_TABLE()[idx].sg_cterm_bg != 0
 #ifdef FEAT_GUI
-          || HL_TABLE()[idx].sg_gui_attr != 0 ||
-          HL_TABLE()[idx].sg_gui_fg_name != NULL ||
-          HL_TABLE()[idx].sg_gui_bg_name != NULL ||
-          HL_TABLE()[idx].sg_gui_sp_name != NULL ||
+          || HL_TABLE()[idx].sg_gui_attr != 0 || HL_TABLE()[idx].sg_gui_fg_name != NULL ||
+          HL_TABLE()[idx].sg_gui_bg_name != NULL || HL_TABLE()[idx].sg_gui_sp_name != NULL ||
           HL_TABLE()[idx].sg_font_name != NULL
 #endif
           || (check_link && (HL_TABLE()[idx].sg_set & SG_LINK)));
@@ -1401,27 +1369,27 @@ static void highlight_clear(int idx) {
 void set_normal_colors(void) {
 #ifdef FEAT_GUI
   {
-    if (set_group_colors((char_u *)"Normal", &gui.norm_pixel, &gui.back_pixel,
-                         FALSE, TRUE, FALSE)) {
+    if (set_group_colors((char_u *)"Normal", &gui.norm_pixel, &gui.back_pixel, FALSE, TRUE,
+                         FALSE)) {
       gui_mch_new_colors();
       must_redraw = CLEAR;
     }
 #ifdef FEAT_GUI_X11
-    if (set_group_colors((char_u *)"Menu", &gui.menu_fg_pixel,
-                         &gui.menu_bg_pixel, TRUE, FALSE, FALSE)) {
+    if (set_group_colors((char_u *)"Menu", &gui.menu_fg_pixel, &gui.menu_bg_pixel, TRUE, FALSE,
+                         FALSE)) {
       must_redraw = CLEAR;
     }
 #ifdef FEAT_BEVAL_GUI
-    if (set_group_colors((char_u *)"Tooltip", &gui.tooltip_fg_pixel,
-                         &gui.tooltip_bg_pixel, FALSE, FALSE, TRUE)) {
+    if (set_group_colors((char_u *)"Tooltip", &gui.tooltip_fg_pixel, &gui.tooltip_bg_pixel, FALSE,
+                         FALSE, TRUE)) {
 #ifdef FEAT_TOOLBAR
       gui_mch_new_tooltip_colors();
 #endif
       must_redraw = CLEAR;
     }
 #endif
-    if (set_group_colors((char_u *)"Scrollbar", &gui.scroll_fg_pixel,
-                         &gui.scroll_bg_pixel, FALSE, FALSE, FALSE)) {
+    if (set_group_colors((char_u *)"Scrollbar", &gui.scroll_fg_pixel, &gui.scroll_bg_pixel, FALSE,
+                         FALSE, FALSE)) {
       gui_new_scrollbar_colors();
       must_redraw = CLEAR;
     }
@@ -1435,8 +1403,8 @@ void set_normal_colors(void) {
 /*
  * Set the colors for "Normal", "Menu", "Tooltip" or "Scrollbar".
  */
-static int set_group_colors(char_u *name, guicolor_T *fgp, guicolor_T *bgp,
-                            int do_menu, int use_norm, int do_tooltip) {
+static int set_group_colors(char_u *name, guicolor_T *fgp, guicolor_T *bgp, int do_menu,
+                            int use_norm, int do_tooltip) {
   int idx;
 
   idx = syn_name2id(name) - 1;
@@ -1548,11 +1516,10 @@ static GuiFontset fontset_name2handle(char_u *name, int fixed_width) {
 /*
  * Get the font or fontset for one highlight group.
  */
-static void hl_do_font(int idx, char_u *arg,
-                       int do_normal,         /* set normal font */
-                       int do_menu UNUSED,    /* set menu font */
-                       int do_tooltip UNUSED, /* set tooltip font */
-                       int free_font)         /* free current font/fontset */
+static void hl_do_font(int idx, char_u *arg, int do_normal, /* set normal font */
+                       int do_menu UNUSED,                  /* set menu font */
+                       int do_tooltip UNUSED,               /* set tooltip font */
+                       int free_font)                       /* free current font/fontset */
 {
 #ifdef FEAT_XFONTSET
   /* If 'guifontset' is not empty, first try using the name as a
@@ -1668,26 +1635,23 @@ static int get_attr_entry(garray_T *table, attrentry_T *aep) {
     if (aep->ae_attr == taep->ae_attr &&
         (
 #ifdef FEAT_GUI
-            (table == &gui_attr_table &&
-             (aep->ae_u.gui.fg_color == taep->ae_u.gui.fg_color &&
-              aep->ae_u.gui.bg_color == taep->ae_u.gui.bg_color &&
-              aep->ae_u.gui.sp_color == taep->ae_u.gui.sp_color &&
-              aep->ae_u.gui.font == taep->ae_u.gui.font
+            (table == &gui_attr_table && (aep->ae_u.gui.fg_color == taep->ae_u.gui.fg_color &&
+                                          aep->ae_u.gui.bg_color == taep->ae_u.gui.bg_color &&
+                                          aep->ae_u.gui.sp_color == taep->ae_u.gui.sp_color &&
+                                          aep->ae_u.gui.font == taep->ae_u.gui.font
 #ifdef FEAT_XFONTSET
-              && aep->ae_u.gui.fontset == taep->ae_u.gui.fontset
+                                          && aep->ae_u.gui.fontset == taep->ae_u.gui.fontset
 #endif
-              )) ||
+                                          )) ||
 #endif
             (table == &term_attr_table &&
-             (aep->ae_u.term.start == NULL) ==
-                 (taep->ae_u.term.start == NULL) &&
+             (aep->ae_u.term.start == NULL) == (taep->ae_u.term.start == NULL) &&
              (aep->ae_u.term.start == NULL ||
               STRCMP(aep->ae_u.term.start, taep->ae_u.term.start) == 0) &&
              (aep->ae_u.term.stop == NULL) == (taep->ae_u.term.stop == NULL) &&
              (aep->ae_u.term.stop == NULL ||
               STRCMP(aep->ae_u.term.stop, taep->ae_u.term.stop) == 0)) ||
-            (table == &cterm_attr_table &&
-             aep->ae_u.cterm.fg_color == taep->ae_u.cterm.fg_color &&
+            (table == &cterm_attr_table && aep->ae_u.cterm.fg_color == taep->ae_u.cterm.fg_color &&
              aep->ae_u.cterm.bg_color == taep->ae_u.cterm.bg_color)))
 
       return i + ATTR_OFF;
@@ -1975,23 +1939,17 @@ static void highlight_list_one(int id) {
   didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_stop, "stop");
 
   didh = highlight_list_arg(id, didh, LIST_ATTR, sgp->sg_cterm, NULL, "cterm");
-  didh =
-      highlight_list_arg(id, didh, LIST_INT, sgp->sg_cterm_fg, NULL, "ctermfg");
-  didh =
-      highlight_list_arg(id, didh, LIST_INT, sgp->sg_cterm_bg, NULL, "ctermbg");
+  didh = highlight_list_arg(id, didh, LIST_INT, sgp->sg_cterm_fg, NULL, "ctermfg");
+  didh = highlight_list_arg(id, didh, LIST_INT, sgp->sg_cterm_bg, NULL, "ctermbg");
 
 #if defined(FEAT_GUI) || defined(FEAT_EVAL)
   didh = highlight_list_arg(id, didh, LIST_ATTR, sgp->sg_gui, NULL, "gui");
-  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_fg_name,
-                            "guifg");
-  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_bg_name,
-                            "guibg");
-  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_sp_name,
-                            "guisp");
+  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_fg_name, "guifg");
+  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_bg_name, "guibg");
+  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_gui_sp_name, "guisp");
 #endif
 #ifdef FEAT_GUI
-  didh =
-      highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_font_name, "font");
+  didh = highlight_list_arg(id, didh, LIST_STRING, 0, sgp->sg_font_name, "font");
 #endif
 
   if (sgp->sg_link && !got_int) {
@@ -2010,8 +1968,7 @@ static void highlight_list_one(int id) {
 #endif
 }
 
-static int highlight_list_arg(int id, int didh, int type, int iarg,
-                              char_u *sarg, char *name) {
+static int highlight_list_arg(int id, int didh, int type, int iarg, char_u *sarg, char *name) {
   char_u buf[100];
   char_u *ts;
   int i;
@@ -2170,8 +2127,7 @@ int syn_name2id(char_u *name) {
   vim_strncpy(name_u, name, 199);
   vim_strup(name_u);
   for (i = highlight_ga.ga_len; --i >= 0;)
-    if (HL_TABLE()[i].sg_name_u != NULL &&
-        STRCMP(name_u, HL_TABLE()[i].sg_name_u) == 0)
+    if (HL_TABLE()[i].sg_name_u != NULL && STRCMP(name_u, HL_TABLE()[i].sg_name_u) == 0)
       break;
   return i + 1;
 }
@@ -2400,34 +2356,28 @@ void highlight_gui_started(void) {
   highlight_changed();
 }
 
-static void
-gui_do_one_color(int idx,
-                 int do_menu UNUSED,    /* TRUE: might set the menu font */
-                 int do_tooltip UNUSED) /* TRUE: might set the tooltip font */
+static void gui_do_one_color(int idx, int do_menu UNUSED, /* TRUE: might set the menu font */
+                             int do_tooltip UNUSED)       /* TRUE: might set the tooltip font */
 {
   int didit = FALSE;
 
 #ifdef FEAT_GUI
   if (HL_TABLE()[idx].sg_font_name != NULL) {
-    hl_do_font(idx, HL_TABLE()[idx].sg_font_name, FALSE, do_menu, do_tooltip,
-               TRUE);
+    hl_do_font(idx, HL_TABLE()[idx].sg_font_name, FALSE, do_menu, do_tooltip, TRUE);
     didit = TRUE;
   }
 #endif
   if (HL_TABLE()[idx].sg_gui_fg_name != NULL) {
-    HL_TABLE()
-    [idx].sg_gui_fg = color_name2handle(HL_TABLE()[idx].sg_gui_fg_name);
+    HL_TABLE()[idx].sg_gui_fg = color_name2handle(HL_TABLE()[idx].sg_gui_fg_name);
     didit = TRUE;
   }
   if (HL_TABLE()[idx].sg_gui_bg_name != NULL) {
-    HL_TABLE()
-    [idx].sg_gui_bg = color_name2handle(HL_TABLE()[idx].sg_gui_bg_name);
+    HL_TABLE()[idx].sg_gui_bg = color_name2handle(HL_TABLE()[idx].sg_gui_bg_name);
     didit = TRUE;
   }
 #ifdef FEAT_GUI
   if (HL_TABLE()[idx].sg_gui_sp_name != NULL) {
-    HL_TABLE()
-    [idx].sg_gui_sp = color_name2handle(HL_TABLE()[idx].sg_gui_sp_name);
+    HL_TABLE()[idx].sg_gui_sp = color_name2handle(HL_TABLE()[idx].sg_gui_sp_name);
     didit = TRUE;
   }
 #endif
@@ -2604,8 +2554,7 @@ void set_context_in_highlight_cmd(expand_T *xp, char_u *arg) {
         include_link = 0;
         if (arg[1] == 'i' && arg[0] == 'N')
           highlight_list();
-        if (STRNCMP("link", arg, p - arg) == 0 ||
-            STRNCMP("clear", arg, p - arg) == 0) {
+        if (STRNCMP("link", arg, p - arg) == 0 || STRNCMP("clear", arg, p - arg) == 0) {
           xp->xp_pattern = skipwhite(p);
           p = skiptowhite(xp->xp_pattern);
           if (*p != NUL) /* past first group name */
@@ -2641,8 +2590,7 @@ static void highlight_list_two(int cnt, int attr) {
 
 #endif /* FEAT_CMDL_COMPL */
 
-#if defined(FEAT_CMDL_COMPL) || defined(FEAT_EVAL) || defined(FEAT_SIGNS) ||   \
-    defined(PROTO)
+#if defined(FEAT_CMDL_COMPL) || defined(FEAT_EVAL) || defined(FEAT_SIGNS) || defined(PROTO)
 /*
  * Function given to ExpandGeneric() to obtain the list of group names.
  */
@@ -2668,11 +2616,9 @@ char_u *get_highlight_name_ext(expand_T *xp UNUSED, int idx, int skip_cleared) {
     return (char_u *)"none";
   if (idx == highlight_ga.ga_len + include_none && include_default != 0)
     return (char_u *)"default";
-  if (idx == highlight_ga.ga_len + include_none + include_default &&
-      include_link != 0)
+  if (idx == highlight_ga.ga_len + include_none + include_default && include_link != 0)
     return (char_u *)"link";
-  if (idx == highlight_ga.ga_len + include_none + include_default + 1 &&
-      include_link != 0)
+  if (idx == highlight_ga.ga_len + include_none + include_default + 1 && include_link != 0)
     return (char_u *)"clear";
 #endif
   if (idx >= highlight_ga.ga_len)

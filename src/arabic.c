@@ -255,8 +255,8 @@ static int can_join(int c1, int c2) {
  */
 int arabic_maycombine(int two) {
   if (p_arshape && !p_tbidi)
-    return (two == a_ALEF_MADDA || two == a_ALEF_HAMZA_ABOVE ||
-            two == a_ALEF_HAMZA_BELOW || two == a_ALEF);
+    return (two == a_ALEF_MADDA || two == a_ALEF_HAMZA_ABOVE || two == a_ALEF_HAMZA_BELOW ||
+            two == a_ALEF);
   return FALSE;
 }
 
@@ -298,8 +298,7 @@ static int A_is_valid(int c) { return (A_is_ok(c) && c != a_HAMZA); }
  *		     (not shaped)
  * in:     "next_c"  is the next character (not shaped).
  */
-int arabic_shape(int c, int *ccp, int *c1p, int prev_c, int prev_c1,
-                 int next_c) {
+int arabic_shape(int c, int *ccp, int *c1p, int prev_c, int prev_c1, int next_c) {
   int curr_c;
   int curr_laa;
   int prev_laa;

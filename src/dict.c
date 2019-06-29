@@ -284,16 +284,13 @@ dict_T *dict_copy(dict_T *orig, int deep, int copyID) {
  * Add item "item" to Dictionary "d".
  * Returns FAIL when out of memory and when key already exists.
  */
-int dict_add(dict_T *d, dictitem_T *item) {
-  return hash_add(&d->dv_hashtab, item->di_key);
-}
+int dict_add(dict_T *d, dictitem_T *item) { return hash_add(&d->dv_hashtab, item->di_key); }
 
 /*
  * Add a number or special entry to dictionary "d".
  * Returns FAIL when out of memory and when key already exists.
  */
-static int dict_add_number_special(dict_T *d, char *key, varnumber_T nr,
-                                   int special) {
+static int dict_add_number_special(dict_T *d, char *key, varnumber_T nr, int special) {
   dictitem_T *item;
 
   item = dictitem_alloc((char_u *)key);
@@ -571,8 +568,7 @@ char_u *dict2string(typval_T *tv, int copyID, int restore_copyID) {
         vim_free(tofree);
       }
       ga_concat(&ga, (char_u *)": ");
-      s = echo_string_core(&HI2DI(hi)->di_tv, &tofree, numbuf, copyID, FALSE,
-                           restore_copyID, TRUE);
+      s = echo_string_core(&HI2DI(hi)->di_tv, &tofree, numbuf, copyID, FALSE, restore_copyID, TRUE);
       if (s != NULL)
         ga_concat(&ga, s);
       vim_free(tofree);
@@ -713,8 +709,7 @@ void dict_extend(dict_T *d1, dict_T *d2, char_u *action) {
       if (d1->dv_scope != 0) {
         /* Disallow replacing a builtin function in l: and g:.
          * Check the key to be valid when adding to any scope. */
-        if (d1->dv_scope == VAR_DEF_SCOPE &&
-            HI2DI(hi2)->di_tv.v_type == VAR_FUNC &&
+        if (d1->dv_scope == VAR_DEF_SCOPE && HI2DI(hi2)->di_tv.v_type == VAR_FUNC &&
             var_check_func_name(hi2->hi_key, di1 == NULL))
           break;
         if (!valid_varname(hi2->hi_key))

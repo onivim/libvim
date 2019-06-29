@@ -21,22 +21,20 @@
 /*
  * Position comparisons
  */
-#define LT_POS(a, b)                                                           \
-  (((a).lnum != (b).lnum)                                                      \
-       ? (a).lnum < (b).lnum                                                   \
-       : (a).col != (b).col ? (a).col < (b).col : (a).coladd < (b).coladd)
-#define LT_POSP(a, b)                                                          \
-  (((a)->lnum != (b)->lnum)                                                    \
-       ? (a)->lnum < (b)->lnum                                                 \
-       : (a)->col != (b)->col ? (a)->col < (b)->col                            \
-                              : (a)->coladd < (b)->coladd)
-#define EQUAL_POS(a, b)                                                        \
+#define LT_POS(a, b)                                                                               \
+  (((a).lnum != (b).lnum) ? (a).lnum < (b).lnum                                                    \
+                          : (a).col != (b).col ? (a).col < (b).col : (a).coladd < (b).coladd)
+#define LT_POSP(a, b)                                                                              \
+  (((a)->lnum != (b)->lnum)                                                                        \
+       ? (a)->lnum < (b)->lnum                                                                     \
+       : (a)->col != (b)->col ? (a)->col < (b)->col : (a)->coladd < (b)->coladd)
+#define EQUAL_POS(a, b)                                                                            \
   (((a).lnum == (b).lnum) && ((a).col == (b).col) && ((a).coladd == (b).coladd))
-#define CLEAR_POS(a)                                                           \
-  do {                                                                         \
-    (a)->lnum = 0;                                                             \
-    (a)->col = 0;                                                              \
-    (a)->coladd = 0;                                                           \
+#define CLEAR_POS(a)                                                                               \
+  do {                                                                                             \
+    (a)->lnum = 0;                                                                                 \
+    (a)->col = 0;                                                                                  \
+    (a)->coladd = 0;                                                                               \
   } while (0)
 
 #define LTOREQ_POS(a, b) (LT_POS(a, b) || EQUAL_POS(a, b))
@@ -55,8 +53,7 @@
 /*
  * BUFEMPTY() - return TRUE if the current buffer is empty
  */
-#define BUFEMPTY()                                                             \
-  (curbuf->b_ml.ml_line_count == 1 && *ml_get((linenr_T)1) == NUL)
+#define BUFEMPTY() (curbuf->b_ml.ml_line_count == 1 && *ml_get((linenr_T)1) == NUL)
 
 /*
  * toupper() and tolower() that use the current locale.
@@ -129,15 +126,14 @@
  * a mapping and the langnoremap option was set.
  * The do-while is just to ignore a ';' after the macro.
  */
-#define LANGMAP_ADJUST(c, condition)                                           \
-  do {                                                                         \
-    if (*p_langmap && (condition) && (p_lrm || (!p_lrm && KeyTyped)) &&        \
-        !KeyStuffed && (c) >= 0) {                                             \
-      if ((c) < 256)                                                           \
-        c = langmap_mapchar[c];                                                \
-      else                                                                     \
-        c = langmap_adjust_mb(c);                                              \
-    }                                                                          \
+#define LANGMAP_ADJUST(c, condition)                                                               \
+  do {                                                                                             \
+    if (*p_langmap && (condition) && (p_lrm || (!p_lrm && KeyTyped)) && !KeyStuffed && (c) >= 0) { \
+      if ((c) < 256)                                                                               \
+        c = langmap_mapchar[c];                                                                    \
+      else                                                                                         \
+        c = langmap_adjust_mb(c);                                                                  \
+    }                                                                                              \
   } while (0)
 #else
 #define LANGMAP_ADJUST(c, condition) /* nop */
@@ -205,14 +201,14 @@
 #endif
 
 #ifdef STARTUPTIME
-#define TIME_MSG(s)                                                            \
-  do {                                                                         \
-    if (time_fd != NULL)                                                       \
-      time_msg(s, NULL);                                                       \
+#define TIME_MSG(s)                                                                                \
+  do {                                                                                             \
+    if (time_fd != NULL)                                                                           \
+      time_msg(s, NULL);                                                                           \
   } while (0)
 #else
-#define TIME_MSG(s)                                                            \
-  do { /**/                                                                    \
+#define TIME_MSG(s)                                                                                \
+  do { /**/                                                                                        \
   } while (0)
 #endif
 
@@ -243,40 +239,39 @@
 /* Advance multi-byte pointer, skip over composing chars. */
 #define MB_PTR_ADV(p) p += has_mbyte ? (*mb_ptr2len)(p) : 1
 /* Advance multi-byte pointer, do not skip over composing chars. */
-#define MB_CPTR_ADV(p)                                                         \
-  p += enc_utf8 ? utf_ptr2len(p) : has_mbyte ? (*mb_ptr2len)(p) : 1
+#define MB_CPTR_ADV(p) p += enc_utf8 ? utf_ptr2len(p) : has_mbyte ? (*mb_ptr2len)(p) : 1
 /* Backup multi-byte pointer. Only use with "p" > "s" ! */
 #define MB_PTR_BACK(s, p) p -= has_mbyte ? ((*mb_head_off)(s, p - 1) + 1) : 1
 /* get length of multi-byte char, not including composing chars */
 #define MB_CPTR2LEN(p) (enc_utf8 ? utf_ptr2len(p) : (*mb_ptr2len)(p))
 
-#define MB_COPY_CHAR(f, t)                                                     \
-  do {                                                                         \
-    if (has_mbyte)                                                             \
-      mb_copy_char(&f, &t);                                                    \
-    else                                                                       \
-      *t++ = *f++;                                                             \
+#define MB_COPY_CHAR(f, t)                                                                         \
+  do {                                                                                             \
+    if (has_mbyte)                                                                                 \
+      mb_copy_char(&f, &t);                                                                        \
+    else                                                                                           \
+      *t++ = *f++;                                                                                 \
   } while (0)
 #define MB_CHARLEN(p) (has_mbyte ? mb_charlen(p) : (int)STRLEN(p))
 #define MB_CHAR2LEN(c) (has_mbyte ? mb_char2len(c) : 1)
 #define PTR2CHAR(p) (has_mbyte ? mb_ptr2char(p) : (int)*(p))
 
 #ifdef FEAT_AUTOCHDIR
-#define DO_AUTOCHDIR                                                           \
-  do {                                                                         \
-    if (p_acd)                                                                 \
-      do_autochdir();                                                          \
+#define DO_AUTOCHDIR                                                                               \
+  do {                                                                                             \
+    if (p_acd)                                                                                     \
+      do_autochdir();                                                                              \
   } while (0)
 #else
-#define DO_AUTOCHDIR                                                           \
-  do { /**/                                                                    \
+#define DO_AUTOCHDIR                                                                               \
+  do { /**/                                                                                        \
   } while (0)
 #endif
 
-#define RESET_BINDING(wp)                                                      \
-  do {                                                                         \
-    (wp)->w_p_scb = FALSE;                                                     \
-    (wp)->w_p_crb = FALSE;                                                     \
+#define RESET_BINDING(wp)                                                                          \
+  do {                                                                                             \
+    (wp)->w_p_scb = FALSE;                                                                         \
+    (wp)->w_p_crb = FALSE;                                                                         \
   } while (0)
 
 #ifdef FEAT_DIFF
@@ -354,12 +349,12 @@ static inline int isinf(double x) { return !isnan(x) && isnan(x - x); }
 /*
  * Like vim_free(), and also set the pointer to NULL.
  */
-#define VIM_CLEAR(p)                                                           \
-  do {                                                                         \
-    if ((p) != NULL) {                                                         \
-      vim_free(p);                                                             \
-      (p) = NULL;                                                              \
-    }                                                                          \
+#define VIM_CLEAR(p)                                                                               \
+  do {                                                                                             \
+    if ((p) != NULL) {                                                                             \
+      vim_free(p);                                                                                 \
+      (p) = NULL;                                                                                  \
+    }                                                                                              \
   } while (0)
 
 /* Wether a command index indicates a user command. */

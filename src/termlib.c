@@ -150,7 +150,7 @@ static int nextent(char *tbuf, FILE *termcap, int buflen) {
   char *lbuf = tbuf; /* lbuf=line buffer */
   /* read lines straight into buffer */
 
-  while (lbuf < tbuf + buflen && /* There's room and */
+  while (lbuf < tbuf + buflen &&                            /* There's room and */
          fgets(lbuf, (int)(tbuf + buflen - lbuf), termcap)) /* another line */
   {
     int llen = strlen(lbuf);

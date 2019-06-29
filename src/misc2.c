@@ -25,8 +25,7 @@ int virtual_active(void) {
    * being used. */
   if (virtual_op != MAYBE)
     return virtual_op;
-  return (ve_flags == VE_ALL ||
-          ((ve_flags & VE_BLOCK) && VIsual_active && VIsual_mode == Ctrl_V) ||
+  return (ve_flags == VE_ALL || ((ve_flags & VE_BLOCK) && VIsual_active && VIsual_mode == Ctrl_V) ||
           ((ve_flags & VE_INSERT) && (State & INSERT)));
 }
 
@@ -98,15 +97,11 @@ int coladvance(colnr_T wcol) {
  * Return in "pos" the position of the cursor advanced to screen column "wcol".
  * return OK if desired column is reached, FAIL if not
  */
-int getvpos(pos_T *pos, colnr_T wcol) {
-  return coladvance2(pos, FALSE, virtual_active(), wcol);
-}
+int getvpos(pos_T *pos, colnr_T wcol) { return coladvance2(pos, FALSE, virtual_active(), wcol); }
 
-static int
-coladvance2(pos_T *pos,
-            int addspaces, /* change the text to achieve our goal? */
-            int finetune,  /* change char offset for the exact column */
-            colnr_T wcol)  /* column to move to */
+static int coladvance2(pos_T *pos, int addspaces, /* change the text to achieve our goal? */
+                       int finetune,              /* change char offset for the exact column */
+                       colnr_T wcol)              /* column to move to */
 {
   int idx;
   char_u *ptr;
@@ -118,8 +113,7 @@ coladvance2(pos_T *pos,
   int head = 0;
 #endif
 
-  one_more = (State & INSERT) || restart_edit != NUL ||
-             (VIsual_active && *p_sel != 'o') ||
+  one_more = (State & INSERT) || restart_edit != NUL || (VIsual_active && *p_sel != 'o') ||
              ((ve_flags & VE_ONEMORE) && wcol < MAXCOL);
   line = ml_get_buf(curbuf, pos->lnum, FALSE);
 
@@ -135,8 +129,7 @@ coladvance2(pos_T *pos,
   } else {
     int width = curwin->w_width - win_col_off(curwin);
 
-    if (finetune && curwin->w_p_wrap && curwin->w_width != 0 &&
-        wcol >= (colnr_T)width) {
+    if (finetune && curwin->w_p_wrap && curwin->w_width != 0 && wcol >= (colnr_T)width) {
       csize = linetabsize(line);
       if (csize > 0)
         csize--;
@@ -178,8 +171,7 @@ coladvance2(pos_T *pos,
       col -= csize;
     }
 
-    if (virtual_active() && addspaces &&
-        ((col != wcol && col != wcol + 1) || csize > 1)) {
+    if (virtual_active() && addspaces && ((col != wcol && col != wcol + 1) || csize > 1)) {
       /* 'virtualedit' is set: The difference between wcol and col is
        * filled with spaces. */
 
@@ -386,9 +378,7 @@ int decl(pos_T *lp) {
  * difference between line number and cursor position. Only look for lines that
  * can be visible, folded lines don't count.
  */
-linenr_T
-get_cursor_rel_lnum(win_T *wp,
-                    linenr_T lnum) /* line number to get the result for */
+linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum) /* line number to get the result for */
 {
   linenr_T cursor = wp->w_cursor.lnum;
   linenr_T retval = 0;
@@ -531,8 +521,7 @@ void check_cursor(void) {
  * Allow it when in Visual mode and 'selection' is not "old".
  */
 void adjust_cursor_col(void) {
-  if (curwin->w_cursor.col > 0 && (!VIsual_active || *p_sel == 'o') &&
-      gchar_cursor() == NUL)
+  if (curwin->w_cursor.col > 0 && (!VIsual_active || *p_sel == 'o') && gchar_cursor() == NUL)
     --curwin->w_cursor.col;
 }
 #endif
@@ -664,10 +653,9 @@ void vim_mem_profile_dump(void) {
     printf("[>%d / %4lu-%-4lu]", i, mem_allocs[i], mem_frees[i]);
   }
 
-  printf(_("\n[bytes] total alloc-freed %lu-%lu, in use %lu, peak use %lu\n"),
-         mem_allocated, mem_freed, mem_allocated - mem_freed, mem_peak);
-  printf(_("[calls] total re/malloc()'s %lu, total free()'s %lu\n\n"),
-         num_alloc, num_freed);
+  printf(_("\n[bytes] total alloc-freed %lu-%lu, in use %lu, peak use %lu\n"), mem_allocated,
+         mem_freed, mem_allocated - mem_freed, mem_peak);
+  printf(_("[calls] total re/malloc()'s %lu, total free()'s %lu\n\n"), num_alloc, num_freed);
 }
 
 #endif /* MEM_PROFILE */
@@ -1140,8 +1128,7 @@ char_u *vim_strsave_escaped(char_u *string, char_u *esc_chars) {
  * characters where rem_backslash() would remove the backslash.
  * Escape the characters with "cc".
  */
-char_u *vim_strsave_escaped_ext(char_u *string, char_u *esc_chars, int cc,
-                                int bsl) {
+char_u *vim_strsave_escaped_ext(char_u *string, char_u *esc_chars, int cc, int bsl) {
   char_u *p;
   char_u *p2;
   char_u *escaped_string;
@@ -1185,9 +1172,7 @@ char_u *vim_strsave_escaped_ext(char_u *string, char_u *esc_chars, int cc,
 /*
  * Return TRUE when 'shell' has "csh" in the tail.
  */
-int csh_like_shell(void) {
-  return (strstr((char *)gettail(p_sh), "csh") != NULL);
-}
+int csh_like_shell(void) { return (strstr((char *)gettail(p_sh), "csh") != NULL); }
 
 /*
  * Escape "string" for use as a shell argument with system().
@@ -1199,8 +1184,7 @@ int csh_like_shell(void) {
  * When "do_newline" is FALSE do not escape newline unless it is csh shell.
  * Returns the result in allocated memory, NULL if we have run out.
  */
-char_u *vim_strsave_shellescape(char_u *string, int do_special,
-                                int do_newline) {
+char_u *vim_strsave_shellescape(char_u *string, int do_special, int do_newline) {
   unsigned length;
   char_u *p;
   char_u *d;
@@ -1225,8 +1209,7 @@ char_u *vim_strsave_shellescape(char_u *string, int do_special,
 #endif
         if (*p == '\'')
       length += 3; /* ' => '\'' */
-    if ((*p == '\n' && (csh_like || do_newline)) ||
-        (*p == '!' && (csh_like || do_special))) {
+    if ((*p == '\n' && (csh_like || do_newline)) || (*p == '!' && (csh_like || do_special))) {
       ++length; /* insert backslash */
       if (csh_like && do_special)
         ++length; /* insert backslash */
@@ -1269,8 +1252,7 @@ char_u *vim_strsave_shellescape(char_u *string, int do_special,
         ++p;
         continue;
       }
-      if ((*p == '\n' && (csh_like || do_newline)) ||
-          (*p == '!' && (csh_like || do_special))) {
+      if ((*p == '\n' && (csh_like || do_newline)) || (*p == '!' && (csh_like || do_special))) {
         *d++ = '\\';
         if (csh_like && do_special)
           *d++ = '\\';
@@ -1502,8 +1484,7 @@ void vim_strcat(char_u *to, char_u *from, size_t tosize) {
  * "*option" is advanced to the next part.
  * The length is returned.
  */
-int copy_option_part(char_u **option, char_u *buf, int maxlen,
-                     char *sep_chars) {
+int copy_option_part(char_u **option, char_u *buf, int maxlen, char *sep_chars) {
   int len = 0;
   char_u *p = *option;
 
@@ -1861,8 +1842,7 @@ void ga_append(garray_T *gap, int c) {
  */
 void append_ga_line(garray_T *gap) {
   /* Remove trailing CR. */
-  if (gap->ga_len > 0 && !curbuf->b_p_bin &&
-      ((char_u *)gap->ga_data)[gap->ga_len - 1] == CAR)
+  if (gap->ga_len > 0 && !curbuf->b_p_bin && ((char_u *)gap->ga_data)[gap->ga_len - 1] == CAR)
     --gap->ga_len;
   ga_append(gap, NUL);
   ml_append(curwin->w_cursor.lnum++, gap->ga_data, 0, FALSE);
@@ -1943,41 +1923,35 @@ static char_u modifier_keys_table[] = {
     MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_DOWN, 'k', 'd', /* down arrow */
 
     /* vt100 F1 */
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF1, KS_EXTRA, (int)KE_XF1,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF2, KS_EXTRA, (int)KE_XF2,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF3, KS_EXTRA, (int)KE_XF3,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF4, KS_EXTRA, (int)KE_XF4,
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF1, KS_EXTRA, (int)KE_XF1, MOD_MASK_SHIFT, KS_EXTRA,
+    (int)KE_S_XF2, KS_EXTRA, (int)KE_XF2, MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF3, KS_EXTRA,
+    (int)KE_XF3, MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF4, KS_EXTRA, (int)KE_XF4,
 
     MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F1, 'k', '1', /* F1 */
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F2, 'k', '2', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F3, 'k', '3', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F4, 'k', '4',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F5, 'k', '5', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F6, 'k', '6', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F7, 'k', '7',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F8, 'k', '8', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F9, 'k', '9', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F10, 'k',
-    ';', /* F10 */
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F2, 'k', '2', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F3, 'k',
+    '3', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F4, 'k', '4', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F5,
+    'k', '5', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F6, 'k', '6', MOD_MASK_SHIFT, KS_EXTRA,
+    (int)KE_S_F7, 'k', '7', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F8, 'k', '8', MOD_MASK_SHIFT,
+    KS_EXTRA, (int)KE_S_F9, 'k', '9', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F10, 'k', ';', /* F10 */
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F11, 'F', '1', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F12, 'F', '2', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F13, 'F', '3',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F14, 'F', '4', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F15, 'F', '5', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F16, 'F', '6',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F17, 'F', '7', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F18, 'F', '8', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F19, 'F', '9',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F11, 'F', '1', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F12, 'F',
+    '2', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F13, 'F', '3', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F14,
+    'F', '4', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F15, 'F', '5', MOD_MASK_SHIFT, KS_EXTRA,
+    (int)KE_S_F16, 'F', '6', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F17, 'F', '7', MOD_MASK_SHIFT,
+    KS_EXTRA, (int)KE_S_F18, 'F', '8', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F19, 'F', '9',
     MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F20, 'F', 'A',
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F21, 'F', 'B', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F22, 'F', 'C', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F23, 'F', 'D',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F24, 'F', 'E', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F25, 'F', 'F', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F26, 'F', 'G',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F27, 'F', 'H', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F28, 'F', 'I', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F29, 'F', 'J',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F21, 'F', 'B', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F22, 'F',
+    'C', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F23, 'F', 'D', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F24,
+    'F', 'E', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F25, 'F', 'F', MOD_MASK_SHIFT, KS_EXTRA,
+    (int)KE_S_F26, 'F', 'G', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F27, 'F', 'H', MOD_MASK_SHIFT,
+    KS_EXTRA, (int)KE_S_F28, 'F', 'I', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F29, 'F', 'J',
     MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F30, 'F', 'K',
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F31, 'F', 'L', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F32, 'F', 'M', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F33, 'F', 'N',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F34, 'F', 'O', MOD_MASK_SHIFT, KS_EXTRA,
-    (int)KE_S_F35, 'F', 'P', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F36, 'F', 'Q',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F37, 'F', 'R',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F31, 'F', 'L', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F32, 'F',
+    'M', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F33, 'F', 'N', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F34,
+    'F', 'O', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F35, 'F', 'P', MOD_MASK_SHIFT, KS_EXTRA,
+    (int)KE_S_F36, 'F', 'Q', MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F37, 'F', 'R',
 
     /* TAB pseudo code*/
     MOD_MASK_SHIFT, 'k', 'B', KS_EXTRA, (int)KE_TAB,
@@ -2142,8 +2116,7 @@ static struct key_name_entry {
     /* NOTE: When adding a long name update MAX_KEY_NAME_LEN. */
 };
 
-#define KEY_NAMES_TABLE_LEN                                                    \
-  (sizeof(key_names_table) / sizeof(struct key_name_entry))
+#define KEY_NAMES_TABLE_LEN (sizeof(key_names_table) / sizeof(struct key_name_entry))
 
 /*
  * Return the modifier mask bit (MOD_MASK_*) which corresponds to the given
@@ -2177,12 +2150,10 @@ int simplify_key(int key, int *modifiers) {
     key0 = KEY2TERMCAP0(key);
     key1 = KEY2TERMCAP1(key);
     for (i = 0; modifier_keys_table[i] != NUL; i += MOD_KEYS_ENTRY_SIZE)
-      if (key0 == modifier_keys_table[i + 3] &&
-          key1 == modifier_keys_table[i + 4] &&
+      if (key0 == modifier_keys_table[i + 3] && key1 == modifier_keys_table[i + 4] &&
           (*modifiers & modifier_keys_table[i])) {
         *modifiers &= ~modifier_keys_table[i];
-        return TERMCAP2KEY(modifier_keys_table[i + 1],
-                           modifier_keys_table[i + 2]);
+        return TERMCAP2KEY(modifier_keys_table[i + 1], modifier_keys_table[i + 2]);
       }
   }
   return key;
@@ -2269,8 +2240,7 @@ char_u *get_special_key_name(int c, int modifiers) {
    * extract modifiers.
    */
   if (c > 0 && (*mb_char2len)(c) == 1) {
-    if (table_idx < 0 && (!vim_isprintc(c) || (c & 0x7f) == ' ') &&
-        (c & 0x80)) {
+    if (table_idx < 0 && (!vim_isprintc(c) || (c & 0x7f) == ' ') && (c & 0x80)) {
       c &= 0x7f;
       modifiers |= MOD_MASK_ALT;
       /* try again, to find the un-alted key in the special key table */
@@ -2288,8 +2258,7 @@ char_u *get_special_key_name(int c, int modifiers) {
 
   /* translate the modifier into a string */
   for (i = 0; mod_mask_table[i].name != 'A'; i++)
-    if ((modifiers & mod_mask_table[i].mod_mask) ==
-        mod_mask_table[i].mod_flag) {
+    if ((modifiers & mod_mask_table[i].mod_mask) == mod_mask_table[i].mod_flag) {
       string[idx++] = mod_mask_table[i].name;
       string[idx++] = (char_u)'-';
     }
@@ -2384,11 +2353,10 @@ int special_to_buf(int key, int modifiers, int keycode, char_u *dst) {
  * srcp is advanced to after the <> name.
  * returns 0 if there is no match.
  */
-int find_special_key(
-    char_u **srcp, int *modp,
-    int keycode,    /* prefer key code, e.g. K_DEL instead of DEL */
-    int keep_x_key, /* don't translate xHome to Home key */
-    int in_string)  /* TRUE in string, double quote is escaped */
+int find_special_key(char_u **srcp, int *modp,
+                     int keycode,    /* prefer key code, e.g. K_DEL instead of DEL */
+                     int keep_x_key, /* don't translate xHome to Home key */
+                     int in_string)  /* TRUE in string, double quote is escaped */
 {
   char_u *last_dash;
   char_u *end_of_name;
@@ -2455,8 +2423,7 @@ int find_special_key(
      * Legal modifier name.
      */
     if (bp >= last_dash) {
-      if (STRNICMP(last_dash + 1, "char-", 5) == 0 &&
-          VIM_ISDIGIT(last_dash[6])) {
+      if (STRNICMP(last_dash + 1, "char-", 5) == 0 && VIM_ISDIGIT(last_dash[6])) {
         /* <Char-123> or <Char-033> or <Char-0x33> */
         vim_str2nr(last_dash + 6, NULL, &l, STR2NR_ALL, NULL, &n, 0, TRUE);
         if (l == 0) {
@@ -2552,8 +2519,7 @@ int extract_modifiers(int key, int *modp) {
   /* Command-key really special, no fancynest */
   if (!(modifiers & MOD_MASK_CMD))
 #endif
-    if ((modifiers & MOD_MASK_ALT) && key < 0x80 &&
-        !enc_dbcs) // avoid creating a lead byte
+    if ((modifiers & MOD_MASK_ALT) && key < 0x80 && !enc_dbcs) // avoid creating a lead byte
     {
       key |= 0x80;
       modifiers &= ~MOD_MASK_ALT; /* remove the META modifier */
@@ -2643,8 +2609,7 @@ int get_fileformat_force(buf_T *buf, exarg_T *eap) /* can be NULL! */
   if (eap != NULL && eap->force_ff != 0)
     c = eap->force_ff;
   else {
-    if ((eap != NULL && eap->force_bin != 0) ? (eap->force_bin == FORCE_BIN)
-                                             : buf->b_p_bin)
+    if ((eap != NULL && eap->force_bin != 0) ? (eap->force_bin == FORCE_BIN) : buf->b_p_bin)
       return EOL_UNIX;
     c = *buf->b_p_ff;
   }
@@ -2679,8 +2644,7 @@ void set_fileformat(int t, int opt_flags) /* OPT_LOCAL and/or OPT_GLOBAL */
     break;
   }
   if (p != NULL)
-    set_string_option_direct((char_u *)"ff", -1, (char_u *)p,
-                             OPT_FREE | opt_flags, 0);
+    set_string_option_direct((char_u *)"ff", -1, (char_u *)p, OPT_FREE | opt_flags, 0);
 
   /* This may cause the buffer to become (un)modified. */
   check_status(curbuf);
@@ -2752,9 +2716,8 @@ int call_shell(char_u *cmd, int opt) {
         STRCAT(ncmd, ecmd);
         /* When 'shellxquote' is ( append ).
          * When 'shellxquote' is "( append )". */
-        STRCAT(ncmd, STRCMP(p_sxq, "(") == 0
-                         ? (char_u *)")"
-                         : STRCMP(p_sxq, "\"(") == 0 ? (char_u *)")\"" : p_sxq);
+        STRCAT(ncmd, STRCMP(p_sxq, "(") == 0 ? (char_u *)")"
+                                             : STRCMP(p_sxq, "\"(") == 0 ? (char_u *)")\"" : p_sxq);
         retval = mch_call_shell(ncmd, opt);
         vim_free(ncmd);
       } else
@@ -2805,8 +2768,7 @@ int get_real_state(void) {
  * "b" must point to the start of the file name
  */
 int after_pathsep(char_u *b, char_u *p) {
-  return p > b && vim_ispathsep(p[-1]) &&
-         (!has_mbyte || (*mb_head_off)(b, p - 1) == 0);
+  return p > b && vim_ispathsep(p[-1]) && (!has_mbyte || (*mb_head_off)(b, p - 1) == 0);
 }
 
 /*
@@ -2825,12 +2787,11 @@ int same_directory(char_u *f1, char_u *f2) {
   (void)vim_FullName(f1, ffname, MAXPATHL, FALSE);
   t1 = gettail_sep(ffname);
   t2 = gettail_sep(f2);
-  return (t1 - ffname == t2 - f2 &&
-          pathcmp((char *)ffname, (char *)f2, (int)(t1 - ffname)) == 0);
+  return (t1 - ffname == t2 - f2 && pathcmp((char *)ffname, (char *)f2, (int)(t1 - ffname)) == 0);
 }
 
-#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) ||      \
-    defined(FEAT_GUI_MAC) || defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) || defined(FEAT_GUI_MAC) || \
+    defined(FEAT_GUI_GTK) || defined(PROTO)
 /*
  * Change to a file's directory.
  * Caller must call shorten_fnames()!
@@ -2854,8 +2815,7 @@ int vim_chdirfile(char_u *fname, char *trigger_autocmd) {
     res = mch_chdir((char *)new_dir) == 0 ? OK : FAIL;
 
     if (res == OK && trigger_autocmd != NULL)
-      apply_autocmds(EVENT_DIRCHANGED, (char_u *)trigger_autocmd, new_dir,
-                     FALSE, curbuf);
+      apply_autocmds(EVENT_DIRCHANGED, (char_u *)trigger_autocmd, new_dir, FALSE, curbuf);
   }
   return res;
 }
@@ -2898,8 +2858,7 @@ int vim_chdir(char_u *new_dir) {
   char_u *dir_name;
   int r;
 
-  dir_name = find_directory_in_path(new_dir, (int)STRLEN(new_dir), FNAME_MESS,
-                                    curbuf->b_ffname);
+  dir_name = find_directory_in_path(new_dir, (int)STRLEN(new_dir), FNAME_MESS, curbuf->b_ffname);
   if (dir_name == NULL)
     return -1;
   r = mch_chdir((char *)dir_name);
@@ -2930,8 +2889,7 @@ int get_user_name(char_u *buf, int len) {
  * Our own qsort(), for systems that don't have it.
  * It's simple and slow.  From the K&R C book.
  */
-void qsort(void *base, size_t elm_count, size_t elm_size,
-           int (*cmp)(const void *, const void *)) {
+void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void *, const void *)) {
   char_u *buf;
   char_u *p1;
   char_u *p2;
@@ -3475,8 +3433,7 @@ long elapsed(struct timeval *start_tv) {
   struct timeval now_tv;
 
   gettimeofday(&now_tv, NULL);
-  return (now_tv.tv_sec - start_tv->tv_sec) * 1000L +
-         (now_tv.tv_usec - start_tv->tv_usec) / 1000L;
+  return (now_tv.tv_sec - start_tv->tv_sec) * 1000L + (now_tv.tv_usec - start_tv->tv_usec) / 1000L;
 }
 #endif
 
@@ -3492,9 +3449,8 @@ long elapsed(DWORD start_tick) {
 #endif
 #endif
 
-#if defined(FEAT_JOB_CHANNEL) ||                                               \
-    (defined(UNIX) && (!defined(USE_SYSTEM) ||                                 \
-                       (defined(FEAT_GUI) && defined(FEAT_TERMINAL)))) ||      \
+#if defined(FEAT_JOB_CHANNEL) ||                                                                   \
+    (defined(UNIX) && (!defined(USE_SYSTEM) || (defined(FEAT_GUI) && defined(FEAT_TERMINAL)))) ||  \
     defined(PROTO)
 /*
  * Parse "cmd" and put the white-separated parts in "argv".
@@ -3656,8 +3612,8 @@ int write_session_file(char_u *filename) {
    * enormously large if the GNOME session feature is used regularly.
    */
   save_ssop_flags = ssop_flags;
-  ssop_flags = (SSOP_BLANK | SSOP_CURDIR | SSOP_FOLDS | SSOP_GLOBALS |
-                SSOP_HELP | SSOP_OPTIONS | SSOP_WINSIZE | SSOP_TABPAGES);
+  ssop_flags = (SSOP_BLANK | SSOP_CURDIR | SSOP_FOLDS | SSOP_GLOBALS | SSOP_HELP | SSOP_OPTIONS |
+                SSOP_WINSIZE | SSOP_TABPAGES);
 
   do_cmdline_cmd((char_u *)"let Save_VV_this_session = v:this_session");
   failed = (do_cmdline_cmd((char_u *)mksession_cmdline) == FAIL);
@@ -3678,10 +3634,8 @@ int write_session_file(char_u *filename) {
 
     fd = open_exfile(filename, TRUE, APPENDBIN);
 
-    failed =
-        (fd == NULL ||
-         put_line(fd, "let v:this_session = Save_VV_this_session") == FAIL ||
-         put_line(fd, "unlet Save_VV_this_session") == FAIL);
+    failed = (fd == NULL || put_line(fd, "let v:this_session = Save_VV_this_session") == FAIL ||
+              put_line(fd, "unlet Save_VV_this_session") == FAIL);
 
     if (fd != NULL && fclose(fd) != 0)
       failed = TRUE;

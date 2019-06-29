@@ -128,8 +128,8 @@ int utf16_to_utf8(short_u *instr, int inlen, char_u *outstr) {
  * Returns the result in "*out[*outlen]" with an extra zero appended.
  * "outlen" is in words.
  */
-void MultiByteToWideChar_alloc(UINT cp, DWORD flags, LPCSTR in, int inlen,
-                               LPWSTR *out, int *outlen) {
+void MultiByteToWideChar_alloc(UINT cp, DWORD flags, LPCSTR in, int inlen, LPWSTR *out,
+                               int *outlen) {
   *outlen = MultiByteToWideChar(cp, flags, in, inlen, 0, 0);
   /* Add one one word to avoid a zero-length alloc(). */
   *out = ALLOC_MULT(WCHAR, *outlen + 1);
@@ -143,9 +143,8 @@ void MultiByteToWideChar_alloc(UINT cp, DWORD flags, LPCSTR in, int inlen,
  * Call WideCharToMultiByte() and allocate memory for the result.
  * Returns the result in "*out[*outlen]" with an extra NUL appended.
  */
-void WideCharToMultiByte_alloc(UINT cp, DWORD flags, LPCWSTR in, int inlen,
-                               LPSTR *out, int *outlen, LPCSTR def,
-                               LPBOOL useddef) {
+void WideCharToMultiByte_alloc(UINT cp, DWORD flags, LPCWSTR in, int inlen, LPSTR *out, int *outlen,
+                               LPCSTR def, LPBOOL useddef) {
   *outlen = WideCharToMultiByte(cp, flags, in, inlen, NULL, 0, def, useddef);
   /* Add one one byte to avoid a zero-length alloc(). */
   *out = alloc(*outlen + 1);
@@ -196,8 +195,7 @@ int clip_mch_own_selection(VimClipboard *cbd UNUSED) {
 /*
  * Make vim NOT the owner of the current selection.
  */
-void clip_mch_lose_selection(VimClipboard *cbd UNUSED) {
-  /* Nothing needs to be done here */
+void clip_mch_lose_selection(VimClipboard *cbd UNUSED) { /* Nothing needs to be done here */
 }
 
 /*
@@ -292,8 +290,7 @@ void clip_mch_request_selection(VimClipboard *cbd) {
 
   /* Check for Vim's raw clipboard format first.  This is used without
    * conversion, but only if 'encoding' matches. */
-  if (IsClipboardFormatAvailable(cbd->format_raw) &&
-      metadata.rawlen > (int)STRLEN(p_enc)) {
+  if (IsClipboardFormatAvailable(cbd->format_raw) && metadata.rawlen > (int)STRLEN(p_enc)) {
     /* We have raw data on the clipboard; try to get it. */
     if ((rawh = GetClipboardData(cbd->format_raw)) != NULL) {
       char_u *rawp;
@@ -420,8 +417,7 @@ void clip_mch_set_selection(VimClipboard *cbd) {
     LPSTR lpszMemRaw;
 
     metadata.rawlen = (int)(txtlen + STRLEN(p_enc) + 1);
-    hMemRaw =
-        (LPSTR)GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, metadata.rawlen + 1);
+    hMemRaw = (LPSTR)GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, metadata.rawlen + 1);
     lpszMemRaw = (LPSTR)GlobalLock(hMemRaw);
     if (lpszMemRaw != NULL) {
       STRCPY(lpszMemRaw, p_enc);
@@ -443,21 +439,18 @@ void clip_mch_set_selection(VimClipboard *cbd) {
 
       /* Convert the text for CF_TEXT to Active codepage. Otherwise it's
        * p_enc, which has no relation to the Active codepage. */
-      metadata.txtlen =
-          WideCharToMultiByte(GetACP(), 0, out, len, NULL, 0, 0, 0);
+      metadata.txtlen = WideCharToMultiByte(GetACP(), 0, out, len, NULL, 0, 0, 0);
       vim_free(str);
       str = alloc(metadata.txtlen == 0 ? 1 : metadata.txtlen);
       if (str == NULL) {
         vim_free(out);
         return; /* out of memory */
       }
-      WideCharToMultiByte(GetACP(), 0, out, len, (LPSTR)str, metadata.txtlen, 0,
-                          0);
+      WideCharToMultiByte(GetACP(), 0, out, len, (LPSTR)str, metadata.txtlen, 0, 0);
 
       /* Allocate memory for the UTF-16 text, add one NUL word to
        * terminate the string. */
-      hMemW = (LPSTR)GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE,
-                                 (len + 1) * sizeof(WCHAR));
+      hMemW = (LPSTR)GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, (len + 1) * sizeof(WCHAR));
       lpszMemW = (WCHAR *)GlobalLock(hMemW);
       if (lpszMemW != NULL) {
         memcpy(lpszMemW, out, len * sizeof(WCHAR));
@@ -556,15 +549,13 @@ short_u *enc_to_utf16(char_u *str, int *lenp) {
   if (enc_codepage > 0) {
     /* We can do any CP### -> UTF-16 in one pass, and we can do it
      * without iconv() (convert_* may need iconv). */
-    MultiByteToWideChar_alloc(enc_codepage, 0, (LPCSTR)str, *lenp, &ret,
-                              &length);
+    MultiByteToWideChar_alloc(enc_codepage, 0, (LPCSTR)str, *lenp, &ret, &length);
   } else {
     /* Use "latin1" by default, we might be called before we have p_enc
      * set up.  Convert to utf-8 first, works better with iconv().  Does
      * nothing if 'encoding' is "utf-8". */
     conv.vc_type = CONV_NONE;
-    if (convert_setup(&conv, p_enc ? p_enc : (char_u *)"latin1",
-                      (char_u *)"utf-8") == FAIL)
+    if (convert_setup(&conv, p_enc ? p_enc : (char_u *)"latin1", (char_u *)"utf-8") == FAIL)
       return NULL;
     if (conv.vc_type != CONV_NONE) {
       str = allocbuf = string_convert(&conv, str, lenp);
@@ -609,8 +600,7 @@ char_u *utf16_to_enc(short_u *str, int *lenp) {
     /* We can do any UTF-16 -> CP### in one pass. */
     int length;
 
-    WideCharToMultiByte_alloc(enc_codepage, 0, str, *lenp, (LPSTR *)&enc_str,
-                              &length, 0, 0);
+    WideCharToMultiByte_alloc(enc_codepage, 0, str, *lenp, (LPSTR *)&enc_str, &length, 0, 0);
     *lenp = length;
     return enc_str;
   }
@@ -647,8 +637,7 @@ void acp_to_enc(char_u *str, int str_size, char_u **out, int *outlen)
 {
   LPWSTR widestr;
 
-  MultiByteToWideChar_alloc(GetACP(), 0, (LPCSTR)str, str_size, &widestr,
-                            outlen);
+  MultiByteToWideChar_alloc(GetACP(), 0, (LPCSTR)str, str_size, &widestr, outlen);
   if (widestr != NULL) {
     ++*outlen; /* Include the 0 after the string */
     *out = utf16_to_enc((short_u *)widestr, outlen);
@@ -669,8 +658,7 @@ void enc_to_acp(char_u *str, int str_size, char_u **out, int *outlen)
 
   widestr = (WCHAR *)enc_to_utf16(str, &len);
   if (widestr != NULL) {
-    WideCharToMultiByte_alloc(GetACP(), 0, widestr, len, (LPSTR *)out, outlen,
-                              0, 0);
+    WideCharToMultiByte_alloc(GetACP(), 0, widestr, len, (LPSTR *)out, outlen, 0, 0);
     vim_free(widestr);
   }
 }

@@ -26,8 +26,7 @@
 #endif
 
 #if MZSCHEME_VERSION_MAJOR >= 299
-#define SCHEME_STRINGP(obj)                                                    \
-  (SCHEME_BYTE_STRINGP(obj) || SCHEME_CHAR_STRINGP(obj))
+#define SCHEME_STRINGP(obj) (SCHEME_BYTE_STRINGP(obj) || SCHEME_CHAR_STRINGP(obj))
 #define BYTE_STRING_VALUE(obj) ((char_u *)SCHEME_BYTE_STR_VAL(obj))
 #else
 /* macros for compatibility with older versions */

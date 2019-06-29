@@ -88,7 +88,7 @@ typedef struct growarray {
   void *ga_data;   /* pointer to the first item */
 } garray_T;
 
-#define GA_EMPTY                                                               \
+#define GA_EMPTY                                                                                   \
   { 0, 0, 0, 0, NULL }
 
 typedef struct window_S win_T;
@@ -206,20 +206,17 @@ typedef struct {
   long wo_fdc;
 #define w_p_fdc w_onebuf_opt.wo_fdc /* 'foldcolumn' */
   int wo_fdc_save;
-#define w_p_fdc_save                                                           \
-  w_onebuf_opt.wo_fdc_save /* 'foldenable' saved for diff mode */
+#define w_p_fdc_save w_onebuf_opt.wo_fdc_save /* 'foldenable' saved for diff mode */
   int wo_fen;
 #define w_p_fen w_onebuf_opt.wo_fen /* 'foldenable' */
   int wo_fen_save;
-#define w_p_fen_save                                                           \
-  w_onebuf_opt.wo_fen_save /* 'foldenable' saved for diff mode */
+#define w_p_fen_save w_onebuf_opt.wo_fen_save /* 'foldenable' saved for diff mode */
   char_u *wo_fdi;
 #define w_p_fdi w_onebuf_opt.wo_fdi /* 'foldignore' */
   long wo_fdl;
 #define w_p_fdl w_onebuf_opt.wo_fdl /* 'foldlevel' */
   int wo_fdl_save;
-#define w_p_fdl_save                                                           \
-  w_onebuf_opt.wo_fdl_save /* 'foldlevel' state saved for diff mode */
+#define w_p_fdl_save w_onebuf_opt.wo_fdl_save /* 'foldlevel' state saved for diff mode */
   char_u *wo_fdm;
 #define w_p_fdm w_onebuf_opt.wo_fdm /* 'foldmethod' */
   char_u *wo_fdm_save;
@@ -269,7 +266,7 @@ typedef struct {
 #define w_p_scr w_onebuf_opt.wo_scr /* 'scroll' */
   int wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb /* 'scrollbind' */
-  int wo_diff_saved; /* options were saved for starting diff mode */
+  int wo_diff_saved;                /* options were saved for starting diff mode */
 #define w_p_diff_saved w_onebuf_opt.wo_diff_saved
   int wo_scb_save; /* 'scrollbind' saved for diff mode*/
 #define w_p_scb_save w_onebuf_opt.wo_scb_save
@@ -457,13 +454,13 @@ struct mf_hashitem_S {
 #define MHT_INIT_SIZE 64
 
 typedef struct mf_hashtab_S {
-  long_u mht_mask;             /* mask used for hash value (nr of items
-                                * in array is "mht_mask" + 1) */
-  long_u mht_count;            /* nr of items inserted into hashtable */
-  mf_hashitem_T **mht_buckets; /* points to mht_small_buckets or
-                                *dynamically allocated array */
+  long_u mht_mask;                                 /* mask used for hash value (nr of items
+                                                    * in array is "mht_mask" + 1) */
+  long_u mht_count;                                /* nr of items inserted into hashtable */
+  mf_hashitem_T **mht_buckets;                     /* points to mht_small_buckets or
+                                                    *dynamically allocated array */
   mf_hashitem_T *mht_small_buckets[MHT_INIT_SIZE]; /* initial buckets */
-  char mht_fixed; /* non-zero value forbids growth */
+  char mht_fixed;                                  /* non-zero value forbids growth */
 } mf_hashtab_T;
 
 /*
@@ -1088,23 +1085,22 @@ typedef struct hashitem_S {
 /* The address of "hash_removed" is used as a magic number for hi_key to
  * indicate a removed item. */
 #define HI_KEY_REMOVED &hash_removed
-#define HASHITEM_EMPTY(hi)                                                     \
-  ((hi)->hi_key == NULL || (hi)->hi_key == &hash_removed)
+#define HASHITEM_EMPTY(hi) ((hi)->hi_key == NULL || (hi)->hi_key == &hash_removed)
 
 /* Initial size for a hashtable.  Our items are relatively small and growing
  * is expensive, thus use 16 as a start.  Must be a power of 2. */
 #define HT_INIT_SIZE 16
 
 typedef struct hashtable_S {
-  long_u ht_mask;       /* mask used for hash value (nr of items in
-                         * array is "ht_mask" + 1) */
-  long_u ht_used;       /* number of items used */
-  long_u ht_filled;     /* number of items used + removed */
-  int ht_locked;        /* counter for hash_lock() */
-  int ht_error;         /* when set growing failed, can't add more
-                           items before growing works */
-  hashitem_T *ht_array; /* points to the array, allocated when it's
-                           not "ht_smallarray" */
+  long_u ht_mask;                         /* mask used for hash value (nr of items in
+                                           * array is "ht_mask" + 1) */
+  long_u ht_used;                         /* number of items used */
+  long_u ht_filled;                       /* number of items used + removed */
+  int ht_locked;                          /* counter for hash_lock() */
+  int ht_error;                           /* when set growing failed, can't add more
+                                             items before growing works */
+  hashitem_T *ht_array;                   /* points to the array, allocated when it's
+                                             not "ht_smallarray" */
   hashitem_T ht_smallarray[HT_INIT_SIZE]; /* initial array */
 } hashtab_T;
 
@@ -1213,9 +1209,9 @@ typedef struct {
 
 /* Values for "dv_scope". */
 #define VAR_SCOPE 1 /* a:, v:, s:, etc. scope dictionaries */
-#define VAR_DEF_SCOPE                                                          \
-  2 /* l:, g: scope dictionaries: here funcrefs are not \ allowed to mask \ \                                                                             \
-       existing functions */
+#define VAR_DEF_SCOPE                                                                              \
+  2 /* l:, g: scope dictionaries: here funcrefs are not \ allowed to mask \ \ \ \ existing                                                                                          \
+       functions */
 
 /* Values for "v_lock". */
 #define VAR_LOCKED 1 /* locked with lock(), can use unlock() */
@@ -1381,8 +1377,8 @@ struct funccall_S {
   listitem_T l_listitems[MAX_FUNC_ARGS]; /* listitems for a:000 */
   typval_T *rettv;                       /* return value */
   linenr_T breakpoint;                   /* next line with breakpoint or zero */
-  int dbg_tick; /* debug_tick when breakpoint was set */
-  int level;    /* top nesting level of executed function */
+  int dbg_tick;                          /* debug_tick when breakpoint was set */
+  int level;                             /* top nesting level of executed function */
 #ifdef FEAT_PROFILE
   proftime_T prof_child; /* time spent in a child */
 #endif
@@ -1704,8 +1700,7 @@ struct channel_S {
 #define JO2_TTY_TYPE 0x10000    /* "tty_type" */
 
 #define JO_MODE_ALL (JO_MODE + JO_IN_MODE + JO_OUT_MODE + JO_ERR_MODE)
-#define JO_CB_ALL                                                              \
-  (JO_CALLBACK + JO_OUT_CALLBACK + JO_ERR_CALLBACK + JO_CLOSE_CALLBACK)
+#define JO_CB_ALL (JO_CALLBACK + JO_OUT_CALLBACK + JO_ERR_CALLBACK + JO_CLOSE_CALLBACK)
 #define JO_TIMEOUT_ALL (JO_TIMEOUT + JO_OUT_TIMEOUT + JO_ERR_TIMEOUT)
 
 /*
@@ -2284,8 +2279,7 @@ typedef struct {
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 
-typedef void (*MessageCallback)(char_u *title, char_u *msg,
-                                msgPriority_T priority);
+typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 
 #ifdef FEAT_DIFF
 /*

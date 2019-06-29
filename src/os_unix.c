@@ -130,26 +130,24 @@ static RETSIGTYPE deathtrap SIGPROTOARG;
 
 static void catch_int_signal(void);
 static void set_signals(void);
-static void catch_signals(RETSIGTYPE (*func_deadly)(),
-                          RETSIGTYPE (*func_other)());
+static void catch_signals(RETSIGTYPE (*func_deadly)(), RETSIGTYPE (*func_other)());
 #ifdef HAVE_SIGPROCMASK
 #define SIGSET_DECL(set) sigset_t set;
 #define BLOCK_SIGNALS(set) block_signals(set)
 #define UNBLOCK_SIGNALS(set) unblock_signals(set)
 #else
 #define SIGSET_DECL(set)
-#define BLOCK_SIGNALS(set)                                                     \
-  do { /**/                                                                    \
+#define BLOCK_SIGNALS(set)                                                                         \
+  do { /**/                                                                                        \
   } while (0)
-#define UNBLOCK_SIGNALS(set)                                                   \
-  do { /**/                                                                    \
+#define UNBLOCK_SIGNALS(set)                                                                       \
+  do { /**/                                                                                        \
   } while (0)
 #endif
 static int have_wildcard(int, char_u **);
 static int have_dollars(int, char_u **);
 
-static int save_patterns(int num_pat, char_u **pat, int *num_file,
-                         char_u ***file);
+static int save_patterns(int num_pat, char_u **pat, int *num_file, char_u ***file);
 
 #ifndef SIG_ERR
 #define SIG_ERR ((RETSIGTYPE(*)()) - 1)
@@ -281,8 +279,8 @@ int mch_chdir(char *path) {
 }
 
 /* Why is NeXT excluded here (and not in os_unixx.h)? */
-#if defined(ECHOE) && defined(ICANON) &&                                       \
-    (defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)) && !defined(__NeXT__)
+#if defined(ECHOE) && defined(ICANON) && (defined(HAVE_TERMIO_H) || defined(HAVE_TERMIOS_H)) &&    \
+    !defined(__NeXT__)
 #define NEW_TTY_SYSTEM
 #endif
 
@@ -316,11 +314,9 @@ static int resize_func(int check_only) {
  * If wtime == n wait a short time for characters.
  * If wtime == -1 wait forever for characters.
  */
-int mch_inchar(char_u *buf, int maxlen,
-               long wtime, /* don't use "time", MIPS cannot handle it */
+int mch_inchar(char_u *buf, int maxlen, long wtime, /* don't use "time", MIPS cannot handle it */
                int tb_change_cnt) {
-  return inchar_loop(buf, maxlen, wtime, tb_change_cnt, WaitForChar,
-                     resize_func);
+  return inchar_loop(buf, maxlen, wtime, tb_change_cnt, WaitForChar, resize_func);
 }
 
 static void handle_resize(void) {
@@ -372,8 +368,7 @@ long_u mch_total_mem(int special UNUSED) {
     struct vm_statistics64 vm_stat;
     natural_t count = HOST_VM_INFO64_COUNT;
 
-    kret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat,
-                             &count);
+    kret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 #else
     struct vm_statistics vm_stat;
     natural_t count = HOST_VM_INFO_COUNT;
@@ -382,8 +377,7 @@ long_u mch_total_mem(int special UNUSED) {
 #endif
     if (kret == KERN_SUCCESS)
       /* get the amount of user memory by summing each usage */
-      mem = (long_u)(vm_stat.free_count + vm_stat.active_count +
-                     vm_stat.inactive_count
+      mem = (long_u)(vm_stat.free_count + vm_stat.active_count + vm_stat.inactive_count
 #ifdef MAC_OS_X_VERSION_10_9
                      + vm_stat.compressor_page_count
 #endif
@@ -471,8 +465,7 @@ long_u mch_total_mem(int special UNUSED) {
   {
     struct rlimit rlp;
 
-    if (getrlimit(RLIMIT_DATA, &rlp) == 0 &&
-        rlp.rlim_cur < ((rlim_t)1 << (sizeof(long_u) * 8 - 1))
+    if (getrlimit(RLIMIT_DATA, &rlp) == 0 && rlp.rlim_cur < ((rlim_t)1 << (sizeof(long_u) * 8 - 1))
 #ifdef RLIM_INFINITY
         && rlp.rlim_cur != RLIM_INFINITY
 #endif
@@ -561,8 +554,7 @@ void mch_delay(long msec, int ignoreinput) {
     WaitForChar(msec, NULL, FALSE);
 }
 
-#if defined(HAVE_STACK_LIMIT) ||                                               \
-    (!defined(HAVE_SIGALTSTACK) && defined(HAVE_SIGSTACK))
+#if defined(HAVE_STACK_LIMIT) || (!defined(HAVE_SIGALTSTACK) && defined(HAVE_SIGSTACK))
 #define HAVE_CHECK_STACK_GROWTH
 /*
  * Support for checking for an almost-out-of-stack-space situation.
@@ -605,8 +597,7 @@ static void get_stack_limit(void) {
 
   /* Set the stack limit to 15/16 of the allowable size.  Skip this when the
    * limit doesn't fit in a long (rlim_cur might be "long long"). */
-  if (getrlimit(RLIMIT_STACK, &rlp) == 0 &&
-      rlp.rlim_cur < ((rlim_t)1 << (sizeof(long_u) * 8 - 1))
+  if (getrlimit(RLIMIT_STACK, &rlp) == 0 && rlp.rlim_cur < ((rlim_t)1 << (sizeof(long_u) * 8 - 1))
 #ifdef RLIM_INFINITY
       && rlp.rlim_cur != RLIM_INFINITY
 #endif
@@ -747,9 +738,8 @@ static RETSIGTYPE sig_alarm SIGDEFARG(sigarg) {
 }
 #endif
 
-#if (defined(HAVE_SETJMP_H) &&                                                 \
-     ((defined(FEAT_X11) && defined(FEAT_XCLIPBOARD)) ||                       \
-      defined(FEAT_LIBCALL))) ||                                               \
+#if (defined(HAVE_SETJMP_H) &&                                                                     \
+     ((defined(FEAT_X11) && defined(FEAT_XCLIPBOARD)) || defined(FEAT_LIBCALL))) ||                \
     defined(PROTO)
 #define USING_SETJMP 1
 
@@ -950,8 +940,7 @@ static RETSIGTYPE deathtrap SIGDEFARG(sigarg) {
 
   /* No translation, it may call malloc(). */
 #ifdef SIGHASARG
-  sprintf((char *)IObuff, "Vim: Caught deadly signal %s\n",
-          signal_info[i].name);
+  sprintf((char *)IObuff, "Vim: Caught deadly signal %s\n", signal_info[i].name);
 #else
   sprintf((char *)IObuff, "Vim: Caught deadly signal\n");
 #endif
@@ -1195,9 +1184,7 @@ static void set_signals(void) {
 /*
  * Catch CTRL-C (only works while in Cooked mode).
  */
-static void catch_int_signal(void) {
-  signal(SIGINT, (RETSIGTYPE(*)())catch_sigint);
-}
+static void catch_int_signal(void) { signal(SIGINT, (RETSIGTYPE(*)())catch_sigint); }
 #endif
 
 void reset_signals(void) {
@@ -1208,8 +1195,7 @@ void reset_signals(void) {
 #endif
 }
 
-static void catch_signals(RETSIGTYPE (*func_deadly)(),
-                          RETSIGTYPE (*func_other)()) {
+static void catch_signals(RETSIGTYPE (*func_deadly)(), RETSIGTYPE (*func_other)()) {
   int i;
 
   for (i = 0; signal_info[i].sig != -1; i++)
@@ -1266,9 +1252,7 @@ static void block_signals(sigset_t *set) {
   sigprocmask(SIG_BLOCK, &newset, set);
 }
 
-static void unblock_signals(sigset_t *set) {
-  sigprocmask(SIG_SETMASK, set, NULL);
-}
+static void unblock_signals(sigset_t *set) { sigprocmask(SIG_SETMASK, set, NULL); }
 #endif
 
 /*
@@ -1499,24 +1483,21 @@ int vim_is_xterm(char_u *name) {
     return FALSE;
   return (STRNICMP(name, "xterm", 5) == 0 || STRNICMP(name, "nxterm", 6) == 0 ||
           STRNICMP(name, "kterm", 5) == 0 || STRNICMP(name, "mlterm", 6) == 0 ||
-          STRNICMP(name, "rxvt", 4) == 0 ||
-          STRNICMP(name, "screen.xterm", 12) == 0 ||
+          STRNICMP(name, "rxvt", 4) == 0 || STRNICMP(name, "screen.xterm", 12) == 0 ||
           STRCMP(name, "builtin_xterm") == 0);
 }
 
 int vim_is_iris(char_u *name) {
   if (name == NULL)
     return FALSE;
-  return (STRNICMP(name, "iris-ansi", 9) == 0 ||
-          STRCMP(name, "builtin_iris-ansi") == 0);
+  return (STRNICMP(name, "iris-ansi", 9) == 0 || STRCMP(name, "builtin_iris-ansi") == 0);
 }
 
 int vim_is_vt300(char_u *name) {
   if (name == NULL)
     return FALSE; /* actually all ANSI comp. terminals should be here  */
   /* catch VT100 - VT5xx */
-  return ((STRNICMP(name, "vt", 2) == 0 &&
-           vim_strchr((char_u *)"12345", name[2]) != NULL) ||
+  return ((STRNICMP(name, "vt", 2) == 0 && vim_strchr((char_u *)"12345", name[2]) != NULL) ||
           STRCMP(name, "builtin_vt320") == 0);
 }
 
@@ -1529,8 +1510,7 @@ int vim_is_fastterm(char_u *name) {
     return FALSE;
   if (vim_is_xterm(name) || vim_is_vt300(name) || vim_is_iris(name))
     return TRUE;
-  return (STRNICMP(name, "hpterm", 6) == 0 ||
-          STRNICMP(name, "sun-cmd", 7) == 0 ||
+  return (STRNICMP(name, "hpterm", 6) == 0 || STRNICMP(name, "sun-cmd", 7) == 0 ||
           STRNICMP(name, "screen", 6) == 0 || STRNICMP(name, "tmux", 4) == 0 ||
           STRNICMP(name, "dtterm", 6) == 0);
 }
@@ -1539,9 +1519,7 @@ int vim_is_fastterm(char_u *name) {
  * Insert user name in s[len].
  * Return OK if a name found.
  */
-int mch_get_user_name(char_u *s, int len) {
-  return mch_get_uname(getuid(), s, len);
-}
+int mch_get_user_name(char_u *s, int len) { return mch_get_uname(getuid(), s, len); }
 
 /*
  * Insert user name for "uid" in s[len].
@@ -1551,8 +1529,7 @@ int mch_get_uname(uid_t uid, char_u *s, int len) {
 #if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
   struct passwd *pw;
 
-  if ((pw = getpwuid(uid)) != NULL && pw->pw_name != NULL &&
-      *(pw->pw_name) != NUL) {
+  if ((pw = getpwuid(uid)) != NULL && pw->pw_name != NULL && *(pw->pw_name) != NUL) {
     vim_strncpy(s, (char_u *)pw->pw_name, len - 1);
     return OK;
   }
@@ -1661,8 +1638,7 @@ int mch_FullName(char_u *fname, char_u *buf, int len,
 #if CYGWIN_VERSION_DLL_MAJOR >= 1007
   /* Use CCP_RELATIVE to avoid that it sometimes returns a path that ends in
    * a forward slash. */
-  cygwin_conv_path(CCP_WIN_A_TO_POSIX | CCP_RELATIVE, fname, posix_fname,
-                   MAXPATHL);
+  cygwin_conv_path(CCP_WIN_A_TO_POSIX | CCP_RELATIVE, fname, posix_fname, MAXPATHL);
 #else
   cygwin_conv_to_posix_path(fname, posix_fname);
 #endif
@@ -1671,8 +1647,7 @@ int mch_FullName(char_u *fname, char_u *buf, int len,
 
   /* Expand it if forced or not an absolute path.
    * Do not do it for "/file", the result is always "/". */
-  if ((force || !mch_isFullName(fname)) &&
-      ((p = vim_strrchr(fname, '/')) == NULL || p != fname)) {
+  if ((force || !mch_isFullName(fname)) && ((p = vim_strrchr(fname, '/')) == NULL || p != fname)) {
     /*
      * If the file name has a path, change to that directory for a moment,
      * and then get the directory (and get back to where we were).
@@ -1701,8 +1676,7 @@ int mch_FullName(char_u *fname, char_u *buf, int len,
 #ifdef HAVE_FCHDIR
           fd < 0 &&
 #endif
-          (mch_dirname(olddir, MAXPATHL) == FAIL ||
-           mch_chdir((char *)olddir) != 0)) {
+          (mch_dirname(olddir, MAXPATHL) == FAIL || mch_chdir((char *)olddir) != 0)) {
         p = NULL; /* can't get current dir: don't chdir */
         retval = FAIL;
       } else {
@@ -1745,8 +1719,7 @@ int mch_FullName(char_u *fname, char_u *buf, int len,
     l = STRLEN(buf);
     if (l >= len - 1)
       retval = FAIL; /* no space for trailing "/" */
-    else if (l > 0 && buf[l - 1] != '/' && *fname != NUL &&
-             STRCMP(fname, ".") != 0)
+    else if (l > 0 && buf[l - 1] != '/' && *fname != NUL && STRCMP(fname, ".") != 0)
       STRCAT(buf, "/");
   }
 
@@ -1772,9 +1745,7 @@ int mch_isFullName(char_u *fname) { return (*fname == '/' || *fname == '~'); }
  * file name to remain exactly the same.
  * Only required for file systems where case is ignored and preserved.
  */
-void fname_case(char_u *name,
-                int len
-                    UNUSED) /* buffer size, only used when name gets longer */
+void fname_case(char_u *name, int len UNUSED) /* buffer size, only used when name gets longer */
 {
   struct stat st;
   char_u *slash, *tail;
@@ -1798,17 +1769,15 @@ void fname_case(char_u *name,
       while ((dp = readdir(dirp)) != NULL) {
         /* Only accept names that differ in case and are the same byte
          * length. TODO: accept different length name. */
-        if (STRICMP(tail, dp->d_name) == 0 &&
-            STRLEN(tail) == STRLEN(dp->d_name)) {
+        if (STRICMP(tail, dp->d_name) == 0 && STRLEN(tail) == STRLEN(dp->d_name)) {
           char_u newname[MAXPATHL + 1];
           struct stat st2;
 
           /* Verify the inode is equal. */
           vim_strncpy(newname, name, MAXPATHL);
-          vim_strncpy(newname + (tail - name), (char_u *)dp->d_name,
-                      MAXPATHL - (tail - name));
-          if (mch_lstat((char *)newname, &st2) >= 0 &&
-              st.st_ino == st2.st_ino && st.st_dev == st2.st_dev) {
+          vim_strncpy(newname + (tail - name), (char_u *)dp->d_name, MAXPATHL - (tail - name));
+          if (mch_lstat((char *)newname, &st2) >= 0 && st.st_ino == st2.st_ino &&
+              st.st_dev == st2.st_dev) {
             STRCPY(tail, dp->d_name);
             break;
           }
@@ -1853,9 +1822,7 @@ int mch_setperm(char_u *name, long perm) {
  * Set file permission for open file "fd" to "perm".
  * Return FAIL for failure, OK otherwise.
  */
-int mch_fsetperm(int fd, long perm) {
-  return (fchmod(fd, (mode_t)perm) == 0 ? OK : FAIL);
-}
+int mch_fsetperm(int fd, long perm) { return (fchmod(fd, (mode_t)perm) == 0 ? OK : FAIL); }
 #endif
 
 #if defined(HAVE_ACL) || defined(PROTO)
@@ -1925,8 +1892,8 @@ void mch_copy_sec(char_u *from_file, char_u *to_file) {
  * Copy security info from "from_file" to "to_file".
  */
 void mch_copy_sec(char_u *from_file, char_u *to_file) {
-  static const char *const smack_copied_attributes[] = {
-      XATTR_NAME_SMACK, XATTR_NAME_SMACKEXEC, XATTR_NAME_SMACKMMAP};
+  static const char *const smack_copied_attributes[] = {XATTR_NAME_SMACK, XATTR_NAME_SMACKEXEC,
+                                                        XATTR_NAME_SMACKMMAP};
 
   char buffer[SMACK_LABEL_LEN];
   const char *name;
@@ -1937,8 +1904,8 @@ void mch_copy_sec(char_u *from_file, char_u *to_file) {
   if (from_file == NULL)
     return;
 
-  for (index = 0; index < (int)(sizeof(smack_copied_attributes) /
-                                sizeof(smack_copied_attributes)[0]);
+  for (index = 0;
+       index < (int)(sizeof(smack_copied_attributes) / sizeof(smack_copied_attributes)[0]);
        index++) {
     /* get the name of the attribute to copy */
     name = smack_copied_attributes[index];
@@ -1949,8 +1916,7 @@ void mch_copy_sec(char_u *from_file, char_u *to_file) {
       /* copy the attribute value of buffer */
       ret = setxattr((char *)to_file, name, buffer, (size_t)size, 0);
       if (ret < 0) {
-        vim_snprintf((char *)IObuff, IOSIZE,
-                     _("Could not set security context %s for %s"), name,
+        vim_snprintf((char *)IObuff, IOSIZE, _("Could not set security context %s for %s"), name,
                      to_file);
         msg_outtrans(IObuff);
         msg_putchar('\n');
@@ -1966,10 +1932,8 @@ void mch_copy_sec(char_u *from_file, char_u *to_file) {
       case ERANGE:
       default:
         /* no enough size OR unexpected error */
-        vim_snprintf(
-            (char *)IObuff, IOSIZE,
-            _("Could not get security context %s for %s. Removing it!"), name,
-            from_file);
+        vim_snprintf((char *)IObuff, IOSIZE,
+                     _("Could not get security context %s for %s. Removing it!"), name, from_file);
         msg_puts((char *)IObuff);
         msg_putchar('\n');
         /* FALLTHROUGH to remove the attribute */
@@ -2151,8 +2115,7 @@ int mch_can_exe(char_u *name, char_u **path, int use_path) {
   /* When "use_path" is false and if it's an absolute or relative path don't
    * need to use $PATH. */
   if (!use_path || mch_isFullName(name) ||
-      (name[0] == '.' &&
-       (name[1] == '/' || (name[1] == '.' && name[2] == '/')))) {
+      (name[0] == '.' && (name[1] == '/' || (name[1] == '.' && name[2] == '/')))) {
     /* There must be a path separator, files in the current directory
      * can't be executed. */
     if (gettail(name) != name && executable_file(name)) {
@@ -2466,8 +2429,7 @@ void mch_settmode(int tmode) {
 
     /* A signal may cause tcsetattr() to fail (e.g., SIGCONT).  Retry a
      * few times. */
-    while (tcsetattr(read_cmd_fd, TCSANOW, &tnew) == -1 && errno == EINTR &&
-           n > 0)
+    while (tcsetattr(read_cmd_fd, TCSANOW, &tnew) == -1 && errno == EINTR && n > 0)
       --n;
   }
 #else
@@ -2754,8 +2716,7 @@ static pid_t wait4pid(pid_t child, waitstatus *status) {
 /*
  * Set the environment for a child process.
  */
-static void set_child_environment(long rows, long columns, char *term,
-                                  int is_terminal UNUSED) {
+static void set_child_environment(long rows, long columns, char *term, int is_terminal UNUSED) {
 #ifdef HAVE_SETENV
   char envbuf[50];
 #else
@@ -2828,8 +2789,7 @@ static void set_default_child_environment(int is_terminal) {
  * When successful both file descriptors are stored and the allocated pty name
  * is stored in both "*name1" and "*name2".
  */
-static void open_pty(int *pty_master_fd, int *pty_slave_fd, char_u **name1,
-                     char_u **name2) {
+static void open_pty(int *pty_master_fd, int *pty_slave_fd, char_u **name1, char_u **name2) {
   char *tty_name;
 
   if (name1 != NULL)
@@ -2879,8 +2839,7 @@ void may_send_sigint(int c UNUSED, pid_t pid UNUSED, pid_t wpid UNUSED) {
 
 #if !defined(USE_SYSTEM) || (defined(FEAT_GUI) && defined(FEAT_TERMINAL))
 
-static int build_argv(char_u *cmd, char ***argvp, char_u **sh_tofree,
-                      char_u **shcf_tofree) {
+static int build_argv(char_u *cmd, char ***argvp, char_u **sh_tofree, char_u **shcf_tofree) {
   char **argv = NULL;
   int argc;
 
@@ -2925,8 +2884,7 @@ static int build_argv(char_u *cmd, char ***argvp, char_u **sh_tofree,
 /*
  * Use a terminal window to run a shell command in.
  */
-static int mch_call_shell_terminal(char_u *cmd,
-                                   int options UNUSED) /* SHELL_*, see vim.h */
+static int mch_call_shell_terminal(char_u *cmd, int options UNUSED) /* SHELL_*, see vim.h */
 {
   jobopt_T opt;
   char **argv = NULL;
@@ -2986,8 +2944,7 @@ theend:
 /*
  * Use system() to start the shell: simple but slow.
  */
-static int mch_call_shell_system(char_u *cmd,
-                                 int options) /* SHELL_*, see vim.h */
+static int mch_call_shell_system(char_u *cmd, int options) /* SHELL_*, see vim.h */
 {
 #ifdef VMS
   char *ifn = NULL;
@@ -3024,15 +2981,13 @@ static int mch_call_shell_system(char_u *cmd,
     else
       x = system((char *)cmd);
 #else
-    newcmd = alloc(STRLEN(p_sh) +
-                   (extra_shell_arg == NULL ? 0 : STRLEN(extra_shell_arg)) +
+    newcmd = alloc(STRLEN(p_sh) + (extra_shell_arg == NULL ? 0 : STRLEN(extra_shell_arg)) +
                    STRLEN(p_shcf) + STRLEN(cmd) + 4);
     if (newcmd == NULL)
       x = 0;
     else {
       sprintf((char *)newcmd, "%s %s %s %s", p_sh,
-              extra_shell_arg == NULL ? "" : (char *)extra_shell_arg,
-              (char *)p_shcf, (char *)cmd);
+              extra_shell_arg == NULL ? "" : (char *)extra_shell_arg, (char *)p_shcf, (char *)cmd);
       x = system((char *)newcmd);
       vim_free(newcmd);
     }
@@ -3061,16 +3016,15 @@ static int mch_call_shell_system(char_u *cmd,
 
 #else /* USE_SYSTEM */
 
-#define EXEC_FAILED                                                            \
-  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells \  \
-         \ use that already */
+#define EXEC_FAILED                                                                                \
+  122 /* Exit code when shell didn't execute.  Don't use \ 127, some shells \  \ \ \ \ use that                                                                                      \
+         already */
 #define OPEN_NULL_FAILED 123 /* Exit code if /dev/null can't be opened */
 
 /*
  * Don't use system(), use fork()/exec().
  */
-static int mch_call_shell_fork(char_u *cmd,
-                               int options) /* SHELL_*, see vim.h */
+static int mch_call_shell_fork(char_u *cmd, int options) /* SHELL_*, see vim.h */
 {
   int tmode = cur_tmode;
   pid_t pid;
@@ -3410,8 +3364,7 @@ static int mch_call_shell_fork(char_u *cmd,
               if (len == (int)l) {
                 /* Finished a line, add a NL, unless this line
                  * should not have one. */
-                if (lnum != curbuf->b_op_end.lnum ||
-                    (!curbuf->b_p_bin && curbuf->b_p_fixeol) ||
+                if (lnum != curbuf->b_op_end.lnum || (!curbuf->b_p_bin && curbuf->b_p_fixeol) ||
                     (lnum != curbuf->b_no_eol_lnum &&
                      (lnum != curbuf->b_ml.ml_line_count || curbuf->b_p_eol)))
                   vim_ignored = write(toshell_fd, "\n", (size_t)1);
@@ -3488,8 +3441,7 @@ static int mch_call_shell_fork(char_u *cmd,
                  */
                 may_send_sigint(ta_buf[ta_len], pid, wpid);
 
-                if (pty_master_fd < 0 && toshell_fd >= 0 &&
-                    ta_buf[ta_len] == Ctrl_D) {
+                if (pty_master_fd < 0 && toshell_fd >= 0 && ta_buf[ta_len] == Ctrl_D) {
                   close(toshell_fd);
                   toshell_fd = -1;
                 }
@@ -3500,8 +3452,7 @@ static int mch_call_shell_fork(char_u *cmd,
                 if (ta_buf[i] == CSI && len - i > 2) {
                   c = TERMCAP2KEY(ta_buf[i + 1], ta_buf[i + 2]);
                   if (c == K_DEL || c == K_KDEL || c == K_BS) {
-                    mch_memmove(ta_buf + i + 1, ta_buf + i + 3,
-                                (size_t)(len - i - 2));
+                    mch_memmove(ta_buf + i + 1, ta_buf + i + 3, (size_t)(len - i - 2));
                     if (c == K_DEL || c == K_KDEL)
                       ta_buf[i] = DEL;
                     else
@@ -3578,8 +3529,7 @@ static int mch_call_shell_fork(char_u *cmd,
            */
           ++noread_cnt;
           while (RealWaitForChar(fromshell_fd, 10L, NULL, NULL)) {
-            len = read_eintr(fromshell_fd, buffer + buffer_off,
-                             (size_t)(BUFLEN - buffer_off));
+            len = read_eintr(fromshell_fd, buffer + buffer_off, (size_t)(BUFLEN - buffer_off));
             if (len <= 0) /* end of file or error */
               goto finished;
 
@@ -3837,8 +3787,7 @@ int mch_call_shell(char_u *cmd, int options) /* SHELL_*, see vim.h */
 }
 
 #if defined(FEAT_JOB_CHANNEL) || defined(PROTO)
-void mch_job_start(char **argv, job_T *job, jobopt_T *options,
-                   int is_terminal) {
+void mch_job_start(char **argv, job_T *job, jobopt_T *options, int is_terminal) {
   pid_t pid;
   int fd_in[2] = {-1, -1};  /* for stdin */
   int fd_out[2] = {-1, -1}; /* for stdout */
@@ -3863,8 +3812,7 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options,
   job->jv_status = JOB_FAILED;
 
   if (options->jo_pty &&
-      (!(use_file_for_in || use_null_for_in) ||
-       !(use_file_for_out || use_null_for_out) ||
+      (!(use_file_for_in || use_null_for_in) || !(use_file_for_out || use_null_for_out) ||
        !(use_out_for_err || use_file_for_err || use_null_for_err)))
     open_pty(&pty_master_fd, &pty_slave_fd, &job->jv_tty_out, &job->jv_tty_in);
 
@@ -3881,8 +3829,7 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options,
   } else
       /* When writing buffer lines to the input don't use the pty, so that
        * the pipe can be closed when all lines were written. */
-      if (!use_null_for_in && (pty_master_fd < 0 || use_buffer_for_in) &&
-          pipe(fd_in) < 0)
+      if (!use_null_for_in && (pty_master_fd < 0 || use_buffer_for_in) && pipe(fd_in) < 0)
     goto failed;
 
   if (use_file_for_out) {
@@ -3904,8 +3851,7 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options,
       semsg(_(e_notopen), fname);
       goto failed;
     }
-  } else if (!use_out_for_err && !use_null_for_err && pty_master_fd < 0 &&
-             pipe(fd_err) < 0)
+  } else if (!use_out_for_err && !use_null_for_err && pty_master_fd < 0 && pipe(fd_err) < 0)
     goto failed;
 
   if (!use_null_for_in || !use_null_for_out || !use_null_for_err) {
@@ -3962,8 +3908,8 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options,
        * back to "xterm". */
       if (term == NULL || *term == NUL || STRNCMP(term, "xterm", 5) != 0)
         term = "xterm";
-      set_child_environment((long)options->jo_term_rows,
-                            (long)options->jo_term_cols, term, is_terminal);
+      set_child_environment((long)options->jo_term_rows, (long)options->jo_term_cols, term,
+                            is_terminal);
     } else
 #endif
       set_default_child_environment(is_terminal);
@@ -4184,8 +4130,7 @@ char *mch_job_status(job_T *job) {
     job->jv_exitval = -1;
     job->jv_termsig = get_signal_name(WTERMSIG(status));
     if (job->jv_status < JOB_ENDED && job->jv_termsig != NULL)
-      ch_log(job->jv_channel, "Job terminated by signal \"%s\"",
-             job->jv_termsig);
+      ch_log(job->jv_channel, "Job terminated by signal \"%s\"", job->jv_termsig);
     goto return_dead;
   }
   return "run";
@@ -4321,8 +4266,7 @@ int mch_create_pty_channel(job_T *job, jobopt_T *options) {
  * In cooked mode we should get SIGINT, no need to check.
  */
 void mch_breakcheck(int force) {
-  if ((curr_tmode == TMODE_RAW || force) &&
-      RealWaitForChar(read_cmd_fd, 0L, NULL, NULL))
+  if ((curr_tmode == TMODE_RAW || force) && RealWaitForChar(read_cmd_fd, 0L, NULL, NULL))
     fill_input_buf(FALSE);
 }
 
@@ -4340,8 +4284,7 @@ void mch_breakcheck(int force) {
  */
 static int WaitForChar(long msec, int *interrupted, int ignore_input) {
 #ifdef FEAT_TIMERS
-  return ui_wait_for_chars_or_timer(msec, WaitForCharOrMouse, interrupted,
-                                    ignore_input) == OK;
+  return ui_wait_for_chars_or_timer(msec, WaitForCharOrMouse, interrupted, ignore_input) == OK;
 #else
   return WaitForCharOrMouse(msec, interrupted, ignore_input);
 #endif
@@ -4605,8 +4548,8 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
     if (interrupted != NULL)
       *interrupted = FALSE;
 
-    ret = select(maxfd + 1, SELECT_TYPE_ARG234 & rfds,
-                 SELECT_TYPE_ARG234 & wfds, SELECT_TYPE_ARG234 & efds, tvp);
+    ret = select(maxfd + 1, SELECT_TYPE_ARG234 & rfds, SELECT_TYPE_ARG234 & wfds,
+                 SELECT_TYPE_ARG234 & efds, tvp);
     result = ret > 0 && FD_ISSET(fd, &rfds);
     if (result)
       --ret;
@@ -4641,8 +4584,7 @@ RealWaitForChar(int fd, long msec, int *check_for_gpm UNUSED, int *interrupted)
 #endif
 
 #ifdef FEAT_XCLIPBOARD
-    if (ret > 0 && xterm_Shell != (Widget)0 &&
-        FD_ISSET(ConnectionNumber(xterm_dpy), &rfds)) {
+    if (ret > 0 && xterm_Shell != (Widget)0 && FD_ISSET(ConnectionNumber(xterm_dpy), &rfds)) {
       xterm_update(); /* Maybe we should hand out clipboard */
       /* continue looping when we only got the X event and the input
        * buffer is empty */
@@ -4734,8 +4676,8 @@ int mch_expandpath(garray_T *gap, char_u *path, int flags) /* EW_* flags */
 
 #define SHELL_SPECIAL (char_u *)"\t \"&'$;<>()\\|"
 
-int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
-                         char_u ***file, int flags) /* EW_* flags */
+int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file, char_u ***file,
+                         int flags) /* EW_* flags */
 {
   int i;
   size_t len;
@@ -4785,8 +4727,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
    */
   if (secure || restricted)
     for (i = 0; i < num_pat; ++i)
-      if (vim_strchr(pat[i], '`') != NULL &&
-          (check_restricted() || check_secure()))
+      if (vim_strchr(pat[i], '`') != NULL && (check_restricted() || check_secure()))
         return FAIL;
 
   /*
@@ -4811,8 +4752,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
    * STYLE_ECHO:	space separated.
    *	    A shell we don't know, stay safe and use "echo".
    */
-  if (num_pat == 1 && *pat[0] == '`' && (len = STRLEN(pat[0])) > 2 &&
-      *(pat[0] + len - 1) == '`')
+  if (num_pat == 1 && *pat[0] == '`' && (len = STRLEN(pat[0])) > 2 && *(pat[0] + len - 1) == '`')
     shell_style = STYLE_BT;
   else if ((len = STRLEN(p_sh)) >= 3) {
     if (STRCMP(p_sh + len - 3, "csh") == 0)
@@ -4911,12 +4851,10 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
           /* Remove a backslash, take char literally.  But keep
            * backslash inside backticks, before a special character
            * and before a backtick. */
-          if (intick || vim_strchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL ||
-              pat[i][j + 1] == '`')
+          if (intick || vim_strchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL || pat[i][j + 1] == '`')
             *p++ = '\\';
           ++j;
-        } else if (!intick &&
-                   ((flags & EW_KEEPDOLLAR) == 0 || pat[i][j] != '$') &&
+        } else if (!intick && ((flags & EW_KEEPDOLLAR) == 0 || pat[i][j] != '$') &&
                    vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
           /* Put a backslash before a special character, but not
            * when inside ``. And not for $var when EW_KEEPDOLLAR is
@@ -5131,10 +5069,8 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
   for (i = 0; i < *num_file; ++i) {
     (*file)[i] = p;
     /* Space or NL separates */
-    if (shell_style == STYLE_ECHO || shell_style == STYLE_BT ||
-        shell_style == STYLE_VIMGLOB) {
-      while (!(shell_style == STYLE_ECHO && *p == ' ') && *p != '\n' &&
-             *p != NUL)
+    if (shell_style == STYLE_ECHO || shell_style == STYLE_BT || shell_style == STYLE_VIMGLOB) {
+      while (!(shell_style == STYLE_ECHO && *p == ' ') && *p != '\n' && *p != NUL)
         ++p;
       if (p == buffer + len) /* last entry */
         *p = NUL;
@@ -5164,8 +5100,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
       continue;
 
     /* Skip files that are not executable if we check for that. */
-    if (!dir && (flags & EW_EXEC) &&
-        !mch_can_exe((*file)[i], NULL, !(flags & EW_SHELLCMD)))
+    if (!dir && (flags & EW_EXEC) && !mch_can_exe((*file)[i], NULL, !(flags & EW_SHELLCMD)))
       continue;
 
     p = alloc(STRLEN((*file)[i]) + 1 + dir);
@@ -5195,8 +5130,7 @@ notfound:
 
 #endif /* VMS */
 
-static int save_patterns(int num_pat, char_u **pat, int *num_file,
-                         char_u ***file) {
+static int save_patterns(int num_pat, char_u **pat, int *num_file, char_u ***file) {
   int i;
   char_u *s;
 
@@ -5305,10 +5239,8 @@ typedef int (*INTPROCINT)(int);
  * Call a DLL routine which takes either a string or int param
  * and returns an allocated string.
  */
-int mch_libcall(char_u *libname, char_u *funcname,
-                char_u *argstring, /* NULL when using a argint */
-                int argint,
-                char_u **string_result, /* NULL when using number_result */
+int mch_libcall(char_u *libname, char_u *funcname, char_u *argstring, /* NULL when using a argint */
+                int argint, char_u **string_result, /* NULL when using number_result */
                 int *number_result) {
 #if defined(USE_DLOPEN)
   void *hinstLib;
@@ -5369,8 +5301,7 @@ int mch_libcall(char_u *libname, char_u *funcname,
         *(void **)(&ProcAdd) = dlsym(hinstLib, (const char *)funcname);
         dlerr = (char *)dlerror();
 #else
-        if (shl_findsym(&hinstLib, (const char *)funcname, TYPE_PROCEDURE,
-                        (void *)&ProcAdd) < 0)
+        if (shl_findsym(&hinstLib, (const char *)funcname, TYPE_PROCEDURE, (void *)&ProcAdd) < 0)
           ProcAdd = NULL;
 #endif
         if ((success = (ProcAdd != NULL
@@ -5388,8 +5319,7 @@ int mch_libcall(char_u *libname, char_u *funcname,
         *(void **)(&ProcAddI) = dlsym(hinstLib, (const char *)funcname);
         dlerr = (char *)dlerror();
 #else
-        if (shl_findsym(&hinstLib, (const char *)funcname, TYPE_PROCEDURE,
-                        (void *)&ProcAddI) < 0)
+        if (shl_findsym(&hinstLib, (const char *)funcname, TYPE_PROCEDURE, (void *)&ProcAddI) < 0)
           ProcAddI = NULL;
 #endif
         if ((success = (ProcAddI != NULL
@@ -5408,8 +5338,7 @@ int mch_libcall(char_u *libname, char_u *funcname,
       /* Assume that a "1" or "-1" result is an illegal pointer. */
       if (string_result == NULL)
         *number_result = retval_int;
-      else if (retval_str != NULL && retval_str != (char_u *)1 &&
-               retval_str != (char_u *)-1)
+      else if (retval_str != NULL && retval_str != (char_u *)1 && retval_str != (char_u *)-1)
         *string_result = vim_strsave(retval_str);
     }
 
@@ -5490,8 +5419,8 @@ void setup_term_clip(void) {
     } else
 #endif
     {
-      xterm_dpy = XtOpenDisplay(app_context, xterm_display, "vim_xterm",
-                                "Vim_xterm", NULL, 0, &z, &strp);
+      xterm_dpy =
+          XtOpenDisplay(app_context, xterm_display, "vim_xterm", "Vim_xterm", NULL, 0, &z, &strp);
       if (xterm_dpy != NULL)
         xterm_dpy_retry_count = 0;
 #if defined(USING_SETJMP)
@@ -5524,13 +5453,12 @@ void setup_term_clip(void) {
 #endif
 
     /* Create a Shell to make converters work. */
-    AppShell = XtVaAppCreateShell("vim_xterm", "Vim_xterm",
-                                  applicationShellWidgetClass, xterm_dpy, NULL);
+    AppShell =
+        XtVaAppCreateShell("vim_xterm", "Vim_xterm", applicationShellWidgetClass, xterm_dpy, NULL);
     if (AppShell == (Widget)0)
       return;
-    xterm_Shell = XtVaCreatePopupShell("VIM", topLevelShellWidgetClass,
-                                       AppShell, XtNmappedWhenManaged, 0,
-                                       XtNwidth, 1, XtNheight, 1, NULL);
+    xterm_Shell = XtVaCreatePopupShell("VIM", topLevelShellWidgetClass, AppShell,
+                                       XtNmappedWhenManaged, 0, XtNwidth, 1, XtNheight, 1, NULL);
     if (xterm_Shell == (Widget)0)
       return;
 
@@ -5662,9 +5590,7 @@ void clip_xterm_request_selection(VimClipboard *cbd) {
     clip_x11_request_selection(xterm_Shell, xterm_dpy, cbd);
 }
 
-void clip_xterm_set_selection(VimClipboard *cbd) {
-  clip_x11_set_selection(cbd);
-}
+void clip_xterm_set_selection(VimClipboard *cbd) { clip_x11_set_selection(cbd); }
 #endif
 
 #if defined(USE_XSMP) || defined(PROTO)
@@ -5677,8 +5603,7 @@ void clip_xterm_set_selection(VimClipboard *cbd) {
  * This is our chance to ask the user if they want to save,
  * or abort the logout
  */
-static void xsmp_handle_interaction(SmcConn smc_conn,
-                                    SmPointer client_data UNUSED) {
+static void xsmp_handle_interaction(SmcConn smc_conn, SmPointer client_data UNUSED) {
   cmdmod_T save_cmdmod;
   int cancel_shutdown = False;
 
@@ -5708,11 +5633,9 @@ static void xsmp_handle_interaction(SmcConn smc_conn,
 /*
  * Callback that starts save-yourself.
  */
-static void xsmp_handle_save_yourself(SmcConn smc_conn,
-                                      SmPointer client_data UNUSED,
+static void xsmp_handle_save_yourself(SmcConn smc_conn, SmPointer client_data UNUSED,
                                       int save_type UNUSED, Bool shutdown,
-                                      int interact_style UNUSED,
-                                      Bool fast UNUSED) {
+                                      int interact_style UNUSED, Bool fast UNUSED) {
   /* Handle already being in saveyourself */
   if (xsmp.save_yourself)
     SmcSaveYourselfDone(smc_conn, True);
@@ -5729,8 +5652,7 @@ static void xsmp_handle_save_yourself(SmcConn smc_conn,
   /* Now see if we can ask about unsaved files */
   if (shutdown && !fast && gui.in_use)
     /* Need to interact with user, but need SM's permission */
-    SmcInteractRequest(smc_conn, SmDialogError, xsmp_handle_interaction,
-                       client_data);
+    SmcInteractRequest(smc_conn, SmDialogError, xsmp_handle_interaction, client_data);
   else
 #endif
   {
@@ -5753,8 +5675,7 @@ static void xsmp_die(SmcConn smc_conn UNUSED, SmPointer client_data UNUSED) {
 /*
  * Callback to tell us that save-yourself has completed.
  */
-static void xsmp_save_complete(SmcConn smc_conn UNUSED,
-                               SmPointer client_data UNUSED) {
+static void xsmp_save_complete(SmcConn smc_conn UNUSED, SmPointer client_data UNUSED) {
   xsmp.save_yourself = False;
 }
 
@@ -5762,8 +5683,7 @@ static void xsmp_save_complete(SmcConn smc_conn UNUSED,
  * Callback to tell us that an instigated shutdown was cancelled
  * (maybe even by us)
  */
-static void xsmp_shutdown_cancelled(SmcConn smc_conn,
-                                    SmPointer client_data UNUSED) {
+static void xsmp_shutdown_cancelled(SmcConn smc_conn, SmPointer client_data UNUSED) {
   if (xsmp.save_yourself)
     SmcSaveYourselfDone(smc_conn, True);
   xsmp.save_yourself = False;
@@ -5773,8 +5693,8 @@ static void xsmp_shutdown_cancelled(SmcConn smc_conn,
 /*
  * Callback to tell us that a new ICE connection has been established.
  */
-static void xsmp_ice_connection(IceConn iceConn, IcePointer clientData UNUSED,
-                                Bool opening, IcePointer *watchData UNUSED) {
+static void xsmp_ice_connection(IceConn iceConn, IcePointer clientData UNUSED, Bool opening,
+                                IcePointer *watchData UNUSED) {
   /* Intercept creation of ICE connection fd */
   if (opening) {
     xsmp_icefd = IceConnectionNumber(iceConn);
@@ -5786,8 +5706,7 @@ static void xsmp_ice_connection(IceConn iceConn, IcePointer clientData UNUSED,
 int xsmp_handle_requests(void) {
   Bool rep;
 
-  if (IceProcessMessages(xsmp.iceconn, NULL, &rep) ==
-      IceProcessMessagesIOError) {
+  if (IceProcessMessages(xsmp.iceconn, NULL, &rep) == IceProcessMessagesIOError) {
     /* Lost ICE */
     if (p_verbose > 0)
       verb_msg(_("XSMP lost ICE connection"));
@@ -5833,17 +5752,17 @@ void xsmp_init(void) {
   }
 
   /* Create an SM connection */
-  xsmp.smcconn = SmcOpenConnection(
-      NULL, NULL, SmProtoMajor, SmProtoMinor,
-      SmcSaveYourselfProcMask | SmcDieProcMask | SmcSaveCompleteProcMask |
-          SmcShutdownCancelledProcMask,
-      &smcallbacks, NULL, &xsmp.clientid, sizeof(errorstring) - 1, errorstring);
+  xsmp.smcconn =
+      SmcOpenConnection(NULL, NULL, SmProtoMajor, SmProtoMinor,
+                        SmcSaveYourselfProcMask | SmcDieProcMask | SmcSaveCompleteProcMask |
+                            SmcShutdownCancelledProcMask,
+                        &smcallbacks, NULL, &xsmp.clientid, sizeof(errorstring) - 1, errorstring);
   if (xsmp.smcconn == NULL) {
     char errorreport[132];
 
     if (p_verbose > 0) {
-      vim_snprintf(errorreport, sizeof(errorreport),
-                   _("XSMP SmcOpenConnection failed: %s"), errorstring);
+      vim_snprintf(errorreport, sizeof(errorreport), _("XSMP SmcOpenConnection failed: %s"),
+                   errorstring);
       verb_msg(errorreport);
     }
     return;
@@ -6144,13 +6063,12 @@ char CtrlTable[] = {
     0,
 };
 
-char MetaCharTable[] =
-    {/*   0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F */
-     0,   0,   0,   0,   '\\', 0,   'F', 0,   'W', 'M', 'N', 0,   0,
-     0,   0,   0,   0,   0,    0,   0,   ']', 0,   0,   'G', 0,   0,
-     'R', 'O', 0,   0,   0,    0,   '@', 'A', 'B', 'C', 'D', 'E', 0,
-     0,   'H', 'I', 'J', 'K',  'L', 0,   0,   0,   'P', 'Q', 0,   'S',
-     'T', 'U', 'V', 0,   'X',  'Y', 'Z', '[', 0,   0,   '^', 0};
+char MetaCharTable[] = {/*   0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F */
+                        0,   0,   0,   0,   '\\', 0,   'F', 0,   'W', 'M', 'N', 0,   0,
+                        0,   0,   0,   0,   0,    0,   0,   ']', 0,   0,   'G', 0,   0,
+                        'R', 'O', 0,   0,   0,    0,   '@', 'A', 'B', 'C', 'D', 'E', 0,
+                        0,   'H', 'I', 'J', 'K',  'L', 0,   0,   0,   'P', 'Q', 0,   'S',
+                        'T', 'U', 'V', 0,   'X',  'Y', 'Z', '[', 0,   0,   '^', 0};
 
 /* TODO: Use characters NOT numbers!!! */
 char CtrlCharTable[] = {

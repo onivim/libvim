@@ -132,8 +132,7 @@ pos_T *vimSearchGetMatchingPair(int initc);
  *
  * Get highlights for the current search
  */
-void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
-                            int *num_highlights,
+void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum, int *num_highlights,
                             searchHighlight_T **highlights);
 
 /*

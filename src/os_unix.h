@@ -44,8 +44,7 @@
 /* On AIX 4.2 there is a conflicting prototype for ioctl() in stropts.h and
  * unistd.h.  This hack should fix that (suggested by Jeff George).
  * But on AIX 4.3 it's alright (suggested by Jake Hamby). */
-#if defined(FEAT_GUI) && defined(_AIX) && !defined(_AIX43) &&                  \
-    !defined(_NO_PROTO)
+#if defined(FEAT_GUI) && defined(_AIX) && !defined(_AIX43) && !defined(_NO_PROTO)
 #define _NO_PROTO
 #endif
 
@@ -96,8 +95,8 @@
 #ifdef SIGHASARG
 #ifdef SIGHAS3ARGS
 #define SIGPROTOARG (int, int, struct sigcontext *)
-#define SIGDEFARG(s)                                                           \
-  (s, sig2, scont) int s, sig2;                                                \
+#define SIGDEFARG(s)                                                                               \
+  (s, sig2, scont) int s, sig2;                                                                    \
   struct sigcontext *scont;
 #define SIGDUMMYARG 0, 0, (struct sigcontext *)0
 #else
@@ -166,9 +165,9 @@
 #include <pwd.h>
 #endif
 
-#if (defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRLIMIT)) ||               \
-    (defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)) ||                  \
-    defined(HAVE_SYSCTL) || defined(HAVE_SYSCONF)
+#if (defined(HAVE_SYS_RESOURCE_H) && defined(HAVE_GETRLIMIT)) ||                                   \
+    (defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)) || defined(HAVE_SYSCTL) ||              \
+    defined(HAVE_SYSCONF)
 #define HAVE_TOTAL_MEM
 #endif
 
@@ -366,26 +365,25 @@ typedef struct dsc$descriptor DESC;
 #define DFLT_ERRORFILE "errors.err"
 
 #ifdef VMS
-#define DFLT_RUNTIMEPATH                                                       \
-  "sys$login:vimfiles,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/"                \
+#define DFLT_RUNTIMEPATH                                                                           \
+  "sys$login:vimfiles,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/"                                    \
   "after,sys$login:vimfiles/after"
 #define CLEAN_RUNTIMEPATH "$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after"
 #else
 #ifdef RUNTIME_GLOBAL
 #ifdef RUNTIME_GLOBAL_AFTER
-#define DFLT_RUNTIMEPATH                                                       \
-  "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL_AFTER ",~/.vim/"     \
+#define DFLT_RUNTIMEPATH                                                                           \
+  "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL_AFTER ",~/.vim/"                         \
   "after"
 #define CLEAN_RUNTIMEPATH RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL_AFTER
 #else
-#define DFLT_RUNTIMEPATH                                                       \
-  "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL "/after,~/.vim/"     \
+#define DFLT_RUNTIMEPATH                                                                           \
+  "~/.vim," RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL "/after,~/.vim/"                         \
   "after"
 #define CLEAN_RUNTIMEPATH RUNTIME_GLOBAL ",$VIMRUNTIME," RUNTIME_GLOBAL "/after"
 #endif
 #else
-#define DFLT_RUNTIMEPATH                                                       \
-  "~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
+#define DFLT_RUNTIMEPATH "~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
 #define CLEAN_RUNTIMEPATH "$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after"
 #endif
 #endif
@@ -421,8 +419,7 @@ typedef struct dsc$descriptor DESC;
 #define MAXPATHL 1024
 #endif
 
-#define CHECK_INODE /* used when checking if a swap file already \ \ exists \                                                                             \
-                       for a file */
+#define CHECK_INODE /* used when checking if a swap file already \ \ exists \ \ for a file */
 #ifdef VMS          /* Use less memory because of older systems  */
 #ifndef DFLT_MAXMEM
 #define DFLT_MAXMEM (2 * 1024)

@@ -34,8 +34,7 @@ static garray_T ga_users;
  */
 int get_indent(void) {
 #ifdef FEAT_VARTABS
-  return get_indent_str_vtab(ml_get_curline(), (int)curbuf->b_p_ts,
-                             curbuf->b_p_vts_array, FALSE);
+  return get_indent_str_vtab(ml_get_curline(), (int)curbuf->b_p_ts, curbuf->b_p_vts_array, FALSE);
 #else
   return get_indent_str(ml_get_curline(), (int)curbuf->b_p_ts, FALSE);
 #endif
@@ -46,8 +45,7 @@ int get_indent(void) {
  */
 int get_indent_lnum(linenr_T lnum) {
 #ifdef FEAT_VARTABS
-  return get_indent_str_vtab(ml_get(lnum), (int)curbuf->b_p_ts,
-                             curbuf->b_p_vts_array, FALSE);
+  return get_indent_str_vtab(ml_get(lnum), (int)curbuf->b_p_ts, curbuf->b_p_vts_array, FALSE);
 #else
   return get_indent_str(ml_get(lnum), (int)curbuf->b_p_ts, FALSE);
 #endif
@@ -60,8 +58,8 @@ int get_indent_lnum(linenr_T lnum) {
  */
 int get_indent_buf(buf_T *buf, linenr_T lnum) {
 #ifdef FEAT_VARTABS
-  return get_indent_str_vtab(ml_get_buf(buf, lnum, FALSE), (int)curbuf->b_p_ts,
-                             buf->b_p_vts_array, FALSE);
+  return get_indent_str_vtab(ml_get_buf(buf, lnum, FALSE), (int)curbuf->b_p_ts, buf->b_p_vts_array,
+                             FALSE);
 #else
   return get_indent_str(ml_get_buf(buf, lnum, FALSE), (int)buf->b_p_ts, FALSE);
 #endif
@@ -72,8 +70,7 @@ int get_indent_buf(buf_T *buf, linenr_T lnum) {
  * count the size (in window cells) of the indent in line "ptr", with
  * 'tabstop' at "ts"
  */
-int get_indent_str(char_u *ptr, int ts,
-                   int list) /* if TRUE, count only screen size for tabs */
+int get_indent_str(char_u *ptr, int ts, int list) /* if TRUE, count only screen size for tabs */
 {
   int count = 0;
 
@@ -173,8 +170,7 @@ int set_indent(int size, /* measured in spaces */
       while (todo > 0 && VIM_ISWHITE(*p)) {
         if (*p == TAB) {
 #ifdef FEAT_VARTABS
-          tab_pad =
-              tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+          tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
 #else
           tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 #endif
@@ -203,8 +199,7 @@ int set_indent(int size, /* measured in spaces */
 
         /* Fill to next tabstop with a tab, if possible */
 #ifdef FEAT_VARTABS
-      tab_pad =
-          tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+      tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
 #else
       tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 #endif
@@ -310,8 +305,7 @@ int set_indent(int size, /* measured in spaces */
       while (todo > 0 && VIM_ISWHITE(*p)) {
         if (*p == TAB) {
 #ifdef FEAT_VARTABS
-          tab_pad =
-              tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+          tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
 #else
           tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 #endif
@@ -329,8 +323,7 @@ int set_indent(int size, /* measured in spaces */
 
       /* Fill to next tabstop with a tab, if possible */
 #ifdef FEAT_VARTABS
-      tab_pad =
-          tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+      tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
 #else
       tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 #endif
@@ -347,8 +340,7 @@ int set_indent(int size, /* measured in spaces */
 
 #ifdef FEAT_VARTABS
     for (;;) {
-      tab_pad =
-          tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+      tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
       if (todo < tab_pad)
         break;
       *s++ = TAB;
@@ -392,9 +384,8 @@ int set_indent(int size, /* measured in spaces */
       // When increasing indent this behaves like spaces were inserted at
       // the old indent, when decreasing indent it behaves like spaces
       // were deleted at the new indent.
-      adjust_prop_columns(curwin->w_cursor.lnum,
-                          (colnr_T)(added > 0 ? (p - oldline) : ind_len), added,
-                          0);
+      adjust_prop_columns(curwin->w_cursor.lnum, (colnr_T)(added > 0 ? (p - oldline) : ind_len),
+                          added, 0);
     }
 #endif
     retval = TRUE;
@@ -464,14 +455,12 @@ int get_breakindent_win(win_T *wp, char_u *line) /* start of the line */
   int bri = 0;
   /* window width minus window margin space, i.e. what rests for text */
   const int eff_wwidth =
-      wp->w_width -
-      ((wp->w_p_nu || wp->w_p_rnu) && (vim_strchr(p_cpo, CPO_NUMCOL) == NULL)
-           ? number_width(wp) + 1
-           : 0);
+      wp->w_width - ((wp->w_p_nu || wp->w_p_rnu) && (vim_strchr(p_cpo, CPO_NUMCOL) == NULL)
+                         ? number_width(wp) + 1
+                         : 0);
 
   /* used cached indent, unless pointer or 'tabstop' changed */
-  if (prev_line != line || prev_ts != wp->w_buffer->b_p_ts ||
-      prev_tick != CHANGEDTICK(wp->w_buffer)
+  if (prev_line != line || prev_ts != wp->w_buffer->b_p_ts || prev_tick != CHANGEDTICK(wp->w_buffer)
 #ifdef FEAT_VARTABS
       || prev_vts != wp->w_buffer->b_p_vts_array
 #endif
@@ -481,9 +470,8 @@ int get_breakindent_win(win_T *wp, char_u *line) /* start of the line */
     prev_tick = CHANGEDTICK(wp->w_buffer);
 #ifdef FEAT_VARTABS
     prev_vts = wp->w_buffer->b_p_vts_array;
-    prev_indent =
-        get_indent_str_vtab(line, (int)wp->w_buffer->b_p_ts,
-                            wp->w_buffer->b_p_vts_array, wp->w_p_list);
+    prev_indent = get_indent_str_vtab(line, (int)wp->w_buffer->b_p_ts, wp->w_buffer->b_p_vts_array,
+                                      wp->w_p_list);
 #else
     prev_indent = get_indent_str(line, (int)wp->w_buffer->b_p_ts, wp->w_p_list);
 #endif
@@ -520,8 +508,7 @@ int get_breakindent_win(win_T *wp, char_u *line) /* start of the line */
  * If "include_space" is set, include trailing whitespace while calculating the
  * length.
  */
-int get_leader_len(char_u *line, char_u **flags, int backward,
-                   int include_space) {
+int get_leader_len(char_u *line, char_u **flags, int backward, int include_space) {
   int i, j;
   int result;
   int got_com = FALSE;
@@ -589,8 +576,8 @@ int get_leader_len(char_u *line, char_u **flags, int backward,
 
       /* When 'b' flag used, there must be white space or an
        * end-of-line after the string in the line. */
-      if (vim_strchr(part_buf, COM_BLANK) != NULL &&
-          !VIM_ISWHITE(line[i + j]) && line[i + j] != NUL)
+      if (vim_strchr(part_buf, COM_BLANK) != NULL && !VIM_ISWHITE(line[i + j]) &&
+          line[i + j] != NUL)
         continue;
 
       /* We have found a match, stop searching unless this is a middle
@@ -709,8 +696,8 @@ int get_last_leader_offset(char_u *line, char_u **flags) {
        * When 'b' flag used, there must be white space or an
        * end-of-line after the string in the line.
        */
-      if (vim_strchr(part_buf, COM_BLANK) != NULL &&
-          !VIM_ISWHITE(line[i + j]) && line[i + j] != NUL)
+      if (vim_strchr(part_buf, COM_BLANK) != NULL && !VIM_ISWHITE(line[i + j]) &&
+          line[i + j] != NUL)
         continue;
 
       if (vim_strchr(part_buf, COM_MIDDLE) != NULL) {
@@ -795,8 +782,7 @@ int get_last_leader_offset(char_u *line, char_u **flags) {
  */
 int plines(linenr_T lnum) { return plines_win(curwin, lnum, TRUE); }
 
-int plines_win(win_T *wp, linenr_T lnum,
-               int winheight) /* when TRUE limit to window height */
+int plines_win(win_T *wp, linenr_T lnum, int winheight) /* when TRUE limit to window height */
 {
 #if defined(FEAT_DIFF) || defined(PROTO)
   /* Check for filler lines above this buffer line.  When folded the result
@@ -804,9 +790,7 @@ int plines_win(win_T *wp, linenr_T lnum,
   return plines_win_nofill(wp, lnum, winheight) + diff_check_fill(wp, lnum);
 }
 
-int plines_nofill(linenr_T lnum) {
-  return plines_win_nofill(curwin, lnum, TRUE);
-}
+int plines_nofill(linenr_T lnum) { return plines_win_nofill(curwin, lnum, TRUE); }
 
 int plines_win_nofill(win_T *wp, linenr_T lnum,
                       int winheight) /* when TRUE limit to window height */
@@ -1227,8 +1211,7 @@ int prompt_for_number(int *mouse_used) {
 
   /* When using ":silent" assume that <CR> was entered. */
   if (mouse_used != NULL)
-    msg_puts(
-        _("Type number and <Enter> or click with mouse (empty cancels): "));
+    msg_puts(_("Type number and <Enter> or click with mouse (empty cancels): "));
   else
     msg_puts(_("Type number and <Enter> (empty cancels): "));
 
@@ -1274,11 +1257,9 @@ void msgmore(long n) {
 
   if (pn > p_report) {
     if (n > 0)
-      vim_snprintf(msg_buf, MSG_BUF_LEN,
-                   NGETTEXT("%ld more line", "%ld more lines", pn), pn);
+      vim_snprintf(msg_buf, MSG_BUF_LEN, NGETTEXT("%ld more line", "%ld more lines", pn), pn);
     else
-      vim_snprintf(msg_buf, MSG_BUF_LEN,
-                   NGETTEXT("%ld line less", "%ld fewer lines", pn), pn);
+      vim_snprintf(msg_buf, MSG_BUF_LEN, NGETTEXT("%ld line less", "%ld fewer lines", pn), pn);
     if (got_int)
       vim_strcat((char_u *)msg_buf, (char_u *)_(" (Interrupted)"), MSG_BUF_LEN);
     if (msg(msg_buf)) {
@@ -1441,8 +1422,7 @@ void init_homedir(void) {
      * Change to the directory and get the actual path.  This resolves
      * links.  Don't do it when we can't return.
      */
-    if (mch_dirname(NameBuff, MAXPATHL) == OK &&
-        mch_chdir((char *)NameBuff) == 0) {
+    if (mch_dirname(NameBuff, MAXPATHL) == OK && mch_chdir((char *)NameBuff) == 0) {
       if (!mch_chdir((char *)var) && mch_dirname(IObuff, IOSIZE) == OK)
         var = IObuff;
       if (mch_chdir((char *)NameBuff) != 0)
@@ -1635,8 +1615,7 @@ void expand_env_esc(char_u *srcp,     /* input string e.g. "$HOME/vim.hlp" */
 
           ExpandInit(&xpc);
           xpc.xp_context = EXPAND_FILES;
-          var = ExpandOne(&xpc, dst, NULL, WILD_ADD_SLASH | WILD_SILENT,
-                          WILD_EXPAND_FREE);
+          var = ExpandOne(&xpc, dst, NULL, WILD_ADD_SLASH | WILD_SILENT, WILD_EXPAND_FREE);
           mustfree = TRUE;
         }
 
@@ -1705,8 +1684,7 @@ void expand_env_esc(char_u *srcp,     /* input string e.g. "$HOME/vim.hlp" */
         }
       }
 
-      if (var != NULL && *var != NUL &&
-          (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen)) {
+      if (var != NULL && *var != NUL && (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen)) {
         STRCPY(dst, var);
         dstlen -= (int)STRLEN(var);
         c = (int)STRLEN(var);
@@ -2102,8 +2080,8 @@ static void init_users(void) {
     DWORD nusers = 0, ntotal = 0, i;
     PUSER_INFO_0 uinfo;
 
-    if (NetUserEnum(NULL, 0, 0, (LPBYTE *)&uinfo, MAX_PREFERRED_LENGTH, &nusers,
-                    &ntotal, NULL) == NERR_Success) {
+    if (NetUserEnum(NULL, 0, 0, (LPBYTE *)&uinfo, MAX_PREFERRED_LENGTH, &nusers, &ntotal, NULL) ==
+        NERR_Success) {
       for (i = 0; i < nusers; i++)
         add_user(utf16_to_enc(uinfo[i].usri0_name, NULL), FALSE);
 
@@ -2230,8 +2208,7 @@ void home_replace(buf_T *buf,  /* when not NULL, check for help files */
     char_u *fbuf = NULL;
 
     flen = (int)STRLEN(homedir_env);
-    (void)modify_fname((char_u *)":p", FALSE, &usedlen, &homedir_env, &fbuf,
-                       &flen);
+    (void)modify_fname((char_u *)":p", FALSE, &usedlen, &homedir_env, &fbuf, &flen);
     flen = (int)STRLEN(homedir_env);
     if (flen > 0 && vim_ispathsep(homedir_env[flen - 1]))
       /* Remove the trailing / that is added to a directory. */
@@ -2258,8 +2235,8 @@ void home_replace(buf_T *buf,  /* when not NULL, check for help files */
     len = dirlen;
     for (;;) {
       if (len && fnamencmp(src, p, len) == 0 &&
-          (vim_ispathsep(src[len]) ||
-           (!one && (src[len] == ',' || src[len] == ' ')) || src[len] == NUL)) {
+          (vim_ispathsep(src[len]) || (!one && (src[len] == ',' || src[len] == ' ')) ||
+           src[len] == NUL)) {
         src += len;
         if (--dstlen > 0)
           *dst++ = '~';
@@ -2478,8 +2455,7 @@ int vim_ispathsep(int c) {
 #else
 #ifdef VMS
   /* server"user passwd"::device:[full.path.name]fname.extension;version" */
-  return (c == ':' || c == '[' || c == ']' || c == '/' || c == '<' ||
-          c == '>' || c == '"');
+  return (c == ':' || c == '[' || c == ']' || c == '/' || c == '<' || c == '>' || c == '"');
 #else
   return (c == ':' || c == '/');
 #endif /* VMS */
@@ -2577,8 +2553,8 @@ int vim_fnamencmp(char_u *x, char_u *y, size_t len) {
     cx = PTR2CHAR(px);
     cy = PTR2CHAR(py);
     if (cx == NUL || cy == NUL ||
-        ((p_fic ? MB_TOLOWER(cx) != MB_TOLOWER(cy) : cx != cy) &&
-         !(cx == '/' && cy == '\\') && !(cx == '\\' && cy == '/')))
+        ((p_fic ? MB_TOLOWER(cx) != MB_TOLOWER(cy) : cx != cy) && !(cx == '/' && cy == '\\') &&
+         !(cx == '\\' && cy == '/')))
       break;
     len -= MB_PTR2LEN(px);
     px += MB_PTR2LEN(px);
@@ -2640,9 +2616,8 @@ void add_pathsep(char_u *p) {
  * FullName_save - Make an allocated copy of a full file name.
  * Returns NULL when out of memory.
  */
-char_u *FullName_save(char_u *fname,
-                      int force) /* force expansion, even when it already looks
-                                  * like a full path name */
+char_u *FullName_save(char_u *fname, int force) /* force expansion, even when it already looks
+                                                 * like a full path name */
 {
   char_u *buf;
   char_u *new_fname = NULL;
@@ -2904,8 +2879,7 @@ int match_suffix(char_u *fname) {
       }
     } else {
       if (fnamelen >= setsuflen &&
-          fnamencmp(suf_buf, fname + fnamelen - setsuflen, (size_t)setsuflen) ==
-              0)
+          fnamencmp(suf_buf, fname + fnamelen - setsuflen, (size_t)setsuflen) == 0)
         break;
       setsuflen = 0;
     }
@@ -2929,9 +2903,7 @@ static int expand_backtick(garray_T *gap, char_u *pat, int flags);
 /*
  * comparison function for qsort in dos_expandpath()
  */
-static int pstrcmp(const void *a, const void *b) {
-  return (pathcmp(*(char **)a, *(char **)b, -1));
-}
+static int pstrcmp(const void *a, const void *b) { return (pathcmp(*(char **)a, *(char **)b, -1)); }
 
 /*
  * Recursively expand one path component into all matching files and/or
@@ -2942,8 +2914,7 @@ static int pstrcmp(const void *a, const void *b) {
  * Return the number of matches found.
  * NOTE: much of this is identical to unix_expandpath(), keep in sync!
  */
-static int dos_expandpath(garray_T *gap, char_u *path, int wildoff,
-                          int flags,   /* EW_* flags */
+static int dos_expandpath(garray_T *gap, char_u *path, int wildoff, int flags, /* EW_* flags */
                           int didstar) /* expanded "**" once already */
 {
   char_u *buf;
@@ -2993,8 +2964,7 @@ static int dos_expandpath(garray_T *gap, char_u *path, int wildoff,
       if (e != NULL)
         break;
       s = p + 1;
-    } else if (path_end >= path + wildoff &&
-               vim_strchr((char_u *)"*?[~", *path_end) != NULL)
+    } else if (path_end >= path + wildoff && vim_strchr((char_u *)"*?[~", *path_end) != NULL)
       e = p;
     if (has_mbyte) {
       len = (*mb_ptr2len)(path_end);
@@ -3048,8 +3018,7 @@ static int dos_expandpath(garray_T *gap, char_u *path, int wildoff,
 
   /* If "**" is by itself, this is the first time we encounter it and more
    * is following then find matches without any directory. */
-  if (!didstar && stardepth < 100 && starstar && e - s == 2 &&
-      *path_end == '/') {
+  if (!didstar && stardepth < 100 && starstar && e - s == 2 && *path_end == '/') {
     STRCPY(s, path_end + 1);
     ++stardepth;
     (void)dos_expandpath(gap, buf, (int)(s - buf), flags, TRUE);
@@ -3072,10 +3041,8 @@ static int dos_expandpath(garray_T *gap, char_u *path, int wildoff,
     // all entries found with "matchname".
     if ((p[0] != '.' || starts_with_dot ||
          ((flags & EW_DODOT) && p[1] != NUL && (p[1] != '.' || p[2] != NUL))) &&
-        (matchname == NULL ||
-         (regmatch.regprog != NULL && vim_regexec(&regmatch, p, (colnr_T)0)) ||
-         ((flags & EW_NOTWILD) &&
-          fnamencmp(path + (s - buf), p, e - s) == 0))) {
+        (matchname == NULL || (regmatch.regprog != NULL && vim_regexec(&regmatch, p, (colnr_T)0)) ||
+         ((flags & EW_NOTWILD) && fnamencmp(path + (s - buf), p, e - s) == 0))) {
       STRCPY(s, p);
       len = (int)STRLEN(buf);
 
@@ -3131,8 +3098,7 @@ static int dos_expandpath(garray_T *gap, char_u *path, int wildoff,
 
   matches = gap->ga_len - start_len;
   if (matches > 0)
-    qsort(((char_u **)gap->ga_data) + start_len, (size_t)matches,
-          sizeof(char_u *), pstrcmp);
+    qsort(((char_u **)gap->ga_data) + start_len, (size_t)matches, sizeof(char_u *), pstrcmp);
   return matches;
 }
 
@@ -3142,15 +3108,12 @@ int mch_expandpath(garray_T *gap, char_u *path, int flags) /* EW_* flags */
 }
 #endif // MSWIN
 
-#if (defined(UNIX) && !defined(VMS)) || defined(USE_UNIXFILENAME) ||           \
-    defined(PROTO)
+#if (defined(UNIX) && !defined(VMS)) || defined(USE_UNIXFILENAME) || defined(PROTO)
 /*
  * Unix style wildcard expansion code.
  * It's here because it's used both for Unix and Mac.
  */
-static int pstrcmp(const void *a, const void *b) {
-  return (pathcmp(*(char **)a, *(char **)b, -1));
-}
+static int pstrcmp(const void *a, const void *b) { return (pathcmp(*(char **)a, *(char **)b, -1)); }
 
 /*
  * Recursively expand one path component into all matching files and/or
@@ -3160,8 +3123,7 @@ static int pstrcmp(const void *a, const void *b) {
  * Return the number of matches found.
  * NOTE: much of this is identical to dos_expandpath(), keep in sync!
  */
-int unix_expandpath(garray_T *gap, char_u *path, int wildoff,
-                    int flags,   /* EW_* flags */
+int unix_expandpath(garray_T *gap, char_u *path, int wildoff, int flags, /* EW_* flags */
                     int didstar) /* expanded "**" once already */
 {
   char_u *buf;
@@ -3266,8 +3228,7 @@ int unix_expandpath(garray_T *gap, char_u *path, int wildoff,
 
   /* If "**" is by itself, this is the first time we encounter it and more
    * is following then find matches without any directory. */
-  if (!didstar && stardepth < 100 && starstar && e - s == 2 &&
-      *path_end == '/') {
+  if (!didstar && stardepth < 100 && starstar && e - s == 2 && *path_end == '/') {
     STRCPY(s, path_end + 1);
     ++stardepth;
     (void)unix_expandpath(gap, buf, (int)(s - buf), flags, TRUE);
@@ -3287,10 +3248,8 @@ int unix_expandpath(garray_T *gap, char_u *path, int wildoff,
       if ((dp->d_name[0] != '.' || starts_with_dot ||
            ((flags & EW_DODOT) && dp->d_name[1] != NUL &&
             (dp->d_name[1] != '.' || dp->d_name[2] != NUL))) &&
-          ((regmatch.regprog != NULL &&
-            vim_regexec(&regmatch, (char_u *)dp->d_name, (colnr_T)0)) ||
-           ((flags & EW_NOTWILD) &&
-            fnamencmp(path + (s - buf), dp->d_name, e - s) == 0))) {
+          ((regmatch.regprog != NULL && vim_regexec(&regmatch, (char_u *)dp->d_name, (colnr_T)0)) ||
+           ((flags & EW_NOTWILD) && fnamencmp(path + (s - buf), dp->d_name, e - s) == 0))) {
         STRCPY(s, dp->d_name);
         len = STRLEN(buf);
 
@@ -3318,12 +3277,10 @@ int unix_expandpath(garray_T *gap, char_u *path, int wildoff,
           if (*path_end != NUL)
             backslash_halve(buf + len + 1);
           /* add existing file or symbolic link */
-          if ((flags & EW_ALLLINKS) ? mch_lstat((char *)buf, &sb) >= 0
-                                    : mch_getperm(buf) >= 0) {
+          if ((flags & EW_ALLLINKS) ? mch_lstat((char *)buf, &sb) >= 0 : mch_getperm(buf) >= 0) {
 #ifdef MACOS_CONVERT
             size_t precomp_len = STRLEN(buf) + 1;
-            char_u *precomp_buf =
-                mac_precompose_path(buf, precomp_len, &precomp_len);
+            char_u *precomp_buf = mac_precompose_path(buf, precomp_len, &precomp_len);
 
             if (precomp_buf) {
               mch_memmove(buf, precomp_buf, precomp_len);
@@ -3344,8 +3301,7 @@ int unix_expandpath(garray_T *gap, char_u *path, int wildoff,
 
   matches = gap->ga_len - start_len;
   if (matches > 0)
-    qsort(((char_u **)gap->ga_data) + start_len, matches, sizeof(char_u *),
-          pstrcmp);
+    qsort(((char_u **)gap->ga_data) + start_len, matches, sizeof(char_u *), pstrcmp);
   return matches;
 }
 #endif
@@ -3511,8 +3467,7 @@ int gen_expand_wildcards(int num_pat,    /* number of input patterns */
         else if (has_env_var(p) || *p == '~') {
           vim_free(p);
           ga_clear_strings(&ga);
-          i = mch_expand_wildcards(num_pat, pat, num_file, file,
-                                   flags | EW_KEEPDOLLAR);
+          i = mch_expand_wildcards(num_pat, pat, num_file, file, flags | EW_KEEPDOLLAR);
           recursive = FALSE;
           return i;
         }
@@ -3529,8 +3484,7 @@ int gen_expand_wildcards(int num_pat,    /* number of input patterns */
       if (mch_has_exp_wildcard(p)) {
 #if defined(FEAT_SEARCHPATH)
         if ((flags & EW_PATH) && !mch_isFullName(p) &&
-            !(p[0] == '.' &&
-              (vim_ispathsep(p[1]) || (p[1] == '.' && vim_ispathsep(p[2]))))) {
+            !(p[0] == '.' && (vim_ispathsep(p[1]) || (p[1] == '.' && vim_ispathsep(p[2]))))) {
           /* :find completion where 'path' is used.
            * Recursiveness is OK here. */
           recursive = FALSE;
@@ -3585,8 +3539,7 @@ static int vim_backtick(char_u *p) {
  * Currently only works when pat[] starts and ends with a `.
  * Returns number of file names found, -1 if an error is encountered.
  */
-static int expand_backtick(garray_T *gap, char_u *pat,
-                           int flags) /* EW_* flags */
+static int expand_backtick(garray_T *gap, char_u *pat, int flags) /* EW_* flags */
 {
   char_u *p;
   char_u *cmd;
@@ -3604,8 +3557,7 @@ static int expand_backtick(garray_T *gap, char_u *pat,
     buffer = eval_to_string(cmd + 1, &p, TRUE);
   else
 #endif
-    buffer =
-        get_cmd_output(cmd, NULL, (flags & EW_SILENT) ? SHELL_SILENT : 0, NULL);
+    buffer = get_cmd_output(cmd, NULL, (flags & EW_SILENT) ? SHELL_SILENT : 0, NULL);
   vim_free(cmd);
   if (buffer == NULL)
     return -1;
@@ -3651,8 +3603,7 @@ void addfile(garray_T *gap, char_u *f, /* filename */
 
   /* if the file/dir/link doesn't exist, may not add it */
   if (!(flags & EW_NOTFOUND) &&
-      ((flags & EW_ALLLINKS) ? mch_lstat((char *)f, &sb) < 0
-                             : mch_getperm(f) < 0))
+      ((flags & EW_ALLLINKS) ? mch_lstat((char *)f, &sb) < 0 : mch_getperm(f) < 0))
     return;
 
 #ifdef FNAME_ILLEGAL
@@ -3667,8 +3618,7 @@ void addfile(garray_T *gap, char_u *f, /* filename */
 
   /* If the file isn't executable, may not add it.  Do accept directories.
    * When invoked from expand_shellcmd() do not use $PATH. */
-  if (!isdir && (flags & EW_EXEC) &&
-      !mch_can_exe(f, NULL, !(flags & EW_SHELLCMD)))
+  if (!isdir && (flags & EW_EXEC) && !mch_can_exe(f, NULL, !(flags & EW_SHELLCMD)))
     return;
 
   /* Make room for another item in the file list. */
@@ -3709,9 +3659,8 @@ void addfile(garray_T *gap, char_u *f, /* filename */
  * NULL store the length there.
  * Returns an allocated string, or NULL for error.
  */
-char_u *get_cmd_output(char_u *cmd,
-                       char_u *infile, /* optional input file name */
-                       int flags,      /* can be SHELL_SILENT */
+char_u *get_cmd_output(char_u *cmd, char_u *infile, /* optional input file name */
+                       int flags,                   /* can be SHELL_SILENT */
                        int *ret_len) {
   char_u *tempname;
   char_u *command;
@@ -3873,9 +3822,7 @@ int path_with_url(char_u *fname) {
 /*
  * Return TRUE if "name" is a full (absolute) path name or URL.
  */
-int vim_isAbsName(char_u *name) {
-  return (path_with_url(name) != 0 || mch_isFullName(name));
-}
+int vim_isAbsName(char_u *name) { return (path_with_url(name) != 0 || mch_isFullName(name)); }
 
 /*
  * Get absolute file name into buffer "buf[len]".

@@ -1881,8 +1881,7 @@ char_u *get_digraph_for_char(int val_arg) {
       dp = (digr_T *)user_digraphs.ga_data;
     else
       dp = digraphdefault;
-    for (i = 0; use_defaults ? dp->char1 != NUL : i < user_digraphs.ga_len;
-         ++i) {
+    for (i = 0; use_defaults ? dp->char1 != NUL : i < user_digraphs.ga_len; ++i) {
       if (dp->result == val) {
         r[0] = dp->char1;
         r[1] = dp->char2;
@@ -2013,8 +2012,7 @@ static int getexactdigraph(int char1, int char2, int meta_char) {
 int getdigraph(int char1, int char2, int meta_char) {
   int retval;
 
-  if (((retval = getexactdigraph(char1, char2, meta_char)) == char2) &&
-      (char1 != char2) &&
+  if (((retval = getexactdigraph(char1, char2, meta_char)) == char2) && (char1 != char2) &&
       ((retval = getexactdigraph(char2, char1, meta_char)) == char1))
     return char2;
   return retval;
@@ -2098,8 +2096,7 @@ void listdigraphs(int use_headers) {
     tmp.char1 = dp->char1;
     tmp.char2 = dp->char2;
     tmp.result = getexactdigraph(tmp.char1, tmp.char2, FALSE);
-    if (tmp.result != 0 && tmp.result != tmp.char2 &&
-        (has_mbyte || tmp.result <= 255))
+    if (tmp.result != 0 && tmp.result != tmp.char2 && (has_mbyte || tmp.result <= 255))
       printdigraph(&tmp, use_headers ? &previous : NULL);
 #else
 
@@ -2176,8 +2173,7 @@ static void printdigraph(digr_T *dp, result_T *previous) {
       int i;
 
       for (i = 0; header_table[i].dg_header != NULL; ++i)
-        if (*previous < header_table[i].dg_start &&
-            dp->result >= header_table[i].dg_start &&
+        if (*previous < header_table[i].dg_start && dp->result >= header_table[i].dg_start &&
             dp->result < header_table[i + 1].dg_start) {
           digraph_header(_(header_table[i].dg_header));
           break;
@@ -2255,8 +2251,7 @@ char *keymap_init(void) {
       return e_outofmem;
 
     /* try finding "keymap/'keymap'_'encoding'.vim"  in 'runtimepath' */
-    vim_snprintf((char *)buf, buflen, "keymap/%s_%s.vim", curbuf->b_p_keymap,
-                 p_enc);
+    vim_snprintf((char *)buf, buflen, "keymap/%s_%s.vim", curbuf->b_p_keymap, p_enc);
     if (source_runtime(buf, 0) == FAIL) {
       /* try finding "keymap/'keymap'.vim" in 'runtimepath'  */
       vim_snprintf((char *)buf, buflen, "keymap/%s.vim", curbuf->b_p_keymap);
@@ -2317,9 +2312,8 @@ void ex_loadkeymap(exarg_T *eap) {
       s = skiptowhite(p);
       kp->to = vim_strnsave(p, (int)(s - p));
 
-      if (kp->from == NULL || kp->to == NULL ||
-          STRLEN(kp->from) + STRLEN(kp->to) >= KMAP_LLEN || *kp->from == NUL ||
-          *kp->to == NUL) {
+      if (kp->from == NULL || kp->to == NULL || STRLEN(kp->from) + STRLEN(kp->to) >= KMAP_LLEN ||
+          *kp->from == NUL || *kp->to == NUL) {
         if (kp->to != NULL && *kp->to == NUL)
           emsg(_("E791: Empty keymap entry"));
         vim_free(kp->from);

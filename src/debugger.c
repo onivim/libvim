@@ -257,8 +257,7 @@ void do_debug(char_u *cmd) {
       // don't debug this command
       n = debug_break_level;
       debug_break_level = -1;
-      (void)do_cmdline(cmdline, getexline, NULL,
-                       DOCMD_VERBOSE | DOCMD_EXCRESET);
+      (void)do_cmdline(cmdline, getexline, NULL, DOCMD_VERBOSE | DOCMD_EXCRESET);
       debug_break_level = n;
     }
     lines_left = Rows - 1;
@@ -391,14 +390,12 @@ void dbg_check_breakpoint(exarg_T *eap) {
   if (debug_breakpoint_name != NULL) {
     if (!eap->skip) {
       // replace K_SNR with "<SNR>"
-      if (debug_breakpoint_name[0] == K_SPECIAL &&
-          debug_breakpoint_name[1] == KS_EXTRA &&
+      if (debug_breakpoint_name[0] == K_SPECIAL && debug_breakpoint_name[1] == KS_EXTRA &&
           debug_breakpoint_name[2] == (int)KE_SNR)
         p = (char_u *)"<SNR>";
       else
         p = (char_u *)"";
-      smsg(_("Breakpoint in \"%s%s\" line %ld"), p,
-           debug_breakpoint_name + (*p == NUL ? 0 : 3),
+      smsg(_("Breakpoint in \"%s%s\" line %ld"), p, debug_breakpoint_name + (*p == NUL ? 0 : 3),
            (long)debug_breakpoint_lnum);
       debug_breakpoint_name = NULL;
       do_debug(eap->cmd);
@@ -470,8 +467,7 @@ static garray_T prof_ga = {0, 0, sizeof(struct debuggy), 4, NULL};
 #define DBG_FILE 2
 #define DBG_EXPR 3
 
-static linenr_T debuggy_find(int file, char_u *fname, linenr_T after,
-                             garray_T *gap, int *fp);
+static linenr_T debuggy_find(int file, char_u *fname, linenr_T after, garray_T *gap, int *fp);
 
 /*
  * Parse the arguments of ":profile", ":breakadd" or ":breakdel" and put them
@@ -666,11 +662,9 @@ void ex_breakdel(exarg_T *eap) {
     bp = &DEBUGGY(gap, gap->ga_len);
     for (i = 0; i < gap->ga_len; ++i) {
       bpi = &DEBUGGY(gap, i);
-      if (bp->dbg_type == bpi->dbg_type &&
-          STRCMP(bp->dbg_name, bpi->dbg_name) == 0 &&
+      if (bp->dbg_type == bpi->dbg_type && STRCMP(bp->dbg_name, bpi->dbg_name) == 0 &&
           (bp->dbg_lnum == bpi->dbg_lnum ||
-           (bp->dbg_lnum == 0 &&
-            (best_lnum == 0 || bpi->dbg_lnum < best_lnum)))) {
+           (bp->dbg_lnum == 0 && (best_lnum == 0 || bpi->dbg_lnum < best_lnum)))) {
         todel = i;
         best_lnum = bpi->dbg_lnum;
       }
@@ -684,8 +678,7 @@ void ex_breakdel(exarg_T *eap) {
     while (gap->ga_len > 0) {
       vim_free(DEBUGGY(gap, todel).dbg_name);
 #ifdef FEAT_EVAL
-      if (DEBUGGY(gap, todel).dbg_type == DBG_EXPR &&
-          DEBUGGY(gap, todel).dbg_val != NULL)
+      if (DEBUGGY(gap, todel).dbg_type == DBG_EXPR && DEBUGGY(gap, todel).dbg_val != NULL)
         free_tv(DEBUGGY(gap, todel).dbg_val);
 #endif
       vim_regfree(DEBUGGY(gap, todel).dbg_prog);
@@ -722,10 +715,8 @@ void ex_breaklist(exarg_T *eap UNUSED) {
       if (bp->dbg_type == DBG_FILE)
         home_replace(NULL, bp->dbg_name, NameBuff, MAXPATHL, TRUE);
       if (bp->dbg_type != DBG_EXPR)
-        smsg(_("%3d  %s %s  line %ld"), bp->dbg_nr,
-             bp->dbg_type == DBG_FUNC ? "func" : "file",
-             bp->dbg_type == DBG_FUNC ? bp->dbg_name : NameBuff,
-             (long)bp->dbg_lnum);
+        smsg(_("%3d  %s %s  line %ld"), bp->dbg_nr, bp->dbg_type == DBG_FUNC ? "func" : "file",
+             bp->dbg_type == DBG_FUNC ? bp->dbg_name : NameBuff, (long)bp->dbg_lnum);
       else
         smsg(_("%3d  expr %s"), bp->dbg_nr, bp->dbg_name);
     }
@@ -735,7 +726,7 @@ void ex_breaklist(exarg_T *eap UNUSED) {
  * Find a breakpoint for a function or sourced file.
  * Returns line number at which to break; zero when no matching breakpoint.
  */
-linenr_T dbg_find_breakpoint(int file, // TRUE for a file, FALSE for a function
+linenr_T dbg_find_breakpoint(int file,       // TRUE for a file, FALSE for a function
                              char_u *fname,  // file or function name
                              linenr_T after) // after this line number
 {
@@ -757,7 +748,7 @@ int has_profiling(int file,      // TRUE for a file, FALSE for a function
 /*
  * Common code for dbg_find_breakpoint() and has_profiling().
  */
-static linenr_T debuggy_find(int file, // TRUE for a file, FALSE for a function
+static linenr_T debuggy_find(int file,       // TRUE for a file, FALSE for a function
                              char_u *fname,  // file or function name
                              linenr_T after, // after this line number
                              garray_T *gap,  // either &dbg_breakp or &prof_ga

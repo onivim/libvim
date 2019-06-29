@@ -155,8 +155,7 @@ int list_free_nonref(int copyID) {
   int did_free = FALSE;
 
   for (ll = first_list; ll != NULL; ll = ll->lv_used_next)
-    if ((ll->lv_copyID & COPYID_MASK) != (copyID & COPYID_MASK) &&
-        ll->lv_watch == NULL) {
+    if ((ll->lv_copyID & COPYID_MASK) != (copyID & COPYID_MASK) && ll->lv_watch == NULL) {
       /* Free the List and ordinary items it contains, but don't recurse
        * into Lists and Dictionaries, they will be in the list of dicts
        * or list of lists. */
@@ -183,8 +182,7 @@ void list_free_items(int copyID) {
 
   for (ll = first_list; ll != NULL; ll = ll_next) {
     ll_next = ll->lv_used_next;
-    if ((ll->lv_copyID & COPYID_MASK) != (copyID & COPYID_MASK) &&
-        ll->lv_watch == NULL) {
+    if ((ll->lv_copyID & COPYID_MASK) != (copyID & COPYID_MASK) && ll->lv_watch == NULL) {
       /* Free the List and ordinary items it contains, but don't recurse
        * into Lists and Dictionaries, they will be in the list of dicts
        * or list of lists. */
@@ -246,8 +244,7 @@ int list_equal(list_T *l1, list_T *l2, int ic, /* ignore case for strings */
   if (list_len(l1) != list_len(l2))
     return FALSE;
 
-  for (item1 = l1->lv_first, item2 = l2->lv_first;
-       item1 != NULL && item2 != NULL;
+  for (item1 = l1->lv_first, item2 = l2->lv_first; item1 != NULL && item2 != NULL;
        item1 = item1->li_next, item2 = item2->li_next)
     if (!tv_equal(&item1->li_tv, &item2->li_tv, ic, recursive))
       return FALSE;
@@ -322,8 +319,7 @@ listitem_T *list_find(list_T *l, long n) {
 /*
  * Get list item "l[idx]" as a number.
  */
-long list_find_nr(list_T *l, long idx,
-                  int *errorp) /* set to TRUE when something wrong */
+long list_find_nr(list_T *l, long idx, int *errorp) /* set to TRUE when something wrong */
 {
   listitem_T *li;
 
@@ -449,8 +445,8 @@ int list_append_string(list_T *l, char_u *str, int len) {
   li->li_tv.v_lock = 0;
   if (str == NULL)
     li->li_tv.vval.v_string = NULL;
-  else if ((li->li_tv.vval.v_string =
-                (len >= 0 ? vim_strnsave(str, len) : vim_strsave(str))) == NULL)
+  else if ((li->li_tv.vval.v_string = (len >= 0 ? vim_strnsave(str, len) : vim_strsave(str))) ==
+           NULL)
     return FAIL;
   return OK;
 }
@@ -567,8 +563,7 @@ list_T *list_copy(list_T *orig, int deep, int copyID) {
       orig->lv_copyID = copyID;
       orig->lv_copylist = copy;
     }
-    for (item = orig->lv_first; item != NULL && !got_int;
-         item = item->li_next) {
+    for (item = orig->lv_first; item != NULL && !got_int; item = item->li_next) {
       ni = listitem_alloc();
       if (ni == NULL)
         break;
@@ -630,8 +625,7 @@ char_u *list2string(typval_T *tv, int copyID, int restore_copyID) {
     return NULL;
   ga_init2(&ga, (int)sizeof(char), 80);
   ga_append(&ga, '[');
-  if (list_join(&ga, tv->vval.v_list, (char_u *)", ", FALSE, restore_copyID,
-                copyID) == FAIL) {
+  if (list_join(&ga, tv->vval.v_list, (char_u *)", ", FALSE, restore_copyID, copyID) == FAIL) {
     vim_free(ga.ga_data);
     return NULL;
   }
@@ -645,11 +639,9 @@ typedef struct join_S {
   char_u *tofree;
 } join_T;
 
-static int
-list_join_inner(garray_T *gap, /* to store the result in */
-                list_T *l, char_u *sep, int echo_style, int restore_copyID,
-                int copyID,
-                garray_T *join_gap) /* to keep each list item string */
+static int list_join_inner(garray_T *gap, /* to store the result in */
+                           list_T *l, char_u *sep, int echo_style, int restore_copyID, int copyID,
+                           garray_T *join_gap) /* to keep each list item string */
 {
   int i;
   join_T *p;
@@ -663,8 +655,8 @@ list_join_inner(garray_T *gap, /* to store the result in */
 
   /* Stringify each item in the list. */
   for (item = l->lv_first; item != NULL && !got_int; item = item->li_next) {
-    s = echo_string_core(&item->li_tv, &tofree, numbuf, copyID, echo_style,
-                         restore_copyID, !echo_style);
+    s = echo_string_core(&item->li_tv, &tofree, numbuf, copyID, echo_style, restore_copyID,
+                         !echo_style);
     if (s == NULL)
       return FAIL;
 
@@ -713,8 +705,8 @@ list_join_inner(garray_T *gap, /* to store the result in */
  * When "echo_style" is TRUE use String as echoed, otherwise as inside a List.
  * Return FAIL or OK.
  */
-int list_join(garray_T *gap, list_T *l, char_u *sep, int echo_style,
-              int restore_copyID, int copyID) {
+int list_join(garray_T *gap, list_T *l, char_u *sep, int echo_style, int restore_copyID,
+              int copyID) {
   garray_T join_ga;
   int retval;
   join_T *p;
@@ -723,8 +715,7 @@ int list_join(garray_T *gap, list_T *l, char_u *sep, int echo_style,
   if (l->lv_len < 1)
     return OK; /* nothing to do */
   ga_init2(&join_ga, (int)sizeof(join_T), l->lv_len);
-  retval = list_join_inner(gap, l, sep, echo_style, restore_copyID, copyID,
-                           &join_ga);
+  retval = list_join_inner(gap, l, sep, echo_style, restore_copyID, copyID, &join_ga);
 
   /* Dispose each item in join_ga. */
   if (join_ga.ga_data != NULL) {

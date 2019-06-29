@@ -17,14 +17,11 @@ msg_T *msg2_create(msgPriority_T priority) {
 
 void msg2_send(msg_T *msg) {
   if (messageCallback != NULL) {
-    messageCallback((char_u *)msg->title, (char_u *)msg->contents,
-                    msg->priority);
+    messageCallback((char_u *)msg->title, (char_u *)msg->contents, msg->priority);
   }
 };
 
-void msg2_set_title(char_u *title, msg_T *msg) {
-  msg->title = sdscpy(msg->title, title);
-}
+void msg2_set_title(char_u *title, msg_T *msg) { msg->title = sdscpy(msg->title, title); }
 
 char_u *msg2_get_contents(msg_T *msg) { return (char_u *)msg->contents; }
 
@@ -35,9 +32,7 @@ void msg2_free(msg_T *msg) {
   }
 };
 
-void msg2_put(char_u *s, msg_T *msg) {
-  msg->contents = sdscat(msg->contents, s);
-};
+void msg2_put(char_u *s, msg_T *msg) { msg->contents = sdscat(msg->contents, s); };
 
 /*
  * Put name and line number for the source of an error.

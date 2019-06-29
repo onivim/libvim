@@ -356,9 +356,8 @@ static PyObject *(*dll_PySequence_Fast)(PyObject *, const char *);
 static PyInt (*dll_PyTuple_Size)(PyObject *);
 static PyObject *(*dll_PyTuple_GetItem)(PyObject *, PyInt);
 static PyTypeObject *dll_PyTuple_Type;
-static int (*dll_PySlice_GetIndicesEx)(PySliceObject *r, PyInt length,
-                                       PyInt *start, PyInt *stop, PyInt *step,
-                                       PyInt *slicelen);
+static int (*dll_PySlice_GetIndicesEx)(PySliceObject *r, PyInt length, PyInt *start, PyInt *stop,
+                                       PyInt *step, PyInt *slicelen);
 static PyObject *(*dll_PyImport_ImportModule)(const char *);
 static PyObject *(*dll_PyDict_New)(void);
 static PyObject *(*dll_PyDict_GetItemString)(PyObject *, const char *);
@@ -406,8 +405,7 @@ static int (*dll_PyType_Ready)(PyTypeObject *type);
 static PyObject *(*dll_PyType_GenericAlloc)(PyTypeObject *type, PyInt nitems);
 static PyObject *(*dll_Py_BuildValue)(char *, ...);
 static PyObject *(*dll_Py_FindMethod)(struct PyMethodDef[], PyObject *, char *);
-static PyObject *(*dll_Py_InitModule4)(char *, struct PyMethodDef *, char *,
-                                       PyObject *, int);
+static PyObject *(*dll_Py_InitModule4)(char *, struct PyMethodDef *, char *, PyObject *, int);
 static PyObject *(*dll_PyImport_AddModule)(char *);
 static void (*dll_Py_SetPythonHome)(char *home);
 static void (*dll_Py_Initialize)(void);
@@ -434,8 +432,7 @@ static PyObject *dll__Py_TrueStruct;
 #if defined(PY_VERSION_HEX) && PY_VERSION_HEX >= 0x02020000
 static int (*dll_PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
 #ifdef Py_DEBUG
-static void (*dll__Py_NegativeRefcount)(const char *fname, int lineno,
-                                        PyObject *op);
+static void (*dll__Py_NegativeRefcount)(const char *fname, int lineno, PyObject *op);
 static PyInt *dll__Py_RefTotal;
 static void (*dll__Py_Dealloc)(PyObject *obj);
 #endif
@@ -453,8 +450,7 @@ static void (*dll_PyObject_Free)(void *);
 static PyObject *(*dll_PyCapsule_New)(void *, char *, PyCapsule_Destructor);
 static void *(*dll_PyCapsule_GetPointer)(PyObject *, char *);
 #else
-static PyObject *(*dll_PyCObject_FromVoidPtr)(void *cobj,
-                                              void (*destr)(void *));
+static PyObject *(*dll_PyCObject_FromVoidPtr)(void *cobj, void (*destr)(void *));
 static void *(*dll_PyCObject_AsVoidPtr)(PyObject *);
 #endif
 #if defined(PY_VERSION_HEX) && PY_VERSION_HEX >= 0x02070000
@@ -565,8 +561,7 @@ static struct {
     {"PyObject_GetAttrString", (PYTHON_PROC *)&dll_PyObject_GetAttrString},
     {"PyObject_HasAttrString", (PYTHON_PROC *)&dll_PyObject_HasAttrString},
     {"PyObject_SetAttrString", (PYTHON_PROC *)&dll_PyObject_SetAttrString},
-    {"PyObject_CallFunctionObjArgs",
-     (PYTHON_PROC *)&dll_PyObject_CallFunctionObjArgs},
+    {"PyObject_CallFunctionObjArgs", (PYTHON_PROC *)&dll_PyObject_CallFunctionObjArgs},
     {"PyObject_CallFunction", (PYTHON_PROC *)&dll_PyObject_CallFunction},
     {"PyObject_Call", (PYTHON_PROC *)&dll_PyObject_Call},
     {"PyObject_Repr", (PYTHON_PROC *)&dll_PyObject_Repr},
@@ -574,8 +569,7 @@ static struct {
     {"PyString_AsStringAndSize", (PYTHON_PROC *)&dll_PyString_AsStringAndSize},
     {"PyString_FromString", (PYTHON_PROC *)&dll_PyString_FromString},
     {"PyString_FromFormat", (PYTHON_PROC *)&dll_PyString_FromFormat},
-    {"PyString_FromStringAndSize",
-     (PYTHON_PROC *)&dll_PyString_FromStringAndSize},
+    {"PyString_FromStringAndSize", (PYTHON_PROC *)&dll_PyString_FromStringAndSize},
     {"PyString_Size", (PYTHON_PROC *)&dll_PyString_Size},
     {"PyString_Type", (PYTHON_PROC *)&dll_PyString_Type},
     {"PyUnicode_Type", (PYTHON_PROC *)&dll_PyUnicode_Type},
@@ -611,8 +605,7 @@ static struct {
     {"PyObject_GetIter", (PYTHON_PROC *)&dll_PyObject_GetIter},
     {"PyObject_IsTrue", (PYTHON_PROC *)&dll_PyObject_IsTrue},
 #if defined(PY_VERSION_HEX) && PY_VERSION_HEX >= 0x02070000
-    {"_PyObject_NextNotImplemented",
-     (PYTHON_PROC *)&dll__PyObject_NextNotImplemented},
+    {"_PyObject_NextNotImplemented", (PYTHON_PROC *)&dll__PyObject_NextNotImplemented},
 #endif
     {"_Py_NoneStruct", (PYTHON_PROC *)&dll__Py_NoneStruct},
     {"_Py_ZeroStruct", (PYTHON_PROC *)&dll__Py_ZeroStruct},
@@ -634,8 +627,7 @@ static struct {
     {"PyObject_Free", (PYTHON_PROC *)&dll_PyObject_Free},
 #endif
 #endif
-#if defined(PY_VERSION_HEX) && PY_VERSION_HEX >= 0x02050000 &&                 \
-    SIZEOF_SIZE_T != VIM_SIZEOF_INT
+#if defined(PY_VERSION_HEX) && PY_VERSION_HEX >= 0x02050000 && SIZEOF_SIZE_T != VIM_SIZEOF_INT
 #ifdef Py_DEBUG
     {"Py_InitModule4TraceRefs_64", (PYTHON_PROC *)&dll_Py_InitModule4},
 #else
@@ -678,11 +670,10 @@ static void end_dynamic_python(void) {
  */
 static int python_runtime_link_init(char *libname, int verbose) {
   int i;
-  PYTHON_PROC *ucs_as_encoded_string =
-      (PYTHON_PROC *)&py_PyUnicode_AsEncodedString;
+  PYTHON_PROC *ucs_as_encoded_string = (PYTHON_PROC *)&py_PyUnicode_AsEncodedString;
 
-#if !(defined(PY_NO_RTLD_GLOBAL) && defined(PY3_NO_RTLD_GLOBAL)) &&            \
-    defined(UNIX) && defined(FEAT_PYTHON3)
+#if !(defined(PY_NO_RTLD_GLOBAL) && defined(PY3_NO_RTLD_GLOBAL)) && defined(UNIX) &&               \
+    defined(FEAT_PYTHON3)
   /* Can't have Python and Python3 loaded at the same time.
    * It cause a crash, because RTLD_GLOBAL is needed for
    * standard C extension libraries of one or both python versions. */
@@ -703,8 +694,8 @@ static int python_runtime_link_init(char *libname, int verbose) {
   }
 
   for (i = 0; python_funcname_table[i].ptr; ++i) {
-    if ((*python_funcname_table[i].ptr = symbol_from_dll(
-             hinstPython, python_funcname_table[i].name)) == NULL) {
+    if ((*python_funcname_table[i].ptr =
+             symbol_from_dll(hinstPython, python_funcname_table[i].name)) == NULL) {
       close_dll(hinstPython);
       hinstPython = 0;
       if (verbose)
@@ -715,11 +706,9 @@ static int python_runtime_link_init(char *libname, int verbose) {
 
   /* Load unicode functions separately as only the ucs2 or the ucs4 functions
    * will be present in the library. */
-  *ucs_as_encoded_string =
-      symbol_from_dll(hinstPython, "PyUnicodeUCS2_AsEncodedString");
+  *ucs_as_encoded_string = symbol_from_dll(hinstPython, "PyUnicodeUCS2_AsEncodedString");
   if (*ucs_as_encoded_string == NULL)
-    *ucs_as_encoded_string =
-        symbol_from_dll(hinstPython, "PyUnicodeUCS4_AsEncodedString");
+    *ucs_as_encoded_string = symbol_from_dll(hinstPython, "PyUnicodeUCS4_AsEncodedString");
   if (*ucs_as_encoded_string == NULL) {
     close_dll(hinstPython);
     hinstPython = 0;
@@ -735,9 +724,7 @@ static int python_runtime_link_init(char *libname, int verbose) {
  * If python is enabled (there is installed python on Windows system) return
  * TRUE, else FALSE.
  */
-int python_enabled(int verbose) {
-  return python_runtime_link_init((char *)p_pydll, verbose) == OK;
-}
+int python_enabled(int verbose) { return python_runtime_link_init((char *)p_pydll, verbose) == OK; }
 
 /*
  * Load the standard Python exceptions - don't import the symbols from the
@@ -749,8 +736,7 @@ static void get_exceptions(void) {
   imp_PyExc_AttributeError = PyDict_GetItemString(exdict, "AttributeError");
   imp_PyExc_IndexError = PyDict_GetItemString(exdict, "IndexError");
   imp_PyExc_KeyError = PyDict_GetItemString(exdict, "KeyError");
-  imp_PyExc_KeyboardInterrupt =
-      PyDict_GetItemString(exdict, "KeyboardInterrupt");
+  imp_PyExc_KeyboardInterrupt = PyDict_GetItemString(exdict, "KeyboardInterrupt");
   imp_PyExc_TypeError = PyDict_GetItemString(exdict, "TypeError");
   imp_PyExc_ValueError = PyDict_GetItemString(exdict, "ValueError");
   imp_PyExc_SystemExit = PyDict_GetItemString(exdict, "SystemExit");
@@ -794,10 +780,10 @@ static PyObject *FunctionGetattr(PyObject *, char *);
 #define Py_VISIT(obj) visit(obj, arg)
 #endif
 #ifndef Py_CLEAR
-#define Py_CLEAR(obj)                                                          \
-  {                                                                            \
-    Py_XDECREF(obj);                                                           \
-    obj = NULL;                                                                \
+#define Py_CLEAR(obj)                                                                              \
+  {                                                                                                \
+    Py_XDECREF(obj);                                                                               \
+    obj = NULL;                                                                                    \
   }
 #endif
 
@@ -842,9 +828,7 @@ static PyThreadState *saved_python_thread = NULL;
  * Suspend a thread of the Python interpreter, other threads are allowed to
  * run.
  */
-static void Python_SaveThread(void) {
-  saved_python_thread = PyEval_SaveThread();
-}
+static void Python_SaveThread(void) { saved_python_thread = PyEval_SaveThread(); }
 
 /*
  * Restore a thread of the Python interpreter, waits for other threads to
@@ -996,8 +980,7 @@ fail:
 /*
  * External interface
  */
-static void DoPyCommand(const char *cmd, rangeinitializer init_range,
-                        runner run, void *arg) {
+static void DoPyCommand(const char *cmd, rangeinitializer init_range, runner run, void *arg) {
 #ifndef PY_CAN_RECURSE
   static int recursive = 0;
 #endif
@@ -1131,16 +1114,14 @@ void ex_pyfile(exarg_T *eap) {
   *p++ = '\0';
 
   /* Execute the file */
-  DoPyCommand(buffer, (rangeinitializer)init_range_cmd, (runner)run_cmd,
-              (void *)eap);
+  DoPyCommand(buffer, (rangeinitializer)init_range_cmd, (runner)run_cmd, (void *)eap);
 }
 
 void ex_pydo(exarg_T *eap) {
   if (p_pyx == 0)
     p_pyx = 2;
 
-  DoPyCommand((char *)eap->arg, (rangeinitializer)init_range_cmd,
-              (runner)run_do, (void *)eap);
+  DoPyCommand((char *)eap->arg, (rangeinitializer)init_range_cmd, (runner)run_do, (void *)eap);
 }
 
 /******************************************************
@@ -1270,15 +1251,13 @@ static PyObject *RangeGetattr(PyObject *self, char *name) {
 /****************/
 
 static PyInt RangeAssItem(PyObject *self, PyInt n, PyObject *val) {
-  return RBAsItem(((RangeObject *)(self))->buf, n, val,
-                  ((RangeObject *)(self))->start, ((RangeObject *)(self))->end,
-                  &((RangeObject *)(self))->end);
+  return RBAsItem(((RangeObject *)(self))->buf, n, val, ((RangeObject *)(self))->start,
+                  ((RangeObject *)(self))->end, &((RangeObject *)(self))->end);
 }
 
 static PyInt RangeAssSlice(PyObject *self, PyInt lo, PyInt hi, PyObject *val) {
-  return RBAsSlice(((RangeObject *)(self))->buf, lo, hi, val,
-                   ((RangeObject *)(self))->start, ((RangeObject *)(self))->end,
-                   &((RangeObject *)(self))->end);
+  return RBAsSlice(((RangeObject *)(self))->buf, lo, hi, val, ((RangeObject *)(self))->start,
+                   ((RangeObject *)(self))->end, &((RangeObject *)(self))->end);
 }
 
 /* TabPage object - Implementation
@@ -1392,8 +1371,8 @@ static int PythonMod_Init(void) {
   /* Set sys.argv[] to avoid a crash in warn(). */
   PySys_SetArgv(1, argv);
 
-  vim_module = Py_InitModule4("vim", VimMethods, (char *)NULL, (PyObject *)NULL,
-                              PYTHON_API_VERSION);
+  vim_module =
+      Py_InitModule4("vim", VimMethods, (char *)NULL, (PyObject *)NULL, PYTHON_API_VERSION);
 
   if (populate_module(vim_module))
     return -1;
@@ -1475,8 +1454,7 @@ static PyObject *FunctionGetattr(PyObject *self, char *name) {
 }
 
 void do_pyeval(char_u *str, typval_T *rettv) {
-  DoPyCommand((char *)str, (rangeinitializer)init_range_eval, (runner)run_eval,
-              (void *)rettv);
+  DoPyCommand((char *)str, (rangeinitializer)init_range_eval, (runner)run_eval, (void *)rettv);
   if (rettv->v_type == VAR_UNKNOWN) {
     rettv->v_type = VAR_NUMBER;
     rettv->vval.v_number = 0;

@@ -356,17 +356,14 @@ static int wstat_symlink_aware(const WCHAR *name, stat_T *stp) {
   hFind = FindFirstFileW(name, &findDataW);
   if (hFind != INVALID_HANDLE_VALUE) {
     attr = findDataW.dwFileAttributes;
-    if ((attr & FILE_ATTRIBUTE_REPARSE_POINT) &&
-        (findDataW.dwReserved0 == IO_REPARSE_TAG_SYMLINK))
+    if ((attr & FILE_ATTRIBUTE_REPARSE_POINT) && (findDataW.dwReserved0 == IO_REPARSE_TAG_SYMLINK))
       is_symlink = TRUE;
     FindClose(hFind);
   }
   if (is_symlink) {
-    h = CreateFileW(
-        name, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-        OPEN_EXISTING,
-        (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0,
-        NULL);
+    h = CreateFileW(name, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                    OPEN_EXISTING,
+                    (attr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS : 0, NULL);
     if (h != INVALID_HANDLE_VALUE) {
       int fd;
 
@@ -582,8 +579,7 @@ static size_t check_str_len(char_u *str) {
     /* get length from str to end of page */
     long_u pageLength = si.dwPageSize - (dwStr - strPage);
 
-    for (p = str; !IsBadReadPtr(p, (UINT)pageLength);
-         p += pageLength, pageLength = si.dwPageSize)
+    for (p = str; !IsBadReadPtr(p, (UINT)pageLength); p += pageLength, pageLength = si.dwPageSize)
       for (i = 0; i < pageLength; ++i, ++length)
         if (p[i] == NUL)
           return length + 1;
@@ -598,22 +594,18 @@ static size_t check_str_len(char_u *str) {
 static void mch_icon_load_cb(char_u *fname, void *cookie) {
   HANDLE *h = (HANDLE *)cookie;
 
-  *h = LoadImage(NULL, (LPSTR)fname, IMAGE_ICON, 64, 64,
-                 LR_LOADFROMFILE | LR_LOADMAP3DCOLORS);
+  *h = LoadImage(NULL, (LPSTR)fname, IMAGE_ICON, 64, 64, LR_LOADFROMFILE | LR_LOADMAP3DCOLORS);
 }
 
 /*
  * Try loading an icon file from 'runtimepath'.
  */
 int mch_icon_load(HANDLE *iconp) {
-  return do_in_runtimepath((char_u *)"bitmaps/vim.ico", 0, mch_icon_load_cb,
-                           iconp);
+  return do_in_runtimepath((char_u *)"bitmaps/vim.ico", 0, mch_icon_load_cb, iconp);
 }
 
-int mch_libcall(char_u *libname, char_u *funcname,
-                char_u *argstring, /* NULL when using a argint */
-                int argint,
-                char_u **string_result, /* NULL when using number_result */
+int mch_libcall(char_u *libname, char_u *funcname, char_u *argstring, /* NULL when using a argint */
+                int argint, char_u **string_result, /* NULL when using number_result */
                 int *number_result) {
   HINSTANCE hinstLib;
   MYSTRPROCSTR ProcAdd;
@@ -745,8 +737,7 @@ int mch_get_winpos(int *x, int *y) {
  */
 void mch_set_winpos(int x, int y) {
   GetConsoleHwnd();
-  SetWindowPos(s_hwnd, NULL, x, y, 0, 0,
-               SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+  SetWindowPos(s_hwnd, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
 }
 #endif
 
@@ -788,14 +779,13 @@ typedef struct _FILE_NAME_INFO_ {
 } FILE_NAME_INFO_;
 
 typedef BOOL(WINAPI *pfnGetFileInformationByHandleEx)(
-    HANDLE hFile, FILE_INFO_BY_HANDLE_CLASS_ FileInformationClass,
-    LPVOID lpFileInformation, DWORD dwBufferSize);
+    HANDLE hFile, FILE_INFO_BY_HANDLE_CLASS_ FileInformationClass, LPVOID lpFileInformation,
+    DWORD dwBufferSize);
 static pfnGetFileInformationByHandleEx pGetFileInformationByHandleEx = NULL;
 
 typedef BOOL(WINAPI *pfnGetVolumeInformationByHandleW)(
-    HANDLE hFile, LPWSTR lpVolumeNameBuffer, DWORD nVolumeNameSize,
-    LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength,
-    LPDWORD lpFileSystemFlags, LPWSTR lpFileSystemNameBuffer,
+    HANDLE hFile, LPWSTR lpVolumeNameBuffer, DWORD nVolumeNameSize, LPDWORD lpVolumeSerialNumber,
+    LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, LPWSTR lpFileSystemNameBuffer,
     DWORD nFileSystemNameSize);
 static pfnGetVolumeInformationByHandleW pGetVolumeInformationByHandleW = NULL;
 
@@ -810,21 +800,17 @@ static char_u *resolve_reparse_point(char_u *fname) {
   DWORD snfile, snfind;
   static BOOL loaded = FALSE;
 
-  if (pGetFileInformationByHandleEx == NULL ||
-      pGetVolumeInformationByHandleW == NULL) {
+  if (pGetFileInformationByHandleEx == NULL || pGetVolumeInformationByHandleW == NULL) {
     HMODULE hmod = GetModuleHandle("kernel32.dll");
 
     if (loaded == TRUE)
       return NULL;
     pGetFileInformationByHandleEx =
-        (pfnGetFileInformationByHandleEx)GetProcAddress(
-            hmod, "GetFileInformationByHandleEx");
+        (pfnGetFileInformationByHandleEx)GetProcAddress(hmod, "GetFileInformationByHandleEx");
     pGetVolumeInformationByHandleW =
-        (pfnGetVolumeInformationByHandleW)GetProcAddress(
-            hmod, "GetVolumeInformationByHandleW");
+        (pfnGetVolumeInformationByHandleW)GetProcAddress(hmod, "GetVolumeInformationByHandleW");
     loaded = TRUE;
-    if (pGetFileInformationByHandleEx == NULL ||
-        pGetVolumeInformationByHandleW == NULL)
+    if (pGetFileInformationByHandleEx == NULL || pGetVolumeInformationByHandleW == NULL)
       return NULL;
   }
 
@@ -832,8 +818,7 @@ static char_u *resolve_reparse_point(char_u *fname) {
   if (p == NULL)
     goto fail;
 
-  h = CreateFileW(p, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS,
-                  NULL);
+  h = CreateFileW(p, 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
   vim_free(p);
 
   if (h == INVALID_HANDLE_VALUE)
@@ -868,8 +853,7 @@ static char_u *resolve_reparse_point(char_u *fname) {
     goto fail;
 
   size = 0;
-  if (!GetVolumePathNamesForVolumeNameW(buff, NULL, 0, &size) &&
-      GetLastError() != ERROR_MORE_DATA)
+  if (!GetVolumePathNamesForVolumeNameW(buff, NULL, 0, &size) && GetLastError() != ERROR_MORE_DATA)
     goto fail;
 
   volnames = ALLOC_MULT(WCHAR, size);
@@ -920,8 +904,8 @@ static char_u *resolve_shortcut(char_u *fname) {
   CoInitialize(NULL);
 
   // create a link manager object and request its interface
-  hr = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                        &IID_IShellLinkW, (void **)&pslw);
+  hr = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, &IID_IShellLinkW,
+                        (void **)&pslw);
   if (hr == S_OK) {
     WCHAR *p = enc_to_utf16(fname, NULL);
 
@@ -973,8 +957,7 @@ char_u *mch_resolve_path(char_u *fname, int reparse_point) {
 }
 #endif
 
-#if (defined(FEAT_EVAL) && (!defined(FEAT_GUI) || defined(VIMDLL))) ||         \
-    defined(PROTO)
+#if (defined(FEAT_EVAL) && (!defined(FEAT_GUI) || defined(VIMDLL))) || defined(PROTO)
 /*
  * Bring ourselves to the foreground.  Does work if the OS doesn't allow it.
  */
@@ -985,37 +968,35 @@ void win32_set_foreground(void) {
 }
 #endif
 
-#if defined(FEAT_GUI) ||                                                       \
-    (defined(FEAT_PRINTER) && !defined(FEAT_POSTSCRIPT)) || defined(PROTO)
+#if defined(FEAT_GUI) || (defined(FEAT_PRINTER) && !defined(FEAT_POSTSCRIPT)) || defined(PROTO)
 
 struct charset_pair {
   char *name;
   BYTE charset;
 };
 
-static struct charset_pair charset_pairs[] = {
-    {"ANSI", ANSI_CHARSET},
-    {"CHINESEBIG5", CHINESEBIG5_CHARSET},
-    {"DEFAULT", DEFAULT_CHARSET},
-    {"HANGEUL", HANGEUL_CHARSET},
-    {"OEM", OEM_CHARSET},
-    {"SHIFTJIS", SHIFTJIS_CHARSET},
-    {"SYMBOL", SYMBOL_CHARSET},
-    {"ARABIC", ARABIC_CHARSET},
-    {"BALTIC", BALTIC_CHARSET},
-    {"EASTEUROPE", EASTEUROPE_CHARSET},
-    {"GB2312", GB2312_CHARSET},
-    {"GREEK", GREEK_CHARSET},
-    {"HEBREW", HEBREW_CHARSET},
-    {"JOHAB", JOHAB_CHARSET},
-    {"MAC", MAC_CHARSET},
-    {"RUSSIAN", RUSSIAN_CHARSET},
-    {"THAI", THAI_CHARSET},
-    {"TURKISH", TURKISH_CHARSET},
+static struct charset_pair charset_pairs[] = {{"ANSI", ANSI_CHARSET},
+                                              {"CHINESEBIG5", CHINESEBIG5_CHARSET},
+                                              {"DEFAULT", DEFAULT_CHARSET},
+                                              {"HANGEUL", HANGEUL_CHARSET},
+                                              {"OEM", OEM_CHARSET},
+                                              {"SHIFTJIS", SHIFTJIS_CHARSET},
+                                              {"SYMBOL", SYMBOL_CHARSET},
+                                              {"ARABIC", ARABIC_CHARSET},
+                                              {"BALTIC", BALTIC_CHARSET},
+                                              {"EASTEUROPE", EASTEUROPE_CHARSET},
+                                              {"GB2312", GB2312_CHARSET},
+                                              {"GREEK", GREEK_CHARSET},
+                                              {"HEBREW", HEBREW_CHARSET},
+                                              {"JOHAB", JOHAB_CHARSET},
+                                              {"MAC", MAC_CHARSET},
+                                              {"RUSSIAN", RUSSIAN_CHARSET},
+                                              {"THAI", THAI_CHARSET},
+                                              {"TURKISH", TURKISH_CHARSET},
 #ifdef VIETNAMESE_CHARSET
-    {"VIETNAMESE", VIETNAMESE_CHARSET},
+                                              {"VIETNAMESE", VIETNAMESE_CHARSET},
 #endif
-    {NULL, 0}};
+                                              {NULL, 0}};
 
 struct quality_pair {
   char *name;
@@ -1096,8 +1077,7 @@ int current_font_height = -12; // also used in gui_w32.c
  * character is stored in *end. The flag "vertical" says whether this
  * calculation is for a vertical (height) size or a horizontal (width) one.
  */
-static int points_to_pixels(WCHAR *str, WCHAR **end, int vertical,
-                            long_i pprinter_dc) {
+static int points_to_pixels(WCHAR *str, WCHAR **end, int vertical, long_i pprinter_dc) {
   int pixels;
   int points = 0;
   int divisor = 0;
@@ -1129,9 +1109,7 @@ static int points_to_pixels(WCHAR *str, WCHAR **end, int vertical,
   } else
     hdc = printer_dc;
 
-  pixels =
-      MulDiv(points, GetDeviceCaps(hdc, vertical ? LOGPIXELSY : LOGPIXELSX),
-             72 * divisor);
+  pixels = MulDiv(points, GetDeviceCaps(hdc, vertical ? LOGPIXELSY : LOGPIXELSX), 72 * divisor);
 
   if (printer_dc == NULL)
     ReleaseDC(hwnd, hdc);
@@ -1140,8 +1118,8 @@ static int points_to_pixels(WCHAR *str, WCHAR **end, int vertical,
   return pixels;
 }
 
-static int CALLBACK font_enumproc(ENUMLOGFONTW *elf, NEWTEXTMETRICW *ntm UNUSED,
-                                  DWORD type UNUSED, LPARAM lparam) {
+static int CALLBACK font_enumproc(ENUMLOGFONTW *elf, NEWTEXTMETRICW *ntm UNUSED, DWORD type UNUSED,
+                                  LPARAM lparam) {
   /* Return value:
    *	  0 = terminate now (monospace & ANSI)
    *	  1 = continue, still no luck...
@@ -1178,8 +1156,7 @@ static int init_logfont(LOGFONTW *lf) {
   HWND hwnd = GetDesktopWindow();
   HDC hdc = GetWindowDC(hwnd);
 
-  n = EnumFontFamiliesW(hdc, lf->lfFaceName, (FONTENUMPROCW)font_enumproc,
-                        (LPARAM)lf);
+  n = EnumFontFamiliesW(hdc, lf->lfFaceName, (FONTENUMPROCW)font_enumproc, (LPARAM)lf);
 
   ReleaseDC(hwnd, hdc);
 
@@ -1325,8 +1302,7 @@ int get_logfont(LOGFONTW *lf, char_u *name, HDC printer_dc, int verbose) {
         }
       if (cp->name == NULL && verbose) {
         char_u *s = utf16_to_enc(p, NULL);
-        semsg(_("E244: Illegal charset name \"%s\" in font name \"%s\""), s,
-              name);
+        semsg(_("E244: Illegal charset name \"%s\" in font name \"%s\""), s, name);
         vim_free(s);
         break;
       }
@@ -1343,8 +1319,7 @@ int get_logfont(LOGFONTW *lf, char_u *name, HDC printer_dc, int verbose) {
         }
       if (qp->name == NULL && verbose) {
         char_u *s = utf16_to_enc(p, NULL);
-        semsg(_("E244: Illegal quality name \"%s\" in font name \"%s\""), s,
-              name);
+        semsg(_("E244: Illegal quality name \"%s\" in font name \"%s\""), s, name);
         vim_free(s);
         break;
       }

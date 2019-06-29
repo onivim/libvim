@@ -18,8 +18,7 @@
 
 #if defined(FEAT_EVAL) || defined(PROTO)
 
-static int json_encode_item(garray_T *gap, typval_T *val, int copyID,
-                            int options);
+static int json_encode_item(garray_T *gap, typval_T *val, int copyID, int options);
 
 /*
  * Encode "val" into a JSON format string.
@@ -172,8 +171,7 @@ static int is_simple_key(char_u *key) {
  * Encode "val" into "gap".
  * Return FAIL or OK.
  */
-static int json_encode_item(garray_T *gap, typval_T *val, int copyID,
-                            int options) {
+static int json_encode_item(garray_T *gap, typval_T *val, int copyID, int options) {
   char_u numbuf[NUMBUFLEN];
   char_u *res;
   blob_T *b;
@@ -202,8 +200,7 @@ static int json_encode_item(garray_T *gap, typval_T *val, int copyID,
     break;
 
   case VAR_NUMBER:
-    vim_snprintf((char *)numbuf, NUMBUFLEN, "%lld",
-                 (long_long_T)val->vval.v_number);
+    vim_snprintf((char *)numbuf, NUMBUFLEN, "%lld", (long_long_T)val->vval.v_number);
     ga_concat(gap, numbuf);
     break;
 
@@ -249,11 +246,9 @@ static int json_encode_item(garray_T *gap, typval_T *val, int copyID,
         l->lv_copyID = copyID;
         ga_append(gap, '[');
         for (li = l->lv_first; li != NULL && !got_int;) {
-          if (json_encode_item(gap, &li->li_tv, copyID, options & JSON_JS) ==
-              FAIL)
+          if (json_encode_item(gap, &li->li_tv, copyID, options & JSON_JS) == FAIL)
             return FAIL;
-          if ((options & JSON_JS) && li->li_next == NULL &&
-              li->li_tv.v_type == VAR_SPECIAL &&
+          if ((options & JSON_JS) && li->li_next == NULL && li->li_tv.v_type == VAR_SPECIAL &&
               li->li_tv.vval.v_number == VVAL_NONE)
             /* add an extra comma if the last item is v:none */
             ga_append(gap, ',');
@@ -294,8 +289,8 @@ static int json_encode_item(garray_T *gap, typval_T *val, int copyID,
             else
               write_string(gap, hi->hi_key);
             ga_append(gap, ':');
-            if (json_encode_item(gap, &dict_lookup(hi)->di_tv, copyID,
-                                 options | JSON_NO_NONE) == FAIL)
+            if (json_encode_item(gap, &dict_lookup(hi)->di_tv, copyID, options | JSON_NO_NONE) ==
+                FAIL)
               return FAIL;
           }
         ga_append(gap, '}');
@@ -426,22 +421,20 @@ static int json_decode_string(js_read_T *reader, typval_T *res, int quote) {
         }
         nr = 0;
         len = 0;
-        vim_str2nr(p + 2, NULL, &len, STR2NR_HEX + STR2NR_FORCE, &nr, NULL, 4,
-                   TRUE);
+        vim_str2nr(p + 2, NULL, &len, STR2NR_HEX + STR2NR_FORCE, &nr, NULL, 4, TRUE);
         if (len == 0) {
           if (res != NULL)
             ga_clear(&ga);
           return FAIL;
         }
         p += len + 2;
-        if (0xd800 <= nr && nr <= 0xdfff && (int)(reader->js_end - p) >= 6 &&
-            *p == '\\' && *(p + 1) == 'u') {
+        if (0xd800 <= nr && nr <= 0xdfff && (int)(reader->js_end - p) >= 6 && *p == '\\' &&
+            *(p + 1) == 'u') {
           varnumber_T nr2 = 0;
 
           /* decode surrogate pair: \ud812\u3456 */
           len = 0;
-          vim_str2nr(p + 2, NULL, &len, STR2NR_HEX + STR2NR_FORCE, &nr2, NULL,
-                     4, TRUE);
+          vim_str2nr(p + 2, NULL, &len, STR2NR_HEX + STR2NR_FORCE, &nr2, NULL, 4, TRUE);
           if (len == 0) {
             if (res != NULL)
               ga_clear(&ga);
@@ -566,8 +559,7 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
           clear_tv(&top_item->jd_key_tv);
         goto theend;
       }
-      if (top_item->jd_type == JSON_OBJECT_KEY ||
-          top_item->jd_type == JSON_ARRAY) {
+      if (top_item->jd_type == JSON_OBJECT_KEY || top_item->jd_type == JSON_ARRAY) {
         /* Check for end of object or array. */
         if (*p == (top_item->jd_type == JSON_ARRAY ? ']' : '}')) {
           ++reader->js_used; /* consume the ']' or '}' */
@@ -583,11 +575,9 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
       }
     }
 
-    if (top_item != NULL && top_item->jd_type == JSON_OBJECT_KEY &&
-        (options & JSON_JS) && reader->js_buf[reader->js_used] != '"' &&
-        reader->js_buf[reader->js_used] != '\'' &&
-        reader->js_buf[reader->js_used] != '[' &&
-        reader->js_buf[reader->js_used] != '{') {
+    if (top_item != NULL && top_item->jd_type == JSON_OBJECT_KEY && (options & JSON_JS) &&
+        reader->js_buf[reader->js_used] != '"' && reader->js_buf[reader->js_used] != '\'' &&
+        reader->js_buf[reader->js_used] != '[' && reader->js_buf[reader->js_used] != '{') {
       char_u *key;
 
       /* accept an object key that is not in quotes */
@@ -714,8 +704,7 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
           {
             varnumber_T nr;
 
-            vim_str2nr(reader->js_buf + reader->js_used, NULL, &len,
-                       0, /* what */
+            vim_str2nr(reader->js_buf + reader->js_used, NULL, &len, 0, /* what */
                        &nr, NULL, 0, TRUE);
             if (len == 0) {
               emsg(_(e_invarg));
@@ -795,8 +784,8 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
             (len < 8 && STRNICMP((char *)p, "Infinity", len) == 0) ||
             (len < 3 && STRNICMP((char *)p, "NaN", len) == 0)
 #endif
-            || (len < 4 && (STRNICMP((char *)p, "true", len) == 0 ||
-                            STRNICMP((char *)p, "null", len) == 0)))
+            || (len < 4 &&
+                (STRNICMP((char *)p, "true", len) == 0 || STRNICMP((char *)p, "null", len) == 0)))
 
           retval = MAYBE;
         else
@@ -811,8 +800,7 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
       if (retval == MAYBE || stack.ga_len == 0)
         goto theend;
 
-      if (top_item != NULL && top_item->jd_type == JSON_OBJECT_KEY &&
-          cur_item != NULL) {
+      if (top_item != NULL && top_item->jd_type == JSON_OBJECT_KEY && cur_item != NULL) {
         top_item->jd_key = tv_get_string_buf_chk(cur_item, key_buf);
         if (top_item->jd_key == NULL) {
           clear_tv(cur_item);
@@ -878,8 +866,8 @@ static int json_decode_item(js_read_T *reader, typval_T *res, int options) {
       break;
 
     case JSON_OBJECT:
-      if (cur_item != NULL && dict_find(top_item->jd_tv.vval.v_dict,
-                                        top_item->jd_key, -1) != NULL) {
+      if (cur_item != NULL &&
+          dict_find(top_item->jd_tv.vval.v_dict, top_item->jd_key, -1) != NULL) {
         semsg(_("E938: Duplicate key in JSON: \"%s\""), top_item->jd_key);
         clear_tv(&top_item->jd_key_tv);
         clear_tv(cur_item);

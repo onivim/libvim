@@ -44,8 +44,8 @@
  * Uncomment one of these to override the default.  For unix use a configure
  * argument, see Makefile.
  */
-#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) &&    \
-    !defined(FEAT_BIG) && !defined(FEAT_HUGE)
+#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) && !defined(FEAT_BIG) &&  \
+    !defined(FEAT_HUGE)
 /* #define FEAT_TINY */
 /* #define FEAT_SMALL */
 /* #define FEAT_NORMAL */
@@ -59,8 +59,8 @@
  * Use +big for older systems: Other MS-Windows and VMS.
  * Otherwise use +normal
  */
-#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) &&    \
-    !defined(FEAT_BIG) && !defined(FEAT_HUGE)
+#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) && !defined(FEAT_BIG) &&  \
+    !defined(FEAT_HUGE)
 #if defined(UNIX) || defined(MSWIN) || defined(MACOS_X)
 #define FEAT_HUGE
 #else
@@ -312,18 +312,16 @@
 /*
  * +profile		Profiling for functions and scripts.
  */
-#if defined(FEAT_HUGE) && defined(FEAT_EVAL) &&                                \
-    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) ||               \
-     defined(MSWIN))
+#if defined(FEAT_HUGE) && defined(FEAT_EVAL) &&                                                    \
+    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
 #define FEAT_PROFILE
 #endif
 
 /*
  * +reltime		reltime() function
  */
-#if defined(FEAT_NORMAL) && defined(FEAT_EVAL) &&                              \
-    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) ||               \
-     defined(MSWIN))
+#if defined(FEAT_NORMAL) && defined(FEAT_EVAL) &&                                                  \
+    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
 #define FEAT_RELTIME
 #endif
 
@@ -349,8 +347,8 @@
 /*
  * +postscript		Printing uses PostScript file output.
  */
-#if defined(FEAT_PRINTER) && ((defined(MSWIN) && defined(MSWINPS)) ||          \
-                              (!defined(MSWIN) && defined(FEAT_EVAL)))
+#if defined(FEAT_PRINTER) &&                                                                       \
+    ((defined(MSWIN) && defined(MSWINPS)) || (!defined(MSWIN) && defined(FEAT_EVAL)))
 #define FEAT_POSTSCRIPT
 #endif
 
@@ -468,7 +466,7 @@
 #ifdef FEAT_NORMAL
 #define FEAT_MULTI_LANG
 #endif
-#if defined(HAVE_GETTEXT) && defined(FEAT_MULTI_LANG) &&                       \
+#if defined(HAVE_GETTEXT) && defined(FEAT_MULTI_LANG) &&                                           \
     (defined(HAVE_LOCALE_H) || defined(X_LOCALE))
 #define FEAT_GETTEXT
 #endif
@@ -493,9 +491,9 @@
 
 #ifdef FEAT_HANGULIN
 #define HANGUL_DEFAULT_KEYBOARD 2 /* 2 or 3 bulsik keyboard */
-#define ESC_CHG_TO_ENG_MODE /* if defined, when ESC pressed,             \ \ \                                                                             \
-                             * turn to english mode                      \ \ \                                                                             \
-                             */
+#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed,             \ \ \       \       \                                                                                           \
+                                   * turn to english mode                      \ \ \       \       \                                                                                           \
+                                   */
 #if defined(FEAT_XIM) && !defined(LINT)
 Error : You should select only ONE of XIM and HANGUL INPUT
 #endif
@@ -523,9 +521,8 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #if defined(HAVE_DLOPEN) && defined(HAVE_DLSYM)
 #define USE_DLOPEN
 #endif
-#if defined(FEAT_EVAL) &&                                                      \
-    (defined(MSWIN) || ((defined(UNIX) || defined(VMS)) &&                     \
-                        (defined(USE_DLOPEN) || defined(HAVE_SHL_LOAD))))
+#if defined(FEAT_EVAL) && (defined(MSWIN) || ((defined(UNIX) || defined(VMS)) &&                   \
+                                              (defined(USE_DLOPEN) || defined(HAVE_SHL_LOAD))))
 #define FEAT_LIBCALL
 #endif
 
@@ -535,9 +532,8 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  */
 #if defined(FEAT_NORMAL)
 #define FEAT_BROWSE_CMD
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) ||                      \
-    defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_GTK) ||                       \
-    defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC)
+#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) ||              \
+    defined(FEAT_GUI_GTK) || defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC)
 #define FEAT_BROWSE
 #endif
 #endif
@@ -547,7 +543,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * there is no terminal version, and on Windows we can't figure out how to
  * fork one off with :gui.
  */
-#if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) ||                           \
+#if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) ||                                               \
     (defined(FEAT_GUI_MAC) && !defined(MACOS_X_DARWIN))
 #define ALWAYS_USE_GUI
 #endif
@@ -560,16 +556,14 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #ifdef FEAT_NORMAL
 #define FEAT_CON_DIALOG
 #endif
-#if !defined(FEAT_GUI_DIALOG) &&                                               \
-    (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) ||                    \
-     defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN))
+#if !defined(FEAT_GUI_DIALOG) && (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) ||           \
+                                  defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN))
 /* need a dialog to show error messages when starting from the desktop */
 #define FEAT_GUI_DIALOG
 #endif
-#if defined(FEAT_GUI_DIALOG) &&                                                \
-    (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) ||                    \
-     defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN) ||                       \
-     defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC))
+#if defined(FEAT_GUI_DIALOG) &&                                                                    \
+    (defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_GTK) ||               \
+     defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MAC))
 #define FEAT_GUI_TEXTDIALOG
 #ifndef ALWAYS_USE_GUI
 #define FEAT_CON_DIALOG
@@ -624,9 +618,8 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * STARTUPTIME		Time the startup process.  Writes a file with
  *			timestamps.
  */
-#if defined(FEAT_NORMAL) &&                                                    \
-    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) ||               \
-     defined(MSWIN))
+#if defined(FEAT_NORMAL) &&                                                                        \
+    ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
 #define STARTUPTIME 1
 #endif
 
@@ -785,8 +778,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * +X11			Unix only.  Include code for xterm title saving and X
  *			clipboard.  Only works if HAVE_X11 is also defined.
  */
-#if (defined(FEAT_NORMAL) || defined(FEAT_GUI_MOTIF) ||                        \
-     defined(FEAT_GUI_ATHENA))
+#if (defined(FEAT_NORMAL) || defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA))
 #define WANT_X11
 #endif
 
@@ -822,8 +814,8 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #endif
 #endif
 
-#if defined(FEAT_NORMAL) && (defined(UNIX) || defined(VMS)) &&                 \
-    defined(WANT_X11) && defined(HAVE_X11)
+#if defined(FEAT_NORMAL) && (defined(UNIX) || defined(VMS)) && defined(WANT_X11) &&                \
+    defined(HAVE_X11)
 #define FEAT_XCLIPBOARD
 #ifndef FEAT_CLIPBOARD
 #define FEAT_CLIPBOARD
@@ -835,15 +827,13 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #define MSWIN_FR_BUFSIZE 256
 #endif
 
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MOTIF) ||                        \
-    defined(MSWIN_FIND_REPLACE)
+#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MOTIF) || defined(MSWIN_FIND_REPLACE)
 #define FIND_REPLACE_DIALOG 1
 #endif
 
-#if defined(FEAT_MZSCHEME) &&                                                  \
-    (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK) ||                       \
-     defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) ||                    \
-     defined(FEAT_GUI_MAC))
+#if defined(FEAT_MZSCHEME) &&                                                                      \
+    (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MOTIF) ||                \
+     defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MAC))
 #define MZSCHEME_GUI_THREADS
 #endif
 
@@ -926,8 +916,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /*
  * +filterpipe
  */
-#if (defined(UNIX) && !defined(USE_SYSTEM)) ||                                 \
-    (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
+#if (defined(UNIX) && !defined(USE_SYSTEM)) || (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
 #define FEAT_FILTERPIPE
 #endif
 

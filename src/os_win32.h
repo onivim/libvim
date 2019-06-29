@@ -189,10 +189,9 @@ void __cdecl Trace(char *pszFormat, ...);
 
 #endif /* !_DEBUG */
 
-#define ASSERT_POINTER(p, type)                                                \
-  ASSERT(((p) != NULL) && IsValidAddress((p), sizeof(type), FALSE))
+#define ASSERT_POINTER(p, type) ASSERT(((p) != NULL) && IsValidAddress((p), sizeof(type), FALSE))
 
-#define ASSERT_NULL_OR_POINTER(p, type)                                        \
+#define ASSERT_NULL_OR_POINTER(p, type)                                                            \
   ASSERT(((p) == NULL) || IsValidAddress((p), sizeof(type), FALSE))
 
 #ifndef HAVE_SETENV

@@ -88,12 +88,12 @@
 #define USE_EXE_NAME              /* to find  $VIM */
 #define CASE_INSENSITIVE_FILENAME /* ignore case when comparing file names */
 #define SPACE_IN_FILENAME
-#define BREAKCHECK_SKIP                                                        \
-  32 /* call mch_breakcheck() each time, it's \ \ \ quite fast. Did I forgot                                                      \
-        to update the \ comment */
+#define BREAKCHECK_SKIP                                                                            \
+  32 /* call mch_breakcheck() each time, it's \ \ \ quite fast. Did I forgot \ to update the \ \                                                                                                 \
+        comment */
 
-#define USE_FNAME_CASE /* make ":e os_Mac.c" open the file in its \ original \ \
-                          \ case, as "os_mac.c" */
+#define USE_FNAME_CASE /* make ":e os_Mac.c" open the file in its \ original \ \ \ \ case, as                                                                                        \
+                          "os_mac.c" */
 #define BINARY_FILE_IO
 #define EOL_DEFAULT EOL_MAC
 #define HAVE_AVAIL_MEM
@@ -210,8 +210,7 @@
 #define DFLT_ERRORFILE "errors.err"
 
 #ifndef DFLT_RUNTIMEPATH
-#define DFLT_RUNTIMEPATH                                                       \
-  "~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
+#define DFLT_RUNTIMEPATH "~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
 #endif
 #ifndef CLEAN_RUNTIMEPATH
 #define CLEAN_RUNTIMEPATH "$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after"

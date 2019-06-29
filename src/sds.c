@@ -336,8 +336,7 @@ void sdsIncrLen(sds s, ssize_t incr) {
   case SDS_TYPE_5: {
     unsigned char *fp = ((unsigned char *)s) - 1;
     unsigned char oldlen = SDS_TYPE_5_LEN(flags);
-    assert((incr > 0 && oldlen + incr < 32) ||
-           (incr < 0 && oldlen >= (unsigned int)(-incr)));
+    assert((incr > 0 && oldlen + incr < 32) || (incr < 0 && oldlen >= (unsigned int)(-incr)));
     *fp = SDS_TYPE_5 | ((oldlen + incr) << SDS_TYPE_BITS);
     len = oldlen + incr;
     break;
@@ -831,8 +830,7 @@ int sdscmp(const sds s1, const sds s2) {
  * requires length arguments. sdssplit() is just the
  * same function but for zero-terminated strings.
  */
-sds *sdssplitlen(const char *s, ssize_t len, const char *sep, int seplen,
-                 int *count) {
+sds *sdssplitlen(const char *s, ssize_t len, const char *sep, int seplen, int *count) {
   int elements = 0, slots = 5;
   long start = 0, j;
   sds *tokens;
@@ -860,8 +858,7 @@ sds *sdssplitlen(const char *s, ssize_t len, const char *sep, int seplen,
       tokens = newtokens;
     }
     /* search the separator */
-    if ((seplen == 1 && *(s + j) == sep[0]) ||
-        (memcmp(s + j, sep, seplen) == 0)) {
+    if ((seplen == 1 && *(s + j) == sep[0]) || (memcmp(s + j, sep, seplen) == 0)) {
       tokens[elements] = sdsnewlen(s + start, j - start);
       if (tokens[elements] == NULL)
         goto cleanup;
@@ -942,8 +939,7 @@ sds sdscatrepr(sds s, const char *p, size_t len) {
 /* Helper function for sdssplitargs() that returns non zero if 'c'
  * is a valid hex digit. */
 int is_hex_digit(char c) {
-  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
-         (c >= 'A' && c <= 'F');
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 /* Helper function for sdssplitargs() that converts a hex digit into an
@@ -1032,12 +1028,10 @@ sds *sdssplitargs(const char *line, int *argc) {
         current = sdsempty();
       while (!done) {
         if (inq) {
-          if (*p == '\\' && *(p + 1) == 'x' && is_hex_digit(*(p + 2)) &&
-              is_hex_digit(*(p + 3))) {
+          if (*p == '\\' && *(p + 1) == 'x' && is_hex_digit(*(p + 2)) && is_hex_digit(*(p + 3))) {
             unsigned char byte;
 
-            byte =
-                (hex_digit_to_int(*(p + 2)) * 16) + hex_digit_to_int(*(p + 3));
+            byte = (hex_digit_to_int(*(p + 2)) * 16) + hex_digit_to_int(*(p + 3));
             current = sdscatlen(current, (char *)&byte, 1);
             p += 3;
           } else if (*p == '\\' && *(p + 1)) {
@@ -1208,17 +1202,14 @@ int sdsTest(void) {
   {
     sds x = sdsnew("foo"), y;
 
-    test_cond("Create a string and obtain the length",
-              sdslen(x) == 3 && memcmp(x, "foo\0", 4) == 0)
+    test_cond("Create a string and obtain the length", sdslen(x) == 3 && memcmp(x, "foo\0", 4) == 0)
 
         sdsfree(x);
     x = sdsnewlen("foo", 2);
-    test_cond("Create a string with specified length",
-              sdslen(x) == 2 && memcmp(x, "fo\0", 3) == 0)
+    test_cond("Create a string with specified length", sdslen(x) == 2 && memcmp(x, "fo\0", 3) == 0)
 
         x = sdscat(x, "bar");
-    test_cond("Strings concatenation",
-              sdslen(x) == 5 && memcmp(x, "fobar\0", 6) == 0);
+    test_cond("Strings concatenation", sdslen(x) == 5 && memcmp(x, "fobar\0", 6) == 0);
 
     x = sdscpy(x, "a");
     test_cond("sdscpy() against an originally longer string",
@@ -1226,8 +1217,7 @@ int sdsTest(void) {
 
         x = sdscpy(x, "xyzxxxxxxxxxxyyyyyyyyyykkkkkkkkkk");
     test_cond("sdscpy() against an originally shorter string",
-              sdslen(x) == 33 &&
-                  memcmp(x, "xyzxxxxxxxxxxyyyyyyyyyykkkkkkkkkk\0", 33) == 0)
+              sdslen(x) == 33 && memcmp(x, "xyzxxxxxxxxxxyyyyyyyyyykkkkkkkkkk\0", 33) == 0)
 
         sdsfree(x);
     x = sdscatprintf(sdsempty(), "%d", 123);
@@ -1238,18 +1228,16 @@ int sdsTest(void) {
     x = sdsnew("--");
     x = sdscatfmt(x, "Hello %s World %I,%I--", "Hi!", LLONG_MIN, LLONG_MAX);
     test_cond("sdscatfmt() seems working in the base case",
-              sdslen(x) == 60 &&
-                  memcmp(x,
-                         "--Hello Hi! World -9223372036854775808,"
-                         "9223372036854775807--",
-                         60) == 0) printf("[%s]\n", x);
+              sdslen(x) == 60 && memcmp(x,
+                                        "--Hello Hi! World -9223372036854775808,"
+                                        "9223372036854775807--",
+                                        60) == 0) printf("[%s]\n", x);
 
     sdsfree(x);
     x = sdsnew("--");
     x = sdscatfmt(x, "%u,%U--", UINT_MAX, ULLONG_MAX);
     test_cond("sdscatfmt() seems working with unsigned numbers",
-              sdslen(x) == 35 &&
-                  memcmp(x, "--4294967295,18446744073709551615--", 35) == 0)
+              sdslen(x) == 35 && memcmp(x, "--4294967295,18446744073709551615--", 35) == 0)
 
         sdsfree(x);
     x = sdsnew(" x ");
@@ -1259,14 +1247,12 @@ int sdsTest(void) {
         sdsfree(x);
     x = sdsnew(" x ");
     sdstrim(x, " ");
-    test_cond("sdstrim() works when a single char remains",
-              sdslen(x) == 1 && x[0] == 'x')
+    test_cond("sdstrim() works when a single char remains", sdslen(x) == 1 && x[0] == 'x')
 
         sdsfree(x);
     x = sdsnew("xxciaoyyy");
     sdstrim(x, "xy");
-    test_cond("sdstrim() correctly trims characters",
-              sdslen(x) == 4 && memcmp(x, "ciao\0", 5) == 0)
+    test_cond("sdstrim() correctly trims characters", sdslen(x) == 4 && memcmp(x, "ciao\0", 5) == 0)
 
         y = sdsdup(x);
     sdsrange(y, 1, 1);
@@ -1275,14 +1261,12 @@ int sdsTest(void) {
         sdsfree(y);
     y = sdsdup(x);
     sdsrange(y, 1, -1);
-    test_cond("sdsrange(...,1,-1)",
-              sdslen(y) == 3 && memcmp(y, "iao\0", 4) == 0)
+    test_cond("sdsrange(...,1,-1)", sdslen(y) == 3 && memcmp(y, "iao\0", 4) == 0)
 
         sdsfree(y);
     y = sdsdup(x);
     sdsrange(y, -2, -1);
-    test_cond("sdsrange(...,-2,-1)",
-              sdslen(y) == 2 && memcmp(y, "ao\0", 3) == 0)
+    test_cond("sdsrange(...,-2,-1)", sdslen(y) == 2 && memcmp(y, "ao\0", 3) == 0)
 
         sdsfree(y);
     y = sdsdup(x);
@@ -1292,14 +1276,12 @@ int sdsTest(void) {
         sdsfree(y);
     y = sdsdup(x);
     sdsrange(y, 1, 100);
-    test_cond("sdsrange(...,1,100)",
-              sdslen(y) == 3 && memcmp(y, "iao\0", 4) == 0)
+    test_cond("sdsrange(...,1,100)", sdslen(y) == 3 && memcmp(y, "iao\0", 4) == 0)
 
         sdsfree(y);
     y = sdsdup(x);
     sdsrange(y, 100, 100);
-    test_cond("sdsrange(...,100,100)",
-              sdslen(y) == 0 && memcmp(y, "\0", 1) == 0)
+    test_cond("sdsrange(...,100,100)", sdslen(y) == 0 && memcmp(y, "\0", 1) == 0)
 
         sdsfree(y);
     sdsfree(x);
@@ -1323,8 +1305,7 @@ int sdsTest(void) {
     sdsfree(x);
     x = sdsnewlen("\a\n\0foo\r", 7);
     y = sdscatrepr(sdsempty(), x, sdslen(x));
-    test_cond("sdscatrepr(...data...)",
-              memcmp(y, "\"\\a\\n\\x00foo\\r\"", 15) == 0)
+    test_cond("sdscatrepr(...data...)", memcmp(y, "\"\\a\\n\\x00foo\\r\"", 15) == 0)
 
     {
       unsigned int oldfree;
@@ -1334,8 +1315,7 @@ int sdsTest(void) {
       sdsfree(x);
       sdsfree(y);
       x = sdsnew("0");
-      test_cond("sdsnew() free/len buffers",
-                sdslen(x) == 1 && sdsavail(x) == 0);
+      test_cond("sdsnew() free/len buffers", sdslen(x) == 1 && sdsavail(x) == 0);
 
       /* Run the test a few times in order to hit the first two
        * SDS header types. */

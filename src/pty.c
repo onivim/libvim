@@ -166,8 +166,8 @@ static void initmaster(int f UNUSED) {
 int setup_slavepty(int fd) {
   if (fd < 0)
     return 0;
-#if defined(I_PUSH) && defined(HAVE_SVR4_PTYS) && !defined(sgi) &&             \
-    !defined(linux) && !defined(__osf__) && !defined(M_UNIX)
+#if defined(I_PUSH) && defined(HAVE_SVR4_PTYS) && !defined(sgi) && !defined(linux) &&              \
+    !defined(__osf__) && !defined(M_UNIX)
 #if defined(HAVE_SYS_PTEM_H) || defined(hpux)
   if (ioctl(fd, I_PUSH, "ptem") != 0)
     return -1;
@@ -223,8 +223,7 @@ int mch_openpty(char **ttyn) {
 }
 #endif
 
-#if (defined(sequent) || defined(_SEQUENT_)) && defined(HAVE_GETPSEUDOTTY) &&  \
-    !defined(PTY_DONE)
+#if (defined(sequent) || defined(_SEQUENT_)) && defined(HAVE_GETPSEUDOTTY) && !defined(PTY_DONE)
 #define PTY_DONE
 int mch_openpty(char **ttyn) {
   char *m, *s;
@@ -290,7 +289,7 @@ int mch_openpty(char **ttyn) {
 }
 #endif
 
-#if defined(HAVE_SVR4_PTYS) && !defined(PTY_DONE) && !defined(hpux) &&         \
+#if defined(HAVE_SVR4_PTYS) && !defined(PTY_DONE) && !defined(hpux) &&                             \
     !(defined(MACOS_X) && !defined(MAC_OS_X_VERSION_10_6))
 
 /* NOTE: Even though HPUX can have /dev/ptmx, the code below doesn't work!
@@ -423,8 +422,7 @@ int mch_openpty(char **ttyn) {
  * Call isatty(fd), except for SunOS where it's done differently.
  */
 int mch_isatty(int fd) {
-#if defined(I_STR) && defined(HAVE_SYS_PTMS_H) && defined(HAVE_SVR4_PTYS) &&   \
-    defined(SUN_SYSTEM)
+#if defined(I_STR) && defined(HAVE_SYS_PTMS_H) && defined(HAVE_SVR4_PTYS) && defined(SUN_SYSTEM)
   // On SunOS, isatty() for /dev/ptmx returns false or sometimes can hang up
   // in the inner ioctl(), and therefore first determine whether "fd" is a
   // master device.

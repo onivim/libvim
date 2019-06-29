@@ -48,25 +48,25 @@ static const char LUAVIM_SETREF[] = "luaV_setref";
 /* most functions are closures with a cache table as first upvalue;
  * get/setudata manage references to vim userdata in cache table through
  * object pointers (light userdata) */
-#define luaV_getudata(L, v)                                                    \
-  lua_pushlightuserdata((L), (void *)(v));                                     \
+#define luaV_getudata(L, v)                                                                        \
+  lua_pushlightuserdata((L), (void *)(v));                                                         \
   lua_rawget((L), lua_upvalueindex(1))
-#define luaV_setudata(L, v)                                                    \
-  lua_pushlightuserdata((L), (void *)(v));                                     \
-  lua_pushvalue((L), -2);                                                      \
+#define luaV_setudata(L, v)                                                                        \
+  lua_pushlightuserdata((L), (void *)(v));                                                         \
+  lua_pushvalue((L), -2);                                                                          \
   lua_rawset((L), lua_upvalueindex(1))
-#define luaV_getfield(L, s)                                                    \
-  lua_pushlightuserdata((L), (void *)(s));                                     \
+#define luaV_getfield(L, s)                                                                        \
+  lua_pushlightuserdata((L), (void *)(s));                                                         \
   lua_rawget((L), LUA_REGISTRYINDEX)
-#define luaV_checksandbox(L)                                                   \
-  if (sandbox)                                                                 \
+#define luaV_checksandbox(L)                                                                       \
+  if (sandbox)                                                                                     \
   luaL_error((L), "not allowed in sandbox")
 #define luaV_msg(L) luaV_msgfunc((L), (msgfunc_T)msg)
 #define luaV_emsg(L) luaV_msgfunc((L), (msgfunc_T)emsg)
-#define luaV_checktypval(L, a, v, msg)                                         \
-  do {                                                                         \
-    if (luaV_totypval(L, a, v) == FAIL)                                        \
-      luaL_error(L, msg ": cannot convert value");                             \
+#define luaV_checktypval(L, a, v, msg)                                                             \
+  do {                                                                                             \
+    if (luaV_totypval(L, a, v) == FAIL)                                                            \
+      luaL_error(L, msg ": cannot convert value");                                                 \
   } while (0)
 
 static luaV_List *luaV_pushlist(lua_State *L, list_T *lis);
@@ -193,18 +193,16 @@ static luaV_Funcref *luaV_pushfuncref(lua_State *L, char_u *name);
 #if LUA_VERSION_NUM <= 501
 void (*dll_luaL_register)(lua_State *L, const char *libname, const luaL_Reg *l);
 char *(*dll_luaL_prepbuffer)(luaL_Buffer *B);
-void (*dll_luaL_openlib)(lua_State *L, const char *libname, const luaL_Reg *l,
-                         int nup);
+void (*dll_luaL_openlib)(lua_State *L, const char *libname, const luaL_Reg *l, int nup);
 int (*dll_luaL_typerror)(lua_State *L, int narg, const char *tname);
 int (*dll_luaL_loadfile)(lua_State *L, const char *filename);
-int (*dll_luaL_loadbuffer)(lua_State *L, const char *buff, size_t sz,
-                           const char *name);
+int (*dll_luaL_loadbuffer)(lua_State *L, const char *buff, size_t sz, const char *name);
 #else
 char *(*dll_luaL_prepbuffsize)(luaL_Buffer *B, size_t sz);
 void (*dll_luaL_setfuncs)(lua_State *L, const luaL_Reg *l, int nup);
 int (*dll_luaL_loadfilex)(lua_State *L, const char *filename, const char *mode);
-int (*dll_luaL_loadbufferx)(lua_State *L, const char *buff, size_t sz,
-                            const char *name, const char *mode);
+int (*dll_luaL_loadbufferx)(lua_State *L, const char *buff, size_t sz, const char *name,
+                            const char *mode);
 int (*dll_luaL_argerror)(lua_State *L, int numarg, const char *extramsg);
 #endif
 void (*dll_luaL_checkany)(lua_State *L, int narg);
@@ -226,10 +224,8 @@ int (*dll_lua_pcall)(lua_State *L, int nargs, int nresults, int errfunc);
 #else
 lua_Number (*dll_lua_tonumberx)(lua_State *L, int idx, int *isnum);
 lua_Integer (*dll_lua_tointegerx)(lua_State *L, int idx, int *isnum);
-void (*dll_lua_callk)(lua_State *L, int nargs, int nresults, int ctx,
-                      lua_CFunction k);
-int (*dll_lua_pcallk)(lua_State *L, int nargs, int nresults, int errfunc,
-                      int ctx, lua_CFunction k);
+void (*dll_lua_callk)(lua_State *L, int nargs, int nresults, int ctx, lua_CFunction k);
+int (*dll_lua_pcallk)(lua_State *L, int nargs, int nresults, int errfunc, int ctx, lua_CFunction k);
 void (*dll_lua_getglobal)(lua_State *L, const char *var);
 void (*dll_lua_setglobal)(lua_State *L, const char *var);
 #endif
@@ -432,15 +428,12 @@ static int lua_link_init(char *libname, int verbose) {
 #endif /* DYNAMIC_LUA */
 
 #if defined(DYNAMIC_LUA) || defined(PROTO)
-int lua_enabled(int verbose) {
-  return lua_link_init((char *)p_luadll, verbose) == OK;
-}
+int lua_enabled(int verbose) { return lua_link_init((char *)p_luadll, verbose) == OK; }
 #endif
 
 #if LUA_VERSION_NUM > 501
 static int luaL_typeerror(lua_State *L, int narg, const char *tname) {
-  const char *msg =
-      lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, narg));
+  const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, narg));
   return luaL_argerror(L, narg, msg);
 }
 #endif
@@ -482,8 +475,7 @@ static void *luaV_checkcache(lua_State *L, void *p) {
 
 #define luaV_unbox(L, luatyp, ud) (*((luatyp *)lua_touserdata((L), (ud))))
 
-#define luaV_checkvalid(L, luatyp, ud)                                         \
-  luaV_checkcache((L), (void *)luaV_unbox((L), luatyp, (ud)))
+#define luaV_checkvalid(L, luatyp, ud) luaV_checkcache((L), (void *)luaV_unbox((L), luatyp, (ud)))
 
 static void *luaV_checkudata(lua_State *L, int ud, const char *tname) {
   void *p = luaV_toudata(L, ud, tname);
@@ -499,8 +491,7 @@ static void luaV_pushtypval(lua_State *L, typval_T *tv) {
   }
   switch (tv->v_type) {
   case VAR_STRING:
-    lua_pushstring(L,
-                   tv->vval.v_string == NULL ? "" : (char *)tv->vval.v_string);
+    lua_pushstring(L, tv->vval.v_string == NULL ? "" : (char *)tv->vval.v_string);
     break;
   case VAR_NUMBER:
     lua_pushinteger(L, (int)tv->vval.v_number);
@@ -618,8 +609,7 @@ static int luaV_totypval(lua_State *L, int pos, typval_T *tv) {
 
 /* similar to luaL_addlstring, but replaces \0 with \n if toline and
  * \n with \0 otherwise */
-static void luaV_addlstring(luaL_Buffer *b, const char *s, size_t l,
-                            int toline) {
+static void luaV_addlstring(luaL_Buffer *b, const char *s, size_t l, int toline) {
   while (l--) {
     if (*s == '\0' && toline)
       luaL_addchar(b, '\n');
@@ -672,37 +662,37 @@ static void luaV_msgfunc(lua_State *L, msgfunc_T mf) {
   lua_pop(L, 2); /* original and modified strings */
 }
 
-#define luaV_newtype(typ, tname, luatyp, luatname)                             \
-  static luatyp *luaV_new##tname(lua_State *L, typ *obj) {                     \
-    luatyp *o = (luatyp *)lua_newuserdata(L, sizeof(luatyp));                  \
-    *o = obj;                                                                  \
-    luaV_setudata(L, obj); /* cache[obj] = udata */                            \
-    luaV_getfield(L, luatname);                                                \
-    lua_setmetatable(L, -2);                                                   \
-    return o;                                                                  \
+#define luaV_newtype(typ, tname, luatyp, luatname)                                                 \
+  static luatyp *luaV_new##tname(lua_State *L, typ *obj) {                                         \
+    luatyp *o = (luatyp *)lua_newuserdata(L, sizeof(luatyp));                                      \
+    *o = obj;                                                                                      \
+    luaV_setudata(L, obj); /* cache[obj] = udata */                                                \
+    luaV_getfield(L, luatname);                                                                    \
+    lua_setmetatable(L, -2);                                                                       \
+    return o;                                                                                      \
   }
 
-#define luaV_pushtype(typ, tname, luatyp)                                      \
-  static luatyp *luaV_push##tname(lua_State *L, typ *obj) {                    \
-    luatyp *o = NULL;                                                          \
-    if (obj == NULL)                                                           \
-      lua_pushnil(L);                                                          \
-    else {                                                                     \
-      luaV_getudata(L, obj);                                                   \
-      if (lua_isnil(L, -1)) /* not interned? */                                \
-      {                                                                        \
-        lua_pop(L, 1);                                                         \
-        o = luaV_new##tname(L, obj);                                           \
-      } else                                                                   \
-        o = (luatyp *)lua_touserdata(L, -1);                                   \
-    }                                                                          \
-    return o;                                                                  \
+#define luaV_pushtype(typ, tname, luatyp)                                                          \
+  static luatyp *luaV_push##tname(lua_State *L, typ *obj) {                                        \
+    luatyp *o = NULL;                                                                              \
+    if (obj == NULL)                                                                               \
+      lua_pushnil(L);                                                                              \
+    else {                                                                                         \
+      luaV_getudata(L, obj);                                                                       \
+      if (lua_isnil(L, -1)) /* not interned? */                                                    \
+      {                                                                                            \
+        lua_pop(L, 1);                                                                             \
+        o = luaV_new##tname(L, obj);                                                               \
+      } else                                                                                       \
+        o = (luatyp *)lua_touserdata(L, -1);                                                       \
+    }                                                                                              \
+    return o;                                                                                      \
   }
 
-#define luaV_type_tostring(tname, luatname)                                    \
-  static int luaV_##tname##_tostring(lua_State *L) {                           \
-    lua_pushfstring(L, "%s: %p", luatname, lua_touserdata(L, 1));              \
-    return 1;                                                                  \
+#define luaV_type_tostring(tname, luatname)                                                        \
+  static int luaV_##tname##_tostring(lua_State *L) {                                               \
+    lua_pushfstring(L, "%s: %p", luatname, lua_touserdata(L, 1));                                  \
+    return 1;                                                                                      \
   }
 
 /* =======   List type   ======= */
@@ -1112,20 +1102,18 @@ static int luaV_funcref_call(lua_State *L) {
   return 1;
 }
 
-static const luaL_Reg luaV_Funcref_mt[] = {
-    {"__tostring", luaV_funcref_tostring},
-    {"__gc", luaV_funcref_gc},
-    {"__len", luaV_funcref_len},
-    {"__call", luaV_funcref_call},
-    {NULL, NULL}};
+static const luaL_Reg luaV_Funcref_mt[] = {{"__tostring", luaV_funcref_tostring},
+                                           {"__gc", luaV_funcref_gc},
+                                           {"__len", luaV_funcref_len},
+                                           {"__call", luaV_funcref_call},
+                                           {NULL, NULL}};
 
 /* =======   Buffer type   ======= */
 
-luaV_newtype(buf_T, buffer, luaV_Buffer, LUAVIM_BUFFER)
-    luaV_pushtype(buf_T, buffer, luaV_Buffer)
-        luaV_type_tostring(buffer, LUAVIM_BUFFER)
+luaV_newtype(buf_T, buffer, luaV_Buffer, LUAVIM_BUFFER) luaV_pushtype(buf_T, buffer, luaV_Buffer)
+    luaV_type_tostring(buffer, LUAVIM_BUFFER)
 
-            static int luaV_buffer_len(lua_State *L) {
+        static int luaV_buffer_len(lua_State *L) {
   buf_T *b = (buf_T *)luaV_checkvalid(L, luaV_Buffer, 1);
   lua_pushinteger(L, b->b_ml.ml_line_count);
   return 1;
@@ -1278,11 +1266,10 @@ static const luaL_Reg luaV_Buffer_mt[] = {
 
 /* =======   Window type   ======= */
 
-luaV_newtype(win_T, window, luaV_Window, LUAVIM_WINDOW)
-    luaV_pushtype(win_T, window, luaV_Window)
-        luaV_type_tostring(window, LUAVIM_WINDOW)
+luaV_newtype(win_T, window, luaV_Window, LUAVIM_WINDOW) luaV_pushtype(win_T, window, luaV_Window)
+    luaV_type_tostring(window, LUAVIM_WINDOW)
 
-            static int luaV_window_call(lua_State *L) {
+        static int luaV_window_call(lua_State *L) {
   win_T *w = (win_T *)luaV_checkvalid(L, luaV_Window, 1);
   lua_settop(L, 1);
   win_goto(w);
@@ -1420,8 +1407,7 @@ static int luaV_debug(lua_State *L) {
     if (l == 0 || strcmp(input, "cont") == 0)
       return 0;
     msg_putchar('\n'); /* avoid outputting on input line */
-    if (luaL_loadbuffer(L, input, l, "=(debug command)") ||
-        lua_pcall(L, 0, 0, 0))
+    if (luaL_loadbuffer(L, input, l, "=(debug command)") || lua_pcall(L, 0, 0, 0))
       luaV_emsg(L);
     lua_settop(L, 1); /* remove eventual returns, but keep vim.eval */
   }
@@ -1854,8 +1840,7 @@ void ex_lua(exarg_T *eap) {
   if (!eap->skip) {
     char *s = (script) ? script : (char *)eap->arg;
     luaV_setrange(L, eap->line1, eap->line2);
-    if (luaL_loadbuffer(L, s, strlen(s), LUAVIM_CHUNKNAME) ||
-        lua_pcall(L, 0, 0, 0))
+    if (luaL_loadbuffer(L, s, strlen(s), LUAVIM_CHUNKNAME) || lua_pcall(L, 0, 0, 0))
       luaV_emsg(L);
   }
   if (script != NULL)
@@ -1930,13 +1915,13 @@ void ex_luafile(exarg_T *eap) {
   }
 }
 
-#define luaV_freetype(typ, tname)                                              \
-  void lua_##tname##_free(typ *o) {                                            \
-    if (!lua_isopen())                                                         \
-      return;                                                                  \
-    luaV_getfield(L, LUAVIM_FREE);                                             \
-    lua_pushlightuserdata(L, (void *)o);                                       \
-    lua_call(L, 1, 0);                                                         \
+#define luaV_freetype(typ, tname)                                                                  \
+  void lua_##tname##_free(typ *o) {                                                                \
+    if (!lua_isopen())                                                                             \
+      return;                                                                                      \
+    luaV_getfield(L, LUAVIM_FREE);                                                                 \
+    lua_pushlightuserdata(L, (void *)o);                                                           \
+    lua_call(L, 1, 0);                                                                             \
   }
 
 luaV_freetype(buf_T, buffer) luaV_freetype(win_T, window)

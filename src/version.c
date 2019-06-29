@@ -29,8 +29,7 @@ static char *mediumVersion = VIM_VERSION_MEDIUM;
 
 #if defined(HAVE_DATE_TIME) || defined(PROTO)
 #if (defined(VMS) && defined(VAXC)) || defined(PROTO)
-char longVersion[sizeof(VIM_VERSION_LONG_DATE) + sizeof(__DATE__) +
-                 sizeof(__TIME__) + 3];
+char longVersion[sizeof(VIM_VERSION_LONG_DATE) + sizeof(__DATE__) + sizeof(__TIME__) + 3];
 
 void init_longVersion(void) {
   /*
@@ -48,15 +47,14 @@ void init_longVersion(void) {
 void init_longVersion(void) {
   char *date_time = __DATE__ " " __TIME__;
   char *msg = _("%s (%s, compiled %s)");
-  size_t len = strlen(msg) + strlen(VIM_VERSION_LONG_ONLY) +
-               strlen(VIM_VERSION_DATE_ONLY) + strlen(date_time);
+  size_t len = strlen(msg) + strlen(VIM_VERSION_LONG_ONLY) + strlen(VIM_VERSION_DATE_ONLY) +
+               strlen(date_time);
 
   longVersion = alloc(len);
   if (longVersion == NULL)
     longVersion = VIM_VERSION_LONG;
   else
-    vim_snprintf(longVersion, len, msg, VIM_VERSION_LONG_ONLY,
-                 VIM_VERSION_DATE_ONLY, date_time);
+    vim_snprintf(longVersion, len, msg, VIM_VERSION_LONG_ONLY, VIM_VERSION_DATE_ONLY, date_time);
 }
 #endif
 #else
@@ -3481,10 +3479,9 @@ static int included_patches[] = {/* Add new patch number below this line */
  * See the official Vim patches for the diff format: It must use a context of
  * one line only.  Create it by hand or use "diff -C2" and edit the patch.
  */
-static char *(
-    extra_patches[]) = {/* Add your patch description below this line */
-                        /**/
-                        NULL};
+static char *(extra_patches[]) = {/* Add your patch description below this line */
+                                  /**/
+                                  NULL};
 
 int highest_patch(void) {
   int i;
@@ -3528,8 +3525,7 @@ void ex_version(exarg_T *eap) {
 static void version_msg_wrap(char_u *s, int wrap) {
   int len = (int)vim_strsize(s) + (wrap ? 2 : 0);
 
-  if (!got_int && len < (int)Columns && msg_col + len >= (int)Columns &&
-      *s != '\n')
+  if (!got_int && len < (int)Columns && msg_col + len >= (int)Columns && *s != '\n')
     msg_putchar('\n');
   if (!got_int) {
     if (wrap)
@@ -3545,9 +3541,7 @@ static void version_msg(char *s) { version_msg_wrap((char_u *)s, FALSE); }
 /*
  * List all features aligned in columns, dictionary style.
  */
-static void list_features(void) {
-  list_in_columns((char_u **)features, -1, -1);
-}
+static void list_features(void) { list_in_columns((char_u **)features, -1, -1); }
 
 /*
  * List string items nicely aligned in columns.
@@ -3981,12 +3975,10 @@ void intro_message(int colon) /* TRUE for ":intro" */
       }
       if (sponsor != 0) {
         if (strstr(p, "children") != NULL)
-          p = sponsor < 0 ? N_("Sponsor Vim development!")
-                          : N_("Become a registered Vim user!");
+          p = sponsor < 0 ? N_("Sponsor Vim development!") : N_("Become a registered Vim user!");
         else if (strstr(p, "iccf") != NULL)
-          p = sponsor < 0
-                  ? N_("type  :help sponsor<Enter>    for information ")
-                  : N_("type  :help register<Enter>   for information ");
+          p = sponsor < 0 ? N_("type  :help sponsor<Enter>    for information ")
+                          : N_("type  :help register<Enter>   for information ");
         else if (strstr(p, "Orphans") != NULL)
           p = N_("menu  Help->Sponsor/Register  for information    ");
       }
@@ -4027,8 +4019,7 @@ static void do_intro_line(int row, char_u *mesg, int add_version, int attr) {
       /* Check for 9.9x or 9.9xx, alpha/beta version */
       if (isalpha((int)vers[3])) {
         int len = (isalpha((int)vers[4])) ? 5 : 4;
-        sprintf((char *)vers + len, ".%d%s", highest_patch(),
-                mediumVersion + len);
+        sprintf((char *)vers + len, ".%d%s", highest_patch(), mediumVersion + len);
       } else
         sprintf((char *)vers + 3, ".%d", highest_patch());
     }
@@ -4041,8 +4032,7 @@ static void do_intro_line(int row, char_u *mesg, int add_version, int attr) {
   /* Split up in parts to highlight <> items differently. */
   for (p = mesg; *p != NUL; p += l) {
     clen = 0;
-    for (l = 0; p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>'));
-         ++l) {
+    for (l = 0; p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>')); ++l) {
       if (has_mbyte) {
         clen += ptr2cells(p + l);
         l += (*mb_ptr2len)(p + l) - 1;

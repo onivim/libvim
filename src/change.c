@@ -26,8 +26,7 @@
 void change_warning(int col) {
   static char *w_readonly = N_("W10: Warning: Changing a readonly file");
 
-  if (curbuf->b_did_warn == FALSE && curbufIsChanged() == 0 && !autocmd_busy &&
-      curbuf->b_p_ro) {
+  if (curbuf->b_did_warn == FALSE && curbufIsChanged() == 0 && !autocmd_busy && curbuf->b_p_ro) {
     ++curbuf_lock;
     apply_autocmds(EVENT_FILECHANGEDRO, NULL, NULL, FALSE, curbuf);
     --curbuf_lock;
@@ -126,23 +125,19 @@ static long next_listener_id = 0;
  * If "merge" is TRUE do the merge.
  * Returns TRUE if the change was merged.
  */
-static int check_recorded_changes(buf_T *buf, linenr_T lnum, colnr_T col,
-                                  linenr_T lnume, long xtra, int merge) {
+static int check_recorded_changes(buf_T *buf, linenr_T lnum, colnr_T col, linenr_T lnume, long xtra,
+                                  int merge) {
   if (buf->b_recorded_changes != NULL && xtra != 0) {
     listitem_T *li;
     linenr_T prev_lnum;
     linenr_T prev_lnume;
 
     for (li = buf->b_recorded_changes->lv_first; li != NULL; li = li->li_next) {
-      prev_lnum =
-          (linenr_T)dict_get_number(li->li_tv.vval.v_dict, (char_u *)"lnum");
-      prev_lnume =
-          (linenr_T)dict_get_number(li->li_tv.vval.v_dict, (char_u *)"end");
-      if (prev_lnum >= lnum || prev_lnum > lnume ||
-          (prev_lnume >= lnum && xtra != 0)) {
+      prev_lnum = (linenr_T)dict_get_number(li->li_tv.vval.v_dict, (char_u *)"lnum");
+      prev_lnume = (linenr_T)dict_get_number(li->li_tv.vval.v_dict, (char_u *)"end");
+      if (prev_lnum >= lnum || prev_lnum > lnume || (prev_lnume >= lnum && xtra != 0)) {
         if (li->li_next == NULL && lnum == prev_lnum && xtra == 0 &&
-            col + 1 == (colnr_T)dict_get_number(li->li_tv.vval.v_dict,
-                                                (char_u *)"col")) {
+            col + 1 == (colnr_T)dict_get_number(li->li_tv.vval.v_dict, (char_u *)"col")) {
           if (merge) {
             dictitem_T *di;
 
@@ -175,8 +170,7 @@ static int check_recorded_changes(buf_T *buf, linenr_T lnum, colnr_T col,
  * Record a change for listeners added with listener_add().
  * Always for the current buffer.
  */
-static void may_record_change(linenr_T lnum, colnr_T col, linenr_T lnume,
-                              long xtra) {
+static void may_record_change(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra) {
   dict_T *dict;
 
   if (curbuf->b_listener == NULL)
@@ -283,8 +277,7 @@ void f_listener_remove(typval_T *argvars, typval_T *rettv UNUSED) {
  * Called before inserting a line above "lnum"/"lnum3" or deleting line "lnum"
  * to "lnume".
  */
-void may_invoke_listeners(buf_T *buf, linenr_T lnum, linenr_T lnume,
-                          int added) {
+void may_invoke_listeners(buf_T *buf, linenr_T lnum, linenr_T lnume, int added) {
   check_recorded_changes(buf, lnum, 0, lnume, added, FALSE);
 }
 
@@ -340,8 +333,7 @@ void invoke_listeners(buf_T *buf) {
   ++textlock;
 
   for (lnr = buf->b_listener; lnr != NULL; lnr = lnr->lr_next) {
-    call_callback(&lnr->lr_callback, -1, &rettv, 5, argv, NULL, 0L, 0L, &dummy,
-                  TRUE, NULL);
+    call_callback(&lnr->lr_callback, -1, &rettv, 5, argv, NULL, 0L, 0L, &dummy, TRUE, NULL);
     clear_tv(&rettv);
   }
 
@@ -362,8 +354,7 @@ void invoke_listeners(buf_T *buf) {
  * See changed_lines() for the arguments.
  * Careful: may trigger autocommands that reload the buffer.
  */
-static void changed_common(linenr_T lnum, colnr_T col, linenr_T lnume,
-                           long xtra) {
+static void changed_common(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra) {
   win_T *wp;
   tabpage_T *tp;
   int i;
@@ -439,8 +430,7 @@ static void changed_common(linenr_T lnum, colnr_T col, linenr_T lnume,
         FOR_ALL_TAB_WINDOWS(tp, wp) {
           // For other windows, if the position in the changelist is
           // at the end it stays at the end.
-          if (wp->w_buffer == curbuf &&
-              wp->w_changelistidx == curbuf->b_changelistlen)
+          if (wp->w_buffer == curbuf && wp->w_changelistidx == curbuf->b_changelistlen)
             ++wp->w_changelistidx;
         }
         ++curbuf->b_changelistlen;
@@ -542,8 +532,7 @@ static void changed_common(linenr_T lnum, colnr_T col, linenr_T lnume,
     must_redraw = VALID;
 
   // when the cursor line is changed always trigger CursorMoved
-  if (lnum <= curwin->w_cursor.lnum &&
-      lnume + (xtra < 0 ? -xtra : xtra) > curwin->w_cursor.lnum)
+  if (lnum <= curwin->w_cursor.lnum && lnume + (xtra < 0 ? -xtra : xtra) > curwin->w_cursor.lnum)
     last_cursormoved.lnum = 0;
 }
 
@@ -609,9 +598,7 @@ void inserted_bytes(linenr_T lnum, colnr_T col, int added UNUSED) {
  * Must be called AFTER the change and after mark_adjust().
  * Takes care of marking the buffer to be redrawn and sets the changed flag.
  */
-void appended_lines(linenr_T lnum, long count) {
-  changed_lines(lnum + 1, 0, lnum + 1, count);
-}
+void appended_lines(linenr_T lnum, long count) { changed_lines(lnum + 1, 0, lnum + 1, count); }
 
 /*
  * Like appended_lines(), but adjust marks first.
@@ -633,9 +620,7 @@ void appended_lines_mark(linenr_T lnum, long count) {
  * Must be called AFTER the change and after mark_adjust().
  * Takes care of marking the buffer to be redrawn and sets the changed flag.
  */
-void deleted_lines(linenr_T lnum, long count) {
-  changed_lines(lnum, 0, lnum + count, -count);
-}
+void deleted_lines(linenr_T lnum, long count) { changed_lines(lnum, 0, lnum + count, -count); }
 
 /*
  * Like deleted_lines(), but adjust marks first.
@@ -650,11 +635,10 @@ void deleted_lines_mark(linenr_T lnum, long count) {
 /*
  * Marks the area to be redrawn after a change.
  */
-static void
-changed_lines_buf(buf_T *buf,
-                  linenr_T lnum,  // first line with change
-                  linenr_T lnume, // line below last changed line
-                  long xtra) // number of extra lines (negative when deleting)
+static void changed_lines_buf(buf_T *buf,
+                              linenr_T lnum,  // first line with change
+                              linenr_T lnume, // line below last changed line
+                              long xtra)      // number of extra lines (negative when deleting)
 {
 
   if (buf->b_mod_set) {
@@ -694,7 +678,7 @@ changed_lines_buf(buf_T *buf,
 void changed_lines(linenr_T lnum,  // first line with change
                    colnr_T col,    // column in first line with change
                    linenr_T lnume, // line below last changed line
-                   long xtra) // number of extra lines (negative when deleting)
+                   long xtra)      // number of extra lines (negative when deleting)
 {
   changed_lines_buf(curbuf, lnum, lnume, xtra);
 
@@ -866,8 +850,7 @@ void ins_char_bytes(char_u *buf, int charlen) {
   // Copy bytes after the changed character(s).
   p = newp + col;
   if (linelen > col + oldlen)
-    mch_memmove(p + newlen, oldp + col + oldlen,
-                (size_t)(linelen - col - oldlen));
+    mch_memmove(p + newlen, oldp + col + oldlen, (size_t)(linelen - col - oldlen));
 
   // Insert or overwrite the new character.
   mch_memmove(p, buf, charlen);
@@ -1008,8 +991,7 @@ int del_bytes(long count, int fixpos_arg,
 
   // If 'delcombine' is set and deleting (less than) one character, only
   // delete the last combining character.
-  if (p_deco && use_delcombine && enc_utf8 &&
-      utfc_ptr2len(oldp + col) >= count) {
+  if (p_deco && use_delcombine && enc_utf8 && utfc_ptr2len(oldp + col) >= count) {
     int cc[MAX_MCO];
     int n;
 
@@ -1032,13 +1014,11 @@ int del_bytes(long count, int fixpos_arg,
     // If we just took off the last character of a non-blank line, and
     // fixpos is TRUE, we don't want to end up positioned at the NUL,
     // unless "restart_edit" is set or 'virtualedit' contains "onemore".
-    if (col > 0 && fixpos && restart_edit == 0 &&
-        (ve_flags & VE_ONEMORE) == 0) {
+    if (col > 0 && fixpos && restart_edit == 0 && (ve_flags & VE_ONEMORE) == 0) {
       --curwin->w_cursor.col;
       curwin->w_cursor.coladd = 0;
       if (has_mbyte)
-        curwin->w_cursor.col -=
-            (*mb_head_off)(oldp, oldp + curwin->w_cursor.col);
+        curwin->w_cursor.col -= (*mb_head_off)(oldp, oldp + curwin->w_cursor.col);
     }
     count = oldlen - col;
     movelen = 1;
@@ -1112,8 +1092,7 @@ static int copy_indent(int size, char_u *src) {
     while (todo > 0 && VIM_ISWHITE(*s)) {
       if (*s == TAB) {
 #ifdef FEAT_VARTABS
-        tab_pad =
-            tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
+        tab_pad = tabstop_padding(ind_done, curbuf->b_p_ts, curbuf->b_p_vts_array);
 #else
         tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 #endif
@@ -1158,8 +1137,7 @@ static int copy_indent(int size, char_u *src) {
     if (!curbuf->b_p_et) {
 #ifdef FEAT_VARTABS
       for (;;) {
-        tab_pad =
-            tabstop_padding(ind_col, curbuf->b_p_ts, curbuf->b_p_vts_array);
+        tab_pad = tabstop_padding(ind_col, curbuf->b_p_ts, curbuf->b_p_vts_array);
         if (todo < tab_pad)
           break;
         todo -= tab_pad;
@@ -1339,8 +1317,7 @@ int open_line(int dir, // FORWARD or BACKWARD
   ) {
     // count white space on current line
 #ifdef FEAT_VARTABS
-    newindent = get_indent_str_vtab(saved_line, curbuf->b_p_ts,
-                                    curbuf->b_p_vts_array, FALSE);
+    newindent = get_indent_str_vtab(saved_line, curbuf->b_p_ts, curbuf->b_p_vts_array, FALSE);
 #else
     newindent = get_indent_str(saved_line, (int)curbuf->b_p_ts, FALSE);
 #endif
@@ -1353,8 +1330,7 @@ int open_line(int dir, // FORWARD or BACKWARD
     // we may move some text to the next line. If it starts with '{'
     // don't add an indent. Fixes inserting a NL before '{' in line
     //	"if (condition) {"
-    if (!trunc_line && do_si && *saved_line != NUL &&
-        (p_extra == NULL || first_char != '{')) {
+    if (!trunc_line && do_si && *saved_line != NUL && (p_extra == NULL || first_char != '{')) {
       char_u *ptr;
       char_u last_char;
 
@@ -1572,8 +1548,7 @@ int open_line(int dir, // FORWARD or BACKWARD
           // comment leader on the next line.
           if (!VIM_ISWHITE(saved_line[lead_len - 1]) &&
               ((p_extra != NULL && (int)curwin->w_cursor.col == lead_len) ||
-               (p_extra == NULL && saved_line[lead_len] == NUL) ||
-               require_blank))
+               (p_extra == NULL && saved_line[lead_len] == NUL) || require_blank))
             extra_space = TRUE;
         }
         break;
@@ -1592,8 +1567,7 @@ int open_line(int dir, // FORWARD or BACKWARD
         // Find the string for the middle leader, searching backwards.
         while (p > curbuf->b_p_com && *p != ',')
           --p;
-        for (lead_repl = p; lead_repl > curbuf->b_p_com && lead_repl[-1] != ':';
-             --lead_repl)
+        for (lead_repl = p; lead_repl > curbuf->b_p_com && lead_repl[-1] != ':'; --lead_repl)
           ;
         lead_repl_len = (int)(p - lead_repl);
 
@@ -1671,8 +1645,7 @@ int open_line(int dir, // FORWARD or BACKWARD
               }
               l = lead_repl_len - (int)(endp - p);
               if (l != 0)
-                mch_memmove(endp + l, endp,
-                            (size_t)((leader + lead_len) - endp));
+                mch_memmove(endp + l, endp, (size_t)((leader + lead_len) - endp));
               lead_len += l;
             }
             mch_memmove(p, lead_repl, (size_t)lead_repl_len);
@@ -1689,8 +1662,7 @@ int open_line(int dir, // FORWARD or BACKWARD
                   p[1] = ' ';
                   --l;
                 }
-                mch_memmove(p + 1, p + l + 1,
-                            (size_t)((leader + lead_len) - (p + l + 1)));
+                mch_memmove(p + 1, p + l + 1, (size_t)((leader + lead_len) - (p + l + 1)));
                 lead_len -= l;
                 *p = ' ';
               } else if (!VIM_ISWHITE(*p))
@@ -1714,8 +1686,7 @@ int open_line(int dir, // FORWARD or BACKWARD
                   break;
               }
               if (i != lead_repl_len) {
-                mch_memmove(p + lead_repl_len, p + i,
-                            (size_t)(lead_len - i - (p - leader)));
+                mch_memmove(p + lead_repl_len, p + i, (size_t)(lead_len - i - (p - leader)));
                 lead_len += lead_repl_len - i;
               }
             }
@@ -1756,8 +1727,7 @@ int open_line(int dir, // FORWARD or BACKWARD
 #endif
           )
 #ifdef FEAT_VARTABS
-            newindent = get_indent_str_vtab(leader, curbuf->b_p_ts,
-                                            curbuf->b_p_vts_array, FALSE);
+            newindent = get_indent_str_vtab(leader, curbuf->b_p_ts, curbuf->b_p_vts_array, FALSE);
 #else
             newindent = get_indent_str(leader, (int)curbuf->b_p_ts, FALSE);
 #endif
@@ -1905,8 +1875,8 @@ int open_line(int dir, // FORWARD or BACKWARD
 #ifdef FEAT_TEXT_PROP
     if ((State & INSERT) && !(State & VREPLACE_FLAG))
       // properties after the split move to the next line
-      adjust_props_for_split(curwin->w_cursor.lnum, curwin->w_cursor.lnum,
-                             curwin->w_cursor.col + 1, 0);
+      adjust_props_for_split(curwin->w_cursor.lnum, curwin->w_cursor.lnum, curwin->w_cursor.col + 1,
+                             0);
 #endif
   } else {
     // In VREPLACE mode we are starting to replace the next line.
@@ -1984,14 +1954,12 @@ int open_line(int dir, // FORWARD or BACKWARD
       ml_replace(curwin->w_cursor.lnum, saved_line, FALSE);
       saved_line = NULL;
       if (did_append) {
-        changed_lines(curwin->w_cursor.lnum, curwin->w_cursor.col,
-                      curwin->w_cursor.lnum + 1, 1L);
+        changed_lines(curwin->w_cursor.lnum, curwin->w_cursor.col, curwin->w_cursor.lnum + 1, 1L);
         did_append = FALSE;
 
         // Move marks after the line break to the new line.
         if (flags & OPENLINE_MARKFIX)
-          mark_col_adjust(curwin->w_cursor.lnum,
-                          curwin->w_cursor.col + less_cols_off, 1L,
+          mark_col_adjust(curwin->w_cursor.lnum, curwin->w_cursor.col + less_cols_off, 1L,
                           (long)-less_cols, 0);
       } else
         changed_bytes(curwin->w_cursor.lnum, curwin->w_cursor.col);

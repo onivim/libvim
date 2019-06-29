@@ -47,8 +47,7 @@ typedef int HINSTANCE;
  * racket-6.3.  See
  * http://docs.racket-lang.org/inside/im_memoryalloc.html?q=scheme_register_tls_space
  */
-#if MZSCHEME_VERSION_MAJOR >= 500 && defined(MSWIN) &&                         \
-    defined(USE_THREAD_LOCAL) &&                                               \
+#if MZSCHEME_VERSION_MAJOR >= 500 && defined(MSWIN) && defined(USE_THREAD_LOCAL) &&                \
     (!defined(_WIN64) || MZSCHEME_VERSION_MAJOR >= 603)
 #define HAVE_TLS_SPACE 1
 #endif
@@ -57,9 +56,8 @@ typedef int HINSTANCE;
  * Since version 4.x precise GC requires trampolined startup.
  * Futures and places in version 5.x need it too.
  */
-#if defined(MZ_PRECISE_GC) && MZSCHEME_VERSION_MAJOR >= 400 ||                 \
-    MZSCHEME_VERSION_MAJOR >= 500 &&                                           \
-        (defined(MZ_USE_FUTURES) || defined(MZ_USE_PLACES))
+#if defined(MZ_PRECISE_GC) && MZSCHEME_VERSION_MAJOR >= 400 ||                                     \
+    MZSCHEME_VERSION_MAJOR >= 500 && (defined(MZ_USE_FUTURES) || defined(MZ_USE_PLACES))
 #define TRAMPOLINED_MZVIM_STARTUP
 #endif
 
@@ -137,22 +135,18 @@ static char *string_to_line(Scheme_Object *obj);
 static void do_output(char *mesg, OUTPUT_LEN_TYPE len);
 static void do_printf(char *format, ...);
 static void do_flush(void);
-static Scheme_Object *_apply_thunk_catch_exceptions(Scheme_Object *,
-                                                    Scheme_Object **);
+static Scheme_Object *_apply_thunk_catch_exceptions(Scheme_Object *, Scheme_Object **);
 static Scheme_Object *extract_exn_message(Scheme_Object *v);
 static Scheme_Object *do_eval(void *, int noargc, Scheme_Object **noargv);
 static Scheme_Object *do_load(void *, int noargc, Scheme_Object **noargv);
 static void register_vim_exn(void);
-static vim_mz_buffer *get_buffer_arg(const char *fname, int argnum, int argc,
-                                     Scheme_Object **argv);
-static vim_mz_window *get_window_arg(const char *fname, int argnum, int argc,
-                                     Scheme_Object **argv);
+static vim_mz_buffer *get_buffer_arg(const char *fname, int argnum, int argc, Scheme_Object **argv);
+static vim_mz_window *get_window_arg(const char *fname, int argnum, int argc, Scheme_Object **argv);
 static int line_in_range(linenr_T, buf_T *);
 static void check_line_range(linenr_T, buf_T *);
 static void mz_fix_cursor(int lo, int hi, int extra);
 
-static int eval_with_exn_handling(void *, Scheme_Closed_Prim *,
-                                  Scheme_Object **ret);
+static int eval_with_exn_handling(void *, Scheme_Closed_Prim *, Scheme_Object **ret);
 static void make_modules(void);
 static void init_exn_catching_apply(void);
 static int mzscheme_env_main(Scheme_Env *env, int argc, char **argv);
@@ -168,9 +162,7 @@ static Scheme_Object *vim_funcref(void *data, int argc, Scheme_Object **argv);
 #endif
 
 #ifdef MZ_PRECISE_GC
-static int buffer_size_proc(void *obj UNUSED) {
-  return gcBYTES_TO_WORDS(sizeof(vim_mz_buffer));
-}
+static int buffer_size_proc(void *obj UNUSED) { return gcBYTES_TO_WORDS(sizeof(vim_mz_buffer)); }
 static int buffer_mark_proc(void *obj) { return buffer_size_proc(obj); }
 static int buffer_fixup_proc(void *obj) {
   /* apparently not needed as the object will be uncollectable while
@@ -182,9 +174,7 @@ static int buffer_fixup_proc(void *obj) {
   */
   return buffer_size_proc(obj);
 }
-static int window_size_proc(void *obj UNUSED) {
-  return gcBYTES_TO_WORDS(sizeof(vim_mz_window));
-}
+static int window_size_proc(void *obj UNUSED) { return gcBYTES_TO_WORDS(sizeof(vim_mz_window)); }
 static int window_mark_proc(void *obj) { return window_size_proc(obj); }
 static int window_fixup_proc(void *obj) {
   /* apparently not needed as the object will be uncollectable while
@@ -225,17 +215,14 @@ static Scheme_Env *(*dll_scheme_basic_env)(void);
 static void (*dll_scheme_check_threads)(void);
 static void (*dll_scheme_register_static)(void *ptr, long size);
 static void (*dll_scheme_set_stack_base)(void *base, int no_auto_statics);
-static void (*dll_scheme_add_global)(const char *name, Scheme_Object *val,
-                                     Scheme_Env *env);
-static void (*dll_scheme_add_global_symbol)(Scheme_Object *name,
-                                            Scheme_Object *val,
+static void (*dll_scheme_add_global)(const char *name, Scheme_Object *val, Scheme_Env *env);
+static void (*dll_scheme_add_global_symbol)(Scheme_Object *name, Scheme_Object *val,
                                             Scheme_Env *env);
 static Scheme_Object *(*dll_scheme_apply)(Scheme_Object *rator, int num_rands,
                                           Scheme_Object **rands);
 static Scheme_Object *(*dll_scheme_builtin_value)(const char *name);
 #if MZSCHEME_VERSION_MAJOR >= 299
-static Scheme_Object *(*dll_scheme_byte_string_to_char_string)(
-    Scheme_Object *s);
+static Scheme_Object *(*dll_scheme_byte_string_to_char_string)(Scheme_Object *s);
 static Scheme_Object *(*dll_scheme_make_path)(const char *chars);
 #endif
 static void (*dll_scheme_close_input_port)(Scheme_Object *port);
@@ -243,28 +230,23 @@ static void (*dll_scheme_count_lines)(Scheme_Object *port);
 #if MZSCHEME_VERSION_MAJOR < 360
 static Scheme_Object *(*dll_scheme_current_continuation_marks)(void);
 #else
-static Scheme_Object *(*dll_scheme_current_continuation_marks)(
-    Scheme_Object *prompt_tag);
+static Scheme_Object *(*dll_scheme_current_continuation_marks)(Scheme_Object *prompt_tag);
 #endif
 static void (*dll_scheme_display)(Scheme_Object *obj, Scheme_Object *port);
-static char *(*dll_scheme_display_to_string)(Scheme_Object *obj,
-                                             OUTPUT_LEN_TYPE *len);
+static char *(*dll_scheme_display_to_string)(Scheme_Object *obj, OUTPUT_LEN_TYPE *len);
 static int (*dll_scheme_eq)(Scheme_Object *obj1, Scheme_Object *obj2);
 static Scheme_Object *(*dll_scheme_do_eval)(Scheme_Object *obj, int _num_rands,
                                             Scheme_Object **rands, int val);
 static void (*dll_scheme_dont_gc_ptr)(void *p);
 static Scheme_Object *(*dll_scheme_eval)(Scheme_Object *obj, Scheme_Env *env);
-static Scheme_Object *(*dll_scheme_eval_string)(const char *str,
-                                                Scheme_Env *env);
-static Scheme_Object *(*dll_scheme_eval_string_all)(const char *str,
-                                                    Scheme_Env *env, int all);
+static Scheme_Object *(*dll_scheme_eval_string)(const char *str, Scheme_Env *env);
+static Scheme_Object *(*dll_scheme_eval_string_all)(const char *str, Scheme_Env *env, int all);
 static void (*dll_scheme_finish_primitive_module)(Scheme_Env *env);
 #if MZSCHEME_VERSION_MAJOR < 299
-static char *(*dll_scheme_format)(char *format, int flen, int argc,
-                                  Scheme_Object **argv, long *rlen);
+static char *(*dll_scheme_format)(char *format, int flen, int argc, Scheme_Object **argv,
+                                  long *rlen);
 #else
-static char *(*dll_scheme_format_utf8)(char *format, int flen, int argc,
-                                       Scheme_Object **argv,
+static char *(*dll_scheme_format_utf8)(char *format, int flen, int argc, Scheme_Object **argv,
                                        OUTPUT_LEN_TYPE *rlen);
 static Scheme_Object *(*dll_scheme_get_param)(Scheme_Config *c, int pos);
 #endif
@@ -272,22 +254,17 @@ static void (*dll_scheme_gc_ptr_ok)(void *p);
 #if MZSCHEME_VERSION_MAJOR < 299
 static char *(*dll_scheme_get_sized_string_output)(Scheme_Object *, long *len);
 #else
-static char *(*dll_scheme_get_sized_byte_string_output)(Scheme_Object *,
-                                                        OUTPUT_LEN_TYPE *len);
+static char *(*dll_scheme_get_sized_byte_string_output)(Scheme_Object *, OUTPUT_LEN_TYPE *len);
 #endif
 static Scheme_Object *(*dll_scheme_intern_symbol)(const char *name);
-static Scheme_Object *(*dll_scheme_lookup_global)(Scheme_Object *symbol,
-                                                  Scheme_Env *env);
-static Scheme_Object *(*dll_scheme_make_closed_prim_w_arity)(
-    Scheme_Closed_Prim *prim, void *data, const char *name, mzshort mina,
-    mzshort maxa);
+static Scheme_Object *(*dll_scheme_lookup_global)(Scheme_Object *symbol, Scheme_Env *env);
+static Scheme_Object *(*dll_scheme_make_closed_prim_w_arity)(Scheme_Closed_Prim *prim, void *data,
+                                                             const char *name, mzshort mina,
+                                                             mzshort maxa);
 static Scheme_Object *(*dll_scheme_make_integer_value)(long i);
-static Scheme_Object *(*dll_scheme_make_pair)(Scheme_Object *car,
-                                              Scheme_Object *cdr);
-static Scheme_Object *(*dll_scheme_make_prim_w_arity)(Scheme_Prim *prim,
-                                                      const char *name,
-                                                      mzshort mina,
-                                                      mzshort maxa);
+static Scheme_Object *(*dll_scheme_make_pair)(Scheme_Object *car, Scheme_Object *cdr);
+static Scheme_Object *(*dll_scheme_make_prim_w_arity)(Scheme_Prim *prim, const char *name,
+                                                      mzshort mina, mzshort maxa);
 #if MZSCHEME_VERSION_MAJOR < 299
 static Scheme_Object *(*dll_scheme_make_string)(const char *chars);
 static Scheme_Object *(*dll_scheme_make_string_output_port)();
@@ -295,86 +272,79 @@ static Scheme_Object *(*dll_scheme_make_string_output_port)();
 static Scheme_Object *(*dll_scheme_make_byte_string)(const char *chars);
 static Scheme_Object *(*dll_scheme_make_byte_string_output_port)();
 #endif
-static Scheme_Object *(*dll_scheme_make_struct_instance)(Scheme_Object *stype,
-                                                         int argc,
+static Scheme_Object *(*dll_scheme_make_struct_instance)(Scheme_Object *stype, int argc,
                                                          Scheme_Object **argv);
-static Scheme_Object **(*dll_scheme_make_struct_names)(
-    Scheme_Object *base, Scheme_Object *field_names, int flags, int *count_out);
-static Scheme_Object *(*dll_scheme_make_struct_type)(
-    Scheme_Object *base, Scheme_Object *parent, Scheme_Object *inspector,
-    int num_fields, int num_uninit_fields, Scheme_Object *uninit_val,
-    Scheme_Object *properties
+static Scheme_Object **(*dll_scheme_make_struct_names)(Scheme_Object *base,
+                                                       Scheme_Object *field_names, int flags,
+                                                       int *count_out);
+static Scheme_Object *(*dll_scheme_make_struct_type)(Scheme_Object *base, Scheme_Object *parent,
+                                                     Scheme_Object *inspector, int num_fields,
+                                                     int num_uninit_fields,
+                                                     Scheme_Object *uninit_val,
+                                                     Scheme_Object *properties
 #if MZSCHEME_VERSION_MAJOR >= 299
-    ,
-    Scheme_Object *guard
+                                                     ,
+                                                     Scheme_Object *guard
 #endif
 );
-static Scheme_Object **(*dll_scheme_make_struct_values)(
-    Scheme_Object *struct_type, Scheme_Object **names, int count, int flags);
+static Scheme_Object **(*dll_scheme_make_struct_values)(Scheme_Object *struct_type,
+                                                        Scheme_Object **names, int count,
+                                                        int flags);
 static Scheme_Type (*dll_scheme_make_type)(const char *name);
 static Scheme_Object *(*dll_scheme_make_vector)(int size, Scheme_Object *fill);
 static void *(*dll_scheme_malloc_fail_ok)(void *(*f)(size_t), size_t);
-static Scheme_Object *(*dll_scheme_open_input_file)(const char *name,
-                                                    const char *who);
-static Scheme_Env *(*dll_scheme_primitive_module)(Scheme_Object *name,
-                                                  Scheme_Env *for_env);
+static Scheme_Object *(*dll_scheme_open_input_file)(const char *name, const char *who);
+static Scheme_Env *(*dll_scheme_primitive_module)(Scheme_Object *name, Scheme_Env *for_env);
 static int (*dll_scheme_proper_list_length)(Scheme_Object *list);
 static void (*dll_scheme_raise)(Scheme_Object *exn);
 static Scheme_Object *(*dll_scheme_read)(Scheme_Object *port);
 static void (*dll_scheme_signal_error)(const char *msg, ...);
-static void (*dll_scheme_wrong_type)(const char *name, const char *expected,
-                                     int which, int argc, Scheme_Object **argv);
+static void (*dll_scheme_wrong_type)(const char *name, const char *expected, int which, int argc,
+                                     Scheme_Object **argv);
 #if MZSCHEME_VERSION_MAJOR >= 299
-static void (*dll_scheme_set_param)(Scheme_Config *c, int pos,
-                                    Scheme_Object *o);
+static void (*dll_scheme_set_param)(Scheme_Config *c, int pos, Scheme_Object *o);
 static Scheme_Config *(*dll_scheme_current_config)(void);
-static Scheme_Object *(*dll_scheme_char_string_to_byte_string)(
-    Scheme_Object *s);
+static Scheme_Object *(*dll_scheme_char_string_to_byte_string)(Scheme_Object *s);
 static Scheme_Object *(*dll_scheme_char_string_to_path)(Scheme_Object *s);
 static void *(*dll_scheme_set_collects_path)(Scheme_Object *p);
 #endif
 static Scheme_Hash_Table *(*dll_scheme_make_hash_table)(int type);
 static void (*dll_scheme_hash_set)(Scheme_Hash_Table *table, Scheme_Object *key,
                                    Scheme_Object *value);
-static Scheme_Object *(*dll_scheme_hash_get)(Scheme_Hash_Table *table,
-                                             Scheme_Object *key);
+static Scheme_Object *(*dll_scheme_hash_get)(Scheme_Hash_Table *table, Scheme_Object *key);
 static Scheme_Object *(*dll_scheme_make_double)(double d);
-static Scheme_Object *(*dll_scheme_make_sized_byte_string)(char *chars,
-                                                           long len, int copy);
+static Scheme_Object *(*dll_scheme_make_sized_byte_string)(char *chars, long len, int copy);
 static Scheme_Object *(*dll_scheme_namespace_require)(Scheme_Object *req);
-static Scheme_Object *(*dll_scheme_dynamic_wind)(
-    void (*pre)(void *), Scheme_Object *(*volatile act)(void *),
-    void (*volatile post)(void *), Scheme_Object *(*jmp_handler)(void *),
-    void *volatile data);
+static Scheme_Object *(*dll_scheme_dynamic_wind)(void (*pre)(void *),
+                                                 Scheme_Object *(*volatile act)(void *),
+                                                 void (*volatile post)(void *),
+                                                 Scheme_Object *(*jmp_handler)(void *),
+                                                 void *volatile data);
 #ifdef MZ_PRECISE_GC
 static void *(*dll_GC_malloc_one_tagged)(size_t size_in_bytes);
-static void (*dll_GC_register_traversers)(short tag, Size_Proc size,
-                                          Mark_Proc mark, Fixup_Proc fixup,
-                                          int is_constant_size, int is_atomic);
+static void (*dll_GC_register_traversers)(short tag, Size_Proc size, Mark_Proc mark,
+                                          Fixup_Proc fixup, int is_constant_size, int is_atomic);
 #endif
 #if MZSCHEME_VERSION_MAJOR >= 400
-static void (*dll_scheme_init_collection_paths)(Scheme_Env *global_env,
-                                                Scheme_Object *extra_dirs);
+static void (*dll_scheme_init_collection_paths)(Scheme_Env *global_env, Scheme_Object *extra_dirs);
 static void **(*dll_scheme_malloc_immobile_box)(void *p);
 static void (*dll_scheme_free_immobile_box)(void **b);
 #endif
 #if MZSCHEME_VERSION_MAJOR >= 500
 #ifdef TRAMPOLINED_MZVIM_STARTUP
-static int (*dll_scheme_main_setup)(int no_auto_statics, Scheme_Env_Main _main,
-                                    int argc, char **argv);
+static int (*dll_scheme_main_setup)(int no_auto_statics, Scheme_Env_Main _main, int argc,
+                                    char **argv);
 #if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) || MZSCHEME_VERSION_MAJOR >= 603
 static void (*dll_scheme_register_tls_space)(void *tls_space, int _tls_index);
 #endif
 #endif
-#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                             \
+#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                                                 \
     defined(IMPLEMENT_THREAD_LOCAL_EXTERNALLY_VIA_PROC)
-static Thread_Local_Variables *(
-    *dll_scheme_external_get_thread_local_variables)(void);
+static Thread_Local_Variables *(*dll_scheme_external_get_thread_local_variables)(void);
 #endif
 #endif
 #if MZSCHEME_VERSION_MAJOR >= 600
-static void (*dll_scheme_embedded_load)(intptr_t len, const char *s,
-                                        int predefined);
+static void (*dll_scheme_embedded_load)(intptr_t len, const char *s, int predefined);
 static void (*dll_scheme_register_embedded_load)(intptr_t len, const char *s);
 static void (*dll_scheme_set_config_path)(Scheme_Object *p);
 #endif
@@ -431,8 +401,7 @@ static void (*dll_scheme_set_config_path)(Scheme_Object *p);
 #if MZSCHEME_VERSION_MAJOR < 299
 #define scheme_get_sized_byte_string_output dll_scheme_get_sized_string_output
 #else
-#define scheme_get_sized_byte_string_output                                    \
-  dll_scheme_get_sized_byte_string_output
+#define scheme_get_sized_byte_string_output dll_scheme_get_sized_byte_string_output
 #define scheme_get_param dll_scheme_get_param
 #endif
 #define scheme_intern_symbol dll_scheme_intern_symbol
@@ -446,8 +415,7 @@ static void (*dll_scheme_set_config_path)(Scheme_Object *p);
 #define scheme_make_byte_string_output_port dll_scheme_make_string_output_port
 #else
 #define scheme_make_byte_string dll_scheme_make_byte_string
-#define scheme_make_byte_string_output_port                                    \
-  dll_scheme_make_byte_string_output_port
+#define scheme_make_byte_string_output_port dll_scheme_make_byte_string_output_port
 #endif
 #define scheme_make_struct_instance dll_scheme_make_struct_instance
 #define scheme_make_struct_names dll_scheme_make_struct_names
@@ -501,7 +469,7 @@ static void (*dll_scheme_set_config_path)(Scheme_Object *p);
 #endif
 
 #if MZSCHEME_VERSION_MAJOR >= 500
-#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                             \
+#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                                                 \
     defined(IMPLEMENT_THREAD_LOCAL_EXTERNALLY_VIA_PROC)
 /* define as function for macro in schthread.h */
 Thread_Local_Variables *scheme_external_get_thread_local_variables(void) {
@@ -517,10 +485,9 @@ typedef struct {
   void **ptr;
 } Thunk_Info;
 
-static Thunk_Info mzgc_imports[] = {
-    {"GC_malloc", (void **)&dll_GC_malloc},
-    {"GC_malloc_atomic", (void **)&dll_GC_malloc_atomic},
-    {NULL, NULL}};
+static Thunk_Info mzgc_imports[] = {{"GC_malloc", (void **)&dll_GC_malloc},
+                                    {"GC_malloc_atomic", (void **)&dll_GC_malloc_atomic},
+                                    {NULL, NULL}};
 
 static Thunk_Info mzsch_imports[] = {
     {"scheme_eof", (void **)&dll_scheme_eof},
@@ -539,16 +506,14 @@ static Thunk_Info mzsch_imports[] = {
     {"scheme_apply", (void **)&dll_scheme_apply},
     {"scheme_basic_env", (void **)&dll_scheme_basic_env},
 #if MZSCHEME_VERSION_MAJOR >= 299
-    {"scheme_byte_string_to_char_string",
-     (void **)&dll_scheme_byte_string_to_char_string},
+    {"scheme_byte_string_to_char_string", (void **)&dll_scheme_byte_string_to_char_string},
     {"scheme_make_path", (void **)&dll_scheme_make_path},
 #endif
     {"scheme_builtin_value", (void **)&dll_scheme_builtin_value},
     {"scheme_check_threads", (void **)&dll_scheme_check_threads},
     {"scheme_close_input_port", (void **)&dll_scheme_close_input_port},
     {"scheme_count_lines", (void **)&dll_scheme_count_lines},
-    {"scheme_current_continuation_marks",
-     (void **)&dll_scheme_current_continuation_marks},
+    {"scheme_current_continuation_marks", (void **)&dll_scheme_current_continuation_marks},
     {"scheme_display", (void **)&dll_scheme_display},
     {"scheme_display_to_string", (void **)&dll_scheme_display_to_string},
     {"scheme_do_eval", (void **)&dll_scheme_do_eval},
@@ -557,8 +522,7 @@ static Thunk_Info mzsch_imports[] = {
     {"scheme_eval", (void **)&dll_scheme_eval},
     {"scheme_eval_string", (void **)&dll_scheme_eval_string},
     {"scheme_eval_string_all", (void **)&dll_scheme_eval_string_all},
-    {"scheme_finish_primitive_module",
-     (void **)&dll_scheme_finish_primitive_module},
+    {"scheme_finish_primitive_module", (void **)&dll_scheme_finish_primitive_module},
 #if MZSCHEME_VERSION_MAJOR < 299
     {"scheme_format", (void **)&dll_scheme_format},
 #else
@@ -567,27 +531,22 @@ static Thunk_Info mzsch_imports[] = {
 #endif
     {"scheme_gc_ptr_ok", (void **)&dll_scheme_gc_ptr_ok},
 #if MZSCHEME_VERSION_MAJOR < 299
-    {"scheme_get_sized_string_output",
-     (void **)&dll_scheme_get_sized_string_output},
+    {"scheme_get_sized_string_output", (void **)&dll_scheme_get_sized_string_output},
 #else
-    {"scheme_get_sized_byte_string_output",
-     (void **)&dll_scheme_get_sized_byte_string_output},
+    {"scheme_get_sized_byte_string_output", (void **)&dll_scheme_get_sized_byte_string_output},
 #endif
     {"scheme_intern_symbol", (void **)&dll_scheme_intern_symbol},
     {"scheme_lookup_global", (void **)&dll_scheme_lookup_global},
-    {"scheme_make_closed_prim_w_arity",
-     (void **)&dll_scheme_make_closed_prim_w_arity},
+    {"scheme_make_closed_prim_w_arity", (void **)&dll_scheme_make_closed_prim_w_arity},
     {"scheme_make_integer_value", (void **)&dll_scheme_make_integer_value},
     {"scheme_make_pair", (void **)&dll_scheme_make_pair},
     {"scheme_make_prim_w_arity", (void **)&dll_scheme_make_prim_w_arity},
 #if MZSCHEME_VERSION_MAJOR < 299
     {"scheme_make_string", (void **)&dll_scheme_make_string},
-    {"scheme_make_string_output_port",
-     (void **)&dll_scheme_make_string_output_port},
+    {"scheme_make_string_output_port", (void **)&dll_scheme_make_string_output_port},
 #else
     {"scheme_make_byte_string", (void **)&dll_scheme_make_byte_string},
-    {"scheme_make_byte_string_output_port",
-     (void **)&dll_scheme_make_byte_string_output_port},
+    {"scheme_make_byte_string_output_port", (void **)&dll_scheme_make_byte_string_output_port},
 #endif
     {"scheme_make_struct_instance", (void **)&dll_scheme_make_struct_instance},
     {"scheme_make_struct_names", (void **)&dll_scheme_make_struct_names},
@@ -608,8 +567,7 @@ static Thunk_Info mzsch_imports[] = {
 #if MZSCHEME_VERSION_MAJOR >= 299
     {"scheme_set_param", (void **)&dll_scheme_set_param},
     {"scheme_current_config", (void **)&dll_scheme_current_config},
-    {"scheme_char_string_to_byte_string",
-     (void **)&dll_scheme_char_string_to_byte_string},
+    {"scheme_char_string_to_byte_string", (void **)&dll_scheme_char_string_to_byte_string},
     {"scheme_char_string_to_path", (void **)&dll_scheme_char_string_to_path},
     {"scheme_set_collects_path", (void **)&dll_scheme_set_collects_path},
 #endif
@@ -617,8 +575,7 @@ static Thunk_Info mzsch_imports[] = {
     {"scheme_hash_set", (void **)&dll_scheme_hash_set},
     {"scheme_hash_get", (void **)&dll_scheme_hash_get},
     {"scheme_make_double", (void **)&dll_scheme_make_double},
-    {"scheme_make_sized_byte_string",
-     (void **)&dll_scheme_make_sized_byte_string},
+    {"scheme_make_sized_byte_string", (void **)&dll_scheme_make_sized_byte_string},
     {"scheme_namespace_require", (void **)&dll_scheme_namespace_require},
     {"scheme_dynamic_wind", (void **)&dll_scheme_dynamic_wind},
 #ifdef MZ_PRECISE_GC
@@ -632,13 +589,12 @@ static Thunk_Info mzsch_imports[] = {
     {"scheme_register_tls_space", (void **)&dll_scheme_register_tls_space},
 #endif
 #endif
-    {"scheme_init_collection_paths",
-     (void **)&dll_scheme_init_collection_paths},
+    {"scheme_init_collection_paths", (void **)&dll_scheme_init_collection_paths},
     {"scheme_malloc_immobile_box", (void **)&dll_scheme_malloc_immobile_box},
     {"scheme_free_immobile_box", (void **)&dll_scheme_free_immobile_box},
 #endif
 #if MZSCHEME_VERSION_MAJOR >= 500
-#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                             \
+#if defined(IMPLEMENT_THREAD_LOCAL_VIA_WIN_TLS) ||                                                 \
     defined(IMPLEMENT_THREAD_LOCAL_EXTERNALLY_VIA_PROC)
     {"scheme_external_get_thread_local_variables",
      (void **)&dll_scheme_external_get_thread_local_variables},
@@ -646,8 +602,7 @@ static Thunk_Info mzsch_imports[] = {
 #endif
 #if MZSCHEME_VERSION_MAJOR >= 600
     {"scheme_embedded_load", (void **)&dll_scheme_embedded_load},
-    {"scheme_register_embedded_load",
-     (void **)&dll_scheme_register_embedded_load},
+    {"scheme_register_embedded_load", (void **)&dll_scheme_register_embedded_load},
     {"scheme_set_config_path", (void **)&dll_scheme_set_config_path},
 #endif
     {NULL, NULL}};
@@ -658,8 +613,7 @@ static HINSTANCE hMzSch = 0;
 static void dynamic_mzscheme_end(void);
 static int mzscheme_runtime_link_init(char *sch_dll, char *gc_dll, int verbose);
 
-static int mzscheme_runtime_link_init(char *sch_dll, char *gc_dll,
-                                      int verbose) {
+static int mzscheme_runtime_link_init(char *sch_dll, char *gc_dll, int verbose) {
   Thunk_Info *thunk = NULL;
 
   if (hMzGC && hMzSch)
@@ -705,8 +659,7 @@ static int mzscheme_runtime_link_init(char *sch_dll, char *gc_dll,
 }
 
 int mzscheme_enabled(int verbose) {
-  return mzscheme_runtime_link_init((char *)p_mzschemedll,
-                                    (char *)p_mzschemegcdll, verbose) == OK;
+  return mzscheme_runtime_link_init((char *)p_mzschemedll, (char *)p_mzschemegcdll, verbose) == OK;
 }
 
 static void dynamic_mzscheme_end(void) {
@@ -742,8 +695,7 @@ static Scheme_Object *guaranteed_byte_string_arg(char *proc, int num, int argc,
   /* unreachable */
   return scheme_void;
 }
-#define GUARANTEED_STRING_ARG(proc, num)                                       \
-  guaranteed_byte_string_arg(proc, num, argc, argv)
+#define GUARANTEED_STRING_ARG(proc, num) guaranteed_byte_string_arg(proc, num, argc, argv)
 #endif
 
 /* need to put it here for dynamic stuff to work */
@@ -824,13 +776,12 @@ static void remove_timer(void);
 
 /* timers are presented in GUI only */
 #if defined(FEAT_GUI_MSWIN)
-static void CALLBACK timer_proc(HWND hwnd UNUSED, UINT uMsg UNUSED,
-                                UINT_PTR idEvent UNUSED, DWORD dwTime UNUSED)
+static void CALLBACK timer_proc(HWND hwnd UNUSED, UINT uMsg UNUSED, UINT_PTR idEvent UNUSED,
+                                DWORD dwTime UNUSED)
 #elif defined(FEAT_GUI_GTK)
 static gboolean timer_proc(gpointer data UNUSED)
 #elif defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)
-static void timer_proc(XtPointer timed_out UNUSED,
-                       XtIntervalId *interval_id UNUSED)
+static void timer_proc(XtPointer timed_out UNUSED, XtIntervalId *interval_id UNUSED)
 #elif defined(FEAT_GUI_MAC)
 pascal void timer_proc(EventLoopTimerRef theTimer UNUSED, void *userData UNUSED)
 #endif
@@ -855,8 +806,7 @@ static void setup_timer(void) {
 #elif defined(FEAT_GUI_MAC)
   timerUPP = NewEventLoopTimerUPP(timer_proc);
   InstallEventLoopTimer(GetMainEventLoop(), p_mzq * kEventDurationMillisecond,
-                        p_mzq * kEventDurationMillisecond, timerUPP, NULL,
-                        &timer_id);
+                        p_mzq * kEventDurationMillisecond, timerUPP, NULL, &timer_id);
 #endif
 }
 
@@ -944,8 +894,7 @@ int mzscheme_main(void) {
 #endif
 }
 
-static int mzscheme_env_main(Scheme_Env *env, int argc UNUSED,
-                             char **argv UNUSED) {
+static int mzscheme_env_main(Scheme_Env *env, int argc UNUSED, char **argv UNUSED) {
 #ifdef TRAMPOLINED_MZVIM_STARTUP
   /* Scheme has created the environment for us */
   environment = env;
@@ -1099,12 +1048,10 @@ static int startup_mzscheme(void) {
    */
   {
     /* use error handler to avoid abort */
-    scheme_dynamic_wind(NULL, load_base_module, NULL, load_base_module_on_error,
-                        "racket/base");
+    scheme_dynamic_wind(NULL, load_base_module, NULL, load_base_module_on_error, "racket/base");
     if (load_base_module_failed) {
       load_base_module_failed = FALSE;
-      scheme_dynamic_wind(NULL, load_base_module, NULL,
-                          load_base_module_on_error, "scheme/base");
+      scheme_dynamic_wind(NULL, load_base_module, NULL, load_base_module_on_error, "scheme/base");
       if (load_base_module_failed)
         return -1;
     }
@@ -1133,8 +1080,7 @@ static int startup_mzscheme(void) {
       MZ_GC_REG();
       make_security_guard_symbol = scheme_intern_symbol("make-security-guard");
       MZ_GC_CHECK();
-      make_security_guard =
-          scheme_lookup_global(make_security_guard_symbol, environment);
+      make_security_guard = scheme_lookup_global(make_security_guard_symbol, environment);
       MZ_GC_UNREG();
     }
 #else
@@ -1156,10 +1102,8 @@ static int startup_mzscheme(void) {
       MZ_GC_CHECK();
       args[0] = scheme_get_param(config, MZCONFIG_SECURITY_GUARD);
       MZ_GC_CHECK();
-      args[1] = scheme_make_prim_w_arity(sandbox_file_guard,
-                                         "sandbox-file-guard", 3, 3);
-      args[2] = scheme_make_prim_w_arity(sandbox_network_guard,
-                                         "sandbox-network-guard", 4, 4);
+      args[1] = scheme_make_prim_w_arity(sandbox_file_guard, "sandbox-file-guard", 3, 3);
+      args[2] = scheme_make_prim_w_arity(sandbox_network_guard, "sandbox-network-guard", 4, 4);
       guard = scheme_apply(make_security_guard, 3, args);
       MZ_GC_CHECK();
       scheme_set_param(config, MZCONFIG_SECURITY_GUARD, guard);
@@ -1175,10 +1119,10 @@ static int startup_mzscheme(void) {
   mz_window_type = scheme_make_type("<vim-window>");
   MZ_GC_CHECK();
 #ifdef MZ_PRECISE_GC
-  GC_register_traversers(mz_buffer_type, buffer_size_proc, buffer_mark_proc,
-                         buffer_fixup_proc, TRUE, TRUE);
-  GC_register_traversers(mz_window_type, window_size_proc, window_mark_proc,
-                         window_fixup_proc, TRUE, TRUE);
+  GC_register_traversers(mz_buffer_type, buffer_size_proc, buffer_mark_proc, buffer_fixup_proc,
+                         TRUE, TRUE);
+  GC_register_traversers(mz_window_type, window_size_proc, window_mark_proc, window_fixup_proc,
+                         TRUE, TRUE);
 #endif
 
   make_modules();
@@ -1243,8 +1187,7 @@ static int mzscheme_init(void) {
 /*
  * Evaluate command with exception handling
  */
-static int eval_with_exn_handling(void *data, Scheme_Closed_Prim *what,
-                                  Scheme_Object **ret) {
+static int eval_with_exn_handling(void *data, Scheme_Closed_Prim *what, Scheme_Object **ret) {
   Scheme_Object *value = NULL;
   Scheme_Object *exn = NULL;
   Scheme_Object *prim = NULL;
@@ -1287,8 +1230,7 @@ static int eval_with_exn_handling(void *data, Scheme_Closed_Prim *what,
 }
 
 /* :mzscheme */
-static int do_mzscheme_command(exarg_T *eap, void *data,
-                               Scheme_Closed_Prim *what) {
+static int do_mzscheme_command(exarg_T *eap, void *data, Scheme_Closed_Prim *what) {
   if (mzscheme_init())
     return FAIL;
 
@@ -1360,8 +1302,7 @@ void ex_mzscheme(exarg_T *eap) {
   }
 }
 
-static Scheme_Object *do_load(void *data, int noargc UNUSED,
-                              Scheme_Object **noargv UNUSED) {
+static Scheme_Object *do_load(void *data, int noargc UNUSED, Scheme_Object **noargv UNUSED) {
   Scheme_Object *expr = NULL;
   Scheme_Object *result = NULL;
   char *file = NULL;
@@ -1441,8 +1382,7 @@ static void init_exn_catching_apply(void) {
  * no exception, otherwise returning NULL and setting *exn to the raised
  * value (usually an exn structure).
  */
-static Scheme_Object *_apply_thunk_catch_exceptions(Scheme_Object *f,
-                                                    Scheme_Object **exn) {
+static Scheme_Object *_apply_thunk_catch_exceptions(Scheme_Object *f, Scheme_Object **exn) {
   Scheme_Object *v;
 
   v = _scheme_apply(exn_catching_apply, 1, &f);
@@ -1463,8 +1403,7 @@ static Scheme_Object *extract_exn_message(Scheme_Object *v) {
     return NULL; /* Not an exn structure */
 }
 
-static Scheme_Object *do_eval(void *s, int noargc UNUSED,
-                              Scheme_Object **noargv UNUSED) {
+static Scheme_Object *do_eval(void *s, int noargc UNUSED, Scheme_Object **noargv UNUSED) {
   return scheme_eval_string_all((char *)s, environment, TRUE);
 }
 
@@ -1545,8 +1484,7 @@ static Scheme_Object *vim_command(void *data, int argc, Scheme_Object **argv) {
 }
 
 /* (eval {expr-string}) */
-static Scheme_Object *vim_eval(void *data UNUSED, int argc UNUSED,
-                               Scheme_Object **argv UNUSED) {
+static Scheme_Object *vim_eval(void *data UNUSED, int argc UNUSED, Scheme_Object **argv UNUSED) {
 #ifdef FEAT_EVAL
   Vim_Prim *prim = (Vim_Prim *)data;
   Scheme_Object *result = NULL;
@@ -1638,8 +1576,7 @@ static Scheme_Object *get_option(void *data, int argc, Scheme_Object **argv) {
       scheme_wrong_type(prim->name, "vim-buffer/window", 1, argc, argv);
   }
 
-  rc = get_option_value(BYTE_STRING_VALUE(name), &value, (char_u **)&strval,
-                        opt_flags);
+  rc = get_option_value(BYTE_STRING_VALUE(name), &value, (char_u **)&strval, opt_flags);
   curbuf = save_curb;
   curwin = save_curw;
 
@@ -1738,8 +1675,7 @@ static Scheme_Object *get_window_count(void *data UNUSED, int argc UNUSED,
 }
 
 /* (get-win-list [buffer]) */
-static Scheme_Object *get_window_list(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_window_list(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf;
   Scheme_Object *list;
@@ -1807,8 +1743,7 @@ static Scheme_Object *get_window_num(void *data UNUSED, int argc UNUSED,
 }
 
 /* (get-win-by-num {windownum}) */
-static Scheme_Object *get_window_by_num(void *data, int argc,
-                                        Scheme_Object **argv) {
+static Scheme_Object *get_window_by_num(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   win_T *win = firstwin;
   int fnum;
@@ -1825,8 +1760,7 @@ static Scheme_Object *get_window_by_num(void *data, int argc,
 }
 
 /* (get-win-buffer [window]) */
-static Scheme_Object *get_window_buffer(void *data, int argc,
-                                        Scheme_Object **argv) {
+static Scheme_Object *get_window_buffer(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_window *win = get_window_arg(prim->name, 0, argc, argv);
 
@@ -1834,8 +1768,7 @@ static Scheme_Object *get_window_buffer(void *data, int argc,
 }
 
 /* (get-win-height [window]) */
-static Scheme_Object *get_window_height(void *data, int argc,
-                                        Scheme_Object **argv) {
+static Scheme_Object *get_window_height(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_window *win = get_window_arg(prim->name, 0, argc, argv);
 
@@ -1843,8 +1776,7 @@ static Scheme_Object *get_window_height(void *data, int argc,
 }
 
 /* (set-win-height {height} [window]) */
-static Scheme_Object *set_window_height(void *data, int argc,
-                                        Scheme_Object **argv) {
+static Scheme_Object *set_window_height(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_window *win;
   win_T *savewin;
@@ -1867,8 +1799,7 @@ static Scheme_Object *set_window_height(void *data, int argc,
 }
 
 /* (get-win-width [window]) */
-static Scheme_Object *get_window_width(void *data, int argc,
-                                       Scheme_Object **argv) {
+static Scheme_Object *get_window_width(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_window *win = get_window_arg(prim->name, 0, argc, argv);
 
@@ -1876,8 +1807,7 @@ static Scheme_Object *get_window_width(void *data, int argc,
 }
 
 /* (set-win-width {width} [window]) */
-static Scheme_Object *set_window_width(void *data, int argc,
-                                       Scheme_Object **argv) {
+static Scheme_Object *set_window_width(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_window *win;
   win_T *savewin;
@@ -1948,8 +1878,7 @@ static Scheme_Object *set_cursor(void *data, int argc, Scheme_Object **argv) {
  */
 
 /* (open-buff {filename}) */
-static Scheme_Object *mzscheme_open_buffer(void *data, int argc,
-                                           Scheme_Object **argv) {
+static Scheme_Object *mzscheme_open_buffer(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   int num = 0;
   Scheme_Object *onum = NULL;
@@ -1979,8 +1908,7 @@ static Scheme_Object *mzscheme_open_buffer(void *data, int argc,
 }
 
 /* (get-buff-by-num {buffernum}) */
-static Scheme_Object *get_buffer_by_num(void *data, int argc,
-                                        Scheme_Object **argv) {
+static Scheme_Object *get_buffer_by_num(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   buf_T *buf;
   int fnum;
@@ -1995,8 +1923,7 @@ static Scheme_Object *get_buffer_by_num(void *data, int argc,
 }
 
 /* (get-buff-by-name {buffername}) */
-static Scheme_Object *get_buffer_by_name(void *data, int argc,
-                                         Scheme_Object **argv) {
+static Scheme_Object *get_buffer_by_name(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   buf_T *buf;
   Scheme_Object *buffer = NULL;
@@ -2027,8 +1954,7 @@ static Scheme_Object *get_buffer_by_name(void *data, int argc,
 }
 
 /* (get-next-buff [buffer]) */
-static Scheme_Object *get_next_buffer(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_next_buffer(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   buf_T *buf = get_buffer_arg(prim->name, 0, argc, argv)->buf;
 
@@ -2039,8 +1965,7 @@ static Scheme_Object *get_next_buffer(void *data, int argc,
 }
 
 /* (get-prev-buff [buffer]) */
-static Scheme_Object *get_prev_buffer(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_prev_buffer(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   buf_T *buf = get_buffer_arg(prim->name, 0, argc, argv)->buf;
 
@@ -2051,8 +1976,7 @@ static Scheme_Object *get_prev_buffer(void *data, int argc,
 }
 
 /* (get-buff-num [buffer]) */
-static Scheme_Object *get_buffer_num(void *data, int argc,
-                                     Scheme_Object **argv) {
+static Scheme_Object *get_buffer_num(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf = get_buffer_arg(prim->name, 0, argc, argv);
 
@@ -2070,8 +1994,7 @@ static Scheme_Object *get_buffer_count(void *data UNUSED, int argc UNUSED,
 }
 
 /* (get-buff-name [buffer]) */
-static Scheme_Object *get_buffer_name(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_buffer_name(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf = get_buffer_arg(prim->name, 0, argc, argv);
 
@@ -2120,8 +2043,7 @@ static Scheme_Object *buffer_new(buf_T *buf) {
  *
  * Get the size (number of lines) in the current buffer.
  */
-static Scheme_Object *get_buffer_size(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_buffer_size(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf = get_buffer_arg(prim->name, 0, argc, argv);
 
@@ -2135,8 +2057,7 @@ static Scheme_Object *get_buffer_size(void *data, int argc,
  * in Vim format (1-based). The line is returned as a MzScheme
  * string object.
  */
-static Scheme_Object *get_buffer_line(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *get_buffer_line(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf;
   int linenr;
@@ -2157,8 +2078,7 @@ static Scheme_Object *get_buffer_line(void *data, int argc,
  * are in Vim format (1-based). The range is from lo up to, but not
  * including, hi. The list is returned as a list of string objects.
  */
-static Scheme_Object *get_buffer_line_list(void *data, int argc,
-                                           Scheme_Object **argv) {
+static Scheme_Object *get_buffer_line_list(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf;
   int i, hi, lo, n;
@@ -2187,8 +2107,8 @@ static Scheme_Object *get_buffer_line_list(void *data, int argc,
   n = hi - lo;
 
   for (i = n; i >= 0; --i) {
-    Scheme_Object *str = scheme_make_byte_string(
-        (char *)ml_get_buf(buf->buf, (linenr_T)(lo + i), FALSE));
+    Scheme_Object *str =
+        scheme_make_byte_string((char *)ml_get_buf(buf->buf, (linenr_T)(lo + i), FALSE));
     raise_if_error();
 
     /* Set the list item */
@@ -2211,8 +2131,7 @@ static Scheme_Object *get_buffer_line_list(void *data, int argc,
  * It returns a Scheme Object that indicates the length of the
  * string changed.
  */
-static Scheme_Object *set_buffer_line(void *data, int argc,
-                                      Scheme_Object **argv) {
+static Scheme_Object *set_buffer_line(void *data, int argc, Scheme_Object **argv) {
   /* First of all, we check the value of the supplied MzScheme object.
    * There are three cases:
    *	  1. #f - this is a deletion.
@@ -2313,8 +2232,7 @@ static void free_array(char **array) {
  * If OK is returned and len_change is not NULL, *len_change is set to the
  * change in the buffer length.
  */
-static Scheme_Object *set_buffer_line_list(void *data, int argc,
-                                           Scheme_Object **argv) {
+static Scheme_Object *set_buffer_line_list(void *data, int argc, Scheme_Object **argv) {
   /* First of all, we check the type of the supplied MzScheme object.
    * There are three cases:
    *	  1. #f - this is a deletion.
@@ -2336,8 +2254,7 @@ static Scheme_Object *set_buffer_line_list(void *data, int argc,
 #endif
   lo = SCHEME_INT_VAL(GUARANTEE_INTEGER(prim->name, 0));
   hi = SCHEME_INT_VAL(GUARANTEE_INTEGER(prim->name, 1));
-  if (!SCHEME_PAIRP(argv[2]) && !SCHEME_FALSEP(argv[2]) &&
-      !SCHEME_NULLP(argv[2]))
+  if (!SCHEME_PAIRP(argv[2]) && !SCHEME_FALSEP(argv[2]) && !SCHEME_NULLP(argv[2]))
     scheme_wrong_type(prim->name, "list or #f", 2, argc, argv);
   line_list = argv[2];
   buf = get_buffer_arg(prim->name, 3, argc, argv);
@@ -2449,8 +2366,7 @@ static Scheme_Object *set_buffer_line_list(void *data, int argc,
        * memory.
        */
       while (i < new_len) {
-        if (ml_append((linenr_T)(lo + i - 1), (char_u *)array[i], 0, FALSE) ==
-            FAIL) {
+        if (ml_append((linenr_T)(lo + i - 1), (char_u *)array[i], 0, FALSE) == FAIL) {
           curbuf = savebuf;
           free_array(array);
           raise_vim_exn(_("cannot insert line"));
@@ -2490,8 +2406,7 @@ static Scheme_Object *set_buffer_line_list(void *data, int argc,
  * If OK is returned and len_change is not NULL, *len_change
  * is set to the change in the buffer length.
  */
-static Scheme_Object *insert_buffer_line_list(void *data, int argc,
-                                              Scheme_Object **argv) {
+static Scheme_Object *insert_buffer_line_list(void *data, int argc, Scheme_Object **argv) {
   Vim_Prim *prim = (Vim_Prim *)data;
   vim_mz_buffer *buf = NULL;
   Scheme_Object *list = NULL;
@@ -2579,8 +2494,7 @@ static Scheme_Object *insert_buffer_line_list(void *data, int argc,
       raise_vim_exn(_("cannot save undo information"));
     } else {
       for (i = 0; i < size; ++i)
-        if (ml_append((linenr_T)(n + i), (char_u *)array[i], 0, FALSE) ==
-            FAIL) {
+        if (ml_append((linenr_T)(n + i), (char_u *)array[i], 0, FALSE) == FAIL) {
           curbuf = savebuf;
           free_array(array);
           raise_vim_exn(_("cannot insert line"));
@@ -2604,8 +2518,7 @@ static Scheme_Object *insert_buffer_line_list(void *data, int argc,
  * Predicates
  */
 /* (buff? obj) */
-static Scheme_Object *vim_bufferp(void *data UNUSED, int argc UNUSED,
-                                  Scheme_Object **argv) {
+static Scheme_Object *vim_bufferp(void *data UNUSED, int argc UNUSED, Scheme_Object **argv) {
   if (SCHEME_VIMBUFFERP(argv[0]))
     return scheme_true;
   else
@@ -2613,8 +2526,7 @@ static Scheme_Object *vim_bufferp(void *data UNUSED, int argc UNUSED,
 }
 
 /* (win? obj) */
-static Scheme_Object *vim_windowp(void *data UNUSED, int argc UNUSED,
-                                  Scheme_Object **argv) {
+static Scheme_Object *vim_windowp(void *data UNUSED, int argc UNUSED, Scheme_Object **argv) {
   if (SCHEME_VIMWINDOWP(argv[0]))
     return scheme_true;
   else
@@ -2622,20 +2534,16 @@ static Scheme_Object *vim_windowp(void *data UNUSED, int argc UNUSED,
 }
 
 /* (buff-valid? obj) */
-static Scheme_Object *vim_buffer_validp(void *data UNUSED, int argc UNUSED,
-                                        Scheme_Object **argv) {
-  if (SCHEME_VIMBUFFERP(argv[0]) &&
-      ((vim_mz_buffer *)argv[0])->buf != INVALID_BUFFER_VALUE)
+static Scheme_Object *vim_buffer_validp(void *data UNUSED, int argc UNUSED, Scheme_Object **argv) {
+  if (SCHEME_VIMBUFFERP(argv[0]) && ((vim_mz_buffer *)argv[0])->buf != INVALID_BUFFER_VALUE)
     return scheme_true;
   else
     return scheme_false;
 }
 
 /* (win-valid? obj) */
-static Scheme_Object *vim_window_validp(void *data UNUSED, int argc UNUSED,
-                                        Scheme_Object **argv) {
-  if (SCHEME_VIMWINDOWP(argv[0]) &&
-      ((vim_mz_window *)argv[0])->win != INVALID_WINDOW_VALUE)
+static Scheme_Object *vim_window_validp(void *data UNUSED, int argc UNUSED, Scheme_Object **argv) {
+  if (SCHEME_VIMWINDOWP(argv[0]) && ((vim_mz_window *)argv[0])->win != INVALID_WINDOW_VALUE)
     return scheme_true;
   else
     return scheme_false;
@@ -2814,9 +2722,8 @@ static Scheme_Object *vim_to_mzscheme_impl(typval_T *vim_value, int depth,
     /* FIXME: func_ref() and func_unref() are needed. */
     funcname = scheme_make_byte_string((char *)vim_value->vval.v_string);
     MZ_GC_CHECK();
-    result = scheme_make_closed_prim_w_arity(
-        vim_funcref, funcname, (const char *)BYTE_STRING_VALUE(funcname), 0,
-        -1);
+    result = scheme_make_closed_prim_w_arity(vim_funcref, funcname,
+                                             (const char *)BYTE_STRING_VALUE(funcname), 0, -1);
     MZ_GC_CHECK();
 
     MZ_GC_UNREG();
@@ -2832,12 +2739,10 @@ static Scheme_Object *vim_to_mzscheme_impl(typval_T *vim_value, int depth,
 
       /* FIXME: func_ref() and func_unref() are needed. */
       /* TODO: Support pt_dict and pt_argv. */
-      funcname = scheme_make_byte_string(
-          (char *)partial_name(vim_value->vval.v_partial));
+      funcname = scheme_make_byte_string((char *)partial_name(vim_value->vval.v_partial));
       MZ_GC_CHECK();
-      result = scheme_make_closed_prim_w_arity(
-          vim_funcref, funcname, (const char *)BYTE_STRING_VALUE(funcname), 0,
-          -1);
+      result = scheme_make_closed_prim_w_arity(vim_funcref, funcname,
+                                               (const char *)BYTE_STRING_VALUE(funcname), 0, -1);
       MZ_GC_CHECK();
 
       MZ_GC_UNREG();
@@ -3032,11 +2937,11 @@ static int mzscheme_to_vim_impl(Scheme_Object *obj, typval_T *tv, int depth,
       for (i = 0; i < ((Scheme_Hash_Table *)obj)->size; ++i) {
         if (((Scheme_Hash_Table *)obj)->vals[i] != NULL) {
           /* generate item for `display'ed Scheme key */
-          dictitem_T *item = dictitem_alloc(
-              (char_u *)string_to_line(((Scheme_Hash_Table *)obj)->keys[i]));
+          dictitem_T *item =
+              dictitem_alloc((char_u *)string_to_line(((Scheme_Hash_Table *)obj)->keys[i]));
           /* convert Scheme val to Vim and add it to the dict */
-          if (mzscheme_to_vim_impl(((Scheme_Hash_Table *)obj)->vals[i],
-                                   &item->di_tv, depth + 1, visited) == FAIL ||
+          if (mzscheme_to_vim_impl(((Scheme_Hash_Table *)obj)->vals[i], &item->di_tv, depth + 1,
+                                   visited) == FAIL ||
               dict_add(dict, item) == FAIL) {
             dictitem_free(item);
             status = FAIL;
@@ -3153,13 +3058,12 @@ static void register_vim_exn(void) {
   MZ_GC_CHECK();
 
   if (vim_exn == NULL)
-    vim_exn =
-        scheme_make_struct_type(exn_name, struct_exn, NULL, 0, 0, NULL, NULL
+    vim_exn = scheme_make_struct_type(exn_name, struct_exn, NULL, 0, 0, NULL, NULL
 #if MZSCHEME_VERSION_MAJOR >= 299
-                                ,
-                                NULL
+                                      ,
+                                      NULL
 #endif
-        );
+    );
 
   {
     Scheme_Object **tmp = NULL;
@@ -3419,8 +3323,8 @@ static void make_modules(void) {
   /* all prims made closed so they can access their own names */
   for (i = 0; i < (int)(sizeof(prims) / sizeof(prims[0])); i++) {
     Vim_Prim *prim = prims + i;
-    closed_prim = scheme_make_closed_prim_w_arity(prim->prim, prim, prim->name,
-                                                  prim->mina, prim->maxa);
+    closed_prim =
+        scheme_make_closed_prim_w_arity(prim->prim, prim, prim->name, prim->mina, prim->maxa);
     scheme_add_global(prim->name, closed_prim, mod);
     MZ_GC_CHECK();
   }
@@ -3441,8 +3345,7 @@ static void sandbox_check(void) {
 }
 
 /* security guards to force Vim's sandbox restrictions on MzScheme level */
-static Scheme_Object *sandbox_file_guard(int argc UNUSED,
-                                         Scheme_Object **argv) {
+static Scheme_Object *sandbox_file_guard(int argc UNUSED, Scheme_Object **argv) {
   if (sandbox) {
     Scheme_Object *requested_access = argv[2];
 
@@ -3469,8 +3372,8 @@ static Scheme_Object *sandbox_file_guard(int argc UNUSED,
 
     while (!SCHEME_NULLP(requested_access)) {
       Scheme_Object *item = SCHEME_CAR(requested_access);
-      if (scheme_eq(item, M_write) || scheme_eq(item, M_read) ||
-          scheme_eq(item, M_execute) || scheme_eq(item, M_delete))
+      if (scheme_eq(item, M_write) || scheme_eq(item, M_read) || scheme_eq(item, M_execute) ||
+          scheme_eq(item, M_delete))
         raise_vim_exn(_("not allowed in the Vim sandbox"));
       requested_access = SCHEME_CDR(requested_access);
     }
@@ -3478,8 +3381,7 @@ static Scheme_Object *sandbox_file_guard(int argc UNUSED,
   return scheme_void;
 }
 
-static Scheme_Object *sandbox_network_guard(int argc UNUSED,
-                                            Scheme_Object **argv UNUSED) {
+static Scheme_Object *sandbox_network_guard(int argc UNUSED, Scheme_Object **argv UNUSED) {
   return scheme_void;
 }
 #endif

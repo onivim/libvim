@@ -48,8 +48,7 @@ static void test_isword_funcs_utf8(void) {
     c1 = utf_ptr2char(p);
     if (c != c1) {
       fprintf(stderr, "Failed: ");
-      fprintf(stderr, "[c = %#04x, p = {%#02x, %#02x, %#02x}] ", c, p[0], p[1],
-              p[2]);
+      fprintf(stderr, "[c = %#04x, p = {%#02x, %#02x, %#02x}] ", c, p[0], p[1], p[2]);
       fprintf(stderr, "c != utf_ptr2char(p) (=%#04x)\n", c1);
       abort();
     }
@@ -57,10 +56,8 @@ static void test_isword_funcs_utf8(void) {
     retp = vim_iswordp_buf(p, &buf);
     if (retc != retp) {
       fprintf(stderr, "Failed: ");
-      fprintf(stderr, "[c = %#04x, p = {%#02x, %#02x, %#02x}] ", c, p[0], p[1],
-              p[2]);
-      fprintf(stderr, "vim_iswordc(c) (=%d) != vim_iswordp(p) (=%d)\n", retc,
-              retp);
+      fprintf(stderr, "[c = %#04x, p = {%#02x, %#02x, %#02x}] ", c, p[0], p[1], p[2]);
+      fprintf(stderr, "vim_iswordc(c) (=%d) != vim_iswordp(p) (=%d)\n", retc, retp);
       abort();
     }
   }

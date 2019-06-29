@@ -26,8 +26,8 @@ void SaveInst(HINSTANCE hInst);
 
 #ifndef PROTO
 #ifdef FEAT_GUI
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInst UNUSED,
-                    LPWSTR lpszCmdLine UNUSED, int nCmdShow UNUSED)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInst UNUSED, LPWSTR lpszCmdLine UNUSED,
+                    int nCmdShow UNUSED)
 #else
 int wmain(int argc UNUSED, wchar_t **argv UNUSED)
 #endif

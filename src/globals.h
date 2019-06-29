@@ -460,21 +460,18 @@ EXTERN win_T *prevwin INIT(= NULL); /* previous window */
 #define ONE_WINDOW (firstwin == lastwin)
 #define W_NEXT(wp) ((wp)->w_next)
 #define FOR_ALL_WINDOWS(wp) for (wp = firstwin; wp != NULL; wp = wp->w_next)
-#define FOR_ALL_FRAMES(frp, first_frame)                                       \
-  for (frp = first_frame; frp != NULL; frp = frp->fr_next)
-#define FOR_ALL_TABPAGES(tp)                                                   \
-  for (tp = first_tabpage; tp != NULL; tp = tp->tp_next)
-#define FOR_ALL_WINDOWS_IN_TAB(tp, wp)                                         \
-  for ((wp) = ((tp) == NULL || (tp) == curtab) ? firstwin : (tp)->tp_firstwin; \
-       (wp); (wp) = (wp)->w_next)
+#define FOR_ALL_FRAMES(frp, first_frame) for (frp = first_frame; frp != NULL; frp = frp->fr_next)
+#define FOR_ALL_TABPAGES(tp) for (tp = first_tabpage; tp != NULL; tp = tp->tp_next)
+#define FOR_ALL_WINDOWS_IN_TAB(tp, wp)                                                             \
+  for ((wp) = ((tp) == NULL || (tp) == curtab) ? firstwin : (tp)->tp_firstwin; (wp);               \
+       (wp) = (wp)->w_next)
 /*
  * When using this macro "break" only breaks out of the inner loop. Use "goto"
  * to break out of the tabpage loop.
  */
-#define FOR_ALL_TAB_WINDOWS(tp, wp)                                            \
-  for ((tp) = first_tabpage; (tp) != NULL; (tp) = (tp)->tp_next)               \
-    for ((wp) = ((tp) == curtab) ? firstwin : (tp)->tp_firstwin; (wp);         \
-         (wp) = (wp)->w_next)
+#define FOR_ALL_TAB_WINDOWS(tp, wp)                                                                \
+  for ((tp) = first_tabpage; (tp) != NULL; (tp) = (tp)->tp_next)                                   \
+    for ((wp) = ((tp) == curtab) ? firstwin : (tp)->tp_firstwin; (wp); (wp) = (wp)->w_next)
 
 EXTERN win_T *curwin; /* currently active window */
 
@@ -507,11 +504,10 @@ EXTERN buf_T *firstbuf INIT(= NULL); /* first buffer */
 EXTERN buf_T *lastbuf INIT(= NULL);  /* last buffer */
 EXTERN buf_T *curbuf INIT(= NULL);   /* currently active buffer */
 
-#define FOR_ALL_BUFFERS(buf)                                                   \
-  for (buf = firstbuf; buf != NULL; buf = buf->b_next)
+#define FOR_ALL_BUFFERS(buf) for (buf = firstbuf; buf != NULL; buf = buf->b_next)
 
 // Iterate through all the signs placed in a buffer
-#define FOR_ALL_SIGNS_IN_BUF(buf, sign)                                        \
+#define FOR_ALL_SIGNS_IN_BUF(buf, sign)                                                            \
   for (sign = buf->b_signlist; sign != NULL; sign = sign->next)
 
 /* Flag that is set when switching off 'swapfile'.  It means that all blocks
@@ -746,15 +742,14 @@ EXTERN int (*mb_char2bytes)(int c, char_u *buf) INIT(= latin_char2bytes);
 EXTERN int (*mb_ptr2cells)(char_u *p) INIT(= latin_ptr2cells);
 EXTERN int (*mb_ptr2cells_len)(char_u *p, int size) INIT(= latin_ptr2cells_len);
 EXTERN int (*mb_char2cells)(int c) INIT(= latin_char2cells);
-EXTERN int (*mb_off2cells)(unsigned off, unsigned max_off)
-    INIT(= latin_off2cells);
+EXTERN int (*mb_off2cells)(unsigned off, unsigned max_off) INIT(= latin_off2cells);
 EXTERN int (*mb_ptr2char)(char_u *p) INIT(= latin_ptr2char);
 EXTERN int (*mb_head_off)(char_u *base, char_u *p) INIT(= latin_head_off);
 
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
 /* Pointers to functions and variables to be loaded at runtime */
-EXTERN size_t (*iconv)(iconv_t cd, const char **inbuf, size_t *inbytesleft,
-                       char **outbuf, size_t *outbytesleft);
+EXTERN size_t (*iconv)(iconv_t cd, const char **inbuf, size_t *inbytesleft, char **outbuf,
+                       size_t *outbytesleft);
 EXTERN iconv_t (*iconv_open)(const char *tocode, const char *fromcode);
 EXTERN int (*iconv_close)(iconv_t cd);
 EXTERN int (*iconvctl)(iconv_t cd, int request, void *argument);
@@ -1068,8 +1063,7 @@ EXTERN char_u wim_flags[4];
 EXTERN int no_hlsearch INIT(= FALSE);
 #endif
 
-#if (defined(FEAT_PRINTER) && defined(FEAT_STL_OPT)) ||                        \
-    defined(FEAT_GUI_TABLINE)
+#if (defined(FEAT_PRINTER) && defined(FEAT_STL_OPT)) || defined(FEAT_GUI_TABLINE)
 /* Page number used for %N in 'pageheader' and 'guitablabel'. */
 EXTERN linenr_T printer_page_num;
 #endif
@@ -1152,7 +1146,7 @@ EXTERN char e_failed[] INIT(= N_("E472: Command failed"));
 #if defined(FEAT_GUI) && defined(FEAT_XFONTSET)
 EXTERN char e_fontset[] INIT(= N_("E234: Unknown fontset: %s"));
 #endif
-#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MAC) || \
+#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MAC) ||                     \
     defined(FEAT_GUI_PHOTON) || defined(FEAT_GUI_MSWIN)
 EXTERN char e_font[] INIT(= N_("E235: Unknown font: %s"));
 #endif
@@ -1167,8 +1161,7 @@ EXTERN char e_invarg[] INIT(= N_("E474: Invalid argument"));
 EXTERN char e_invarg2[] INIT(= N_("E475: Invalid argument: %s"));
 EXTERN char e_duparg2[] INIT(= N_("E983: Duplicate argument: %s"));
 EXTERN char e_invargval[] INIT(= N_("E475: Invalid value for argument %s"));
-EXTERN char
-    e_invargNval[] INIT(= N_("E475: Invalid value for argument %s: %s"));
+EXTERN char e_invargNval[] INIT(= N_("E475: Invalid value for argument %s: %s"));
 #ifdef FEAT_EVAL
 EXTERN char e_invexpr2[] INIT(= N_("E15: Invalid expression: %s"));
 #endif
@@ -1183,34 +1176,29 @@ EXTERN char e_libcall[] INIT(= N_("E364: Library call failed for \"%s()\""));
 #ifdef HAVE_FSYNC
 EXTERN char e_fsync[] INIT(= N_("E667: Fsync failed"));
 #endif
-#if defined(DYNAMIC_PERL) || defined(DYNAMIC_PYTHON) ||                        \
-    defined(DYNAMIC_PYTHON3) || defined(DYNAMIC_RUBY) ||                       \
-    defined(DYNAMIC_TCL) || defined(DYNAMIC_ICONV) ||                          \
-    defined(DYNAMIC_GETTEXT) || defined(DYNAMIC_MZSCHEME) ||                   \
-    defined(DYNAMIC_LUA) || defined(FEAT_TERMINAL)
+#if defined(DYNAMIC_PERL) || defined(DYNAMIC_PYTHON) || defined(DYNAMIC_PYTHON3) ||                \
+    defined(DYNAMIC_RUBY) || defined(DYNAMIC_TCL) || defined(DYNAMIC_ICONV) ||                     \
+    defined(DYNAMIC_GETTEXT) || defined(DYNAMIC_MZSCHEME) || defined(DYNAMIC_LUA) ||               \
+    defined(FEAT_TERMINAL)
 EXTERN char e_loadlib[] INIT(= N_("E370: Could not load library %s"));
 EXTERN char e_loadfunc[] INIT(= N_("E448: Could not load library function %s"));
 #endif
 EXTERN char e_markinval[] INIT(= N_("E19: Mark has invalid line number"));
 EXTERN char e_marknotset[] INIT(= N_("E20: Mark not set"));
-EXTERN char
-    e_modifiable[] INIT(= N_("E21: Cannot make changes, 'modifiable' is off"));
+EXTERN char e_modifiable[] INIT(= N_("E21: Cannot make changes, 'modifiable' is off"));
 EXTERN char e_nesting[] INIT(= N_("E22: Scripts nested too deep"));
 EXTERN char e_noalt[] INIT(= N_("E23: No alternate file"));
 EXTERN char e_noabbr[] INIT(= N_("E24: No such abbreviation"));
 EXTERN char e_nobang[] INIT(= N_("E477: No ! allowed"));
 #if !defined(FEAT_GUI) || defined(VIMDLL)
-EXTERN char e_nogvim[] INIT(
-    = N_("E25: GUI cannot be used: Not enabled at compile time"));
+EXTERN char e_nogvim[] INIT(= N_("E25: GUI cannot be used: Not enabled at compile time"));
 #endif
 #ifndef FEAT_RIGHTLEFT
-EXTERN char e_nohebrew[] INIT(
-    = N_("E26: Hebrew cannot be used: Not enabled at compile time\n"));
+EXTERN char e_nohebrew[] INIT(= N_("E26: Hebrew cannot be used: Not enabled at compile time\n"));
 #endif
 EXTERN char e_nofarsi[] INIT(= N_("E27: Farsi support has been removed\n"));
 #ifndef FEAT_ARABIC
-EXTERN char e_noarabic[] INIT(
-    = N_("E800: Arabic cannot be used: Not enabled at compile time\n"));
+EXTERN char e_noarabic[] INIT(= N_("E800: Arabic cannot be used: Not enabled at compile time\n"));
 #endif
 #if defined(FEAT_SEARCH_EXTRA)
 EXTERN char e_nogroup[] INIT(= N_("E28: No such highlight group name: %s"));
@@ -1221,8 +1209,7 @@ EXTERN char e_nomap[] INIT(= N_("E31: No such mapping"));
 EXTERN char e_nomatch[] INIT(= N_("E479: No match"));
 EXTERN char e_nomatch2[] INIT(= N_("E480: No match: %s"));
 EXTERN char e_noname[] INIT(= N_("E32: No file name"));
-EXTERN char
-    e_nopresub[] INIT(= N_("E33: No previous substitute regular expression"));
+EXTERN char e_nopresub[] INIT(= N_("E33: No previous substitute regular expression"));
 EXTERN char e_noprev[] INIT(= N_("E34: No previous command"));
 EXTERN char e_noprevre[] INIT(= N_("E35: No previous regular expression"));
 EXTERN char e_norange[] INIT(= N_("E481: No range allowed"));
@@ -1245,8 +1232,7 @@ EXTERN char e_outofmem[] INIT(= N_("E41: Out of memory!"));
 EXTERN char e_patnotf2[] INIT(= N_("E486: Pattern not found: %s"));
 EXTERN char e_positive[] INIT(= N_("E487: Argument must be positive"));
 #if defined(UNIX) || defined(FEAT_SESSION)
-EXTERN char
-    e_prev_dir[] INIT(= N_("E459: Cannot go back to previous directory"));
+EXTERN char e_prev_dir[] INIT(= N_("E459: Cannot go back to previous directory"));
 #endif
 
 #ifdef FEAT_QUICKFIX
@@ -1255,28 +1241,22 @@ EXTERN char e_loclist[] INIT(= N_("E776: No location list"));
 #endif
 EXTERN char e_re_damg[] INIT(= N_("E43: Damaged match string"));
 EXTERN char e_re_corr[] INIT(= N_("E44: Corrupted regexp program"));
-EXTERN char e_readonly[] INIT(
-    = N_("E45: 'readonly' option is set (add ! to override)"));
+EXTERN char e_readonly[] INIT(= N_("E45: 'readonly' option is set (add ! to override)"));
 #ifdef FEAT_EVAL
-EXTERN char
-    e_readonlyvar[] INIT(= N_("E46: Cannot change read-only variable \"%s\""));
-EXTERN char e_readonlysbx[] INIT(
-    = N_("E794: Cannot set variable in the sandbox: \"%s\""));
-EXTERN char
-    e_emptykey[] INIT(= N_("E713: Cannot use empty key for Dictionary"));
+EXTERN char e_readonlyvar[] INIT(= N_("E46: Cannot change read-only variable \"%s\""));
+EXTERN char e_readonlysbx[] INIT(= N_("E794: Cannot set variable in the sandbox: \"%s\""));
+EXTERN char e_emptykey[] INIT(= N_("E713: Cannot use empty key for Dictionary"));
 EXTERN char e_dictreq[] INIT(= N_("E715: Dictionary required"));
 EXTERN char e_listidx[] INIT(= N_("E684: list index out of range: %ld"));
 EXTERN char e_blobidx[] INIT(= N_("E979: Blob index out of range: %ld"));
 EXTERN char e_invalblob[] INIT(= N_("E978: Invalid operation for Blob"));
-EXTERN char
-    e_toomanyarg[] INIT(= N_("E118: Too many arguments for function: %s"));
+EXTERN char e_toomanyarg[] INIT(= N_("E118: Too many arguments for function: %s"));
 EXTERN char e_dictkey[] INIT(= N_("E716: Key not present in Dictionary: %s"));
 EXTERN char e_listreq[] INIT(= N_("E714: List required"));
 EXTERN char e_listblobreq[] INIT(= N_("E897: List or Blob required"));
-EXTERN char e_listdictarg[] INIT(
-    = N_("E712: Argument of %s must be a List or Dictionary"));
-EXTERN char e_listdictblobarg[] INIT(
-    = N_("E896: Argument of %s must be a List, Dictionary or Blob"));
+EXTERN char e_listdictarg[] INIT(= N_("E712: Argument of %s must be a List or Dictionary"));
+EXTERN char
+    e_listdictblobarg[] INIT(= N_("E896: Argument of %s must be a List, Dictionary or Blob"));
 #endif
 #ifdef FEAT_QUICKFIX
 EXTERN char e_readerrf[] INIT(= N_("E47: Error while reading errorfile"));
@@ -1286,8 +1266,7 @@ EXTERN char e_sandbox[] INIT(= N_("E48: Not allowed in sandbox"));
 #endif
 EXTERN char e_secure[] INIT(= N_("E523: Not allowed here"));
 #if defined(MACOS_X) || defined(MSWIN) || defined(UNIX) || defined(VMS)
-EXTERN char
-    e_screenmode[] INIT(= N_("E359: Screen mode setting not supported"));
+EXTERN char e_screenmode[] INIT(= N_("E359: Screen mode setting not supported"));
 #endif
 EXTERN char e_scroll[] INIT(= N_("E49: Invalid scroll size"));
 EXTERN char e_shellempty[] INIT(= N_("E91: 'shell' option is empty"));
@@ -1303,29 +1282,24 @@ EXTERN char e_toomany[] INIT(= N_("E77: Too many file names"));
 EXTERN char e_trailing[] INIT(= N_("E488: Trailing characters"));
 EXTERN char e_umark[] INIT(= N_("E78: Unknown mark"));
 EXTERN char e_wildexpand[] INIT(= N_("E79: Cannot expand wildcards"));
-EXTERN char e_winheight[] INIT(
-    = N_("E591: 'winheight' cannot be smaller than 'winminheight'"));
-EXTERN char e_winwidth[] INIT(
-    = N_("E592: 'winwidth' cannot be smaller than 'winminwidth'"));
+EXTERN char e_winheight[] INIT(= N_("E591: 'winheight' cannot be smaller than 'winminheight'"));
+EXTERN char e_winwidth[] INIT(= N_("E592: 'winwidth' cannot be smaller than 'winminwidth'"));
 EXTERN char e_write[] INIT(= N_("E80: Error while writing"));
 EXTERN char e_zerocount[] INIT(= N_("E939: Positive count required"));
 #ifdef FEAT_EVAL
 EXTERN char e_usingsid[] INIT(= N_("E81: Using <SID> not in a script context"));
 #endif
-EXTERN char e_maxmempat[] INIT(
-    = N_("E363: pattern uses more memory than 'maxmempattern'"));
+EXTERN char e_maxmempat[] INIT(= N_("E363: pattern uses more memory than 'maxmempattern'"));
 EXTERN char e_emptybuf[] INIT(= N_("E749: empty buffer"));
 EXTERN char e_nobufnr[] INIT(= N_("E86: Buffer %ld does not exist"));
 
-EXTERN char
-    e_invalpat[] INIT(= N_("E682: Invalid search pattern or delimiter"));
+EXTERN char e_invalpat[] INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[] INIT(= N_("E139: File is loaded in another buffer"));
 #ifndef FEAT_CLIPBOARD
 EXTERN char e_invalidreg[] INIT(= N_("E850: Invalid register name"));
 #endif
 EXTERN char e_dirnotf[] INIT(= N_("E919: Directory not found in '%s': \"%s\""));
-EXTERN char
-    e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behavior"));
+EXTERN char e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behavior"));
 
 #ifdef FEAT_GUI_MAC
 EXTERN short disallow_gui INIT(= FALSE);

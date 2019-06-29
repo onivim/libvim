@@ -132,8 +132,7 @@ int vim_snprintf(char *, size_t, const char *, ...)
     ;
 
 int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap);
-int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap,
-                         typval_T *tvs);
+int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap, typval_T *tvs);
 
 #include "message.pro"
 #include "message2.pro"
@@ -144,8 +143,7 @@ char_u *vim_strpbrk(char_u *s, char_u *charset);
 #endif
 #ifndef HAVE_QSORT
 /* Use our own qsort(), don't define the prototype when not used. */
-void qsort(void *base, size_t elm_count, size_t elm_size,
-           int (*cmp)(const void *, const void *));
+void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void *, const void *));
 #endif
 #include "mbyte.pro"
 #include "move.pro"

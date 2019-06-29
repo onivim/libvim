@@ -621,21 +621,16 @@ static struct builtin_term builtin_termcaps[] = {
     {(int)KS_CCO, "8"}, /* allow 8 colors */
     {(int)KS_ME, IF_EB("\033[0m", ESC_STR "[0m")},
     {(int)KS_MR, IF_EB("\033[7m", ESC_STR "[7m")},
-    {(int)KS_MD, IF_EB("\033[1m", ESC_STR "[1m")},   /* bold mode */
-    {(int)KS_SE, IF_EB("\033[22m", ESC_STR "[22m")}, /* normal mode */
-    {(int)KS_UE, IF_EB("\033[24m", ESC_STR "[24m")}, /* exit underscore mode */
-    {(int)KS_US, IF_EB("\033[4m", ESC_STR "[4m")},   /* underscore mode */
-    {(int)KS_CZH, IF_EB("\033[34;43m", ESC_STR
-                        "[34;43m")}, /* italic mode: blue text on yellow */
-    {(int)KS_CZR, IF_EB("\033[0m", ESC_STR "[0m")}, /* italic mode end */
-    {(int)KS_CAB,
-     IF_EB("\033[4%dm", ESC_STR "[4%dm")}, /* set background color (ANSI) */
-    {(int)KS_CAF,
-     IF_EB("\033[3%dm", ESC_STR "[3%dm")}, /* set foreground color (ANSI) */
-    {(int)KS_CSB, IF_EB("\033[102;%dm",
-                        ESC_STR "[102;%dm")}, /* set screen background color */
-    {(int)KS_CSF, IF_EB("\033[101;%dm",
-                        ESC_STR "[101;%dm")}, /* set screen foreground color */
+    {(int)KS_MD, IF_EB("\033[1m", ESC_STR "[1m")},            /* bold mode */
+    {(int)KS_SE, IF_EB("\033[22m", ESC_STR "[22m")},          /* normal mode */
+    {(int)KS_UE, IF_EB("\033[24m", ESC_STR "[24m")},          /* exit underscore mode */
+    {(int)KS_US, IF_EB("\033[4m", ESC_STR "[4m")},            /* underscore mode */
+    {(int)KS_CZH, IF_EB("\033[34;43m", ESC_STR "[34;43m")},   /* italic mode: blue text on yellow */
+    {(int)KS_CZR, IF_EB("\033[0m", ESC_STR "[0m")},           /* italic mode end */
+    {(int)KS_CAB, IF_EB("\033[4%dm", ESC_STR "[4%dm")},       /* set background color (ANSI) */
+    {(int)KS_CAF, IF_EB("\033[3%dm", ESC_STR "[3%dm")},       /* set foreground color (ANSI) */
+    {(int)KS_CSB, IF_EB("\033[102;%dm", ESC_STR "[102;%dm")}, /* set screen background color */
+    {(int)KS_CSF, IF_EB("\033[101;%dm", ESC_STR "[101;%dm")}, /* set screen foreground color */
     {(int)KS_MS, "y"},
     {(int)KS_UT, "y"},
     {(int)KS_XN, "y"},
@@ -699,7 +694,7 @@ static struct builtin_term builtin_termcaps[] = {
     {K_K7, IF_EB("\033Ow", ESC_STR "Ow")},        /* keypad 7 */
     {K_K8, IF_EB("\033Ox", ESC_STR "Ox")},        /* keypad 8 */
     {K_K9, IF_EB("\033Oy", ESC_STR "Oy")},        /* keypad 9 */
-    {K_BS, "\x7f"}, /* for some reason 0177 doesn't work */
+    {K_BS, "\x7f"},                               /* for some reason 0177 doesn't work */
 #endif
 
 #if defined(ALL_BUILTIN_TCAPS) || defined(__MINT__)
@@ -710,8 +705,7 @@ static struct builtin_term builtin_termcaps[] = {
     {(int)KS_CE, IF_EB("\033K", ESC_STR "K")},
     {(int)KS_CD, IF_EB("\033J", ESC_STR "J")},
 #ifdef TERMINFO
-    {(int)KS_CM,
-     IF_EB("\033Y%p1%' '%+%c%p2%' '%+%c", ESC_STR "Y%p1%' '%+%c%p2%' '%+%c")},
+    {(int)KS_CM, IF_EB("\033Y%p1%' '%+%c%p2%' '%+%c", ESC_STR "Y%p1%' '%+%c%p2%' '%+%c")},
 #else
     {(int)KS_CM, IF_EB("\033Y%+ %+ ", ESC_STR "Y%+ %+ ")},
 #endif
@@ -821,8 +815,7 @@ static struct builtin_term builtin_termcaps[] = {
     {(int)KS_KE, IF_EB("\033[?1l\033>", ESC_STR "[?1l" ESC_STR_nc ">")},
 #ifdef FEAT_XTERM_SAVE
     {(int)KS_TI, IF_EB("\0337\033[?47h", ESC_STR "7" ESC_STR_nc "[?47h")},
-    {(int)KS_TE, IF_EB("\033[2J\033[?47l\0338",
-                       ESC_STR "[2J" ESC_STR_nc "[?47l" ESC_STR_nc "8")},
+    {(int)KS_TE, IF_EB("\033[2J\033[?47l\0338", ESC_STR "[2J" ESC_STR_nc "[?47l" ESC_STR_nc "8")},
 #endif
     {(int)KS_CIS, IF_EB("\033]1;", ESC_STR "]1;")},
     {(int)KS_CIE, "\007"},
@@ -1351,8 +1344,7 @@ static void parse_builtin_tcap(char_u *term) {
     if ((int)p->bt_entry >= 0) /* KS_xx entry */
     {
       /* Only set the value if it wasn't set yet. */
-      if (term_strings[p->bt_entry] == NULL ||
-          term_strings[p->bt_entry] == empty_option) {
+      if (term_strings[p->bt_entry] == NULL || term_strings[p->bt_entry] == empty_option) {
 #ifdef FEAT_EVAL
         int opt_idx = -1;
 #endif
@@ -1409,10 +1401,10 @@ static void set_color_count(int nr) {
 }
 
 #ifdef HAVE_TGETENT
-static char *(key_names[]) = {
-    "ku", "kd", "kr", "kl", "#2", "#4", "%i", "*7", "k1", "k2", "k3", "k4",
-    "k5", "k6", "k7", "k8", "k9", "k;", "F1", "F2", "%1", "&8", "kb", "kI",
-    "kD", "kh", "@7", "kP", "kN", "K1", "K3", "K4", "K5", "kB", NULL};
+static char *(key_names[]) = {"ku", "kd", "kr", "kl", "#2", "#4", "%i", "*7", "k1",
+                              "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k;",
+                              "F1", "F2", "%1", "&8", "kb", "kI", "kD", "kh", "@7",
+                              "kP", "kN", "K1", "K3", "K4", "K5", "kB", NULL};
 #endif
 
 #ifdef HAVE_TGETENT
@@ -1496,8 +1488,7 @@ static void get_term_entries(int *height, int *width) {
    * get output strings
    */
   for (i = 0; string_names[i].name != NULL; ++i) {
-    if (TERM_STR(string_names[i].dest) == NULL ||
-        TERM_STR(string_names[i].dest) == empty_option) {
+    if (TERM_STR(string_names[i].dest) == NULL || TERM_STR(string_names[i].dest) == empty_option) {
       TERM_STR(string_names[i].dest) = TGETSTR(string_names[i].name, &tp);
 #ifdef FEAT_EVAL
       set_term_option_sctx_idx(string_names[i].name, -1);
@@ -1527,8 +1518,7 @@ static void get_term_entries(int *height, int *width) {
     if (find_termcode((char_u *)key_names[i]) == NULL) {
       p = TGETSTR(key_names[i], &tp);
       /* if cursor-left == backspace, ignore it (televideo 925) */
-      if (p != NULL &&
-          (*p != Ctrl_H || key_names[i][0] != 'k' || key_names[i][1] != 'l'))
+      if (p != NULL && (*p != Ctrl_H || key_names[i][0] != 'k' || key_names[i][1] != 'l'))
         add_termcode((char_u *)key_names[i], p, FALSE);
     }
 
@@ -2021,18 +2011,14 @@ int add_termcap_entry(char_u *name, int force) {
   return FAIL;
 }
 
-static int term_is_builtin(char_u *name) {
-  return (STRNCMP(name, "builtin_", (size_t)8) == 0);
-}
+static int term_is_builtin(char_u *name) { return (STRNCMP(name, "builtin_", (size_t)8) == 0); }
 
 /*
  * Return TRUE if terminal "name" uses CSI instead of <Esc>[.
  * Assume that the terminal is using 8-bit controls when the name contains
  * "8bit", like in "xterm-8bit".
  */
-int term_is_8bit(char_u *name) {
-  return (detected_8bit || strstr((char *)name, "8bit") != NULL);
-}
+int term_is_8bit(char_u *name) { return (detected_8bit || strstr((char *)name, "8bit") != NULL); }
 
 /*
  * Translate terminal control chars from 7-bit to 8-bit:
@@ -2199,13 +2185,9 @@ void term_windgoto(int row, int col) { OUT_STR(tgoto((char *)T_CM, col, row)); }
 
 void term_cursor_right(int i) { OUT_STR(tgoto((char *)T_CRI, 0, i)); }
 
-void term_append_lines(int line_count) {
-  OUT_STR(tgoto((char *)T_CAL, 0, line_count));
-}
+void term_append_lines(int line_count) { OUT_STR(tgoto((char *)T_CAL, 0, line_count)); }
 
-void term_delete_lines(int line_count) {
-  OUT_STR(tgoto((char *)T_CDL, 0, line_count));
-}
+void term_delete_lines(int line_count) { OUT_STR(tgoto((char *)T_CDL, 0, line_count)); }
 
 #if defined(HAVE_TGETENT) || defined(PROTO)
 void term_set_winpos(int x, int y) {
@@ -2217,9 +2199,7 @@ void term_set_winpos(int x, int y) {
   OUT_STR(tgoto((char *)T_CWP, y, x));
 }
 
-void term_set_winsize(int height, int width) {
-  OUT_STR(tgoto((char *)T_CWS, width, height));
-}
+void term_set_winsize(int height, int width) { OUT_STR(tgoto((char *)T_CWS, width, height)); }
 #endif
 
 static void term_color(char_u *s, int n) {
@@ -2230,10 +2210,8 @@ static void term_color(char_u *s, int n) {
   /* Special handling of 16 colors, because termcap can't handle it */
   /* Also accept "\e[3%dm" for TERMINFO, it is sometimes used */
   /* Also accept CSI instead of <Esc>[ */
-  if (n >= 8 && t_colors >= 16 &&
-      ((s[0] == ESC && s[1] == '[') || (s[0] == CSI && (i = 1) == 1)) &&
-      s[i] != NUL &&
-      (STRCMP(s + i + 1, "%p1%dm") == 0 || STRCMP(s + i + 1, "%dm") == 0) &&
+  if (n >= 8 && t_colors >= 16 && ((s[0] == ESC && s[1] == '[') || (s[0] == CSI && (i = 1) == 1)) &&
+      s[i] != NUL && (STRCMP(s + i + 1, "%p1%dm") == 0 || STRCMP(s + i + 1, "%dm") == 0) &&
       (s[i] == '3' || s[i] == '4')) {
 #ifdef TERMINFO
     char *format = "%s%s%%p1%%dm";
@@ -2241,8 +2219,7 @@ static void term_color(char_u *s, int n) {
     char *format = "%s%s%%dm";
 #endif
     char *lead = i == 2 ? (IF_EB("\033[", ESC_STR "[")) : "\233";
-    char *tail =
-        s[i] == '3' ? (n >= 16 ? "38;5;" : "9") : (n >= 16 ? "48;5;" : "10");
+    char *tail = s[i] == '3' ? (n >= 16 ? "38;5;" : "9") : (n >= 16 ? "48;5;" : "10");
 
     sprintf(buf, format, lead, tail);
     OUT_STR(tgoto(buf, 0, n >= 16 ? n : n - 8));
@@ -2385,9 +2362,7 @@ void ttest(int pairs) {
   }
 }
 
-#if (defined(FEAT_GUI) &&                                                      \
-     (defined(FEAT_MENU) || !defined(USE_ON_FLY_SCROLL))) ||                   \
-    defined(PROTO)
+#if (defined(FEAT_GUI) && (defined(FEAT_MENU) || !defined(USE_ON_FLY_SCROLL))) || defined(PROTO)
 /*
  * Represent the given long_u as individual bytes, with the most significant
  * byte first, and store them in dst.
@@ -2600,8 +2575,7 @@ void set_shellsize(int width, int height, int mustset) {
      * Always need to call update_screen() or screenalloc(), to make
      * sure Rows/Columns and the size of ScreenLines[] is correct!
      */
-    if (State == ASKMORE || State == EXTERNCMD || State == CONFIRM ||
-        exmode_active) {
+    if (State == ASKMORE || State == EXTERNCMD || State == CONFIRM || exmode_active) {
       screenalloc(FALSE);
       repeat_message();
     } else {
@@ -2732,8 +2706,7 @@ void cursor_off(void) {
  * the full width of the window, excluding the vertical separator.
  */
 void scroll_region_set(win_T *wp, int off) {
-  OUT_STR(
-      tgoto((char *)T_CS, W_WINROW(wp) + wp->w_height - 1, W_WINROW(wp) + off));
+  OUT_STR(tgoto((char *)T_CS, W_WINROW(wp) + wp->w_height - 1, W_WINROW(wp) + off));
   if (*T_CSV != NUL && wp->w_width != Columns)
     OUT_STR(tgoto((char *)T_CSV, wp->w_wincol + wp->w_width - 1, wp->w_wincol));
   screen_start(); /* don't know where cursor is now */
@@ -2870,8 +2843,7 @@ void add_termcode(char_u *name, char_u *string, int flags) {
             (j = termcode_star(termcodes[i].code, termcodes[i].len)) > 0) {
           /* Don't replace ESC[123;*X or ESC O*X with another when
            * invoked from got_code_from_term(). */
-          if (len == termcodes[i].len - j &&
-              STRNCMP(s, termcodes[i].code, len - 1) == 0 &&
+          if (len == termcodes[i].len - j && STRNCMP(s, termcodes[i].code, len - 1) == 0 &&
               s[len - 1] == termcodes[i].code[termcodes[i].len - 1]) {
             /* They are equal but for the ";*": don't add it. */
             vim_free(s);
@@ -3108,8 +3080,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
         modifiers_start = NULL;
         if (cpo_koffset && offset && len < slen)
           continue;
-        if (STRNCMP(termcodes[idx].code, tp,
-                    (size_t)(slen > len ? len : slen)) == 0) {
+        if (STRNCMP(termcodes[idx].code, tp, (size_t)(slen > len ? len : slen)) == 0) {
           if (len < slen) /* got a partial sequence */
             return -1;    /* need to get more chars */
 
@@ -3119,8 +3090,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
            * found instead of <kHome> when they produce the same
            * key code.
            */
-          if (termcodes[idx].name[0] == 'K' &&
-              VIM_ISDIGIT(termcodes[idx].name[1])) {
+          if (termcodes[idx].name[0] == 'K' && VIM_ISDIGIT(termcodes[idx].name[1])) {
             for (j = idx + 1; j < tc_len; ++j)
               if (termcodes[j].len == slen &&
                   STRNCMP(termcodes[idx].code, termcodes[j].code, slen) == 0) {
@@ -3145,8 +3115,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
           modslen = termcodes[idx].modlen;
           if (cpo_koffset && offset && len < modslen)
             continue;
-          if (STRNCMP(termcodes[idx].code, tp,
-                      (size_t)(modslen > len ? len : modslen)) == 0) {
+          if (STRNCMP(termcodes[idx].code, tp, (size_t)(modslen > len ? len : modslen)) == 0) {
             int n;
 
             if (len <= modslen) /* got a partial sequence */
@@ -3160,9 +3129,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
               // Skip over the digits, the final char must
               // follow. URXVT can use a negative value, thus
               // also accept '-'.
-              for (j = slen - 2;
-                   j < len && (isdigit(tp[j]) || tp[j] == '-' || tp[j] == ';');
-                   ++j)
+              for (j = slen - 2; j < len && (isdigit(tp[j]) || tp[j] == '-' || tp[j] == ';'); ++j)
                 ;
               ++j;
               if (len < j) /* got a partial sequence */
@@ -3240,9 +3207,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
 
       /* Get the last scrollbar event in the queue of the same type */
       j = 0;
-      for (i = 0;
-           tp[j] == CSI && tp[j + 1] == KS_VER_SCROLLBAR && tp[j + 2] != NUL;
-           ++i) {
+      for (i = 0; tp[j] == CSI && tp[j + 1] == KS_VER_SCROLLBAR && tp[j + 2] != NUL; ++i) {
         j += 3;
         num_bytes = get_bytes_from_buf(tp + j, bytes, 1);
         if (num_bytes == -1)
@@ -3266,9 +3231,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
 
       /* Get the last horiz. scrollbar event in the queue */
       j = 0;
-      for (i = 0;
-           tp[j] == CSI && tp[j + 1] == KS_HOR_SCROLLBAR && tp[j + 2] != NUL;
-           ++i) {
+      for (i = 0; tp[j] == CSI && tp[j + 1] == KS_HOR_SCROLLBAR && tp[j + 2] != NUL; ++i) {
         j += 3;
         num_bytes = get_long_from_buf(tp + j, &val);
         if (num_bytes == -1)
@@ -3311,8 +3274,7 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
         new_slen += (*mb_char2bytes)(key_name[1], string + new_slen);
       else
         string[new_slen++] = key_name[1];
-    } else if (new_slen == 0 && key_name[0] == KS_EXTRA &&
-               key_name[1] == KE_IGNORE) {
+    } else if (new_slen == 0 && key_name[0] == KS_EXTRA && key_name[1] == KE_IGNORE) {
       /* Do not put K_IGNORE into the buffer, do return KEYLEN_REMOVED
        * to indicate what happened. */
       retval = KEYLEN_REMOVED;
@@ -3335,20 +3297,17 @@ int check_termcode(int max_offset, char_u *buf, int bufsize, int *buflen) {
        * Careful: del_typebuf() and ins_typebuf() may have reallocated
        * typebuf.tb_buf[]!
        */
-      mch_memmove(typebuf.tb_buf + typebuf.tb_off + offset, string,
-                  (size_t)new_slen);
+      mch_memmove(typebuf.tb_buf + typebuf.tb_off + offset, string, (size_t)new_slen);
     } else {
       if (extra < 0)
         /* remove matched characters */
-        mch_memmove(buf + offset, buf + offset - extra,
-                    (size_t)(*buflen + offset + extra));
+        mch_memmove(buf + offset, buf + offset - extra, (size_t)(*buflen + offset + extra));
       else if (extra > 0) {
         /* Insert the extra space we need.  If there is insufficient
          * space return -1. */
         if (*buflen + extra + new_slen >= bufsize)
           return -1;
-        mch_memmove(buf + offset + extra, buf + offset,
-                    (size_t)(*buflen - offset));
+        mch_memmove(buf + offset + extra, buf + offset, (size_t)(*buflen - offset));
       }
       mch_memmove(buf + offset, string, (size_t)new_slen);
       *buflen = *buflen + extra + new_slen;
@@ -3571,8 +3530,7 @@ int find_term_bykeys(char_u *src) {
   int slen = (int)STRLEN(src);
 
   for (i = 0; i < tc_len; ++i) {
-    if (slen == termcodes[i].len &&
-        STRNCMP(termcodes[i].code, src, (size_t)slen) == 0)
+    if (slen == termcodes[i].len && STRNCMP(termcodes[i].code, src, (size_t)slen) == 0)
       return i;
   }
   return -1;
@@ -3641,8 +3599,7 @@ void show_termcodes(void) {
     item_count = 0;
     for (i = 0; i < tc_len; i++) {
       len = show_one_termcode(termcodes[i].name, termcodes[i].code, FALSE);
-      if (len <= INC3 - GAP ? run == 1
-                            : len <= INC2 - GAP ? run == 2 : run == 3)
+      if (len <= INC3 - GAP ? run == 1 : len <= INC2 - GAP ? run == 2 : run == 3)
         items[item_count++] = i;
     }
 
@@ -3663,8 +3620,7 @@ void show_termcodes(void) {
       col = 0;
       for (i = row; i < item_count; i += rows) {
         msg_col = col; /* make columns */
-        show_one_termcode(termcodes[items[i]].name, termcodes[items[i]].code,
-                          TRUE);
+        show_one_termcode(termcodes[items[i]].name, termcodes[items[i]].code, TRUE);
         if (run == 2)
           col += INC2;
         else
@@ -3780,8 +3736,8 @@ char_u *translate_mapping(char_u *str) {
         continue; /* for (str) */
       }
     }
-    if (c == ' ' || c == '\t' || c == Ctrl_J || c == Ctrl_V ||
-        (c == '<' && !cpo_special) || (c == '\\' && !cpo_bslash))
+    if (c == ' ' || c == '\t' || c == Ctrl_J || c == Ctrl_V || (c == '<' && !cpo_special) ||
+        (c == '\\' && !cpo_bslash))
       ga_append(&ga, cpo_bslash ? Ctrl_V : '\\');
     if (c)
       ga_append(&ga, c);
@@ -3791,8 +3747,7 @@ char_u *translate_mapping(char_u *str) {
 }
 #endif
 
-#if (defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))) ||             \
-    defined(PROTO)
+#if (defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))) || defined(PROTO)
 static char ksme_str[20];
 static char ksmr_str[20];
 static char ksmd_str[20];
@@ -3805,10 +3760,8 @@ void update_tcap(int attr) {
 
   p = find_builtin_term(DEFAULT_TERM);
   sprintf(ksme_str, IF_EB("\033|%dm", ESC_STR "|%dm"), attr);
-  sprintf(ksmd_str, IF_EB("\033|%dm", ESC_STR "|%dm"),
-          attr | 0x08); /* FOREGROUND_INTENSITY */
-  sprintf(ksmr_str, IF_EB("\033|%dm", ESC_STR "|%dm"),
-          ((attr & 0x0F) << 4) | ((attr & 0xF0) >> 4));
+  sprintf(ksmd_str, IF_EB("\033|%dm", ESC_STR "|%dm"), attr | 0x08); /* FOREGROUND_INTENSITY */
+  sprintf(ksmr_str, IF_EB("\033|%dm", ESC_STR "|%dm"), ((attr & 0x0F) << 4) | ((attr & 0xF0) >> 4));
 
   while (p->bt_string != NULL) {
     if (p->bt_entry == (int)KS_ME)
@@ -4009,13 +3962,12 @@ guicolor_T gui_get_rgb_color_cmn(int r, int g, int b) {
 }
 #endif
 
-#if (defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))) ||       \
-    defined(FEAT_TERMINAL) || defined(PROTO)
+#if (defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))) || defined(FEAT_TERMINAL) || \
+    defined(PROTO)
 static int cube_value[] = {0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF};
 
-static int grey_ramp[] = {0x08, 0x12, 0x1C, 0x26, 0x30, 0x3A, 0x44, 0x4E,
-                          0x58, 0x62, 0x6C, 0x76, 0x80, 0x8A, 0x94, 0x9E,
-                          0xA8, 0xB2, 0xBC, 0xC6, 0xD0, 0xDA, 0xE4, 0xEE};
+static int grey_ramp[] = {0x08, 0x12, 0x1C, 0x26, 0x30, 0x3A, 0x44, 0x4E, 0x58, 0x62, 0x6C, 0x76,
+                          0x80, 0x8A, 0x94, 0x9E, 0xA8, 0xB2, 0xBC, 0xC6, 0xD0, 0xDA, 0xE4, 0xEE};
 
 #ifdef FEAT_TERMINAL
 #include "libvterm/include/vterm.h" // for VTERM_ANSI_INDEX_NONE
@@ -4044,8 +3996,7 @@ static char_u ansi_table[16][4] = {
     {255, 255, 255, 16}, // white
 };
 
-void cterm_color2rgb(int nr, char_u *r, char_u *g, char_u *b,
-                     char_u *ansi_idx) {
+void cterm_color2rgb(int nr, char_u *r, char_u *g, char_u *b, char_u *ansi_idx) {
   int idx;
 
   if (nr < 16) {

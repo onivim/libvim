@@ -20,12 +20,9 @@ static int chartab_initialized = FALSE;
 
 /* b_chartab[] is an array of 32 bytes, each bit representing one of the
  * characters 0-255. */
-#define SET_CHARTAB(buf, c)                                                    \
-  (buf)->b_chartab[(unsigned)(c) >> 3] |= (1 << ((c)&0x7))
-#define RESET_CHARTAB(buf, c)                                                  \
-  (buf)->b_chartab[(unsigned)(c) >> 3] &= ~(1 << ((c)&0x7))
-#define GET_CHARTAB(buf, c)                                                    \
-  ((buf)->b_chartab[(unsigned)(c) >> 3] & (1 << ((c)&0x7)))
+#define SET_CHARTAB(buf, c) (buf)->b_chartab[(unsigned)(c) >> 3] |= (1 << ((c)&0x7))
+#define RESET_CHARTAB(buf, c) (buf)->b_chartab[(unsigned)(c) >> 3] &= ~(1 << ((c)&0x7))
+#define GET_CHARTAB(buf, c) ((buf)->b_chartab[(unsigned)(c) >> 3] & (1 << ((c)&0x7)))
 
 /* table used below, see init_chartab() for an explanation */
 static char_u g_chartab[256];
@@ -66,8 +63,7 @@ static char_u g_chartab[256];
  */
 int init_chartab(void) { return buf_init_chartab(curbuf, TRUE); }
 
-int buf_init_chartab(buf_T *buf,
-                     int global) /* FALSE: only set buf->b_chartab[] */
+int buf_init_chartab(buf_T *buf, int global) /* FALSE: only set buf->b_chartab[] */
 {
   int c;
   int c2;
@@ -111,8 +107,8 @@ int buf_init_chartab(buf_T *buf,
 
     /* Assume that every multi-byte char is a filename character. */
     for (c = 1; c < 256; ++c)
-      if ((enc_dbcs != 0 && MB_BYTE2LEN(c) > 1) ||
-          (enc_dbcs == DBCS_JPNU && c == 0x8e) || (enc_utf8 && c >= 0xa0))
+      if ((enc_dbcs != 0 && MB_BYTE2LEN(c) > 1) || (enc_dbcs == DBCS_JPNU && c == 0x8e) ||
+          (enc_utf8 && c >= 0xa0))
         g_chartab[c] |= CT_FNAME_CHAR;
   }
 
@@ -164,8 +160,7 @@ int buf_init_chartab(buf_T *buf,
         else
           c2 = *p++;
       }
-      if (c <= 0 || c >= 256 || (c2 < c && c2 != -1) || c2 >= 256 ||
-          !(*p == NUL || *p == ','))
+      if (c <= 0 || c >= 256 || (c2 < c && c2 != -1) || c2 >= 256 || !(*p == NUL || *p == ','))
         return FAIL;
 
       if (c2 == -1) /* not a range */
@@ -205,8 +200,7 @@ int buf_init_chartab(buf_T *buf,
                  ) &&
                 !(enc_dbcs && MB_BYTE2LEN(c) == 2)) {
               if (tilde) {
-                g_chartab[c] = (g_chartab[c] & ~CT_CELL_MASK) +
-                               ((dy_flags & DY_UHEX) ? 4 : 2);
+                g_chartab[c] = (g_chartab[c] & ~CT_CELL_MASK) + ((dy_flags & DY_UHEX) ? 4 : 2);
                 g_chartab[c] &= ~CT_PRINT_CHAR;
               } else {
                 g_chartab[c] = (g_chartab[c] & ~CT_CELL_MASK) + 1;
@@ -553,24 +547,22 @@ int vim_strnsize(char_u *s, int len) {
  */
 
 #ifdef FEAT_VARTABS
-#define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)                               \
-  if (*(p) == TAB && (!(wp)->w_p_list || lcs_tab1)) {                          \
-    return tabstop_padding(col, (buf)->b_p_ts, (buf)->b_p_vts_array);          \
-  } else                                                                       \
+#define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)                                                   \
+  if (*(p) == TAB && (!(wp)->w_p_list || lcs_tab1)) {                                              \
+    return tabstop_padding(col, (buf)->b_p_ts, (buf)->b_p_vts_array);                              \
+  } else                                                                                           \
     return ptr2cells(p);
 #else
-#define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)                               \
-  if (*(p) == TAB && (!(wp)->w_p_list || lcs_tab1)) {                          \
-    int ts;                                                                    \
-    ts = (buf)->b_p_ts;                                                        \
-    return (int)(ts - (col % ts));                                             \
-  } else                                                                       \
+#define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)                                                   \
+  if (*(p) == TAB && (!(wp)->w_p_list || lcs_tab1)) {                                              \
+    int ts;                                                                                        \
+    ts = (buf)->b_p_ts;                                                                            \
+    return (int)(ts - (col % ts));                                                                 \
+  } else                                                                                           \
     return ptr2cells(p);
 #endif
 
-int chartabsize(char_u *p, colnr_T col) {
-  RET_WIN_BUF_CHARTABSIZE(curwin, curbuf, p, col)
-}
+int chartabsize(char_u *p, colnr_T col) { RET_WIN_BUF_CHARTABSIZE(curwin, curbuf, p, col) }
 
 #ifdef FEAT_LINEBREAK
 static int win_chartabsize(win_T *wp, char_u *p, colnr_T col) {
@@ -612,9 +604,7 @@ int win_linetabsize(win_T *wp, char_u *line, colnr_T len) {
  * Return TRUE if 'c' is a normal identifier character:
  * Letters and characters from the 'isident' option.
  */
-int vim_isIDc(int c) {
-  return (c > 0 && c < 0x100 && (g_chartab[c] & CT_ID_CHAR));
-}
+int vim_isIDc(int c) { return (c > 0 && c < 0x100 && (g_chartab[c] & CT_ID_CHAR)); }
 
 /*
  * return TRUE if 'c' is a keyword character: Letters and characters from
@@ -651,9 +641,7 @@ int vim_iswordp_buf(char_u *p, buf_T *buf) {
  * return TRUE if 'c' is a valid file-name character
  * Assume characters above 0x100 are valid (multi-byte).
  */
-int vim_isfilec(int c) {
-  return (c >= 0x100 || (c > 0 && (g_chartab[c] & CT_FNAME_CHAR)));
-}
+int vim_isfilec(int c) { return (c >= 0x100 || (c > 0 && (g_chartab[c] & CT_FNAME_CHAR))); }
 
 /*
  * return TRUE if 'c' is a valid file-name character or a wildcard character
@@ -767,8 +755,8 @@ int win_lbr_chartabsize(win_T *wp, char_u *line UNUSED, /* start of the line */
    * If 'linebreak' set check at a blank before a non-blank if the line
    * needs a break here
    */
-  if (wp->w_p_lbr && VIM_ISBREAK(c) && !VIM_ISBREAK((int)s[1]) &&
-      wp->w_p_wrap && wp->w_width != 0) {
+  if (wp->w_p_lbr && VIM_ISBREAK(c) && !VIM_ISBREAK((int)s[1]) && wp->w_p_wrap &&
+      wp->w_width != 0) {
     /*
      * Count all characters from first non-blank after a blank up to next
      * non-blank after a blank.
@@ -788,8 +776,7 @@ int win_lbr_chartabsize(win_T *wp, char_u *line UNUSED, /* start of the line */
       MB_PTR_ADV(s);
       c = *s;
       if (!(c != NUL &&
-            (VIM_ISBREAK(c) ||
-             (!VIM_ISBREAK(c) && (col2 == col || !VIM_ISBREAK((int)*ps))))))
+            (VIM_ISBREAK(c) || (!VIM_ISBREAK(c) && (col2 == col || !VIM_ISBREAK((int)*ps))))))
         break;
 
       col2 += win_chartabsize(wp, s, col2);
@@ -870,14 +857,12 @@ int win_lbr_chartabsize(win_T *wp, char_u *line UNUSED, /* start of the line */
  * 'wrap' is on.  This means we need to check for a double-byte character that
  * doesn't fit at the end of the screen line.
  */
-static int win_nolbr_chartabsize(win_T *wp, char_u *s, colnr_T col,
-                                 int *headp) {
+static int win_nolbr_chartabsize(win_T *wp, char_u *s, colnr_T col, int *headp) {
   int n;
 
   if (*s == TAB && (!wp->w_p_list || lcs_tab1)) {
 #ifdef FEAT_VARTABS
-    return tabstop_padding(col, wp->w_buffer->b_p_ts,
-                           wp->w_buffer->b_p_vts_array);
+    return tabstop_padding(col, wp->w_buffer->b_p_ts, wp->w_buffer->b_p_vts_array);
 #else
     n = wp->w_buffer->b_p_ts;
     return (int)(n - (col % n));
@@ -923,8 +908,7 @@ int in_win_border(win_T *wp, colnr_T vcol) {
  *
  * This is used very often, keep it fast!
  */
-void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
-             colnr_T *end) {
+void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end) {
   colnr_T vcol;
   char_u *ptr;    /* points to current char */
   char_u *posptr; /* points to char at pos->col */
@@ -990,8 +974,7 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
           /* If a double-cell char doesn't fit at the end of a line
            * it wraps to the next line, it's like this char is three
            * cells wide. */
-          if (incr == 2 && wp->w_p_wrap && MB_BYTE2LEN(*ptr) > 1 &&
-              in_win_border(wp, vcol)) {
+          if (incr == 2 && wp->w_p_wrap && MB_BYTE2LEN(*ptr) > 1 && in_win_border(wp, vcol)) {
             ++incr;
             head = 1;
           }
@@ -1055,8 +1038,7 @@ colnr_T getvcol_nolist(pos_T *posp) {
 /*
  * Get virtual column in virtual mode.
  */
-void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
-              colnr_T *end) {
+void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end) {
   colnr_T col;
   colnr_T coladd;
   colnr_T endadd;
@@ -1096,8 +1078,7 @@ void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
  * Get the leftmost and rightmost virtual column of pos1 and pos2.
  * Used for Visual block mode.
  */
-void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left,
-              colnr_T *right) {
+void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left, colnr_T *right) {
   colnr_T from1, from2, to1, to2;
 
   if (LT_POSP(pos1, pos2)) {
@@ -1221,8 +1202,7 @@ int vim_isdigit(int c) { return (c >= '0' && c <= '9'); }
  * superscript 1 to be a digit.
  */
 int vim_isxdigit(int c) {
-  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
-         (c >= 'A' && c <= 'F');
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 /*
@@ -1450,15 +1430,14 @@ void vim_str2nr(char_u *start,
   }
 
   /* Recognize hex, octal, and bin. */
-  if (ptr[0] == '0' && ptr[1] != '8' && ptr[1] != '9' &&
-      (maxlen == 0 || maxlen > 1)) {
+  if (ptr[0] == '0' && ptr[1] != '8' && ptr[1] != '9' && (maxlen == 0 || maxlen > 1)) {
     pre = ptr[1];
-    if ((what & STR2NR_HEX) && (pre == 'X' || pre == 'x') &&
-        vim_isxdigit(ptr[2]) && (maxlen == 0 || maxlen > 2))
+    if ((what & STR2NR_HEX) && (pre == 'X' || pre == 'x') && vim_isxdigit(ptr[2]) &&
+        (maxlen == 0 || maxlen > 2))
       /* hexadecimal */
       ptr += 2;
-    else if ((what & STR2NR_BIN) && (pre == 'B' || pre == 'b') &&
-             vim_isbdigit(ptr[2]) && (maxlen == 0 || maxlen > 2))
+    else if ((what & STR2NR_BIN) && (pre == 'B' || pre == 'b') && vim_isbdigit(ptr[2]) &&
+             (maxlen == 0 || maxlen > 2))
       /* binary */
       ptr += 2;
     else {
@@ -1525,8 +1504,7 @@ void vim_str2nr(char_u *start,
       uvarnumber_T digit = (uvarnumber_T)(*ptr - '0');
 
       /* avoid ubsan error for overflow */
-      if (un < UVARNUM_MAX / 10 ||
-          (un == UVARNUM_MAX / 10 && digit <= UVARNUM_MAX % 10))
+      if (un < UVARNUM_MAX / 10 || (un == UVARNUM_MAX / 10 && digit <= UVARNUM_MAX % 10))
         un = 10 * un + digit;
       else
         un = UVARNUM_MAX;
@@ -1589,9 +1567,9 @@ int hex2nr(int c) {
  */
 int rem_backslash(char_u *str) {
 #ifdef BACKSLASH_IN_FILENAME
-  return (str[0] == '\\' && str[1] < 0x80 &&
-          (str[1] == ' ' || (str[1] != NUL && str[1] != '*' && str[1] != '?' &&
-                             !vim_isfilec(str[1]))));
+  return (
+      str[0] == '\\' && str[1] < 0x80 &&
+      (str[1] == ' ' || (str[1] != NUL && str[1] != '*' && str[1] != '?' && !vim_isfilec(str[1]))));
 #else
   return (str[0] == '\\' && str[1] != NUL);
 #endif
@@ -1628,28 +1606,22 @@ char_u *backslash_halve_save(char_u *p) {
  * ascii.h
  */
 static char_u ebcdic2ascii_tab[256] = {
-    0000, 0001, 0002, 0003, 0004, 0011, 0006, 0177, 0010, 0011, 0012, 0013,
-    0014, 0015, 0016, 0017, 0020, 0021, 0022, 0023, 0024, 0012, 0010, 0027,
-    0030, 0031, 0032, 0033, 0033, 0035, 0036, 0037, 0040, 0041, 0042, 0043,
-    0044, 0045, 0046, 0047, 0050, 0051, 0052, 0053, 0054, 0055, 0056, 0057,
-    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0072, 0073,
-    0074, 0075, 0076, 0077, 0040, 0240, 0241, 0242, 0243, 0244, 0245, 0246,
-    0247, 0250, 0325, 0056, 0074, 0050, 0053, 0174, 0046, 0251, 0252, 0253,
-    0254, 0255, 0256, 0257, 0260, 0261, 0041, 0044, 0052, 0051, 0073, 0176,
-    0055, 0057, 0262, 0263, 0264, 0265, 0266, 0267, 0270, 0271, 0313, 0054,
-    0045, 0137, 0076, 0077, 0272, 0273, 0274, 0275, 0276, 0277, 0300, 0301,
-    0302, 0140, 0072, 0043, 0100, 0047, 0075, 0042, 0303, 0141, 0142, 0143,
-    0144, 0145, 0146, 0147, 0150, 0151, 0304, 0305, 0306, 0307, 0310, 0311,
-    0312, 0152, 0153, 0154, 0155, 0156, 0157, 0160, 0161, 0162, 0136, 0314,
-    0315, 0316, 0317, 0320, 0321, 0345, 0163, 0164, 0165, 0166, 0167, 0170,
-    0171, 0172, 0322, 0323, 0324, 0133, 0326, 0327, 0330, 0331, 0332, 0333,
-    0334, 0335, 0336, 0337, 0340, 0341, 0342, 0343, 0344, 0135, 0346, 0347,
-    0173, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0350, 0351,
-    0352, 0353, 0354, 0355, 0175, 0112, 0113, 0114, 0115, 0116, 0117, 0120,
-    0121, 0122, 0356, 0357, 0360, 0361, 0362, 0363, 0134, 0237, 0123, 0124,
-    0125, 0126, 0127, 0130, 0131, 0132, 0364, 0365, 0366, 0367, 0370, 0371,
-    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0372, 0373,
-    0374, 0375, 0376, 0377};
+    0000, 0001, 0002, 0003, 0004, 0011, 0006, 0177, 0010, 0011, 0012, 0013, 0014, 0015, 0016, 0017,
+    0020, 0021, 0022, 0023, 0024, 0012, 0010, 0027, 0030, 0031, 0032, 0033, 0033, 0035, 0036, 0037,
+    0040, 0041, 0042, 0043, 0044, 0045, 0046, 0047, 0050, 0051, 0052, 0053, 0054, 0055, 0056, 0057,
+    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0072, 0073, 0074, 0075, 0076, 0077,
+    0040, 0240, 0241, 0242, 0243, 0244, 0245, 0246, 0247, 0250, 0325, 0056, 0074, 0050, 0053, 0174,
+    0046, 0251, 0252, 0253, 0254, 0255, 0256, 0257, 0260, 0261, 0041, 0044, 0052, 0051, 0073, 0176,
+    0055, 0057, 0262, 0263, 0264, 0265, 0266, 0267, 0270, 0271, 0313, 0054, 0045, 0137, 0076, 0077,
+    0272, 0273, 0274, 0275, 0276, 0277, 0300, 0301, 0302, 0140, 0072, 0043, 0100, 0047, 0075, 0042,
+    0303, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0150, 0151, 0304, 0305, 0306, 0307, 0310, 0311,
+    0312, 0152, 0153, 0154, 0155, 0156, 0157, 0160, 0161, 0162, 0136, 0314, 0315, 0316, 0317, 0320,
+    0321, 0345, 0163, 0164, 0165, 0166, 0167, 0170, 0171, 0172, 0322, 0323, 0324, 0133, 0326, 0327,
+    0330, 0331, 0332, 0333, 0334, 0335, 0336, 0337, 0340, 0341, 0342, 0343, 0344, 0135, 0346, 0347,
+    0173, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0350, 0351, 0352, 0353, 0354, 0355,
+    0175, 0112, 0113, 0114, 0115, 0116, 0117, 0120, 0121, 0122, 0356, 0357, 0360, 0361, 0362, 0363,
+    0134, 0237, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0364, 0365, 0366, 0367, 0370, 0371,
+    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0372, 0373, 0374, 0375, 0376, 0377};
 
 /*
  * Convert a buffer worth of characters from EBCDIC to ASCII.  Only useful if

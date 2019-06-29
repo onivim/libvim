@@ -132,16 +132,14 @@
 /*
  * get second or third byte when translating special key code into three bytes
  */
-#define K_SECOND(c)                                                            \
-  ((c) == K_SPECIAL ? KS_SPECIAL : (c) == NUL ? KS_ZERO : KEY2TERMCAP0(c))
+#define K_SECOND(c) ((c) == K_SPECIAL ? KS_SPECIAL : (c) == NUL ? KS_ZERO : KEY2TERMCAP0(c))
 
-#define K_THIRD(c)                                                             \
-  (((c) == K_SPECIAL || (c) == NUL) ? KE_FILLER : KEY2TERMCAP1(c))
+#define K_THIRD(c) (((c) == K_SPECIAL || (c) == NUL) ? KE_FILLER : KEY2TERMCAP1(c))
 
 /*
  * get single int code from second byte after K_SPECIAL
  */
-#define TO_SPECIAL(a, b)                                                       \
+#define TO_SPECIAL(a, b)                                                                           \
   ((a) == KS_SPECIAL ? K_SPECIAL : (a) == KS_ZERO ? K_ZERO : TERMCAP2KEY(a, b))
 
 /*
@@ -547,8 +545,7 @@ enum key_extra {
 #define MOD_MASK_CMD 0x80
 #endif
 
-#define MOD_MASK_MULTI_CLICK                                                   \
-  (MOD_MASK_2CLICK | MOD_MASK_3CLICK | MOD_MASK_4CLICK)
+#define MOD_MASK_MULTI_CLICK (MOD_MASK_2CLICK | MOD_MASK_3CLICK | MOD_MASK_4CLICK)
 
 /*
  * The length of the longest special key name, including modifiers.

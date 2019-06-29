@@ -72,8 +72,7 @@ static void mf_ins_free(memfile_T *, bhdr_T *);
 static bhdr_T *mf_rem_free(memfile_T *);
 static int mf_read(memfile_T *, bhdr_T *);
 static int mf_write(memfile_T *, bhdr_T *);
-static int mf_write_block(memfile_T *mfp, bhdr_T *hp, off_T offset,
-                          unsigned size);
+static int mf_write_block(memfile_T *mfp, bhdr_T *hp, off_T offset, unsigned size);
 static int mf_trans_add(memfile_T *, bhdr_T *);
 static void mf_do_open(memfile_T *, char_u *, int);
 static void mf_hash_init(mf_hashtab_T *);
@@ -158,8 +157,7 @@ memfile_T *mf_open(char_u *fname, int flags) {
    * in ml_recover().  The size used here may be wrong, therefore
    * mf_blocknr_max must be rounded up.
    */
-  if (mfp->mf_fd >= 0 &&
-      fstatfs(mfp->mf_fd, &stf, sizeof(struct statfs), 0) == 0 &&
+  if (mfp->mf_fd >= 0 && fstatfs(mfp->mf_fd, &stf, sizeof(struct statfs), 0) == 0 &&
       stf.F_BSIZE >= MIN_SWAP_PAGE_SIZE && stf.F_BSIZE <= MAX_SWAP_PAGE_SIZE)
     mfp->mf_page_size = stf.F_BSIZE;
 #endif
@@ -168,8 +166,7 @@ memfile_T *mf_open(char_u *fname, int flags) {
       (size = vim_lseek(mfp->mf_fd, (off_T)0L, SEEK_END)) <= 0)
     mfp->mf_blocknr_max = 0; /* no file or empty file */
   else
-    mfp->mf_blocknr_max =
-        (blocknr_T)((size + mfp->mf_page_size - 1) / mfp->mf_page_size);
+    mfp->mf_blocknr_max = (blocknr_T)((size + mfp->mf_page_size - 1) / mfp->mf_page_size);
   mfp->mf_blocknr_min = -1;
   mfp->mf_neg_count = 0;
   mfp->mf_infile_count = mfp->mf_blocknr_max;
@@ -361,8 +358,7 @@ bhdr_T *mf_new(memfile_T *mfp, int negative, int page_count) {
    * Init the data to all zero, to avoid reading uninitialized data.
    * This also avoids that the passwd file ends up in the swap file!
    */
-  (void)vim_memset((char *)(hp->bh_data), 0,
-                   (size_t)mfp->mf_page_size * page_count);
+  (void)vim_memset((char *)(hp->bh_data), 0, (size_t)mfp->mf_page_size * page_count);
 
   return hp;
 }
@@ -461,9 +457,7 @@ void mf_free(memfile_T *mfp, bhdr_T *hp) {
 /* function is missing in MorphOS libnix version */
 extern unsigned long *__stdfiledes;
 
-static unsigned long fdtofh(int filedescriptor) {
-  return __stdfiledes[filedescriptor];
-}
+static unsigned long fdtofh(int filedescriptor) { return __stdfiledes[filedescriptor]; }
 #endif
 
 /*
@@ -503,8 +497,7 @@ int mf_sync(memfile_T *mfp, int flags) {
   status = OK;
   for (hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     if (((flags & MFS_ALL) || hp->bh_bnum >= 0) && (hp->bh_flags & BH_DIRTY) &&
-        (status == OK ||
-         (hp->bh_bnum >= 0 && hp->bh_bnum < mfp->mf_infile_count))) {
+        (status == OK || (hp->bh_bnum >= 0 && hp->bh_bnum < mfp->mf_infile_count))) {
       if ((flags & MFS_ZERO) && hp->bh_bnum != 0)
         continue;
       if (mf_write(mfp, hp) == FAIL) {
@@ -654,8 +647,8 @@ static bhdr_T *mf_release(memfile_T *mfp, int page_count) {
    * Need to release a block if the number of blocks for this memfile is
    * higher than the maximum or total memory used is over 'maxmemtot'
    */
-  need_release = ((mfp->mf_used_count >= mfp->mf_used_count_max) ||
-                  (total_mem_used >> 10) >= (long_u)p_mmt);
+  need_release =
+      ((mfp->mf_used_count >= mfp->mf_used_count_max) || (total_mem_used >> 10) >= (long_u)p_mmt);
 
   /*
    * Try to create a swap file if the amount of memory used is getting too
@@ -924,8 +917,7 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp) {
  * Takes care of encryption.
  * Return FAIL or OK.
  */
-static int mf_write_block(memfile_T *mfp, bhdr_T *hp, off_T offset UNUSED,
-                          unsigned size) {
+static int mf_write_block(memfile_T *mfp, bhdr_T *hp, off_T offset UNUSED, unsigned size) {
   char_u *data = hp->bh_data;
   int result = OK;
 
@@ -1034,9 +1026,7 @@ blocknr_T mf_trans_del(memfile_T *mfp, blocknr_T old_nr) {
  * Only called when creating or renaming the swapfile.	Either way it's a new
  * name so we must work out the full path name.
  */
-void mf_set_ffname(memfile_T *mfp) {
-  mfp->mf_ffname = FullName_save(mfp->mf_fname, FALSE);
-}
+void mf_set_ffname(memfile_T *mfp) { mfp->mf_ffname = FullName_save(mfp->mf_fname, FALSE); }
 
 /*
  * Make the name of the file used for the memfile a full path.
@@ -1053,17 +1043,14 @@ void mf_fullname(memfile_T *mfp) {
 /*
  * return TRUE if there are any translations pending for 'mfp'
  */
-int mf_need_trans(memfile_T *mfp) {
-  return (mfp->mf_fname != NULL && mfp->mf_neg_count > 0);
-}
+int mf_need_trans(memfile_T *mfp) { return (mfp->mf_fname != NULL && mfp->mf_neg_count > 0); }
 
 /*
  * Open a swap file for a memfile.
  * The "fname" must be in allocated memory, and is consumed (also when an
  * error occurs).
  */
-static void mf_do_open(memfile_T *mfp, char_u *fname,
-                       int flags) /* flags for open() */
+static void mf_do_open(memfile_T *mfp, char_u *fname, int flags) /* flags for open() */
 {
 #ifdef HAVE_LSTAT
   stat_T sb;
@@ -1210,8 +1197,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi) {
    * Grow hashtable when we have more thank 2^MHT_LOG_LOAD_FACTOR
    * items per bucket on average
    */
-  if (mht->mht_fixed == 0 &&
-      (mht->mht_count >> MHT_LOG_LOAD_FACTOR) > mht->mht_mask) {
+  if (mht->mht_fixed == 0 && (mht->mht_count >> MHT_LOG_LOAD_FACTOR) > mht->mht_mask) {
     if (mf_hash_grow(mht) == FAIL) {
       /* stop trying to grow after first failure to allocate memory */
       mht->mht_fixed = 1;

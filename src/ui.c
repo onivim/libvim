@@ -102,8 +102,7 @@ void ui_inchar_undo(char_u *s, int len) {
  * from a remote client) "buf" can no longer be used.  "tb_change_cnt" is NULL
  * otherwise.
  */
-int ui_inchar(char_u *buf, int maxlen,
-              long wtime, /* don't use "time", MIPS cannot handle it */
+int ui_inchar(char_u *buf, int maxlen, long wtime, /* don't use "time", MIPS cannot handle it */
               int tb_change_cnt) {
   int retval = 0;
 
@@ -245,9 +244,7 @@ theend:
  */
 int inchar_loop(char_u *buf, int maxlen,
                 long wtime, // don't use "time", MIPS cannot handle it
-                int tb_change_cnt,
-                int (*wait_func)(long wtime, int *interrupted,
-                                 int ignore_input),
+                int tb_change_cnt, int (*wait_func)(long wtime, int *interrupted, int ignore_input),
                 int (*resize_func)(int check_only)) {
   int len;
   int interrupted = FALSE;
@@ -301,8 +298,7 @@ int inchar_loop(char_u *buf, int maxlen,
 
         // No character available within 'updatetime'.
         did_start_blocking = TRUE;
-        if (trigger_cursorhold() && maxlen >= 3 &&
-            !typebuf_changed(tb_change_cnt)) {
+        if (trigger_cursorhold() && maxlen >= 3 && !typebuf_changed(tb_change_cnt)) {
           // Put K_CURSORHOLD in the input buffer or return it.
           if (buf == NULL) {
             char_u ibuf[3];
@@ -395,8 +391,7 @@ int inchar_loop(char_u *buf, int maxlen,
  * Returns FAIL when it timed out or was interrupted.
  */
 int ui_wait_for_chars_or_timer(long wtime,
-                               int (*wait_func)(long wtime, int *interrupted,
-                                                int ignore_input),
+                               int (*wait_func)(long wtime, int *interrupted, int ignore_input),
                                int *interrupted, int ignore_input) {
   int due_time;
   long remaining = wtime;
@@ -690,8 +685,7 @@ void clip_own_selection(VimClipboard *cbd) {
       /* May have to show a different kind of highlighting for the
        * selected area.  There is no specific redraw command for this,
        * just redraw all windows on the current buffer. */
-      if (cbd->owned &&
-          (get_real_state() == VISUAL || get_real_state() == SELECTMODE) &&
+      if (cbd->owned && (get_real_state() == VISUAL || get_real_state() == SELECTMODE) &&
           (cbd == &clip_star ? clip_isautosel_star() : clip_isautosel_plus()) &&
           HL_ATTR(HLF_V) != HL_ATTR(HLF_VNC))
         redraw_curbuf_later(INVERTED_ALL);
@@ -723,8 +717,7 @@ void clip_lose_selection(VimClipboard *cbd) {
     /* May have to show a different kind of highlighting for the selected
      * area.  There is no specific redraw command for this, just redraw all
      * windows on the current buffer. */
-    if (was_owned &&
-        (get_real_state() == VISUAL || get_real_state() == SELECTMODE) &&
+    if (was_owned && (get_real_state() == VISUAL || get_real_state() == SELECTMODE) &&
         (cbd == &clip_star ? clip_isautosel_star() : clip_isautosel_plus()) &&
         HL_ATTR(HLF_V) != HL_ATTR(HLF_VNC)) {
       update_curbuf(INVERTED_ALL);
@@ -751,7 +744,7 @@ static void clip_copy_selection(VimClipboard *clip) {
  * prevents accessing the clipboard very often which might slow down Vim
  * considerably.
  */
-static int global_change_count = 0; /* if set, inside a start_global_changes */
+static int global_change_count = 0;        /* if set, inside a start_global_changes */
 static int clipboard_needs_update = FALSE; /* clipboard needs to be updated */
 static int clip_did_set_selection = TRUE;
 
@@ -842,8 +835,7 @@ int clip_isautosel_plus(void) {
  */
 
 static void clip_invert_area(int, int, int, int, int how);
-static void clip_invert_rectangle(int row, int col, int height, int width,
-                                  int invert);
+static void clip_invert_rectangle(int row, int col, int height, int width, int invert);
 static void clip_get_word_boundaries(VimClipboard *, int, int);
 static int clip_get_line_end(int);
 static void clip_update_modeless_selection(VimClipboard *, int, int, int, int);
@@ -917,15 +909,14 @@ void clip_start_selection(int col, int row, int repeated_click) {
     cb->origin_start_col = cb->word_start_col;
     cb->origin_end_col = cb->word_end_col;
 
-    clip_invert_area((int)cb->start.lnum, cb->word_start_col, (int)cb->end.lnum,
-                     cb->word_end_col, CLIP_SET);
+    clip_invert_area((int)cb->start.lnum, cb->word_start_col, (int)cb->end.lnum, cb->word_end_col,
+                     CLIP_SET);
     cb->start.col = cb->word_start_col;
     cb->end.col = cb->word_end_col;
     break;
 
   case SELECT_MODE_LINE:
-    clip_invert_area((int)cb->start.lnum, 0, (int)cb->start.lnum, (int)Columns,
-                     CLIP_SET);
+    clip_invert_area((int)cb->start.lnum, 0, (int)cb->start.lnum, (int)Columns, CLIP_SET);
     cb->start.col = 0;
     cb->end.col = Columns;
     break;
@@ -941,8 +932,7 @@ void clip_start_selection(int col, int row, int repeated_click) {
 /*
  * Continue processing the selection
  */
-void clip_process_selection(int button, int col, int row,
-                            int_u repeated_click) {
+void clip_process_selection(int button, int col, int row, int_u repeated_click) {
   VimClipboard *cb = &clip_star;
   int diff;
   int slen = 1; /* cursor shape width */
@@ -978,31 +968,27 @@ void clip_process_selection(int button, int col, int row,
     /* See if we are before or after the origin of the selection */
     if (clip_compare_pos(row, col, cb->origin_row, cb->origin_start_col) >= 0) {
       if (col >= (int)cb->word_end_col)
-        clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col,
-                                       row, (int)Columns);
+        clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col, row, (int)Columns);
       else {
         if (has_mbyte && mb_lefthalve(row, col))
           slen = 2;
-        clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col,
-                                       row, col + slen);
+        clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col, row, col + slen);
       }
     } else {
       if (has_mbyte && mb_lefthalve(cb->origin_row, cb->origin_start_col))
         slen = 2;
       if (col >= (int)cb->word_end_col)
-        clip_update_modeless_selection(cb, row, cb->word_end_col,
-                                       cb->origin_row,
+        clip_update_modeless_selection(cb, row, cb->word_end_col, cb->origin_row,
                                        cb->origin_start_col + slen);
       else
-        clip_update_modeless_selection(cb, row, col, cb->origin_row,
-                                       cb->origin_start_col + slen);
+        clip_update_modeless_selection(cb, row, col, cb->origin_row, cb->origin_start_col + slen);
     }
     break;
 
   case SELECT_MODE_WORD:
     /* If we are still within the same word, do nothing */
-    if (row == cb->prev.lnum && col >= (int)cb->word_start_col &&
-        col < (int)cb->word_end_col && !repeated_click)
+    if (row == cb->prev.lnum && col >= (int)cb->word_start_col && col < (int)cb->word_end_col &&
+        !repeated_click)
       return;
 
     /* Get new word boundaries */
@@ -1010,11 +996,11 @@ void clip_process_selection(int button, int col, int row,
 
     /* Handle being after the origin point of selection */
     if (clip_compare_pos(row, col, cb->origin_row, cb->origin_start_col) >= 0)
-      clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col,
-                                     row, cb->word_end_col);
+      clip_update_modeless_selection(cb, cb->origin_row, cb->origin_start_col, row,
+                                     cb->word_end_col);
     else
-      clip_update_modeless_selection(cb, row, cb->word_start_col,
-                                     cb->origin_row, cb->origin_end_col);
+      clip_update_modeless_selection(cb, row, cb->word_start_col, cb->origin_row,
+                                     cb->origin_end_col);
     break;
 
   case SELECT_MODE_LINE:
@@ -1032,8 +1018,8 @@ void clip_process_selection(int button, int col, int row,
   cb->prev.col = col;
 
 #ifdef DEBUG_SELECTION
-  printf("Selection is: (%u,%u) to (%u,%u)\n", cb->start.lnum, cb->start.col,
-         cb->end.lnum, cb->end.col);
+  printf("Selection is: (%u,%u) to (%u,%u)\n", cb->start.lnum, cb->start.col, cb->end.lnum,
+         cb->end.col);
 #endif
 }
 
@@ -1066,8 +1052,8 @@ void clip_clear_selection(VimClipboard *cbd) {
   if (cbd->state == SELECT_CLEARED)
     return;
 
-  clip_invert_area((int)cbd->start.lnum, cbd->start.col, (int)cbd->end.lnum,
-                   cbd->end.col, CLIP_CLEAR);
+  clip_invert_area((int)cbd->start.lnum, cbd->start.col, (int)cbd->end.lnum, cbd->end.col,
+                   CLIP_CLEAR);
   cbd->state = SELECT_CLEARED;
 }
 
@@ -1075,8 +1061,7 @@ void clip_clear_selection(VimClipboard *cbd) {
  * Clear the selection if any lines from "row1" to "row2" are inside of it.
  */
 void clip_may_clear_selection(int row1, int row2) {
-  if (clip_star.state == SELECT_DONE && row2 >= clip_star.start.lnum &&
-      row1 <= clip_star.end.lnum)
+  if (clip_star.state == SELECT_DONE && row2 >= clip_star.start.lnum && row1 <= clip_star.end.lnum)
     clip_clear_selection(&clip_star);
 }
 
@@ -1161,8 +1146,7 @@ static void clip_invert_area(int row1, int col1, int row2, int col2, int how) {
  * Invert or un-invert a rectangle of the screen.
  * "invert" is true if the result is inverted.
  */
-static void clip_invert_rectangle(int row, int col, int height, int width,
-                                  int invert) {
+static void clip_invert_rectangle(int row, int col, int height, int width, int invert) {
 #ifdef FEAT_GUI
   if (gui.in_use)
     gui_mch_invert_rectangle(row, col, height, width);
@@ -1297,8 +1281,7 @@ void clip_copy_modeless_selection(int both UNUSED) {
             ++i;
         }
       } else {
-        STRNCPY(bufp, ScreenLines + LineOffset[row] + start_col,
-                end_col - start_col);
+        STRNCPY(bufp, ScreenLines + LineOffset[row] + start_col, end_col - start_col);
         bufp += end_col - start_col;
       }
     }
@@ -1355,11 +1338,9 @@ static void clip_get_word_boundaries(VimClipboard *cb, int row, int col) {
 
   temp_col = col;
   for (; temp_col > 0; temp_col--)
-    if (enc_dbcs != 0 &&
-        (mboff = dbcs_screen_head_off(p, p + temp_col - 1)) > 0)
+    if (enc_dbcs != 0 && (mboff = dbcs_screen_head_off(p, p + temp_col - 1)) > 0)
       temp_col -= mboff;
-    else if (CHAR_CLASS(p[temp_col - 1]) != start_class &&
-             !(enc_utf8 && p[temp_col - 1] == 0))
+    else if (CHAR_CLASS(p[temp_col - 1]) != start_class && !(enc_utf8 && p[temp_col - 1] == 0))
       break;
   cb->word_start_col = temp_col;
 
@@ -1367,8 +1348,7 @@ static void clip_get_word_boundaries(VimClipboard *cb, int row, int col) {
   for (; temp_col < screen_Columns; temp_col++)
     if (enc_dbcs != 0 && dbcs_ptr2cells(p + temp_col) == 2)
       ++temp_col;
-    else if (CHAR_CLASS(p[temp_col]) != start_class &&
-             !(enc_utf8 && p[temp_col] == 0))
+    else if (CHAR_CLASS(p[temp_col]) != start_class && !(enc_utf8 && p[temp_col] == 0))
       break;
   cb->word_end_col = temp_col;
 }
@@ -1392,12 +1372,11 @@ static int clip_get_line_end(int row) {
  * Update the currently selected region by adding and/or subtracting from the
  * beginning or end and inverting the changed area(s).
  */
-static void clip_update_modeless_selection(VimClipboard *cb, int row1, int col1,
-                                           int row2, int col2) {
+static void clip_update_modeless_selection(VimClipboard *cb, int row1, int col1, int row2,
+                                           int col2) {
   /* See if we changed at the beginning of the selection */
   if (row1 != cb->start.lnum || col1 != (int)cb->start.col) {
-    clip_invert_area(row1, col1, (int)cb->start.lnum, cb->start.col,
-                     CLIP_TOGGLE);
+    clip_invert_area(row1, col1, (int)cb->start.lnum, cb->start.col, CLIP_TOGGLE);
     cb->start.lnum = row1;
     cb->start.col = col1;
   }
@@ -1769,8 +1748,7 @@ void fill_input_buf(int exit_on_error UNUSED) {
      */
     if (input_conv.vc_type != CONV_NONE) {
       inbufcount -= unconverted;
-      len = convert_input_safe(inbuf + inbufcount, len + unconverted,
-                               INBUFLEN - inbufcount,
+      len = convert_input_safe(inbuf + inbufcount, len + unconverted, INBUFLEN - inbufcount,
                                rest == NULL ? &rest : NULL, &restlen);
     }
     while (len-- > 0) {
@@ -1865,10 +1843,8 @@ void x11_setup_atoms(Display *dpy) {
  * X Selection stuff, for cutting and pasting text to other windows.
  */
 
-static Boolean clip_x11_convert_selection_cb(Widget w, Atom *sel_atom,
-                                             Atom *target, Atom *type,
-                                             XtPointer *value, long_u *length,
-                                             int *format);
+static Boolean clip_x11_convert_selection_cb(Widget w, Atom *sel_atom, Atom *target, Atom *type,
+                                             XtPointer *value, long_u *length, int *format);
 static void clip_x11_lose_ownership_cb(Widget w, Atom *sel_atom);
 static void clip_x11_notify_cb(Widget w, Atom *sel_atom, Atom *target);
 
@@ -1886,13 +1862,11 @@ static void clip_x11_timestamp_cb(Widget w, XtPointer n UNUSED, XEvent *event,
   /* Must be a property notify, state can't be Delete (True), has to be
    * one of the supported selection types. */
   if (event->type != PropertyNotify || xproperty->state ||
-      (xproperty->atom != clip_star.sel_atom &&
-       xproperty->atom != clip_plus.sel_atom))
+      (xproperty->atom != clip_star.sel_atom && xproperty->atom != clip_plus.sel_atom))
     return;
 
-  if (XGetWindowProperty(xproperty->display, xproperty->window, xproperty->atom,
-                         0, 0, False, timestamp_atom, &actual_type, &format,
-                         &nitems, &bytes_after, &prop))
+  if (XGetWindowProperty(xproperty->display, xproperty->window, xproperty->atom, 0, 0, False,
+                         timestamp_atom, &actual_type, &format, &nitems, &bytes_after, &prop))
     return;
 
   if (prop)
@@ -1903,9 +1877,8 @@ static void clip_x11_timestamp_cb(Widget w, XtPointer n UNUSED, XEvent *event,
     return;
 
   /* Get the selection, using the event timestamp. */
-  if (XtOwnSelection(w, xproperty->atom, xproperty->time,
-                     clip_x11_convert_selection_cb, clip_x11_lose_ownership_cb,
-                     clip_x11_notify_cb) == OK) {
+  if (XtOwnSelection(w, xproperty->atom, xproperty->time, clip_x11_convert_selection_cb,
+                     clip_x11_lose_ownership_cb, clip_x11_notify_cb) == OK) {
     /* Set the "owned" flag now, there may have been a call to
      * lose_ownership_cb in between. */
     if (xproperty->atom == clip_plus.sel_atom)
@@ -1917,13 +1890,11 @@ static void clip_x11_timestamp_cb(Widget w, XtPointer n UNUSED, XEvent *event,
 
 void x11_setup_selection(Widget w) {
   XtAddEventHandler(w, PropertyChangeMask, False,
-                    /*(XtEventHandler)*/ clip_x11_timestamp_cb,
-                    (XtPointer)NULL);
+                    /*(XtEventHandler)*/ clip_x11_timestamp_cb, (XtPointer)NULL);
 }
 
-static void clip_x11_request_selection_cb(Widget w UNUSED, XtPointer success,
-                                          Atom *sel_atom, Atom *type,
-                                          XtPointer value, long_u *length,
+static void clip_x11_request_selection_cb(Widget w UNUSED, XtPointer success, Atom *sel_atom,
+                                          Atom *type, XtPointer value, long_u *length,
                                           int *format) {
   int motion_type = MAUTO;
   long_u len;
@@ -1987,12 +1958,10 @@ static void clip_x11_request_selection_cb(Widget w UNUSED, XtPointer success,
     text_prop.nitems = len;
 #if defined(X_HAVE_UTF8_STRING)
     if (*type == utf8_atom)
-      status = Xutf8TextPropertyToTextList(X_DISPLAY, &text_prop, &text_list,
-                                           &n_text);
+      status = Xutf8TextPropertyToTextList(X_DISPLAY, &text_prop, &text_list, &n_text);
     else
 #endif
-      status =
-          XmbTextPropertyToTextList(X_DISPLAY, &text_prop, &text_list, &n_text);
+      status = XmbTextPropertyToTextList(X_DISPLAY, &text_prop, &text_list, &n_text);
     if (status != Success || n_text < 1) {
       *(int *)success = FALSE;
       return;
@@ -2009,8 +1978,7 @@ static void clip_x11_request_selection_cb(Widget w UNUSED, XtPointer success,
   *(int *)success = TRUE;
 }
 
-void clip_x11_request_selection(Widget myShell, Display *dpy,
-                                VimClipboard *cbd) {
+void clip_x11_request_selection(Widget myShell, Display *dpy, VimClipboard *cbd) {
   XEvent event;
   Atom type;
   static int success;
@@ -2047,9 +2015,8 @@ void clip_x11_request_selection(Widget myShell, Display *dpy,
        * Xutf8TextPropertyToTextList is available. */
       continue;
     success = MAYBE;
-    XtGetSelectionValue(myShell, cbd->sel_atom, type,
-                        clip_x11_request_selection_cb, (XtPointer)&success,
-                        CurrentTime);
+    XtGetSelectionValue(myShell, cbd->sel_atom, type, clip_x11_request_selection_cb,
+                        (XtPointer)&success, CurrentTime);
 
     /* Make sure the request for the selection goes out before waiting for
      * a response. */
@@ -2105,9 +2072,8 @@ void clip_x11_request_selection(Widget myShell, Display *dpy,
   yank_cut_buffer0(dpy, cbd);
 }
 
-static Boolean clip_x11_convert_selection_cb(Widget w UNUSED, Atom *sel_atom,
-                                             Atom *target, Atom *type,
-                                             XtPointer *value, long_u *length,
+static Boolean clip_x11_convert_selection_cb(Widget w UNUSED, Atom *sel_atom, Atom *target,
+                                             Atom *type, XtPointer *value, long_u *length,
                                              int *format) {
   static char_u *save_result = NULL;
   static long_u save_length = 0;
@@ -2147,9 +2113,8 @@ static Boolean clip_x11_convert_selection_cb(Widget w UNUSED, Atom *sel_atom,
     return True;
   }
 
-  if (*target != XA_STRING && *target != vimenc_atom &&
-      (*target != utf8_atom || !enc_utf8) && *target != vim_atom &&
-      *target != text_atom && *target != compound_text_atom)
+  if (*target != XA_STRING && *target != vimenc_atom && (*target != utf8_atom || !enc_utf8) &&
+      *target != vim_atom && *target != text_atom && *target != compound_text_atom)
     return False;
 
   clip_get_selection(cbd);
@@ -2187,8 +2152,8 @@ static Boolean clip_x11_convert_selection_cb(Widget w UNUSED, Atom *sel_atom,
     /* create NUL terminated string which XmbTextListToTextProperty wants */
     mch_memmove(string_nt, string, (size_t)*length);
     string_nt[*length] = NUL;
-    conv_result = XmbTextListToTextProperty(X_DISPLAY, (char **)&string_nt, 1,
-                                            XCompoundTextStyle, &text_prop);
+    conv_result = XmbTextListToTextProperty(X_DISPLAY, (char **)&string_nt, 1, XCompoundTextStyle,
+                                            &text_prop);
     if (conv_result != Success) {
       vim_free(string);
       return False;
@@ -2224,12 +2189,10 @@ static void clip_x11_lose_ownership_cb(Widget w UNUSED, Atom *sel_atom) {
 }
 
 void clip_x11_lose_selection(Widget myShell, VimClipboard *cbd) {
-  XtDisownSelection(myShell, cbd->sel_atom,
-                    XtLastTimestampProcessed(XtDisplay(myShell)));
+  XtDisownSelection(myShell, cbd->sel_atom, XtLastTimestampProcessed(XtDisplay(myShell)));
 }
 
-static void clip_x11_notify_cb(Widget w UNUSED, Atom *sel_atom UNUSED,
-                               Atom *target UNUSED) {
+static void clip_x11_notify_cb(Widget w UNUSED, Atom *sel_atom UNUSED, Atom *target UNUSED) {
   /* To prevent automatically freeing the selection value. */
 }
 
@@ -2240,16 +2203,15 @@ int clip_x11_own_selection(Widget myShell, VimClipboard *cbd) {
    * be called with the current timestamp.  */
 #ifdef FEAT_GUI
   if (gui.in_use) {
-    if (XtOwnSelection(myShell, cbd->sel_atom,
-                       XtLastTimestampProcessed(XtDisplay(myShell)),
-                       clip_x11_convert_selection_cb,
-                       clip_x11_lose_ownership_cb, clip_x11_notify_cb) == False)
+    if (XtOwnSelection(myShell, cbd->sel_atom, XtLastTimestampProcessed(XtDisplay(myShell)),
+                       clip_x11_convert_selection_cb, clip_x11_lose_ownership_cb,
+                       clip_x11_notify_cb) == False)
       return FAIL;
   } else
 #endif
   {
-    if (!XChangeProperty(XtDisplay(myShell), XtWindow(myShell), cbd->sel_atom,
-                         timestamp_atom, 32, PropModeAppend, NULL, 0))
+    if (!XChangeProperty(XtDisplay(myShell), XtWindow(myShell), cbd->sel_atom, timestamp_atom, 32,
+                         PropModeAppend, NULL, 0))
       return FAIL;
   }
   /* Flush is required in a terminal as nothing else is doing it. */
@@ -2263,16 +2225,14 @@ int clip_x11_own_selection(Widget myShell, VimClipboard *cbd) {
  */
 void clip_x11_set_selection(VimClipboard *cbd UNUSED) {}
 
-#if (defined(FEAT_X11) && defined(FEAT_XCLIPBOARD) && defined(USE_SYSTEM)) ||  \
-    defined(PROTO)
+#if (defined(FEAT_X11) && defined(FEAT_XCLIPBOARD) && defined(USE_SYSTEM)) || defined(PROTO)
 int clip_x11_owner_exists(VimClipboard *cbd) {
   return XGetSelectionOwner(X_DISPLAY, cbd->sel_atom) != None;
 }
 #endif
 #endif
 
-#if defined(FEAT_XCLIPBOARD) || defined(FEAT_GUI_X11) ||                       \
-    defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(FEAT_XCLIPBOARD) || defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(PROTO)
 /*
  * Get the contents of the X CUT_BUFFER0 and put it in "cbd".
  */
@@ -2341,8 +2301,8 @@ void ui_focus_change(int in_focus) /* TRUE if focus gained. */
   /*
    * Fire the focus gained/lost autocommand.
    */
-  need_redraw |= apply_autocmds(in_focus ? EVENT_FOCUSGAINED : EVENT_FOCUSLOST,
-                                NULL, NULL, FALSE, curbuf);
+  need_redraw |=
+      apply_autocmds(in_focus ? EVENT_FOCUSGAINED : EVENT_FOCUSLOST, NULL, NULL, FALSE, curbuf);
 
   if (need_redraw) {
     /* Something was executed, make sure the cursor is put back where it
@@ -2351,8 +2311,8 @@ void ui_focus_change(int in_focus) /* TRUE if focus gained. */
 
     if (State & CMDLINE)
       redrawcmdline();
-    else if (State == HITRETURN || State == SETWSIZE || State == ASKMORE ||
-             State == EXTERNCMD || State == CONFIRM || exmode_active)
+    else if (State == HITRETURN || State == SETWSIZE || State == ASKMORE || State == EXTERNCMD ||
+             State == CONFIRM || exmode_active)
       repeat_message();
     else if ((State & NORMAL) || (State & INSERT)) {
       if (must_redraw != 0)

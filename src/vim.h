@@ -90,9 +90,8 @@ Error : configure did not run properly.Check auto / config.log.
 #define FEAT_GUI_MAC
 #endif
 
-#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_GTK) ||                        \
-    defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MAC) ||                       \
-    defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
+#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_ATHENA) ||                \
+    defined(FEAT_GUI_MAC) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
 #define FEAT_GUI_ENABLED /* also defined with NO_X11_INCLUDES */
 #if !defined(FEAT_GUI) && !defined(NO_X11_INCLUDES)
 #define FEAT_GUI
@@ -125,8 +124,7 @@ Error : configure did not run properly.Check auto / config.log.
 #endif
 
 #if VIM_SIZEOF_INT < 4 && !defined(PROTO)
-                                                    Error
-    : Vim only works with 32 bit int or
+                                                    Error : Vim only works with 32 bit int or
     larger
 #endif
 
@@ -205,8 +203,7 @@ Error : configure did not run properly.Check auto / config.log.
 #include "os_beos.h"
 #endif
 
-#if (defined(UNIX) || defined(VMS)) &&                                         \
-    (!defined(MACOS_X) || defined(HAVE_CONFIG_H))
+#if (defined(UNIX) || defined(VMS)) && (!defined(MACOS_X) || defined(HAVE_CONFIG_H))
 #include "os_unix.h" /* bring lots of system header files */
 #endif
 
@@ -230,7 +227,7 @@ Error : configure did not run properly.Check auto / config.log.
  * a concrete example, gcc-3.2 enforces exception specifications, and
  * glibc-2.2.5 has them in their system headers.
  */
-#if !defined(__cplusplus) && defined(UNIX) &&                                  \
+#if !defined(__cplusplus) && defined(UNIX) &&                                                      \
     !defined(MACOS_X)   /* MACOS_X doesn't yet support osdef.h */
 #include "auto/osdef.h" /* bring missing declarations in */
 #endif
@@ -452,8 +449,7 @@ typedef unsigned int u8char_T; // int is 32 bits or more
 /* for offsetof() */
 #include <stddef.h>
 
-#if defined(HAVE_SYS_SELECT_H) &&                                              \
-    (!defined(HAVE_SYS_TIME_H) || defined(SYS_SELECT_WITH_SYS_TIME))
+#if defined(HAVE_SYS_SELECT_H) && (!defined(HAVE_SYS_TIME_H) || defined(SYS_SELECT_WITH_SYS_TIME))
 #include <sys/select.h>
 #endif
 
@@ -489,12 +485,9 @@ typedef unsigned int u8char_T; // int is 32 bits or more
 #endif
 /* These are in os_win32.c */
 extern char *(*dyn_libintl_gettext)(const char *msgid);
-extern char *(*dyn_libintl_ngettext)(const char *msgid,
-                                     const char *msgid_plural, unsigned long n);
-extern char *(*dyn_libintl_bindtextdomain)(const char *domainname,
-                                           const char *dirname);
-extern char *(*dyn_libintl_bind_textdomain_codeset)(const char *domainname,
-                                                    const char *codeset);
+extern char *(*dyn_libintl_ngettext)(const char *msgid, const char *msgid_plural, unsigned long n);
+extern char *(*dyn_libintl_bindtextdomain)(const char *domainname, const char *dirname);
+extern char *(*dyn_libintl_bind_textdomain_codeset)(const char *domainname, const char *codeset);
 extern char *(*dyn_libintl_textdomain)(const char *domainname);
 extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #endif
@@ -510,12 +503,10 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #ifdef FEAT_GETTEXT
 #ifdef DYNAMIC_GETTEXT
 #define _(x) (*dyn_libintl_gettext)((char *)(x))
-#define NGETTEXT(x, xs, n)                                                     \
-  (*dyn_libintl_ngettext)((char *)(x), (char *)(xs), (n))
+#define NGETTEXT(x, xs, n) (*dyn_libintl_ngettext)((char *)(x), (char *)(xs), (n))
 #define N_(x) x
-#define bindtextdomain(domain, dir)                                            \
-  (*dyn_libintl_bindtextdomain)((domain), (dir))
-#define bind_textdomain_codeset(domain, codeset)                               \
+#define bindtextdomain(domain, dir) (*dyn_libintl_bindtextdomain)((domain), (dir))
+#define bind_textdomain_codeset(domain, codeset)                                                   \
   (*dyn_libintl_bind_textdomain_codeset)((domain), (codeset))
 #if !defined(HAVE_BIND_TEXTDOMAIN_CODESET)
 #define HAVE_BIND_TEXTDOMAIN_CODESET 1
@@ -554,10 +545,9 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
  * flags for update_screen()
  * The higher the value, the higher the priority
  */
-#define VALID_NO_UPDATE                                                        \
-  5 /* no new changes, keep the command line if \ possible */
-#define VALID                                                                  \
-  10 /* buffer not changed, or changes marked               \   \ \ with                                                                          \
+#define VALID_NO_UPDATE 5 /* no new changes, keep the command line if \ possible */
+#define VALID                                                                                      \
+  10 /* buffer not changed, or changes marked               \   \ \ with                \          \
         b_mod_* */
 #define INVERTED 20     /* redisplay inverted part that changed */
 #define INVERTED_ALL 25 /* redisplay whole inverted part */
@@ -626,13 +616,11 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
  */
 #define NORMAL 0x01 /* Normal mode, command expected */
 #define VISUAL 0x02 /* Visual mode - use get_real_state() */
-#define OP_PENDING                                                             \
-  0x04 /* Normal mode, operator is pending - use                 \ \ \                                                                             \
-          get_real_state() */
+#define OP_PENDING                                                                                 \
+  0x04 /* Normal mode, operator is pending - use                 \ \ \ \ get_real_state() */
 #define CMDLINE 0x08 /* Editing command line */
 #define INSERT 0x10  /* Insert mode */
-#define LANGMAP                                                                \
-  0x20 /* Language mapping, can be combined with \ INSERT and CMDLINE */
+#define LANGMAP 0x20 /* Language mapping, can be combined with \ INSERT and CMDLINE */
 
 #define REPLACE_FLAG 0x40 /* Replace mode flag */
 #define REPLACE (REPLACE_FLAG + INSERT)
@@ -670,21 +658,20 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 
 /* flags for b_flags */
 #define BF_RECOVERED 0x01 /* buffer has been recovered */
-#define BF_CHECK_RO                                                            \
-  0x02 /* need to check readonly when loading file \ \ \                                                                             \
-          into buffer (set by ":e", may be reset by \ \ \                                                                             \
+#define BF_CHECK_RO                                                                                \
+  0x02 /* need to check readonly when loading file \ \ \ \ \                                                                                                 \
+          into buffer (set by ":e", may be reset by \ \ \ \ \                                                                                                 \
           ":buf" */
-#define BF_NEVERLOADED                                                         \
-  0x04 /* file has never been loaded into buffer, \ \ many variables still \                                                                             \
-          need to be set */
-#define BF_NOTEDITED                                                           \
-  0x08              /* Set when file name is changed after              \  \ \ \
-                       starting to edit, reset when file is             \  \ \ \
-                       written out. */
-#define BF_NEW 0x10 /* file didn't exist when editing started */
-#define BF_NEW_W 0x20      /* Warned for BF_NEW and file created */
-#define BF_READERR 0x40    /* got errors while reading the file */
-#define BF_DUMMY 0x80      /* dummy buffer, only used internally */
+#define BF_NEVERLOADED                                                                             \
+  0x04 /* file has never been loaded into buffer, \ \ many variables still \ \ need to be set */
+#define BF_NOTEDITED                                                                               \
+  0x08                  /* Set when file name is changed after              \  \ \ \            \  \
+                           starting to edit, reset when file is             \  \ \ \            \  \
+                           written out. */
+#define BF_NEW 0x10     /* file didn't exist when editing started */
+#define BF_NEW_W 0x20   /* Warned for BF_NEW and file created */
+#define BF_READERR 0x40 /* got errors while reading the file */
+#define BF_DUMMY 0x80   /* dummy buffer, only used internally */
 #define BF_PRESERVED 0x100 /* ":preserve" was used */
 
 /* Mask to check for flags that prevent normal writing */
@@ -786,7 +773,7 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 // Note: mostly EW_NOTFOUND and EW_SILENT are mutually exclusive: EW_NOTFOUND
 // is used when executing commands and EW_SILENT for interactive expanding.
 #define EW_ALLLINKS 0x1000 // also links not pointing to existing file
-#define EW_SHELLCMD                                                            \
+#define EW_SHELLCMD                                                                                \
   0x2000                  // called from expand_shellcmd(), don't check
                           // if executable is in $PATH
 #define EW_DODOT 0x4000   // also files starting with a dot
@@ -841,9 +828,9 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 #define FNAME_EXP 2  /* expand to path */
 #define FNAME_HYP 4  /* check for hypertext link */
 #define FNAME_INCL 8 /* apply 'includeexpr' */
-#define FNAME_REL                                                              \
-  16 /* ".." and "./" are relative to the (current)          \ \ \ file                                                                          \
-        instead of the current directory */
+#define FNAME_REL                                                                                  \
+  16 /* ".." and "./" are relative to the (current)          \ \ \ file \ instead of the current \                                                                                                 \
+        directory */
 #define FNAME_UNESC 32 /* remove backslashes used for escaping */
 
 /* Values for buflist_getfile() */
@@ -890,9 +877,8 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 
 /* Values returned by mch_nodetype() */
 #define NODE_NORMAL 0 /* file or directory, check with mch_isdir()*/
-#define NODE_WRITABLE                                                          \
-  1 /* something we can write to (character                   \ \ device, \                                                                             \
-       fifo, socket, ..) */
+#define NODE_WRITABLE                                                                              \
+  1 /* something we can write to (character                   \ \ device, \ \ fifo, socket, ..) */
 #define NODE_OTHER 2 /* non-writable thing (e.g., block device) */
 
 /* Values for readfile() flags */
@@ -951,10 +937,10 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 
 /* flags for do_ecmd() */
 #define ECMD_HIDE 0x01 /* don't free the current buffer */
-#define ECMD_SET_HELP                                                          \
-  0x02 /* set b_help flag of (new) buffer before            \ \ opening file \                                                                             \
-        */
-#define ECMD_OLDBUF 0x04  /* use existing buffer if it exists */
+#define ECMD_SET_HELP                                                                              \
+  0x02                   /* set b_help flag of (new) buffer before            \ \ opening file \                   \                   \                                                                               \
+                          */
+#define ECMD_OLDBUF 0x04 /* use existing buffer if it exists */
 #define ECMD_FORCEIT 0x08 /* ! used in Ex command */
 #define ECMD_ADDBUF 0x10  /* don't edit, just add to buffer list */
 
@@ -1076,7 +1062,7 @@ typedef struct {
 #define TAG_KEEP_LANG 128  // keep current language
 #define TAG_NO_TAGFUNC 256 // do not use 'tagfunc'
 
-#define TAG_MANY                                                               \
+#define TAG_MANY                                                                                   \
   300 // When finding many tags (for completion),
       // find up to this many tags
 
@@ -1385,12 +1371,11 @@ typedef enum {
 
 /* The HL_FLAGS must be in the same order as the HLF_ enums!
  * When changing this also adjust the default for 'highlight'. */
-#define HL_FLAGS                                                               \
-  {                                                                            \
-    '8', '~', '@', 'd', 'e', 'h', 'i', 'l', 'm', 'M', 'n', 'N', 'r', 's', 'S', \
-        'c', 't', 'v', 'V', 'w', 'W', 'f', 'F', 'A', 'C', 'D', 'T', '-', '>',  \
-        'B', 'P', 'R', 'L', '+', '=', 'x', 'X', '*', '#', '_', '!', '.', 'o',  \
-        'q', 'z', 'Z'                                                          \
+#define HL_FLAGS                                                                                   \
+  {                                                                                                \
+    '8', '~', '@', 'd', 'e', 'h', 'i', 'l', 'm', 'M', 'n', 'N', 'r', 's', 'S', 'c', 't', 'v', 'V', \
+        'w', 'W', 'f', 'F', 'A', 'C', 'D', 'T', '-', '>', 'B', 'P', 'R', 'L', '+', '=', 'x', 'X',  \
+        '*', '#', '_', '!', '.', 'o', 'q', 'z', 'Z'                                                \
   }
 
 /*
@@ -1438,11 +1423,9 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OP_FOLDDELREC 25   /* "zD" delete folds recursively */
 #define OP_FORMAT2 26      /* "gw" format operator, keeps cursor pos */
 #define OP_FUNCTION 27     /* "g@" call 'operatorfunc' */
-#define OP_NR_ADD                                                              \
-  28 /* "<C-A>" Add to the number or alphabetic \ \ character (OP_ADD \                                                                             \
-        conflicts with Perl) */
-#define OP_NR_SUB                                                              \
-  29 /* "<C-X>" Subtract from the number or \ alphabetic character */
+#define OP_NR_ADD                                                                                  \
+  28 /* "<C-A>" Add to the number or alphabetic \ \ character (OP_ADD \ \ conflicts with Perl) */
+#define OP_NR_SUB 29 /* "<C-X>" Subtract from the number or \ alphabetic character */
 
 /*
  * Motion types, used for operators and for yank/delete registers.
@@ -1477,9 +1460,8 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define DIALOG_MSG_SIZE 1000 /* buffer size for dialog_msg() */
 
 #define MSG_BUF_LEN 480 /* length of buffer for small messages */
-#define MSG_BUF_CLEN                                                           \
-  (MSG_BUF_LEN /                                                               \
-   6) /* cell length (worst case: utf-8 \ \ takes 6 bytes for one cell) */
+#define MSG_BUF_CLEN                                                                               \
+  (MSG_BUF_LEN / 6) /* cell length (worst case: utf-8 \ \ takes 6 bytes for one cell) */
 
 #define FOLD_TEXT_LEN 51 /* buffer size for get_foldtext() */
 
@@ -1538,11 +1520,9 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define ALLOC_ONE(type) (type *)alloc(sizeof(type))
 #define ALLOC_MULT(type, count) (type *)alloc(sizeof(type) * (count))
 #define ALLOC_CLEAR_ONE(type) (type *)alloc_clear(sizeof(type))
-#define ALLOC_CLEAR_MULT(type, count)                                          \
-  (type *)alloc_clear(sizeof(type) * (count))
+#define ALLOC_CLEAR_MULT(type, count) (type *)alloc_clear(sizeof(type) * (count))
 #define LALLOC_CLEAR_ONE(type) (type *)lalloc_clear(sizeof(type), FALSE)
-#define LALLOC_CLEAR_MULT(type, count)                                         \
-  (type *)lalloc_clear(sizeof(type) * (count), FALSE)
+#define LALLOC_CLEAR_MULT(type, count) (type *)lalloc_clear(sizeof(type) * (count), FALSE)
 #define LALLOC_MULT(type, count) (type *)lalloc(sizeof(type) * (count), FALSE)
 
 /*
@@ -1598,8 +1578,7 @@ typedef UINT32_TYPEDEF UINT32_T;
 
 #ifdef FEAT_GUI
 #define GUI_FUNCTION(f) gui_##f
-#define GUI_FUNCTION2(f, pixel)                                                \
-  ((pixel) != INVALCOLOR ? gui_##f((pixel)) : INVALCOLOR)
+#define GUI_FUNCTION2(f, pixel) ((pixel) != INVALCOLOR ? gui_##f((pixel)) : INVALCOLOR)
 #define USE_24BIT gui.in_use
 #endif
 #define IS_CTERM (t_colors > 1)
@@ -1645,8 +1624,7 @@ typedef unsigned short disptick_T; /* display tick type */
 typedef void *vim_acl_T; // dummy to pass an ACL to a function
 
 #ifndef mch_memmove
-#define mch_memmove(to, from, len)                                             \
-  memmove((char *)(to), (char *)(from), (size_t)(len))
+#define mch_memmove(to, from, len) memmove((char *)(to), (char *)(from), (size_t)(len))
 #endif
 
 /*
@@ -1656,8 +1634,7 @@ typedef void *vim_acl_T; // dummy to pass an ACL to a function
  * thus it is not 100% accurate!)
  */
 #define fnamecmp(x, y) vim_fnamecmp((char_u *)(x), (char_u *)(y))
-#define fnamencmp(x, y, n)                                                     \
-  vim_fnamencmp((char_u *)(x), (char_u *)(y), (size_t)(n))
+#define fnamencmp(x, y, n) vim_fnamencmp((char_u *)(x), (char_u *)(y), (size_t)(n))
 
 #ifdef HAVE_MEMSET
 #define vim_memset(ptr, c, size) memset((ptr), (c), (size))
@@ -1677,10 +1654,8 @@ void *vim_memset(void *, int, size_t);
 #ifdef MSWIN
 /* On MS-Windows the third argument isn't size_t.  This matters for Win64,
  * where sizeof(size_t)==8, not 4 */
-#define vim_read(fd, buf, count)                                               \
-  read((fd), (char *)(buf), (unsigned int)(count))
-#define vim_write(fd, buf, count)                                              \
-  write((fd), (char *)(buf), (unsigned int)(count))
+#define vim_read(fd, buf, count) read((fd), (char *)(buf), (unsigned int)(count))
+#define vim_write(fd, buf, count) write((fd), (char *)(buf), (unsigned int)(count))
 #else
 #define vim_read(fd, buf, count) read((fd), (char *)(buf), (size_t)(count))
 #define vim_write(fd, buf, count) write((fd), (char *)(buf), (size_t)(count))
@@ -1973,9 +1948,8 @@ typedef enum {
 
 #include "proto.h" /* function prototypes */
 
-#if defined(FEAT_EVAL) &&                                                      \
-    (!defined(FEAT_GUI_MSWIN) ||                                               \
-     !(defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) &&                     \
+#if defined(FEAT_EVAL) &&                                                                          \
+    (!defined(FEAT_GUI_MSWIN) || !(defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) &&             \
     !(defined(FEAT_GUI_MAC) && defined(MACOS_CONVERT))
 /* Whether IME is supported by im_get_status() defined in mbyte.c.
  * For Win32 GUI it's in gui_w32.c when FEAT_MBYTE_IME or GLOBAL_IME is defined.
@@ -1984,9 +1958,8 @@ typedef enum {
 #define IME_WITHOUT_XIM
 #endif
 
-#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM) ||                           \
-    (defined(FEAT_GUI_MSWIN) &&                                                \
-     (defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) ||                      \
+#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM) ||                                               \
+    (defined(FEAT_GUI_MSWIN) && (defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) ||               \
     defined(FEAT_GUI_MAC)
 /* im_set_active() is available */
 #define HAVE_INPUT_METHOD
@@ -2022,21 +1995,18 @@ typedef enum {
  */
 #ifdef FEAT_BROWSE
 #ifdef BACKSLASH_IN_FILENAME
-#define BROWSE_FILTER_MACROS                                                   \
-  (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*.*)\t*.*\n")
+#define BROWSE_FILTER_MACROS (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*.*)\t*.*\n")
 #define BROWSE_FILTER_ALL_FILES (char_u *)N_("All Files (*.*)\t*.*\n")
-#define BROWSE_FILTER_DEFAULT                                                  \
-  (char_u *)N_(                                                                \
-      "All Files (*.*)\t*.*\nC source (*.c, *.h)\t*.c;*.h\nC++ source "        \
-      "(*.cpp, *.hpp)\t*.cpp;*.hpp\nVB code (*.bas, *.frm)\t*.bas;*.frm\nVim " \
-      "files (*.vim, _vimrc, _gvimrc)\t*.vim;_vimrc;_gvimrc\n")
+#define BROWSE_FILTER_DEFAULT                                                                      \
+  (char_u *)N_("All Files (*.*)\t*.*\nC source (*.c, *.h)\t*.c;*.h\nC++ source "                   \
+               "(*.cpp, *.hpp)\t*.cpp;*.hpp\nVB code (*.bas, *.frm)\t*.bas;*.frm\nVim "            \
+               "files (*.vim, _vimrc, _gvimrc)\t*.vim;_vimrc;_gvimrc\n")
 #else
-#define BROWSE_FILTER_MACROS                                                   \
-  (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*)\t*\n")
+#define BROWSE_FILTER_MACROS (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*)\t*\n")
 #define BROWSE_FILTER_ALL_FILES (char_u *)N_("All Files (*)\t*\n")
-#define BROWSE_FILTER_DEFAULT                                                  \
-  (char_u *)N_("All Files (*)\t*\nC source (*.c, *.h)\t*.c;*.h\nC++ source "   \
-               "(*.cpp, *.hpp)\t*.cpp;*.hpp\nVim files (*.vim, _vimrc, "       \
+#define BROWSE_FILTER_DEFAULT                                                                      \
+  (char_u *)N_("All Files (*)\t*\nC source (*.c, *.h)\t*.c;*.h\nC++ source "                       \
+               "(*.cpp, *.hpp)\t*.cpp;*.hpp\nVim files (*.vim, _vimrc, "                           \
                "_gvimrc)\t*.vim;_vimrc;_gvimrc\n")
 #endif
 #define BROWSE_SAVE 1 /* flag for do_browse() */
@@ -2112,9 +2082,8 @@ typedef enum {
 #endif
 #endif
 
-#define SIGN_BYTE                                                              \
-  1 /* byte value used where sign is displayed; \ \ attribute value is sign \                                                                             \
-       type */
+#define SIGN_BYTE                                                                                  \
+  1 /* byte value used where sign is displayed; \ \ attribute value is sign \ \ type */
 
 #if defined(FEAT_GUI) && defined(FEAT_XCLIPBOARD)
 #ifdef FEAT_GUI_GTK
@@ -2150,90 +2119,90 @@ typedef enum {
 #define gtk_selection_data_get_data_type(sel) ((sel)->type)
 #define gtk_selection_data_get_format(sel) ((sel)->format)
 #define gtk_selection_data_get_length(sel) ((sel)->length)
-#define gtk_adjustment_set_lower(adj, low)                                     \
-  do {                                                                         \
-    (adj)->lower = low;                                                        \
+#define gtk_adjustment_set_lower(adj, low)                                                         \
+  do {                                                                                             \
+    (adj)->lower = low;                                                                            \
   } while (0)
-#define gtk_adjustment_set_upper(adj, up)                                      \
-  do {                                                                         \
-    (adj)->upper = up;                                                         \
+#define gtk_adjustment_set_upper(adj, up)                                                          \
+  do {                                                                                             \
+    (adj)->upper = up;                                                                             \
   } while (0)
-#define gtk_adjustment_set_page_size(adj, size)                                \
-  do {                                                                         \
-    (adj)->page_size = size;                                                   \
+#define gtk_adjustment_set_page_size(adj, size)                                                    \
+  do {                                                                                             \
+    (adj)->page_size = size;                                                                       \
   } while (0)
-#define gtk_adjustment_set_page_increment(adj, inc)                            \
-  do {                                                                         \
-    (adj)->page_increment = inc;                                               \
+#define gtk_adjustment_set_page_increment(adj, inc)                                                \
+  do {                                                                                             \
+    (adj)->page_increment = inc;                                                                   \
   } while (0)
-#define gtk_adjustment_set_step_increment(adj, inc)                            \
-  do {                                                                         \
-    (adj)->step_increment = inc;                                               \
+#define gtk_adjustment_set_step_increment(adj, inc)                                                \
+  do {                                                                                             \
+    (adj)->step_increment = inc;                                                                   \
   } while (0)
 #endif
 #if !GTK_CHECK_VERSION(2, 16, 0)
 #define gtk_selection_data_get_selection(sel) ((sel)->selection)
 #endif
 #if !GTK_CHECK_VERSION(2, 18, 0)
-#define gtk_widget_get_allocation(wid, alloc)                                  \
-  do {                                                                         \
-    *(alloc) = (wid)->allocation;                                              \
+#define gtk_widget_get_allocation(wid, alloc)                                                      \
+  do {                                                                                             \
+    *(alloc) = (wid)->allocation;                                                                  \
   } while (0)
-#define gtk_widget_set_allocation(wid, alloc)                                  \
-  do {                                                                         \
-    (wid)->allocation = *(alloc);                                              \
+#define gtk_widget_set_allocation(wid, alloc)                                                      \
+  do {                                                                                             \
+    (wid)->allocation = *(alloc);                                                                  \
   } while (0)
 #define gtk_widget_get_has_window(wid) !GTK_WIDGET_NO_WINDOW(wid)
 #define gtk_widget_get_sensitive(wid) GTK_WIDGET_SENSITIVE(wid)
 #define gtk_widget_get_visible(wid) GTK_WIDGET_VISIBLE(wid)
 #define gtk_widget_has_focus(wid) GTK_WIDGET_HAS_FOCUS(wid)
-#define gtk_widget_set_window(wid, win)                                        \
-  do {                                                                         \
-    (wid)->window = (win);                                                     \
+#define gtk_widget_set_window(wid, win)                                                            \
+  do {                                                                                             \
+    (wid)->window = (win);                                                                         \
   } while (0)
-#define gtk_widget_set_can_default(wid, can)                                   \
-  do {                                                                         \
-    if (can) {                                                                 \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_DEFAULT);                              \
-    } else {                                                                   \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_DEFAULT);                            \
-    }                                                                          \
+#define gtk_widget_set_can_default(wid, can)                                                       \
+  do {                                                                                             \
+    if (can) {                                                                                     \
+      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_DEFAULT);                                                  \
+    } else {                                                                                       \
+      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_DEFAULT);                                                \
+    }                                                                                              \
   } while (0)
-#define gtk_widget_set_can_focus(wid, can)                                     \
-  do {                                                                         \
-    if (can) {                                                                 \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_FOCUS);                                \
-    } else {                                                                   \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_FOCUS);                              \
-    }                                                                          \
+#define gtk_widget_set_can_focus(wid, can)                                                         \
+  do {                                                                                             \
+    if (can) {                                                                                     \
+      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_FOCUS);                                                    \
+    } else {                                                                                       \
+      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_FOCUS);                                                  \
+    }                                                                                              \
   } while (0)
-#define gtk_widget_set_visible(wid, vis)                                       \
-  do {                                                                         \
-    if (vis) {                                                                 \
-      gtk_widget_show(wid);                                                    \
-    } else {                                                                   \
-      gtk_widget_hide(wid);                                                    \
-    }                                                                          \
+#define gtk_widget_set_visible(wid, vis)                                                           \
+  do {                                                                                             \
+    if (vis) {                                                                                     \
+      gtk_widget_show(wid);                                                                        \
+    } else {                                                                                       \
+      gtk_widget_hide(wid);                                                                        \
+    }                                                                                              \
   } while (0)
 #endif
 #if !GTK_CHECK_VERSION(2, 20, 0)
 #define gtk_widget_get_mapped(wid) GTK_WIDGET_MAPPED(wid)
 #define gtk_widget_get_realized(wid) GTK_WIDGET_REALIZED(wid)
-#define gtk_widget_set_mapped(wid, map)                                        \
-  do {                                                                         \
-    if (map) {                                                                 \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_MAPPED);                                   \
-    } else {                                                                   \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_MAPPED);                                 \
-    }                                                                          \
+#define gtk_widget_set_mapped(wid, map)                                                            \
+  do {                                                                                             \
+    if (map) {                                                                                     \
+      GTK_WIDGET_SET_FLAGS(wid, GTK_MAPPED);                                                       \
+    } else {                                                                                       \
+      GTK_WIDGET_UNSET_FLAGS(wid, GTK_MAPPED);                                                     \
+    }                                                                                              \
   } while (0)
-#define gtk_widget_set_realized(wid, rea)                                      \
-  do {                                                                         \
-    if (rea) {                                                                 \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_REALIZED);                                 \
-    } else {                                                                   \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_REALIZED);                               \
-    }                                                                          \
+#define gtk_widget_set_realized(wid, rea)                                                          \
+  do {                                                                                             \
+    if (rea) {                                                                                     \
+      GTK_WIDGET_SET_FLAGS(wid, GTK_REALIZED);                                                     \
+    } else {                                                                                       \
+      GTK_WIDGET_UNSET_FLAGS(wid, GTK_REALIZED);                                                   \
+    }                                                                                              \
   } while (0)
 #endif
 #endif
@@ -2272,8 +2241,7 @@ typedef enum {
 #endif
 /* bool may cause trouble on some old versions of Mac OS X but is required
  * on a few other systems and for Perl */
-#if (defined(MACOS_X) && !defined(MAC_OS_X_VERSION_10_6)) && defined(bool) &&  \
-    !defined(FEAT_PERL)
+#if (defined(MACOS_X) && !defined(MAC_OS_X_VERSION_10_6)) && defined(bool) && !defined(FEAT_PERL)
 #undef bool
 #endif
 
@@ -2393,8 +2361,7 @@ typedef enum {
 #define GLV_NO_AUTOLOAD TFN_NO_AUTOLOAD /* do not use script autoloading */
 #define GLV_READ_ONLY TFN_READ_ONLY     /* will not change the var */
 
-#define DO_NOT_FREE_CNT                                                        \
-  99999 /* refcount for dict or list that should not \ be freed. */
+#define DO_NOT_FREE_CNT 99999 /* refcount for dict or list that should not \ be freed. */
 
 /* errors for when calling a function */
 #define ERROR_UNKNOWN 0
@@ -2411,7 +2378,7 @@ typedef enum {
 #define FNE_CHECK_START 2 /* check name starts with valid character */
 
 /* BSD is supposed to cover FreeBSD and similar systems. */
-#if (defined(SUN_SYSTEM) || defined(BSD) || defined(__FreeBSD_kernel__)) &&    \
+#if (defined(SUN_SYSTEM) || defined(BSD) || defined(__FreeBSD_kernel__)) &&                        \
     (defined(S_ISCHR) || defined(S_IFCHR))
 #define OPEN_CHR_FILES
 #endif

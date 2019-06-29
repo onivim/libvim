@@ -117,9 +117,9 @@ static struct {
  * Return NULL if there is no matching command.
  */
 char_u *find_ucmd(exarg_T *eap,
-                  char_u *p,    // end of the command (possibly including count)
-                  int *full,    // set to TRUE for a full match
-                  expand_T *xp, // used for completion, NULL otherwise
+                  char_u *p,          // end of the command (possibly including count)
+                  int *full,          // set to TRUE for a full match
+                  expand_T *xp,       // used for completion, NULL otherwise
                   int *complp UNUSED) // completion flags or NULL
 {
   int len = (int)(p - eap->cmd);
@@ -267,9 +267,7 @@ char_u *set_context_in_user_cmd(expand_T *xp, char_u *arg_in) {
   return skipwhite(p);
 }
 
-char_u *get_user_command_name(int idx) {
-  return get_user_commands(NULL, idx - (int)CMD_SIZE);
-}
+char_u *get_user_command_name(int idx) { return get_user_commands(NULL, idx - (int)CMD_SIZE); }
 
 /*
  * Function given to ExpandGeneric() to obtain the list of user command names.
@@ -296,9 +294,8 @@ char_u *get_user_cmd_addr_type(expand_T *xp UNUSED, int idx) {
  * attributes.
  */
 char_u *get_user_cmd_flags(expand_T *xp UNUSED, int idx) {
-  static char *user_cmd_flags[] = {"addr",   "bang",     "bar",
-                                   "buffer", "complete", "count",
-                                   "nargs",  "range",    "register"};
+  static char *user_cmd_flags[] = {"addr",  "bang",  "bar",   "buffer",  "complete",
+                                   "count", "nargs", "range", "register"};
 
   if (idx >= (int)(sizeof(user_cmd_flags) / sizeof(user_cmd_flags[0])))
     return NULL;
@@ -356,14 +353,12 @@ static void uc_list(char_u *name, size_t name_len) {
 
       // Skip commands which don't match the requested prefix and
       // commands filtered out.
-      if (STRNCMP(name, cmd->uc_name, name_len) != 0 ||
-          message_filtered(cmd->uc_name))
+      if (STRNCMP(name, cmd->uc_name, name_len) != 0 || message_filtered(cmd->uc_name))
         continue;
 
       // Put out the title first time
       if (!found)
-        msg_puts_title(
-            _("\n    Name              Args Address Complete    Definition"));
+        msg_puts_title(_("\n    Name              Args Address Complete    Definition"));
       found = TRUE;
       msg_putchar('\n');
       if (got_int)
@@ -474,8 +469,7 @@ static void uc_list(char_u *name, size_t name_len) {
       IObuff[len] = '\0';
       msg_outtrans(IObuff);
 
-      msg_outtrans_special(cmd->uc_rep, FALSE,
-                           name_len == 0 ? Columns - 47 : 0);
+      msg_outtrans_special(cmd->uc_rep, FALSE, name_len == 0 ? Columns - 47 : 0);
 #ifdef FEAT_EVAL
       if (p_verbose > 0)
         last_set_msg(cmd->uc_script_ctx);
@@ -508,8 +502,7 @@ char *uc_fun_cmd(void) {
 /*
  * Parse address type argument
  */
-static int parse_addr_type_arg(char_u *value, int vallen,
-                               cmd_addr_T *addr_type_arg) {
+static int parse_addr_type_arg(char_u *value, int vallen, cmd_addr_T *addr_type_arg) {
   int i, a, b;
 
   for (i = 0; addr_type_complete[i].expand != ADDR_NONE; ++i) {
@@ -541,8 +534,7 @@ static int parse_addr_type_arg(char_u *value, int vallen,
  * copied to allocated memory and stored in "*compl_arg".
  * Returns FAIL if something is wrong.
  */
-int parse_compl_arg(char_u *value, int vallen, int *complp, long *argt,
-                    char_u **compl_arg UNUSED) {
+int parse_compl_arg(char_u *value, int vallen, int *complp, long *argt, char_u **compl_arg UNUSED) {
   char_u *arg = NULL;
 #if defined(FEAT_EVAL) && defined(FEAT_CMDL_COMPL)
   size_t arglen = 0;
@@ -581,8 +573,7 @@ int parse_compl_arg(char_u *value, int vallen, int *complp, long *argt,
   }
 
 #if defined(FEAT_EVAL) && defined(FEAT_CMDL_COMPL)
-  if (*complp != EXPAND_USER_DEFINED && *complp != EXPAND_USER_LIST &&
-      arg != NULL)
+  if (*complp != EXPAND_USER_DEFINED && *complp != EXPAND_USER_LIST && arg != NULL)
 #else
   if (arg != NULL)
 #endif
@@ -592,8 +583,7 @@ int parse_compl_arg(char_u *value, int vallen, int *complp, long *argt,
   }
 
 #if defined(FEAT_EVAL) && defined(FEAT_CMDL_COMPL)
-  if ((*complp == EXPAND_USER_DEFINED || *complp == EXPAND_USER_LIST) &&
-      arg == NULL) {
+  if ((*complp == EXPAND_USER_DEFINED || *complp == EXPAND_USER_LIST) && arg == NULL) {
     emsg(_("E467: Custom completion requires a function argument"));
     return FAIL;
   }
@@ -608,9 +598,8 @@ int parse_compl_arg(char_u *value, int vallen, int *complp, long *argt,
  * Scan attributes in the ":command" command.
  * Return FAIL when something is wrong.
  */
-static int uc_scan_attr(char_u *attr, size_t len, long *argt, long *def,
-                        int *flags, int *complp, char_u **compl_arg,
-                        cmd_addr_T *addr_type_arg) {
+static int uc_scan_attr(char_u *attr, size_t len, long *argt, long *def, int *flags, int *complp,
+                        char_u **compl_arg, cmd_addr_T *addr_type_arg) {
   char_u *p;
 
   if (len == 0) {
@@ -739,9 +728,8 @@ static int uc_scan_attr(char_u *attr, size_t len, long *argt, long *def,
 /*
  * Add a user command to the list or replace an existing one.
  */
-static int uc_add_command(char_u *name, size_t name_len, char_u *rep, long argt,
-                          long def, int flags, int compl,
-                          char_u *compl_arg UNUSED, cmd_addr_T addr_type,
+static int uc_add_command(char_u *name, size_t name_len, char_u *rep, long argt, long def,
+                          int flags, int compl, char_u *compl_arg UNUSED, cmd_addr_T addr_type,
                           int force) {
   ucmd_T *cmd = NULL;
   char_u *p;
@@ -867,8 +855,7 @@ void ex_command(exarg_T *eap) {
   while (*p == '-') {
     ++p;
     end = skiptowhite(p);
-    if (uc_scan_attr(p, end - p, &argt, &def, &flags, &compl, &compl_arg,
-                     &addr_type_arg) == FAIL)
+    if (uc_scan_attr(p, end - p, &argt, &def, &flags, &compl, &compl_arg, &addr_type_arg) == FAIL)
       return;
     p = skipwhite(end);
   }
@@ -894,13 +881,12 @@ void ex_command(exarg_T *eap) {
     emsg(_("E183: User defined commands must start with an uppercase letter"));
     return;
   } else if ((name_len == 1 && *name == 'X') ||
-             (name_len <= 4 &&
-              STRNCMP(name, "Next", name_len > 4 ? 4 : name_len) == 0)) {
+             (name_len <= 4 && STRNCMP(name, "Next", name_len > 4 ? 4 : name_len) == 0)) {
     emsg(_("E841: Reserved name, cannot be used for user defined command"));
     return;
   } else
-    uc_add_command(name, end - name, p, argt, def, flags, compl, compl_arg,
-                   addr_type_arg, eap->forceit);
+    uc_add_command(name, end - name, p, argt, def, flags, compl, compl_arg, addr_type_arg,
+                   eap->forceit);
 }
 
 /*
@@ -1201,14 +1187,12 @@ static size_t uc_check_code(char_u *code, size_t len, char_u *buf,
   case ct_RANGE:
   case ct_COUNT: {
     char num_buf[20];
-    long num =
-        (type == ct_LINE1)
-            ? eap->line1
-            : (type == ct_LINE2)
-                  ? eap->line2
-                  : (type == ct_RANGE)
-                        ? eap->addr_count
-                        : (eap->addr_count > 0) ? eap->line2 : cmd->uc_def;
+    long num = (type == ct_LINE1)
+                   ? eap->line1
+                   : (type == ct_LINE2)
+                         ? eap->line2
+                         : (type == ct_RANGE) ? eap->addr_count
+                                              : (eap->addr_count > 0) ? eap->line2 : cmd->uc_def;
     size_t num_len;
 
     sprintf(num_buf, "%ld", num);
@@ -1282,8 +1266,7 @@ static size_t uc_check_code(char_u *code, size_t len, char_u *buf,
 #endif
     // :silent
     if (msg_silent > 0)
-      result += add_cmd_modifier(buf, emsg_silent > 0 ? "silent!" : "silent",
-                                 &multi_mods);
+      result += add_cmd_modifier(buf, emsg_silent > 0 ? "silent!" : "silent", &multi_mods);
     // :tab
     if (cmdmod.tab > 0)
       result += add_cmd_modifier(buf, "tab", &multi_mods);
@@ -1378,8 +1361,7 @@ void do_ucmd(exarg_T *eap) {
       if (buf != NULL) {
         for (ksp = p; *ksp != NUL && *ksp != K_SPECIAL; ++ksp)
           ;
-        if (*ksp == K_SPECIAL &&
-            (start == NULL || ksp < start || end == NULL) &&
+        if (*ksp == K_SPECIAL && (start == NULL || ksp < start || end == NULL) &&
             ((ksp[1] == KS_SPECIAL && ksp[2] == KE_FILLER)
 #ifdef FEAT_GUI
              || (ksp[1] == KS_EXTRA && ksp[2] == (int)KE_CSI)
@@ -1416,8 +1398,7 @@ void do_ucmd(exarg_T *eap) {
         q += len;
       }
 
-      len = uc_check_code(start, end - start, q, cmd, eap, &split_buf,
-                          &split_len);
+      len = uc_check_code(start, end - start, q, cmd, eap, &split_buf, &split_len);
       if (len == (size_t)-1) {
         // no match, continue after '<'
         p = start + 1;
@@ -1446,8 +1427,7 @@ void do_ucmd(exarg_T *eap) {
 #ifdef FEAT_EVAL
   current_sctx.sc_sid = cmd->uc_script_ctx.sc_sid;
 #endif
-  (void)do_cmdline(buf, eap->getline, eap->cookie,
-                   DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED);
+  (void)do_cmdline(buf, eap->getline, eap->cookie, DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED);
 #ifdef FEAT_EVAL
   current_sctx = save_current_sctx;
 #endif

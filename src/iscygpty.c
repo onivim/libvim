@@ -61,14 +61,14 @@
 //#define USE_DYNFILEID
 #ifdef USE_DYNFILEID
 typedef BOOL(WINAPI *pfnGetFileInformationByHandleEx)(
-    HANDLE hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    LPVOID lpFileInformation, DWORD dwBufferSize);
+    HANDLE hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass, LPVOID lpFileInformation,
+    DWORD dwBufferSize);
 static pfnGetFileInformationByHandleEx pGetFileInformationByHandleEx = NULL;
 
 #ifndef USE_FILEEXTD
-static BOOL WINAPI stub_GetFileInformationByHandleEx(
-    HANDLE hFile, FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
-    LPVOID lpFileInformation, DWORD dwBufferSize) {
+static BOOL WINAPI stub_GetFileInformationByHandleEx(HANDLE hFile,
+                                                     FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+                                                     LPVOID lpFileInformation, DWORD dwBufferSize) {
   return FALSE;
 }
 #endif
@@ -77,10 +77,8 @@ static void setup_fileid_api(void) {
   if (pGetFileInformationByHandleEx != NULL) {
     return;
   }
-  pGetFileInformationByHandleEx =
-      (pfnGetFileInformationByHandleEx)GetProcAddress(
-          GetModuleHandle(TEXT("kernel32.dll")),
-          "GetFileInformationByHandleEx");
+  pGetFileInformationByHandleEx = (pfnGetFileInformationByHandleEx)GetProcAddress(
+      GetModuleHandle(TEXT("kernel32.dll")), "GetFileInformationByHandleEx");
   if (pGetFileInformationByHandleEx == NULL) {
 #ifdef USE_FILEEXTD
     pGetFileInformationByHandleEx = GetFileInformationByHandleEx;
@@ -94,8 +92,7 @@ static void setup_fileid_api(void) {
 #define setup_fileid_api()
 #endif
 
-#define is_wprefix(s, prefix)                                                  \
-  (wcsncmp((s), (prefix), sizeof(prefix) / sizeof(WCHAR) - 1) == 0)
+#define is_wprefix(s, prefix) (wcsncmp((s), (prefix), sizeof(prefix) / sizeof(WCHAR) - 1) == 0)
 
 /* Check if the fd is a cygwin/msys's pty. */
 int is_cygpty(int fd) {

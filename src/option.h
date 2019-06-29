@@ -16,20 +16,20 @@
  * written to a file.
  */
 #if defined(MSWIN)
-#define DFLT_EFM                                                               \
-  "%f(%l) \\=: %t%*\\D%n: %m,%*[^\"]\"%f\"%*\\D%l: %m,%f(%l) \\=: %m,%*[^ ] "  \
+#define DFLT_EFM                                                                                   \
+  "%f(%l) \\=: %t%*\\D%n: %m,%*[^\"]\"%f\"%*\\D%l: %m,%f(%l) \\=: %m,%*[^ ] "                      \
   "%f %l: %m,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,%f|%l| %m"
 #else
-#define DFLT_EFM                                                               \
-  "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%-G%f:%l: (Each undeclared "     \
-  "identifier is reported only once,%-G%f:%l: for each function it appears "   \
-  "in.),%-GIn file included from %f:%l:%c:,%-GIn file included from "          \
-  "%f:%l:%c\\,,%-GIn file included from %f:%l:%c,%-GIn file included from "    \
-  "%f:%l,%-G%*[ ]from %f:%l:%c,%-G%*[ ]from %f:%l:,%-G%*[ ]from "              \
-  "%f:%l\\,,%-G%*[ ]from %f:%l,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line " \
-  "%l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory "                     \
-  "%*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%D%*\\a: Entering "   \
-  "directory %*[`']%f',%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a "   \
+#define DFLT_EFM                                                                                   \
+  "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%-G%f:%l: (Each undeclared "                         \
+  "identifier is reported only once,%-G%f:%l: for each function it appears "                       \
+  "in.),%-GIn file included from %f:%l:%c:,%-GIn file included from "                              \
+  "%f:%l:%c\\,,%-GIn file included from %f:%l:%c,%-GIn file included from "                        \
+  "%f:%l,%-G%*[ ]from %f:%l:%c,%-G%*[ ]from %f:%l:,%-G%*[ ]from "                                  \
+  "%f:%l\\,,%-G%*[ ]from %f:%l,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line "                     \
+  "%l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory "                                         \
+  "%*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%D%*\\a: Entering "                       \
+  "directory %*[`']%f',%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a "                       \
   "in %f,%f|%l| %m"
 #endif
 
@@ -153,8 +153,7 @@
 #define CPO_SUBPERCENT '/' /* % in :s string uses previous one */
 #define CPO_BACKSL '\\'    /* \ is not special in [] */
 #define CPO_CHDIR '.'      /* don't chdir if buffer is modified */
-#define CPO_SCOLON                                                             \
-  ';' /* using "," and ";" will skip over char if \ cursor would not move */
+#define CPO_SCOLON ';'     /* using "," and ";" will skip over char if \ cursor would not move */
 /* default values for Vim, Vi and POSIX */
 #define CPO_VIM "aABceFs"
 #define CPO_VI "aAbBcCdDeEfFgHiIjJkKlLmMnoOpPqrRsStuvwWxXyZ$!%*-+<>;"
@@ -291,17 +290,17 @@
 #define BS_EOL 'o'    /* "eOl" */
 #define BS_START 's'  /* "Start" */
 
-#define LISPWORD_VALUE                                                         \
-  "defun,define,defmacro,set!,lambda,if,case,let,flet,let*,letrec,do,do*,"     \
-  "define-syntax,let-syntax,letrec-syntax,destructuring-bind,defpackage,"      \
-  "defparameter,defstruct,deftype,defvar,do-all-symbols,do-external-symbols,"  \
-  "do-symbols,dolist,dotimes,ecase,etypecase,eval-when,labels,macrolet,"       \
-  "multiple-value-bind,multiple-value-call,multiple-value-prog1,multiple-"     \
-  "value-setq,prog1,progv,typecase,unless,unwind-protect,when,with-input-"     \
-  "from-string,with-open-file,with-open-stream,with-output-to-string,with-"    \
-  "package-iterator,define-condition,handler-bind,handler-case,restart-bind,"  \
-  "restart-case,with-simple-restart,store-value,use-value,muffle-warning,"     \
-  "abort,continue,with-slots,with-slots*,with-accessors,with-accessors*,"      \
+#define LISPWORD_VALUE                                                                             \
+  "defun,define,defmacro,set!,lambda,if,case,let,flet,let*,letrec,do,do*,"                         \
+  "define-syntax,let-syntax,letrec-syntax,destructuring-bind,defpackage,"                          \
+  "defparameter,defstruct,deftype,defvar,do-all-symbols,do-external-symbols,"                      \
+  "do-symbols,dolist,dotimes,ecase,etypecase,eval-when,labels,macrolet,"                           \
+  "multiple-value-bind,multiple-value-call,multiple-value-prog1,multiple-"                         \
+  "value-setq,prog1,progv,typecase,unless,unwind-protect,when,with-input-"                         \
+  "from-string,with-open-file,with-open-stream,with-output-to-string,with-"                        \
+  "package-iterator,define-condition,handler-bind,handler-case,restart-bind,"                      \
+  "restart-case,with-simple-restart,store-value,use-value,muffle-warning,"                         \
+  "abort,continue,with-slots,with-slots*,with-accessors,with-accessors*,"                          \
   "defclass,defmethod,print-unreadable-object"
 
 /*
@@ -328,8 +327,7 @@ EXTERN int p_bk;           /* 'backup' */
 EXTERN char_u *p_bkc;      /* 'backupcopy' */
 EXTERN unsigned bkc_flags; /* flags from 'backupcopy' */
 #ifdef IN_OPTION_C
-static char *(p_bkc_values[]) = {"yes",          "auto",          "no",
-                                 "breaksymlink", "breakhardlink", NULL};
+static char *(p_bkc_values[]) = {"yes", "auto", "no", "breaksymlink", "breakhardlink", NULL};
 #endif
 #define BKC_YES 0x001
 #define BKC_AUTO 0x002
@@ -341,11 +339,10 @@ EXTERN char_u *p_bex;  /* 'backupext' */
 EXTERN char_u *p_bo;   /* 'belloff' */
 EXTERN unsigned bo_flags;
 #ifdef IN_OPTION_C
-static char *(p_bo_values[]) = {"all",   "backspace", "cursor",     "complete",
-                                "copy",  "ctrlg",     "error",      "esc",
-                                "ex",    "hangul",    "insertmode", "lang",
-                                "mess",  "showmatch", "operator",   "register",
-                                "shell", "spell",     "wildmode",   NULL};
+static char *(p_bo_values[]) = {"all",        "backspace", "cursor", "complete",  "copy",
+                                "ctrlg",      "error",     "esc",    "ex",        "hangul",
+                                "insertmode", "lang",      "mess",   "showmatch", "operator",
+                                "register",   "shell",     "spell",  "wildmode",  NULL};
 #endif
 
 /* values for the 'beepon' option */
@@ -460,9 +457,8 @@ EXTERN long p_fdls;   /* 'foldlevelstart' */
 EXTERN char_u *p_fdo; /* 'foldopen' */
 EXTERN unsigned fdo_flags;
 #ifdef IN_OPTION_C
-static char *(p_fdo_values[]) = {"all",     "block",    "hor",    "mark",
-                                 "percent", "quickfix", "search", "tag",
-                                 "insert",  "undo",     "jump",   NULL};
+static char *(p_fdo_values[]) = {"all",    "block", "hor",    "mark", "percent", "quickfix",
+                                 "search", "tag",   "insert", "undo", "jump",    NULL};
 #endif
 #define FDO_ALL 0x001
 #define FDO_BLOCK 0x002
@@ -668,10 +664,10 @@ EXTERN char_u *p_ssop; /* 'sessionoptions' */
 EXTERN unsigned ssop_flags;
 #ifdef IN_OPTION_C
 /* Also used for 'viewoptions'! */
-static char *(p_ssop_values[]) = {
-    "buffers", "winpos", "resize",  "winsize",  "localoptions", "options",
-    "help",    "blank",  "globals", "slash",    "unix",         "sesdir",
-    "curdir",  "folds",  "cursor",  "tabpages", "terminal",     NULL};
+static char *(p_ssop_values[]) = {"buffers",  "winpos",   "resize", "winsize", "localoptions",
+                                  "options",  "help",     "blank",  "globals", "slash",
+                                  "unix",     "sesdir",   "curdir", "folds",   "cursor",
+                                  "tabpages", "terminal", NULL};
 #endif
 #define SSOP_BUFFERS 0x001
 #define SSOP_WINPOS 0x002
@@ -731,8 +727,7 @@ EXTERN char_u *p_sws; /* 'swapsync' */
 EXTERN char_u *p_swb; /* 'switchbuf' */
 EXTERN unsigned swb_flags;
 #ifdef IN_OPTION_C
-static char *(p_swb_values[]) = {"useopen", "usetab", "split",
-                                 "newtab",  "vsplit", NULL};
+static char *(p_swb_values[]) = {"useopen", "usetab", "split", "newtab", "vsplit", NULL};
 #endif
 #define SWB_USEOPEN 0x001
 #define SWB_USETAB 0x002
@@ -743,8 +738,7 @@ EXTERN int p_tbs;         /* 'tagbsearch' */
 EXTERN char_u *p_tc;      /* 'tagcase' */
 EXTERN unsigned tc_flags; /* flags from 'tagcase' */
 #ifdef IN_OPTION_C
-static char *(p_tc_values[]) = {"followic",  "ignore", "match",
-                                "followscs", "smart",  NULL};
+static char *(p_tc_values[]) = {"followic", "ignore", "match", "followscs", "smart", NULL};
 #endif
 #define TC_FOLLOWIC 0x01
 #define TC_IGNORE 0x02
@@ -784,8 +778,7 @@ EXTERN int p_tf;       /* 'ttyfast' */
 EXTERN char_u *p_toolbar; /* 'toolbar' */
 EXTERN unsigned toolbar_flags;
 #ifdef IN_OPTION_C
-static char *(p_toolbar_values[]) = {"text", "icons", "tooltips", "horiz",
-                                     NULL};
+static char *(p_toolbar_values[]) = {"text", "icons", "tooltips", "horiz", NULL};
 #endif
 #define TOOLBAR_TEXT 0x01
 #define TOOLBAR_ICONS 0x02
@@ -796,8 +789,7 @@ static char *(p_toolbar_values[]) = {"text", "icons", "tooltips", "horiz",
 EXTERN char_u *p_tbis; /* 'toolbariconsize' */
 EXTERN unsigned tbis_flags;
 #ifdef IN_OPTION_C
-static char *(p_tbis_values[]) = {"tiny", "small", "medium", "large",
-                                  "huge", "giant", NULL};
+static char *(p_tbis_values[]) = {"tiny", "small", "medium", "large", "huge", "giant", NULL};
 #endif
 #define TBIS_TINY 0x01
 #define TBIS_SMALL 0x02
@@ -843,7 +835,7 @@ EXTERN int p_warn; /* 'warn' */
 EXTERN char_u *p_wop; /* 'wildoptions' */
 #endif
 EXTERN long p_window; /* 'window' */
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) ||     \
+#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) ||                         \
     defined(FEAT_GUI_GTK) || defined(FEAT_GUI_PHOTON)
 #define FEAT_WAK
 EXTERN char_u *p_wak; /* 'winaltkeys' */
