@@ -937,20 +937,13 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
       insert_special(c, FALSE, FALSE);
 		    if (c == '{') {
 
-			  /* printf("ins_char: %c\n", '}'); */
-        ins_char('}');
+          ins_char('}');
 	      oneleft();
-		    /* AppendCharToRedobuff('}'); */
-		    /* AppendCharToRedobuff(K_LEFT); */
 	      } else if (c == '[') {
 	    ins_char(']');
 		  oneleft();
 	      }
 	     }
-		    /* else if (c == '[') { */
-        /* insert_special(']', FALSE, FALSE); */
-	      /* ins_left(); */
-	      /* } */
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
       revins_chars++;
