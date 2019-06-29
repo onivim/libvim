@@ -163,9 +163,6 @@ int main(int argc, char **argv) {
   buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
-
-  vim_free(ccline.cmdbuff);
-
   MU_REPORT();
   MU_RETURN();
 }
