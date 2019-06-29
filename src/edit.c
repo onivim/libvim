@@ -927,9 +927,9 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
          c != Ctrl_RSB)) {
 	    printf("insert special? %c\n", c); 
 
-	     if (c == '}' && (*ml_get_cursor() == '}')) {
-		 printf("Bouncing right!\n");
-		 AppendToRedobuffLit("}", 1);
+
+        if (acp_is_closing_pair(c) && (*ml_get_cursor() == 'c')) {
+             AppendToRedobuff(c);
 			oneright();
 
 	     } else {
