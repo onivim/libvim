@@ -720,25 +720,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     did_cursorhold = TRUE;
     break;
 
-#ifdef FEAT_GUI_MSWIN
-    /* On MS-Windows ignore <M-F4>, we get it when closing the window
-     * was cancelled. */
-  case K_F4:
-    if (mod_mask != MOD_MASK_ALT)
-      goto normalchar;
-    break;
-#endif
-
-#ifdef FEAT_GUI
-  case K_VER_SCROLLBAR:
-    ins_scroll();
-    break;
-
-  case K_HOR_SCROLLBAR:
-    ins_horscroll();
-    break;
-#endif
-
   case K_HOME: /* <Home> */
   case K_KHOME:
   case K_S_HOME:
@@ -1241,13 +1222,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
      */
     msg_scroll = FALSE;
 
-#ifdef FEAT_GUI
-    /* When 'mousefocus' is set a mouse movement may have taken us to
-     * another window.  "need_mouse_correct" may then be set because of an
-     * autocommand. */
-    if (need_mouse_correct)
-      gui_mouse_correct();
-#endif
 
 #ifdef FEAT_FOLDING
     /* Open fold at the cursor line, according to 'foldopen'. */
@@ -1633,24 +1607,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       did_cursorhold = TRUE;
       break;
 
-#ifdef FEAT_GUI_MSWIN
-      /* On MS-Windows ignore <M-F4>, we get it when closing the window
-       * was cancelled. */
-    case K_F4:
-      if (mod_mask != MOD_MASK_ALT)
-        goto normalchar;
-      break;
-#endif
 
-#ifdef FEAT_GUI
-    case K_VER_SCROLLBAR:
-      ins_scroll();
-      break;
-
-    case K_HOR_SCROLLBAR:
-      ins_horscroll();
-      break;
-#endif
 
     case K_HOME: /* <Home> */
     case K_KHOME:
@@ -2433,16 +2390,6 @@ int get_literal(void) {
   if (got_int)
     return Ctrl_C;
 
-#ifdef FEAT_GUI
-  /*
-   * In GUI there is no point inserting the internal code for a special key.
-   * It is more useful to insert the string "<KEY>" instead.	This would
-   * probably be useful in a text window too, but it would not be
-   * vi-compatible (maybe there should be an option for it?) -- webb
-   */
-  if (gui.in_use)
-    ++allow_keys;
-#endif
   ++no_mapping; /* don't map the next key hits */
   cc = 0;
   i = 0;
@@ -2506,10 +2453,6 @@ int get_literal(void) {
                  second byte will cause trouble! */
 
   --no_mapping;
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    --allow_keys;
-#endif
   if (nc)
     vungetc(nc);
   got_int = FALSE; /* CTRL-C typed after CTRL-V is not an interrupt */
@@ -3567,13 +3510,6 @@ char_u *add_char2buf(int c, char_u *s) {
       *s++ = KS_SPECIAL;
       *s++ = KE_FILLER;
     }
-#ifdef FEAT_GUI
-    else if (c == CSI) {
-      *s++ = CSI;
-      *s++ = KS_EXTRA;
-      *s++ = (int)KE_CSI;
-    }
-#endif
     else
       *s++ = c;
   }
@@ -4428,11 +4364,6 @@ static void ins_ctrl_hat(void) {
   }
   set_iminsert_global();
   showmode();
-#ifdef FEAT_GUI
-  /* may show different cursor shape or color */
-  if (gui.in_use)
-    gui_update_cursor(TRUE, FALSE);
-#endif
 #if defined(FEAT_KEYMAP)
   /* Show/unshow value of 'keymap' in status lines. */
   status_redraw_curbuf();
@@ -5190,27 +5121,6 @@ int bracketed_paste(paste_mode_T mode, int drop, garray_T *gap) {
   return ret_char;
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
-void ins_scroll(void) {
-  pos_T tpos;
-
-  undisplay_dollar();
-  tpos = curwin->w_cursor;
-  if (gui_do_scroll()) {
-    start_arrow(&tpos);
-  }
-}
-
-void ins_horscroll(void) {
-  pos_T tpos;
-
-  undisplay_dollar();
-  tpos = curwin->w_cursor;
-  if (gui_do_horiz_scroll(scrollbar_value, FALSE)) {
-    start_arrow(&tpos);
-  }
-}
-#endif
 
 static void ins_left(void) {
   pos_T tpos;
@@ -5223,11 +5133,6 @@ static void ins_left(void) {
   undisplay_dollar();
   tpos = curwin->w_cursor;
   if (oneleft() == OK) {
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-    /* Only call start_arrow() when not busy with preediting, it will
-     * break undo.  K_LEFT is inserted in im_correct_cursor(). */
-    if (p_imst == IM_OVER_THE_SPOT || !im_is_preediting())
-#endif
     {
       start_arrow_with_change(&tpos, end_change);
       if (!end_change)

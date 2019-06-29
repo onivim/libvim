@@ -1289,10 +1289,6 @@ do_buffer(
 	return FAIL;
     }
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
-
     /*
      * delete buffer buf from memory and/or the list
      */
@@ -1313,21 +1309,6 @@ do_buffer(
 
 	if (!forceit && bufIsChanged(buf))
 	{
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	    if ((p_confirm || cmdmod.confirm) && p_write)
-	    {
-		dialog_changed(buf, FALSE);
-		if (!bufref_valid(&bufref))
-		    /* Autocommand deleted buffer, oops!  It's not changed
-		     * now. */
-		    return FAIL;
-		/* If it's still changed fail silently, the dialog already
-		 * mentioned why it fails. */
-		if (bufIsChanged(buf))
-		    return FAIL;
-	    }
-	    else
-#endif
 	    {
 		semsg(_("E89: No write since last change for buffer %d (add ! to override)"),
 								 buf->b_fnum);
@@ -1503,19 +1484,6 @@ do_buffer(
      */
     if (action == DOBUF_GOTO && !can_abandon(curbuf, forceit))
     {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-	if ((p_confirm || cmdmod.confirm) && p_write)
-	{
-	    bufref_T bufref;
-
-	    set_bufref(&bufref, buf);
-	    dialog_changed(curbuf, FALSE);
-	    if (!bufref_valid(&bufref))
-		/* Autocommand deleted buffer, oops! */
-		return FAIL;
-	}
-	if (bufIsChanged(curbuf))
-#endif
 	{
 	    no_write_message();
 	    return FAIL;
@@ -3580,9 +3548,6 @@ do_arg_all(
     old_curwin = curwin;
     old_curtab = curtab;
 
-# ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-# endif
 
     /*
      * Try closing all windows that are not in the argument list.
@@ -3835,9 +3800,6 @@ ex_buffer_all(exarg_T *eap)
 
     setpcmark();
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
 
     /*
      * Close superfluous windows (two windows for the same buffer).

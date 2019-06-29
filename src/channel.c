@@ -14,11 +14,6 @@
 
 #if defined(FEAT_JOB_CHANNEL) || defined(PROTO)
 
-/* TRUE when netbeans is running with a GUI. */
-#ifdef FEAT_GUI
-# define CH_HAS_GUI (gui.in_use || gui.starting)
-#endif
-
 /* Note: when making changes here also adjust configure.ac. */
 #ifdef MSWIN
 /* WinSock API is separated from C API, thus we can't use read(), write(),
@@ -305,12 +300,6 @@ add_channel(void)
     for (part = PART_SOCK; part < PART_COUNT; ++part)
     {
 	channel->ch_part[part].ch_fd = INVALID_FD;
-#ifdef FEAT_GUI_X11
-	channel->ch_part[part].ch_inputHandler = (XtInputId)NULL;
-#endif
-#ifdef FEAT_GUI_GTK
-	channel->ch_part[part].ch_inputHandler = 0;
-#endif
 	channel->ch_part[part].ch_timeout = 2000;
     }
 
@@ -495,178 +484,6 @@ free_unused_channels(int copyID, int mask)
     }
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
-
-#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK)
-    static void
-channel_read_fd(int fd)
-{
-    channel_T	*channel;
-    ch_part_T	part;
-
-    channel = channel_fd2channel(fd, &part);
-    if (channel == NULL)
-	ch_error(NULL, "Channel for fd %d not found", fd);
-    else
-	channel_read(channel, part, "channel_read_fd");
-}
-#endif
-
-/*
- * Read a command from netbeans.
- */
-#ifdef FEAT_GUI_X11
-    static void
-messageFromServerX11(XtPointer clientData,
-		  int *unused1 UNUSED,
-		  XtInputId *unused2 UNUSED)
-{
-    channel_read_fd((int)(long)clientData);
-}
-#endif
-
-#ifdef FEAT_GUI_GTK
-# if GTK_CHECK_VERSION(3,0,0)
-    static gboolean
-messageFromServerGtk3(GIOChannel *unused1 UNUSED,
-		  GIOCondition unused2 UNUSED,
-		  gpointer clientData)
-{
-    channel_read_fd(GPOINTER_TO_INT(clientData));
-    return TRUE; /* Return FALSE instead in case the event source is to
-		  * be removed after this function returns. */
-}
-# else
-    static void
-messageFromServerGtk2(gpointer clientData,
-		  gint unused1 UNUSED,
-		  GdkInputCondition unused2 UNUSED)
-{
-    channel_read_fd((int)(long)clientData);
-}
-# endif
-#endif
-
-    static void
-channel_gui_register_one(channel_T *channel, ch_part_T part)
-{
-    if (!CH_HAS_GUI)
-	return;
-
-    /* gets stuck in handling events for a not connected channel */
-    if (channel->ch_keep_open)
-	return;
-
-# ifdef FEAT_GUI_X11
-    /* Tell notifier we are interested in being called when there is input on
-     * the editor connection socket. */
-    if (channel->ch_part[part].ch_inputHandler == (XtInputId)NULL)
-    {
-	ch_log(channel, "Registering part %s with fd %d",
-		part_names[part], channel->ch_part[part].ch_fd);
-
-	channel->ch_part[part].ch_inputHandler = XtAppAddInput(
-		(XtAppContext)app_context,
-		channel->ch_part[part].ch_fd,
-		(XtPointer)(XtInputReadMask + XtInputExceptMask),
-		messageFromServerX11,
-		(XtPointer)(long)channel->ch_part[part].ch_fd);
-    }
-# else
-#  ifdef FEAT_GUI_GTK
-    /* Tell gdk we are interested in being called when there is input on the
-     * editor connection socket. */
-    if (channel->ch_part[part].ch_inputHandler == 0)
-    {
-	ch_log(channel, "Registering part %s with fd %d",
-		part_names[part], channel->ch_part[part].ch_fd);
-#   if GTK_CHECK_VERSION(3,0,0)
-	GIOChannel *chnnl = g_io_channel_unix_new(
-		(gint)channel->ch_part[part].ch_fd);
-
-	channel->ch_part[part].ch_inputHandler = g_io_add_watch(
-		chnnl,
-		G_IO_IN|G_IO_HUP|G_IO_ERR|G_IO_PRI,
-		messageFromServerGtk3,
-		GINT_TO_POINTER(channel->ch_part[part].ch_fd));
-
-	g_io_channel_unref(chnnl);
-#   else
-	channel->ch_part[part].ch_inputHandler = gdk_input_add(
-		(gint)channel->ch_part[part].ch_fd,
-		(GdkInputCondition)
-			     ((int)GDK_INPUT_READ + (int)GDK_INPUT_EXCEPTION),
-		messageFromServerGtk2,
-		(gpointer)(long)channel->ch_part[part].ch_fd);
-#   endif
-    }
-#  endif
-# endif
-}
-
-    static void
-channel_gui_register(channel_T *channel)
-{
-    if (channel->CH_SOCK_FD != INVALID_FD)
-	channel_gui_register_one(channel, PART_SOCK);
-    if (channel->CH_OUT_FD != INVALID_FD
-	    && channel->CH_OUT_FD != channel->CH_SOCK_FD)
-	channel_gui_register_one(channel, PART_OUT);
-    if (channel->CH_ERR_FD != INVALID_FD
-	    && channel->CH_ERR_FD != channel->CH_SOCK_FD
-	    && channel->CH_ERR_FD != channel->CH_OUT_FD)
-	channel_gui_register_one(channel, PART_ERR);
-}
-
-/*
- * Register any of our file descriptors with the GUI event handling system.
- * Called when the GUI has started.
- */
-    void
-channel_gui_register_all(void)
-{
-    channel_T *channel;
-
-    for (channel = first_channel; channel != NULL; channel = channel->ch_next)
-	channel_gui_register(channel);
-}
-
-    static void
-channel_gui_unregister_one(channel_T *channel, ch_part_T part)
-{
-# ifdef FEAT_GUI_X11
-    if (channel->ch_part[part].ch_inputHandler != (XtInputId)NULL)
-    {
-	ch_log(channel, "Unregistering part %s", part_names[part]);
-	XtRemoveInput(channel->ch_part[part].ch_inputHandler);
-	channel->ch_part[part].ch_inputHandler = (XtInputId)NULL;
-    }
-# else
-#  ifdef FEAT_GUI_GTK
-    if (channel->ch_part[part].ch_inputHandler != 0)
-    {
-	ch_log(channel, "Unregistering part %s", part_names[part]);
-#   if GTK_CHECK_VERSION(3,0,0)
-	g_source_remove(channel->ch_part[part].ch_inputHandler);
-#   else
-	gdk_input_remove(channel->ch_part[part].ch_inputHandler);
-#   endif
-	channel->ch_part[part].ch_inputHandler = 0;
-    }
-#  endif
-# endif
-}
-
-    static void
-channel_gui_unregister(channel_T *channel)
-{
-    ch_part_T	part;
-
-    for (part = PART_SOCK; part < PART_IN; ++part)
-	channel_gui_unregister_one(channel, part);
-}
-
-#endif
 
 static char *e_cannot_connect = N_("E902: Cannot connect to port");
 
@@ -944,9 +761,6 @@ channel_open(
     channel->ch_port = port_in;
     channel->ch_to_be_closed |= (1U << PART_SOCK);
 
-#ifdef FEAT_GUI
-    channel_gui_register_one(channel, PART_SOCK);
-#endif
 
     return channel;
 }
@@ -1059,27 +873,15 @@ channel_set_pipes(channel_T *channel, sock_T in, sock_T out, sock_T err)
     }
     if (out != INVALID_FD)
     {
-# if defined(FEAT_GUI)
-	channel_gui_unregister_one(channel, PART_OUT);
-# endif
 	ch_close_part(channel, PART_OUT);
 	channel->CH_OUT_FD = out;
 	channel->ch_to_be_closed |= (1U << PART_OUT);
-# if defined(FEAT_GUI)
-	channel_gui_register_one(channel, PART_OUT);
-# endif
     }
     if (err != INVALID_FD)
     {
-# if defined(FEAT_GUI)
-	channel_gui_unregister_one(channel, PART_ERR);
-# endif
 	ch_close_part(channel, PART_ERR);
 	channel->CH_ERR_FD = err;
 	channel->ch_to_be_closed |= (1U << PART_ERR);
-# if defined(FEAT_GUI)
-	channel_gui_register_one(channel, PART_ERR);
-# endif
     }
 }
 
@@ -2909,9 +2711,6 @@ channel_close(channel_T *channel, int invoke_close_cb)
 {
     ch_log(channel, "Closing channel");
 
-#ifdef FEAT_GUI
-    channel_gui_unregister(channel);
-#endif
 
     ch_close_part(channel, PART_SOCK);
     ch_close_part(channel, PART_IN);
@@ -3291,10 +3090,6 @@ ch_close_part_on_error(
     }
     ch_close_part(channel, part);
 
-#ifdef FEAT_GUI
-    /* Stop listening to GUI events right away. */
-    channel_gui_unregister_one(channel, part);
-#endif
 }
 
     static void
@@ -3364,11 +3159,6 @@ channel_read(channel_T *channel, ch_part_T part, char *func)
 	if (!channel->ch_keep_open)
 	    ch_close_part_on_error(channel, part, (len < 0), func);
     }
-#if defined(CH_HAS_GUI) && defined(FEAT_GUI_GTK)
-    else if (CH_HAS_GUI && gtk_main_level() > 0)
-	/* signal the main loop that there is something to read */
-	gtk_main_quit();
-#endif
 }
 
 /*
@@ -3632,7 +3422,7 @@ theend:
     free_job_options(&opt);
 }
 
-# if defined(MSWIN) || defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) \
+# if defined(MSWIN) \
 	|| defined(PROTO)
 /*
  * Lookup the channel from the socket.  Set "partp" to the fd index.
@@ -3659,7 +3449,7 @@ channel_fd2channel(sock_T fd, ch_part_T *partp)
 }
 # endif
 
-# if defined(MSWIN) || defined(FEAT_GUI) || defined(PROTO)
+# if defined(MSWIN) || defined(PROTO)
 /*
  * Check the channels for anything that is ready to be read.
  * The data is put in the read queue.
@@ -3693,22 +3483,6 @@ channel_handle_events(int only_keep_open)
 	    }
 	}
     }
-}
-# endif
-
-# if defined(FEAT_GUI) || defined(PROTO)
-/*
- * Return TRUE when there is any channel with a keep_open flag.
- */
-    int
-channel_any_keep_open()
-{
-    channel_T	*channel;
-
-    for (channel = first_channel; channel != NULL; channel = channel->ch_next)
-	if (channel->ch_keep_open)
-	    return TRUE;
-    return FALSE;
 }
 # endif
 
@@ -4930,50 +4704,6 @@ get_job_options(typval_T *tv, jobopt_T *opt, int supported, int supported2)
 		}
 		opt->jo_tty_type = p[0];
 	    }
-# if defined(FEAT_GUI)
-	    else if (STRCMP(hi->hi_key, "ansi_colors") == 0)
-	    {
-		int		n = 0;
-		listitem_T	*li;
-		long_u		rgb[16];
-
-		if (!(supported2 & JO2_ANSI_COLORS))
-		    break;
-
-		if (item == NULL || item->v_type != VAR_LIST
-			|| item->vval.v_list == NULL)
-		{
-		    semsg(_(e_invargval), "ansi_colors");
-		    return FAIL;
-		}
-
-		li = item->vval.v_list->lv_first;
-		for (; li != NULL && n < 16; li = li->li_next, n++)
-		{
-		    char_u	*color_name;
-		    guicolor_T	guicolor;
-
-		    color_name = tv_get_string_chk(&li->li_tv);
-		    if (color_name == NULL)
-			return FAIL;
-
-		    guicolor = GUI_GET_COLOR(color_name);
-		    if (guicolor == INVALCOLOR)
-			return FAIL;
-
-		    rgb[n] = GUI_MCH_GET_RGB(guicolor);
-		}
-
-		if (n != 16 || li != NULL)
-		{
-		    semsg(_(e_invargval), "ansi_colors");
-		    return FAIL;
-		}
-
-		opt->jo_set2 |= JO2_ANSI_COLORS;
-		memcpy(opt->jo_ansi_colors, rgb, sizeof(rgb));
-	    }
-# endif
 #endif
 	    else if (STRCMP(hi->hi_key, "env") == 0)
 	    {
