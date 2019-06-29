@@ -1286,20 +1286,6 @@ term_try_stop_job(buf_T *buf)
     int	    count;
     char    *how = (char *)buf->b_term->tl_kill;
 
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-    if ((how == NULL || *how == NUL) && (p_confirm || cmdmod.confirm))
-    {
-	char_u	buff[DIALOG_MSG_SIZE];
-	int	ret;
-
-	dialog_msg(buff, _("Kill job in \"%s\"?"), buf->b_fname);
-	ret = vim_dialog_yesnocancel(VIM_QUESTION, NULL, buff, 1);
-	if (ret == VIM_YES)
-	    how = "kill";
-	else if (ret == VIM_CANCEL)
-	    return FAIL;
-    }
-#endif
     if (how == NULL || *how == NUL)
 	return FAIL;
 

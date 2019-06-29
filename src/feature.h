@@ -948,6 +948,7 @@
 #undef IME_WITHOUT_XIM
 
 /* GUI features */
+#undef FEAT_CON_DIALOG
 #undef FEAT_GUI
 #undef FEAT_GUI_DIALOG
 #undef FEAT_GUI_GTK
