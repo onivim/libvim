@@ -125,10 +125,8 @@ static void	ex_wrongmodifier(exarg_T *eap);
 static void	ex_find(exarg_T *eap);
 static void	ex_open(exarg_T *eap);
 static void	ex_edit(exarg_T *eap);
-#ifndef FEAT_GUI
 # define ex_gui			ex_nogui
 static void	ex_nogui(exarg_T *eap);
-#endif
 # define ex_tearoff		ex_ni
 # define ex_popup		ex_ni
 #ifndef FEAT_GUI_MSWIN
@@ -7179,7 +7177,6 @@ do_exedit(
     ex_no_reprint = TRUE;
 }
 
-#ifndef FEAT_GUI
 /*
  * ":gui" and ":gvim" when there is no GUI.
  */
@@ -7188,7 +7185,6 @@ ex_nogui(exarg_T *eap)
 {
     eap->errmsg = e_nogvim;
 }
-#endif
 
     static void
 ex_swapname(exarg_T *eap UNUSED)
