@@ -204,15 +204,15 @@ static AutoPat *last_autopat[NUM_EVENTS] = {
  * struct used to keep status while executing autocommands for an event.
  */
 typedef struct AutoPatCmd {
-  AutoPat *curpat;  // next AutoPat to examine
-  AutoCmd *nextcmd; // next AutoCmd to execute
-  int group;        // group being used
-  char_u *fname;    // fname to match with
-  char_u *sfname;   // sfname to match with
-  char_u *tail;     // tail of fname
-  event_T event;    // current event
-  int arg_bufnr;    // Initially equal to <abuf>, set to zero when
-                 // buf is deleted.
+  AutoPat *curpat;         // next AutoPat to examine
+  AutoCmd *nextcmd;        // next AutoCmd to execute
+  int group;               // group being used
+  char_u *fname;           // fname to match with
+  char_u *sfname;          // sfname to match with
+  char_u *tail;            // tail of fname
+  event_T event;           // current event
+  int arg_bufnr;           // Initially equal to <abuf>, set to zero when
+                           // buf is deleted.
   struct AutoPatCmd *next; // chain of active apc-s for auto-invalidation
 } AutoPatCmd;
 
@@ -1560,9 +1560,9 @@ apply_autocmds_group(event_T event,
                      char_u *fname, // NULL or empty means use actual file name
                      char_u *fname_io, // fname to use for <afile> on cmdline,
                                        // NULL means use fname
-                     int force,           // when TRUE, ignore autocmd_busy
-                     int group,           // group ID, or AUGROUP_ALL
-                     buf_T *buf,          // buffer for <abuf>
+                     int force,        // when TRUE, ignore autocmd_busy
+                     int group,        // group ID, or AUGROUP_ALL
+                     buf_T *buf,       // buffer for <abuf>
                      exarg_T *eap UNUSED) // command arguments
 {
   char_u *sfname = NULL; // short file name

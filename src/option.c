@@ -325,14 +325,14 @@ static char_u *p_vsts_nopaste;
 #endif
 
 struct vimoption {
-  char *fullname;  // full option name
-  char *shortname; // permissible abbreviation
-  long_u flags;    // see below
-  char_u *var;     // global option: pointer to variable;
-               // window-local option: VAR_WIN;
-               // buffer-local option: global value
-  idopt_T indir; // global option: PV_NONE;
-                 // local option: indirect option index
+  char *fullname;     // full option name
+  char *shortname;    // permissible abbreviation
+  long_u flags;       // see below
+  char_u *var;        // global option: pointer to variable;
+                      // window-local option: VAR_WIN;
+                      // buffer-local option: global value
+  idopt_T indir;      // global option: PV_NONE;
+                      // local option: indirect option index
   char_u *def_val[2]; // default values for variable (vi and vim)
 #ifdef FEAT_EVAL
   sctx_T script_ctx; // script context where the option was last set
@@ -353,17 +353,16 @@ struct vimoption {
 #define P_NUM 0x02    /* the option is numeric */
 #define P_STRING 0x04 /* the option is a string */
 #define P_ALLOCED                                                              \
-  0x08 /* the string option is in allocated memory,                            \
-          must use free_string_option() when                                   \
-          assigning new value. Not set if default is                           \
-          the same. */
+  0x08 /* the string option is in allocated memory, \                                                                             \
+          must use free_string_option() when \                                                                             \
+          assigning new value. Not set if default is \ the same. */
 #define P_EXPAND                                                               \
-  0x10                   /* environment expansion.  NOTE: P_EXPAND can         \
-                            never be used for local or hidden options! */
+  0x10 /* environment expansion.  NOTE: P_EXPAND can         \                 \
+          never be used for local or hidden options! */
 #define P_NODEFAULT 0x40 /* don't set to default value */
 #define P_DEF_ALLOCED                                                          \
-  0x80                  /* default value is in allocated memory, must          \
-                            use vim_free() when assigning new value */
+  0x80 /* default value is in allocated memory, must          \                \
+           use vim_free() when assigning new value */
 #define P_WAS_SET 0x100 /* option has been set/reset */
 #define P_NO_MKRC 0x200 /* don't include in :mkvimrc output */
 #define P_VI_DEF 0x400  /* Use Vi default for Vim */
@@ -378,9 +377,9 @@ struct vimoption {
 
 #define P_COMMA 0x8000 /* comma separated list */
 #define P_ONECOMMA                                                             \
-  0x18000L                  /* P_COMMA and cannot have two consecutive         \
-                             * commas */
-#define P_NODUP 0x20000L    /* don't allow duplicate strings */
+  0x18000L               /* P_COMMA and cannot have two consecutive         \  \
+                          * commas */
+#define P_NODUP 0x20000L /* don't allow duplicate strings */
 #define P_FLAGLIST 0x40000L /* list of single-char flags */
 
 #define P_SECURE 0x80000L    /* cannot change in modeline or secure mode */
@@ -389,13 +388,13 @@ struct vimoption {
 #define P_NFNAME 0x400000L   /* only normal file name chars allowed */
 #define P_INSECURE 0x800000L /* option was set from a modeline */
 #define P_PRI_MKRC                                                             \
-  0x1000000L               /* priority for :mkvimrc (setting option has        \
-                              side effects) */
+  0x1000000L /* priority for :mkvimrc (setting option has        \             \
+                side effects) */
 #define P_NO_ML 0x2000000L /* not allowed in modeline */
 #define P_CURSWANT                                                             \
-  0x4000000L                   /* update curswant required; not needed when    \
-                                * there is a redraw flag */
-#define P_NDNAME 0x8000000L    /* only normal dir name chars allowed */
+  0x4000000L                /* update curswant required; not needed when    \  \
+                             * there is a redraw flag */
+#define P_NDNAME 0x8000000L /* only normal dir name chars allowed */
 #define P_RWINONLY 0x10000000L /* only redraw current window */
 #define P_MLE 0x20000000L      /* under control of 'modelineexpr' */
 

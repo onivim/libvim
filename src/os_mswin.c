@@ -423,19 +423,22 @@ int vim_stat(const char *name, stat_T *stp) {
 }
 
 #if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) || defined(PROTO)
-void mch_settmode(int tmode UNUSED) { /* nothing to do */ }
+void mch_settmode(int tmode UNUSED) { /* nothing to do */
+}
 
 int mch_get_shellsize(void) {
   /* never used */
   return OK;
 }
 
-void mch_set_shellsize(void) { /* never used */ }
+void mch_set_shellsize(void) { /* never used */
+}
 
 /*
  * Rows and/or Columns has changed.
  */
-void mch_new_shellsize(void) { /* never used */ }
+void mch_new_shellsize(void) { /* never used */
+}
 
 #endif
 

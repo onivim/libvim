@@ -37,8 +37,8 @@ struct qfline_S {
   char_u qf_viscol;   // set to TRUE if qf_col is screen column
   char_u qf_cleared;  // set to TRUE if line has been deleted
   char_u qf_type;     // type of the error (mostly 'E'); 1 for
-                  // :helpgrep
-  char_u qf_valid; // valid error message detected
+                      // :helpgrep
+  char_u qf_valid;    // valid error message detected
 };
 
 /*
@@ -76,8 +76,8 @@ typedef struct qf_list_S {
   int qf_index;       // current index in the error list
   int qf_nonevalid;   // TRUE if not a single valid entry found
   char_u *qf_title;   // title derived from the command that created
-                    // the error list or set by setqflist
-  typval_T *qf_ctx; // context set by setqflist/setloclist
+                      // the error list or set by setqflist
+  typval_T *qf_ctx;   // context set by setqflist/setloclist
 
   struct dir_stack_T *qf_dir_stack;
   char_u *qf_directory;
@@ -120,22 +120,22 @@ struct efm_S {
   efm_T *next;               // pointer to next (NULL if last)
   char_u addr[FMT_PATTERNS]; // indices of used % patterns
   char_u prefix;             // prefix of this format line:
-                 //   'D' enter directory
-                 //   'X' leave directory
-                 //   'A' start of multi-line message
-                 //   'E' error message
-                 //   'W' warning message
-                 //   'I' informational message
-                 //   'C' continuation line
-                 //   'Z' end of multi-line message
-                 //   'G' general, unspecific message
-                 //   'P' push file (partial) message
-                 //   'Q' pop/quit file (partial) message
-                 //   'O' overread (partial) message
-  char_u flags; // additional flags given in prefix
-                //   '-' do not include this line
-                //   '+' include whole line in message
-  int conthere; // %> used
+                             //   'D' enter directory
+                             //   'X' leave directory
+                             //   'A' start of multi-line message
+                             //   'E' error message
+                             //   'W' warning message
+                             //   'I' informational message
+                             //   'C' continuation line
+                             //   'Z' end of multi-line message
+                             //   'G' general, unspecific message
+                             //   'P' push file (partial) message
+                             //   'Q' pop/quit file (partial) message
+                             //   'O' overread (partial) message
+  char_u flags;              // additional flags given in prefix
+                             //   '-' do not include this line
+                             //   '+' include whole line in message
+  int conthere;              // %> used
 };
 
 // List of location lists to be deleted.
@@ -218,7 +218,7 @@ static struct fmtpattern {
   char *pattern;
 } fmt_pat[FMT_PATTERNS] = {
     {'f', ".\\+"}, // only used when at end
-    {'n', "\\d\\+"}, {'l', "\\d\\+"}, {'c', "\\d\\+"},       {'t', "."},
+    {'n', "\\d\\+"}, {'l', "\\d\\+"}, {'c', "\\d\\+"},         {'t', "."},
     {'m', ".\\+"},   {'r', ".*"},     {'p', "[- 	.]*"}, {'v', "\\d\\+"},
     {'s', ".\\+"},   {'o', ".\\+"}};
 

@@ -473,7 +473,8 @@ int ui_char_avail(void) {
  * Delay for the given number of milliseconds.	If ignoreinput is FALSE then we
  * cancel the delay if a key is hit.
  */
-void ui_delay(long msec, int ignoreinput) { /* libvim - noop */ }
+void ui_delay(long msec, int ignoreinput) { /* libvim - noop */
+}
 
 /*
  * If the machine has job control, use it to suspend the program,
@@ -856,7 +857,8 @@ static void clip_update_modeless_selection(VimClipboard *, int, int, int, int);
  * Start, continue or end a modeless selection.  Used when editing the
  * command-line and in the cmdline window.
  */
-void clip_modeless(int button, int is_click, int is_drag) { /* libvim: NOOP */ }
+void clip_modeless(int button, int is_click, int is_drag) { /* libvim: NOOP */
+}
 
 /*
  * Compare two screen positions ala strcmp()

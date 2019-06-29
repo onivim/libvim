@@ -890,12 +890,14 @@ void msg_end_prompt(void) {
  * If "redraw" is FALSE, just redraw the screen.
  * If "redraw" is -1, don't redraw at all.
  */
-void wait_return(int redraw UNUSED) { /* libvim - noop */ }
+void wait_return(int redraw UNUSED) { /* libvim - noop */
+}
 
 /*
  * Write the hit-return prompt.
  */
-static void hit_return_msg(void) { /* libvim - noop */ }
+static void hit_return_msg(void) { /* libvim - noop */
+}
 
 /*
  * Set "keep_msg" to "s".  Free the old value and check for NULL pointer.
@@ -3112,9 +3114,8 @@ int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap,
       /* temporary buffer for simple numeric->string conversion */
 #if defined(FEAT_FLOAT)
 #define TMP_LEN                                                                \
-  350 /* On my system 1e308 is the biggest number possible.                    \
-       * That sounds reasonable to use as the maximum                          \
-       * printable. */
+  350 /* On my system 1e308 is the biggest number possible. \                                                                             \
+       * That sounds reasonable to use as the maximum \ printable. */
 #elif defined(FEAT_NUM64)
 #define TMP_LEN 66
 #else

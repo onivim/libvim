@@ -4491,7 +4491,8 @@ static void termcap_mode_end(void) {
 #endif /* FEAT_GUI_MSWIN */
 
 #if defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)
-void mch_write(char_u *s UNUSED, int len UNUSED) { /* never used */ }
+void mch_write(char_u *s UNUSED, int len UNUSED) { /* never used */
+}
 
 #else
 

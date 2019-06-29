@@ -7345,12 +7345,14 @@ void ex_redraw(exarg_T *eap) {
 /*
  * ":redrawstatus": force redraw of status line(s)
  */
-static void ex_redrawstatus(exarg_T *eap UNUSED) { /* libvim - no-op */ }
+static void ex_redrawstatus(exarg_T *eap UNUSED) { /* libvim - no-op */
+}
 
 /*
  * ":redrawtabline": force redraw of the tabline
  */
-static void ex_redrawtabline(exarg_T *eap UNUSED) { /* libvim - noop */ }
+static void ex_redrawtabline(exarg_T *eap UNUSED) { /* libvim - noop */
+}
 
 static void close_redir(void) {
   if (redir_fd != NULL) {

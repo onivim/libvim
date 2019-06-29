@@ -2181,14 +2181,16 @@ static int out_pos = 0; // number of chars in out_buf
  * it at the wrong time.
  * Note: Only for terminal strings.
  */
-void out_str_cf(char_u *s) { /* No-op */ }
+void out_str_cf(char_u *s) { /* No-op */
+}
 /*
  * out_str(s): Put a character string a byte at a time into the output buffer.
  * If HAVE_TGETENT is defined use the termcap parser. (jw)
  * This should only be used for writing terminal codes, not for outputting
  * normal text (use functions like msg_puts() and screen_putchar() for that).
  */
-void out_str(char_u *s) { /* No-op */ }
+void out_str(char_u *s) { /* No-op */
+}
 
 /*
  * cursor positioning using termcap parser. (jw)
@@ -2268,18 +2270,21 @@ void term_bg_color(int n) {
 /*
  * Generic function to set window title, using t_ts and t_fs.
  */
-void term_settitle(char_u *title) { /* libvim - no-op */ }
+void term_settitle(char_u *title) { /* libvim - no-op */
+}
 
 /*
  * Tell the terminal to push (save) the title and/or icon, so that it can be
  * popped (restored) later.
  */
-void term_push_title(int which) { /* libvim - no-op */ }
+void term_push_title(int which) { /* libvim - no-op */
+}
 
 /*
  * Tell the terminal to pop the title and/or icon.
  */
-void term_pop_title(int which) { /* libvim - no-op */ }
+void term_pop_title(int which) { /* libvim - no-op */
+}
 #endif
 
 /*
