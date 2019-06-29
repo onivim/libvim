@@ -287,56 +287,72 @@ show_autocmd(AutoPat *ap, event_T event)
     // when "q" has been hit for the "--more--" prompt
     if (got_int)
 	return;
+    
     if (ap->pat == NULL)		// pattern has been removed
 	return;
 
-    msg_putchar('\n');
-    if (got_int)
+    if (got_int) 
 	return;
+    
+    msg_T *msg = msg2_create(MSG_INFO);
+    msg2_put("\n", msg);
     if (event != last_event || ap->group != last_group)
     {
 	if (ap->group != AUGROUP_DEFAULT)
 	{
 	    if (AUGROUP_NAME(ap->group) == NULL)
-		msg_puts_attr((char *)get_deleted_augroup(), HL_ATTR(HLF_E));
+        msg2_put((char *)get_deleted_augroup(), msg);
 	    else
-		msg_puts_attr((char *)AUGROUP_NAME(ap->group), HL_ATTR(HLF_T));
-	    msg_puts("  ");
+        msg2_put((char *)AUGROUP_NAME(ap->group), msg);
+        
+	    msg2_put("  ", msg);
 	}
-	msg_puts_attr((char *)event_nr2name(event), HL_ATTR(HLF_T));
+
+    msg2_put((char *)event_nr2name(event), msg);
 	last_event = event;
 	last_group = ap->group;
-	msg_putchar('\n');
+    msg2_put("\n", msg);
 	if (got_int)
+        msg2_free(msg);
 	    return;
     }
     msg_col = 4;
-    msg_outtrans(ap->pat);
+
+    msg2_put(ap->pat, msg);
 
     for (ac = ap->cmds; ac != NULL; ac = ac->next)
     {
 	if (ac->cmd != NULL)		// skip removed commands
 	{
 	    if (msg_col >= 14)
-		msg_putchar('\n');
+		msg2_put("\n", msg);
 	    msg_col = 14;
-	    if (got_int)
-		return;
-	    msg_outtrans(ac->cmd);
+	    if (got_int) {
+            msg2_free(msg);
+            return;
+        }
+        msg2_put(ac->cmd, msg);
 #ifdef FEAT_EVAL
 	    if (p_verbose > 0)
 		last_set_msg(ac->script_ctx);
 #endif
-	    if (got_int)
-		return;
+	    if (got_int) {
+            msg2_free(msg);
+            return;
+        }
 	    if (ac->next != NULL)
 	    {
-		msg_putchar('\n');
-		if (got_int)
+		msg2_put("\n", msg);
+		if (got_int) {
+            msg2_free(msg);
 		    return;
+            }
 	    }
 	}
     }
+
+    msg2_send(msg);
+    msg2_free(msg);
 }
 
 /*
@@ -748,49 +764,6 @@ check_ei(void)
 
     return OK;
 }
-
-# if defined(FEAT_SYN_HL) || defined(PROTO)
-
-/*
- * Add "what" to 'eventignore' to skip loading syntax highlighting for every
- * buffer loaded into the window.  "what" must start with a comma.
- * Returns the old value of 'eventignore' in allocated memory.
- */
-    char_u *
-au_event_disable(char *what)
-{
-    char_u	*new_ei;
-    char_u	*save_ei;
-
-    save_ei = vim_strsave(p_ei);
-    if (save_ei != NULL)
-    {
-	new_ei = vim_strnsave(p_ei, (int)(STRLEN(p_ei) + STRLEN(what)));
-	if (new_ei != NULL)
-	{
-	    if (*what == ',' && *p_ei == NUL)
-		STRCPY(new_ei, what + 1);
-	    else
-		STRCAT(new_ei, what);
-	    set_string_option_direct((char_u *)"ei", -1, new_ei,
-							  OPT_FREE, SID_NONE);
-	    vim_free(new_ei);
-	}
-    }
-    return save_ei;
-}
-
-    void
-au_event_restore(char_u *old_ei)
-{
-    if (old_ei != NULL)
-    {
-	set_string_option_direct((char_u *)"ei", -1, old_ei,
-							  OPT_FREE, SID_NONE);
-	vim_free(old_ei);
-    }
-}
-# endif  /* FEAT_SYN_HL */
 
 /*
  * do_autocmd() -- implements the :autocmd command.  Can be used in the
@@ -1577,10 +1550,6 @@ win_found:
 		    && bufref_valid(&aco->new_curbuf)
 		    && aco->new_curbuf.br_buf->b_ml.ml_mfp != NULL)
 	    {
-# if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
-		if (curwin->w_s == &curbuf->b_s)
-		    curwin->w_s = &aco->new_curbuf.br_buf->b_s;
-# endif
 		--curbuf->b_nwindows;
 		curbuf = aco->new_curbuf.br_buf;
 		curwin->w_buffer = curbuf;
@@ -1688,9 +1657,6 @@ trigger_cursorhold(void)
 	    && has_cursorhold()
 	    && reg_recording == 0
 	    && typebuf.tb_len == 0
-#ifdef FEAT_INS_EXPAND
-	    && !ins_compl_active()
-#endif
 	    )
     {
 	state = get_real_state();
@@ -1736,16 +1702,6 @@ has_textchangedI(void)
     return (first_autopat[(int)EVENT_TEXTCHANGEDI] != NULL);
 }
 
-#if defined(FEAT_INS_EXPAND) || defined(PROTO)
-/*
- * Return TRUE when there is a TextChangedP autocommand defined.
- */
-    int
-has_textchangedP(void)
-{
-    return (first_autopat[(int)EVENT_TEXTCHANGEDP] != NULL);
-}
-#endif
 
 /*
  * Return TRUE when there is an InsertCharPre autocommand defined.
@@ -1956,11 +1912,6 @@ apply_autocmds_group(
 	    fname = NULL;
 	else
 	{
-#ifdef FEAT_SYN_HL
-	    if (event == EVENT_SYNTAX)
-		fname = buf->b_p_syn;
-	    else
-#endif
 		if (event == EVENT_FILETYPE)
 		    fname = buf->b_p_ft;
 		else
@@ -2058,9 +2009,6 @@ apply_autocmds_group(
     if (!autocmd_busy)
     {
 	save_search_patterns();
-#ifdef FEAT_INS_EXPAND
-	if (!ins_compl_active())
-#endif
 	{
 	    saveRedobuff(&save_redo);
 	    did_save_redobuff = TRUE;

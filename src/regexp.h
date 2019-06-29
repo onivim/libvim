@@ -73,9 +73,6 @@ typedef struct
     char_u		reganch;
     char_u		*regmust;
     int			regmlen;
-#ifdef FEAT_SYN_HL
-    char_u		reghasz;
-#endif
     char_u		program[1];	/* actually longer.. */
 } bt_regprog_T;
 
@@ -114,9 +111,6 @@ typedef struct
 
     int			has_zend;	/* pattern contains \ze */
     int			has_backref;	/* pattern contains \1 .. \9 */
-#ifdef FEAT_SYN_HL
-    int			reghasz;
-#endif
     char_u		*pattern;
     int			nsubexp;	/* number of () */
     int			nstate;

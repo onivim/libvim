@@ -30,6 +30,20 @@ typedef struct
     colnr_T	coladd; // extra virtual column
 } pos_T;
 
+typedef enum
+{
+    MSG_INFO,
+    MSG_WARNING,
+    MSG_ERROR,
+} msgPriority_T;
+
+typedef struct
+{
+    sds contents;
+    sds title;
+    msgPriority_T priority;
+} msg_T;
+
 /*
  * State machine definitions
  */
@@ -261,18 +275,6 @@ typedef struct
 #endif
     long	wo_scr;
 #define w_p_scr w_onebuf_opt.wo_scr	/* 'scroll' */
-#ifdef FEAT_SPELL
-    int		wo_spell;
-# define w_p_spell w_onebuf_opt.wo_spell /* 'spell' */
-#endif
-#ifdef FEAT_SYN_HL
-    int		wo_cuc;
-# define w_p_cuc w_onebuf_opt.wo_cuc	/* 'cursorcolumn' */
-    int		wo_cul;
-# define w_p_cul w_onebuf_opt.wo_cul	/* 'cursorline' */
-    char_u	*wo_cc;
-# define w_p_cc w_onebuf_opt.wo_cc	/* 'colorcolumn' */
-#endif
     int		wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb	/* 'scrollbind' */
     int		wo_diff_saved; /* options were saved for starting diff mode */
@@ -284,12 +286,6 @@ typedef struct
 #ifdef FEAT_DIFF
     int		wo_wrap_save;	/* 'wrap' state saved for diff mode*/
 # define w_p_wrap_save w_onebuf_opt.wo_wrap_save
-#endif
-#ifdef FEAT_CONCEAL
-    char_u	*wo_cocu;		/* 'concealcursor' */
-# define w_p_cocu w_onebuf_opt.wo_cocu
-    long	wo_cole;		/* 'conceallevel' */
-# define w_p_cole w_onebuf_opt.wo_cole
 #endif
     int		wo_crb;
 #define w_p_crb w_onebuf_opt.wo_crb	/* 'cursorbind' */
@@ -971,68 +967,6 @@ struct cleanup_stuff
     except_T *exception;	/* exception value */
 };
 
-#ifdef FEAT_SYN_HL
-/* struct passed to in_id_list() */
-struct sp_syn
-{
-    int		inc_tag;	/* ":syn include" unique tag */
-    short	id;		/* highlight group ID of item */
-    short	*cont_in_list;	/* cont.in group IDs, if non-zero */
-};
-
-/*
- * Each keyword has one keyentry, which is linked in a hash list.
- */
-typedef struct keyentry keyentry_T;
-
-struct keyentry
-{
-    keyentry_T	*ke_next;	/* next entry with identical "keyword[]" */
-    struct sp_syn k_syn;	/* struct passed to in_id_list() */
-    short	*next_list;	/* ID list for next match (if non-zero) */
-    int		flags;
-    int		k_char;		/* conceal substitute character */
-    char_u	keyword[1];	/* actually longer */
-};
-
-/*
- * Struct used to store one state of the state stack.
- */
-typedef struct buf_state
-{
-    int		    bs_idx;	 /* index of pattern */
-    int		    bs_flags;	 /* flags for pattern */
-#ifdef FEAT_CONCEAL
-    int		    bs_seqnr;	 /* stores si_seqnr */
-    int		    bs_cchar;	 /* stores si_cchar */
-#endif
-    reg_extmatch_T *bs_extmatch; /* external matches from start pattern */
-} bufstate_T;
-
-/*
- * syn_state contains the syntax state stack for the start of one line.
- * Used by b_sst_array[].
- */
-typedef struct syn_state synstate_T;
-
-struct syn_state
-{
-    synstate_T	*sst_next;	/* next entry in used or free list */
-    linenr_T	sst_lnum;	/* line number for this state */
-    union
-    {
-	bufstate_T	sst_stack[SST_FIX_STATES]; /* short state stack */
-	garray_T	sst_ga;	/* growarray for long state stack */
-    } sst_union;
-    int		sst_next_flags;	/* flags for sst_next_list */
-    int		sst_stacksize;	/* number of states on the stack */
-    short	*sst_next_list;	/* "nextgroup" list in this state
-				 * (this is a copy, don't free it! */
-    disptick_T	sst_tick;	/* tick when last displayed */
-    linenr_T	sst_change_lnum;/* when non-zero, change in this line
-				 * may have made the state invalid */
-};
-#endif /* FEAT_SYN_HL */
 
 /*
  * Structure shared between syntax.c, screen.c and gui_x11.c.
@@ -1052,10 +986,6 @@ typedef struct attr_entry
 	    /* These colors need to be > 8 bits to hold 256. */
 	    short_u	    fg_color;	/* foreground color number */
 	    short_u	    bg_color;	/* background color number */
-# ifdef FEAT_TERMGUICOLORS
-	    guicolor_T	    fg_rgb;	/* foreground color RGB */
-	    guicolor_T	    bg_rgb;	/* background color RGB */
-# endif
 	} cterm;
 # ifdef FEAT_GUI
 	struct
@@ -1917,7 +1847,7 @@ typedef struct
     int		jo_term_finish;
     char_u	*jo_eof_chars;
     char_u	*jo_term_kill;
-# if defined(FEAT_GUI) || defined(FEAT_TERMGUICOLORS)
+# if defined(FEAT_GUI)
     long_u	jo_ansi_colors[16];
 # endif
     int		jo_tty_type;	    // first character of "tty_type"
@@ -1967,11 +1897,7 @@ typedef struct
 #define SYNSPL_NOTOP	2	/* don't spell check toplevel text */
 
 /* avoid #ifdefs for when b_spell is not available */
-#ifdef FEAT_SPELL
-# define B_SPELL(buf)  ((buf)->b_spell)
-#else
 # define B_SPELL(buf)  (0)
-#endif
 
 #ifdef FEAT_QUICKFIX
 typedef struct qf_info_S qf_info_T;
@@ -2042,77 +1968,7 @@ typedef enum {
  * a window may have its own instance.
  */
 typedef struct {
-#ifdef FEAT_SYN_HL
-    hashtab_T	b_keywtab;		/* syntax keywords hash table */
-    hashtab_T	b_keywtab_ic;		/* idem, ignore case */
-    int		b_syn_error;		/* TRUE when error occurred in HL */
-# ifdef FEAT_RELTIME
-    int		b_syn_slow;		/* TRUE when 'redrawtime' reached */
-# endif
-    int		b_syn_ic;		/* ignore case for :syn cmds */
-    int		b_syn_spell;		/* SYNSPL_ values */
-    garray_T	b_syn_patterns;		/* table for syntax patterns */
-    garray_T	b_syn_clusters;		/* table for syntax clusters */
-    int		b_spell_cluster_id;	/* @Spell cluster ID or 0 */
-    int		b_nospell_cluster_id;	/* @NoSpell cluster ID or 0 */
-    int		b_syn_containedin;	/* TRUE when there is an item with a
-					   "containedin" argument */
-    int		b_syn_sync_flags;	/* flags about how to sync */
-    short	b_syn_sync_id;		/* group to sync on */
-    long	b_syn_sync_minlines;	/* minimal sync lines offset */
-    long	b_syn_sync_maxlines;	/* maximal sync lines offset */
-    long	b_syn_sync_linebreaks;	/* offset for multi-line pattern */
-    char_u	*b_syn_linecont_pat;	/* line continuation pattern */
-    regprog_T	*b_syn_linecont_prog;	/* line continuation program */
-#ifdef FEAT_PROFILE
-    syn_time_T  b_syn_linecont_time;
-#endif
-    int		b_syn_linecont_ic;	/* ignore-case flag for above */
-    int		b_syn_topgrp;		/* for ":syntax include" */
-# ifdef FEAT_CONCEAL
-    int		b_syn_conceal;		/* auto-conceal for :syn cmds */
-# endif
-# ifdef FEAT_FOLDING
-    int		b_syn_folditems;	/* number of patterns with the HL_FOLD
-					   flag set */
-# endif
-    /*
-     * b_sst_array[] contains the state stack for a number of lines, for the
-     * start of that line (col == 0).  This avoids having to recompute the
-     * syntax state too often.
-     * b_sst_array[] is allocated to hold the state for all displayed lines,
-     * and states for 1 out of about 20 other lines.
-     * b_sst_array	pointer to an array of synstate_T
-     * b_sst_len	number of entries in b_sst_array[]
-     * b_sst_first	pointer to first used entry in b_sst_array[] or NULL
-     * b_sst_firstfree	pointer to first free entry in b_sst_array[] or NULL
-     * b_sst_freecount	number of free entries in b_sst_array[]
-     * b_sst_check_lnum	entries after this lnum need to be checked for
-     *			validity (MAXLNUM means no check needed)
-     */
-    synstate_T	*b_sst_array;
-    int		b_sst_len;
-    synstate_T	*b_sst_first;
-    synstate_T	*b_sst_firstfree;
-    int		b_sst_freecount;
-    linenr_T	b_sst_check_lnum;
-    short_u	b_sst_lasttick;	/* last display tick */
-#endif /* FEAT_SYN_HL */
-
-#ifdef FEAT_SPELL
-    /* for spell checking */
-    garray_T	b_langp;	/* list of pointers to slang_T, see spell.c */
-    char_u	b_spell_ismw[256];/* flags: is midword char */
-    char_u	*b_spell_ismw_mb; /* multi-byte midword chars */
-    char_u	*b_p_spc;	/* 'spellcapcheck' */
-    regprog_T	*b_cap_prog;	/* program for 'spellcapcheck' */
-    char_u	*b_p_spf;	/* 'spellfile' */
-    char_u	*b_p_spl;	/* 'spelllang' */
-    int		b_cjk;		/* all CJK letters as OK */
-#endif
-#if !defined(FEAT_SYN_HL) && !defined(FEAT_SPELL)
     int		dummy;
-#endif
     char_u	b_syn_chartab[32];	/* syntax iskeyword option */
     char_u	*b_syn_isk;		/* iskeyword option */
 } synblock_T;
@@ -2179,11 +2035,6 @@ struct file_buffer
 
     varnumber_T	b_last_changedtick; /* b:changedtick when TextChanged or
 				       TextChangedI was last triggered. */
-#ifdef FEAT_INS_EXPAND
-    varnumber_T	b_last_changedtick_pum; /* b:changedtick when TextChangedP was
-					   last triggered. */
-#endif
-
     int		b_saving;	/* Set to TRUE if we are in the middle of
 				   saving the buffer. */
 
@@ -2280,10 +2131,6 @@ struct file_buffer
     linenr_T	b_u_line_lnum;	/* line number of line in u_line */
     colnr_T	b_u_line_colnr;	/* optional column number */
 
-#ifdef FEAT_INS_EXPAND
-    int		b_scanned;	/* ^N/^P have scanned this buffer */
-#endif
-
     /* flags for use of ":lmap" and IM control */
     long	b_p_iminsert;	/* input mode for insert */
     long	b_p_imsearch;	/* input mode for search */
@@ -2326,12 +2173,7 @@ struct file_buffer
     int		b_has_qf_entry;
 #endif
     int		b_p_bl;		/* 'buflisted' */
-#ifdef FEAT_CINDENT
-    int		b_p_cin;	/* 'cindent' */
-    char_u	*b_p_cino;	/* 'cinoptions' */
-    char_u	*b_p_cink;	/* 'cinkeys' */
-#endif
-#if defined(FEAT_CINDENT) || defined(FEAT_SMARTINDENT)
+#if defined(FEAT_SMARTINDENT)
     char_u	*b_p_cinw;	/* 'cinwords' */
 #endif
 #ifdef FEAT_COMMENTS
@@ -2339,9 +2181,6 @@ struct file_buffer
 #endif
 #ifdef FEAT_FOLDING
     char_u	*b_p_cms;	/* 'commentstring' */
-#endif
-#ifdef FEAT_INS_EXPAND
-    char_u	*b_p_cpt;	/* 'complete' */
 #endif
 #ifdef FEAT_EVAL
     char_u	*b_p_tfu;	/* 'tagfunc' */
@@ -2366,7 +2205,7 @@ struct file_buffer
     long_u	b_p_inex_flags;	/* flags for 'includeexpr' */
 # endif
 #endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
+#if defined(FEAT_EVAL)
     char_u	*b_p_inde;	/* 'indentexpr' */
     long_u	b_p_inde_flags;	/* flags for 'indentexpr' */
     char_u	*b_p_indk;	/* 'indentkeys' */
@@ -2377,9 +2216,6 @@ struct file_buffer
     long_u	b_p_fex_flags;	/* flags for 'formatexpr' */
 #endif
     char_u	*b_p_kp;	/* 'keywordprg' */
-#ifdef FEAT_LISP
-    int		b_p_lisp;	/* 'lisp' */
-#endif
     char_u	*b_p_menc;	/* 'makeencoding' */
     char_u	*b_p_mps;	/* 'matchpairs' */
     int		b_p_ml;		/* 'modeline' */
@@ -2402,10 +2238,6 @@ struct file_buffer
     char_u	*b_p_sua;	/* 'suffixesadd' */
 #endif
     int		b_p_swf;	/* 'swapfile' */
-#ifdef FEAT_SYN_HL
-    long	b_p_smc;	/* 'synmaxcol' */
-    char_u	*b_p_syn;	/* 'syntax' */
-#endif
     long	b_p_ts;		/* 'tabstop' */
     int		b_p_tx;		/* 'textmode' */
     long	b_p_tw;		/* 'textwidth' */
@@ -2437,62 +2269,15 @@ struct file_buffer
     char_u	*b_p_tags;	/* 'tags' local value */
     char_u	*b_p_tc;	/* 'tagcase' local value */
     unsigned	b_tc_flags;     /* flags for 'tagcase' */
-#ifdef FEAT_INS_EXPAND
-    char_u	*b_p_dict;	/* 'dictionary' local value */
-    char_u	*b_p_tsr;	/* 'thesaurus' local value */
-#endif
     long	b_p_ul;		/* 'undolevels' local value */
 #ifdef FEAT_PERSISTENT_UNDO
     int		b_p_udf;	/* 'undofile' */
-#endif
-#ifdef FEAT_LISP
-    char_u	*b_p_lw;	/* 'lispwords' local value */
 #endif
 #ifdef FEAT_TERMINAL
     long	b_p_twsl;	/* 'termwinscroll' */
 #endif
 
     /* end of buffer options */
-
-#ifdef FEAT_CINDENT
-    /* values set from b_p_cino */
-    int		b_ind_level;
-    int		b_ind_open_imag;
-    int		b_ind_no_brace;
-    int		b_ind_first_open;
-    int		b_ind_open_extra;
-    int		b_ind_close_extra;
-    int		b_ind_open_left_imag;
-    int		b_ind_jump_label;
-    int		b_ind_case;
-    int		b_ind_case_code;
-    int		b_ind_case_break;
-    int		b_ind_param;
-    int		b_ind_func_type;
-    int		b_ind_comment;
-    int		b_ind_in_comment;
-    int		b_ind_in_comment2;
-    int		b_ind_cpp_baseclass;
-    int		b_ind_continuation;
-    int		b_ind_unclosed;
-    int		b_ind_unclosed2;
-    int		b_ind_unclosed_noignore;
-    int		b_ind_unclosed_wrapped;
-    int		b_ind_unclosed_whiteok;
-    int		b_ind_matching_paren;
-    int		b_ind_paren_prev;
-    int		b_ind_maxparen;
-    int		b_ind_maxcomment;
-    int		b_ind_scopedecl;
-    int		b_ind_scopedecl_code;
-    int		b_ind_java;
-    int		b_ind_js;
-    int		b_ind_keep_case_label;
-    int		b_ind_hash_comment;
-    int		b_ind_cpp_namespace;
-    int		b_ind_if_for_while;
-    int		b_ind_cpp_extern_c;
-#endif
 
     linenr_T	b_no_eol_lnum;	/* non-zero lnum when last line of next binary
 				 * write should not have an end-of-line */
@@ -2557,15 +2342,6 @@ struct file_buffer
     void	*b_python3_ref;	/* The Python3 reference to this buffer */
 #endif
 
-#ifdef FEAT_RUBY
-    void	*b_ruby_ref;
-#endif
-
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
-    synblock_T	b_s;		/* Info related to syntax highlighting.  w_s
-				 * normally points to this, but some windows
-				 * may use a different synblock_T. */
-#endif
 
 #ifdef FEAT_SIGNS
     signlist_T	*b_signlist;	/* list of signs to draw */
@@ -2597,6 +2373,8 @@ typedef struct {
 } bufferUpdate_T;
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
+
+typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 
 #ifdef FEAT_DIFF
 /*
@@ -2803,9 +2581,6 @@ struct matchitem
     regmmatch_T	match;	    /* regexp program for pattern */
     posmatch_T	pos;	    /* position matches */
     match_T	hl;	    /* struct for doing the actual highlighting */
-#ifdef FEAT_CONCEAL
-    int		conceal_char; /* cchar for Conceal highlighting */
-#endif
 };
 
 // Structure to store last cursor position and topline.  Used by check_lnums()
@@ -2832,10 +2607,6 @@ struct window_S
     win_T	*w_prev;	    /* link to previous window */
     win_T	*w_next;	    /* link to next window */
 
-#if defined(FEAT_SYN_HL) || defined(FEAT_SPELL)
-    synblock_T	*w_s;		    /* for :ownsyntax */
-#endif
-
     int		w_closing;	    /* window is being closed, don't let
 				       autocommands close it too. */
 
@@ -2851,9 +2622,6 @@ struct window_S
 				       time through cursupdate() to the
 				       current virtual column */
 
-#ifdef FEAT_SYN_HL
-    linenr_T	w_last_cursorline;  // where last time 'cursorline' was drawn
-#endif
 
     /*
      * the next seven are used to update the visual part
@@ -3037,9 +2805,6 @@ struct window_S
     long_u	w_p_fde_flags;	    /* flags for 'foldexpr' */
     long_u	w_p_fdt_flags;	    /* flags for 'foldtext' */
 #endif
-#ifdef FEAT_SYN_HL
-    int		*w_p_cc_cols;	    /* array of columns to highlight or NULL */
-#endif
 #ifdef FEAT_LINEBREAK
     int		w_p_brimin;	    /* minimum width for breakindent */
     int		w_p_brishift;	    /* additional shift for breakindent */
@@ -3131,10 +2896,6 @@ struct window_S
 
 #ifdef FEAT_PYTHON3
     void	*w_python3_ref;		/* The Python value for this window */
-#endif
-
-#ifdef FEAT_RUBY
-    void	*w_ruby_ref;
 #endif
 };
 
@@ -3249,10 +3010,6 @@ typedef struct
     int		lines_per_page;
     int		has_color;
     prt_text_attr_T number;
-#ifdef FEAT_SYN_HL
-    int		modec;
-    int		do_syntax;
-#endif
     int		user_abort;
     char_u	*jobname;
 #ifdef FEAT_POSTSCRIPT

@@ -18,12 +18,6 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
-#ifdef FEAT_INS_EXPAND
-/* Set when doing something for completion that may call edit() recursively,
- * which is not allowed. */
-static int compl_busy = FALSE;
-#endif /* FEAT_INS_EXPAND */
-
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -35,9 +29,6 @@ static void internal_format(int textwidth, int second_indent, int flags,
 static void check_auto_format(int);
 static void redo_literal(int c);
 static void start_arrow_common(pos_T *end_insert_pos, int change);
-#ifdef FEAT_SPELL
-static void check_spell_redraw(void);
-#endif
 static void stop_insert(pos_T *end_insert_pos, int esc, int nomove);
 static int echeck_abbr(int);
 static void replace_join(int off);
@@ -89,10 +80,6 @@ static char_u *last_insert = NULL; /* the text of the previous insert,
 static int last_insert_skip;       /* nr of chars in front of previous insert */
 static int new_insert_skip;        /* nr of chars in front of current insert */
 static int did_restart_edit;       /* "restart_edit" when calling edit() */
-
-#ifdef FEAT_CINDENT
-static int can_cindent; /* may do cindenting on this line */
-#endif
 
 static int old_indent = 0; /* for ^^D command in insert mode */
 
@@ -205,12 +192,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
     }
   }
 
-#ifdef FEAT_CONCEAL
-  /* Check if the cursor line needs redrawing before changing State.  If
-   * 'concealcursor' is "n" it needs to be redrawn without concealing. */
-  conceal_check_cursor_line();
-#endif
-
   {
     Insstart = curwin->w_cursor;
     if (context->startln)
@@ -266,9 +247,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
    */
   if (curbuf->b_p_iminsert == B_IMODE_LMAP)
     State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-  im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
@@ -323,9 +301,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count) {
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* The cursor line is not in a closed fold, unless 'insertmode' is set or
    * restarting. */
@@ -519,21 +494,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
     context->c = Ctrl_V; /* pretend CTRL-V is last typed character */
     return HANDLED;
   }
-
-#ifdef FEAT_CINDENT
-  if (cindent_on()) {
-    /* A key name preceded by a bang means this key is not to be
-     * inserted.  Skip ahead to the re-indenting below.
-     * A key name preceded by a star means that indenting has to be
-     * done before inserting the key. */
-    context->line_is_white = inindent(0);
-    if (in_cinkeys(c, '!', context->line_is_white))
-      goto force_cindent;
-    if (can_cindent && in_cinkeys(c, '*', context->line_is_white) &&
-        stop_arrow() == OK)
-      do_c_expr_indent();
-  }
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   if (curwin->w_p_rl)
@@ -951,10 +911,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 
     if (c == ' ') {
       context->inserted_space = TRUE;
-#ifdef FEAT_CINDENT
-      if (inindent(0))
-        can_cindent = FALSE;
-#endif
       if (Insstart_blank_vcol == MAXCOL &&
           curwin->w_cursor.lnum == Insstart.lnum)
         Insstart_blank_vcol = get_nolist_virtcol();
@@ -1024,20 +980,6 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
   if (arrow_used)
     context->inserted_space = FALSE;
 
-#ifdef FEAT_CINDENT
-  if (can_cindent && cindent_on()) {
-  force_cindent:
-    /*
-     * Indent now if a key was typed that is in 'cinkeys'.
-     */
-    if (in_cinkeys(c, ' ', context->line_is_white)) {
-      if (stop_arrow() == OK)
-        /* re-indent the current line */
-        do_c_expr_indent();
-    }
-  }
-#endif /* FEAT_CINDENT */
-
   return HANDLED;
 };
 
@@ -1068,9 +1010,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   int mincol;
   int i;
   int did_backspace = TRUE; /* previous char was backspace */
-#ifdef FEAT_CINDENT
-  int line_is_white = FALSE; /* line is empty before insert */
-#endif
   linenr_T old_topline = 0; /* topline before insertion */
 #ifdef FEAT_DIFF
   int old_topfill = -1;
@@ -1105,15 +1044,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     emsg(_(e_secure));
     return FALSE;
   }
-
-#ifdef FEAT_INS_EXPAND
-  /* Don't allow recursive insert mode when busy with completion. */
-  if (ins_compl_active() || compl_busy || pum_visible()) {
-    emsg(_(e_secure));
-    return FALSE;
-  }
-  ins_compl_clear(); /* clear stuff for CTRL-X mode */
-#endif
 
   /*
    * Trigger InsertEnter autocommands.  Do not do this for "r<CR>" or "grx".
@@ -1152,12 +1082,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       State = save_state;
     }
   }
-
-#ifdef FEAT_CONCEAL
-  /* Check if the cursor line needs redrawing before changing State.  If
-   * 'concealcursor' is "n" it needs to be redrawn without concealing. */
-  conceal_check_cursor_line();
-#endif
 
   {
     Insstart = curwin->w_cursor;
@@ -1214,9 +1138,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    */
   if (curbuf->b_p_iminsert == B_IMODE_LMAP)
     State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-  im_set_active(curbuf->b_p_iminsert == B_IMODE_IM);
-#endif
 
 #ifdef FEAT_RIGHTLEFT
   /* there is no reverse replace mode */
@@ -1271,9 +1192,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
   /* Need to save the line for undo before inserting the first char. */
   ins_need_undo = TRUE;
 
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* The cursor line is not in a closed fold, unless 'insertmode' is set or
    * restarting. */
@@ -1328,9 +1246,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       Insstart_orig = Insstart;
 
     if (stop_insert_mode
-#ifdef FEAT_INS_EXPAND
-        && !pum_visible()
-#endif
     ) {
       /* ":stopinsert" used or 'insertmode' reset */
       count = 0;
@@ -1483,68 +1398,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       c = hkmap(c); /* Hebrew mode mapping */
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    /*
-     * Special handling of keys while the popup menu is visible or wanted
-     * and the cursor is still in the completed word.  Only when there is
-     * a match, skip this when no matches were found.
-     */
-    if (ins_compl_active() && pum_wanted() &&
-        curwin->w_cursor.col >= ins_compl_col() &&
-        ins_compl_has_shown_match()) {
-      /* BS: Delete one character from "compl_leader". */
-      if ((c == K_BS || c == Ctrl_H) &&
-          curwin->w_cursor.col > ins_compl_col() && (c = ins_compl_bs()) == NUL)
-        continue;
-
-      /* When no match was selected or it was edited. */
-      if (!ins_compl_used_match()) {
-        /* CTRL-L: Add one character from the current match to
-         * "compl_leader".  Except when at the original match and
-         * there is nothing to add, CTRL-L works like CTRL-P then. */
-        if (c == Ctrl_L &&
-            (!ctrl_x_mode_line_or_eval() || ins_compl_long_shown_match())) {
-          ins_compl_addfrommatch();
-          continue;
-        }
-
-        /* A non-white character that fits in with the current
-         * completion: Add to "compl_leader". */
-        if (ins_compl_accept_char(c)) {
-#if defined(FEAT_EVAL)
-          /* Trigger InsertCharPre. */
-          char_u *str = do_insert_char_pre(c);
-          char_u *p;
-
-          if (str != NULL) {
-            for (p = str; *p != NUL; MB_PTR_ADV(p))
-              ins_compl_addleader(PTR2CHAR(p));
-            vim_free(str);
-          } else
-#endif
-            ins_compl_addleader(c);
-          continue;
-        }
-
-        /* Pressing CTRL-Y selects the current match.  When
-         * ins_compl_enter_selects() is set the Enter key does the
-         * same. */
-        if ((c == Ctrl_Y || (ins_compl_enter_selects() &&
-                             (c == CAR || c == K_KENTER || c == NL))) &&
-            stop_arrow() == OK) {
-          ins_compl_delete();
-          ins_compl_insert(FALSE);
-        }
-      }
-    }
-
-    /* Prepare for or stop CTRL-X mode.  This doesn't do completion, but
-     * it does fix up the text when finishing completion. */
-    ins_compl_init_get_longest();
-    if (ins_compl_prep(c))
-      continue;
-#endif
-
     /* CTRL-\ CTRL-N goes to Normal mode,
      * CTRL-\ CTRL-G goes to mode selected with 'insertmode',
      * CTRL-\ CTRL-O is like CTRL-O but without moving the cursor.  */
@@ -1577,34 +1430,11 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     c = do_digraph(c);
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    if ((c == Ctrl_V || c == Ctrl_Q) && ctrl_x_mode_cmdline())
-      goto docomplete;
-#endif
     if (c == Ctrl_V || c == Ctrl_Q) {
       ins_ctrl_v();
       c = Ctrl_V; /* pretend CTRL-V is last typed character */
       continue;
     }
-
-#ifdef FEAT_CINDENT
-    if (cindent_on()
-#ifdef FEAT_INS_EXPAND
-        && ctrl_x_mode_none()
-#endif
-    ) {
-      /* A key name preceded by a bang means this key is not to be
-       * inserted.  Skip ahead to the re-indenting below.
-       * A key name preceded by a star means that indenting has to be
-       * done before inserting the key. */
-      line_is_white = inindent(0);
-      if (in_cinkeys(c, '!', line_is_white))
-        goto force_cindent;
-      if (can_cindent && in_cinkeys(c, '*', line_is_white) &&
-          stop_arrow() == OK)
-        do_c_expr_indent();
-    }
-#endif
 
 #ifdef FEAT_RIGHTLEFT
     if (curwin->w_p_rl)
@@ -1766,20 +1596,9 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 #endif
 
     case Ctrl_D: /* Make indent one shiftwidth smaller. */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_FIND_ID)
-      if (ctrl_x_mode_path_defines())
-        goto docomplete;
-#endif
       /* FALLTHROUGH */
 
     case Ctrl_T: /* Make indent one shiftwidth greater. */
-#ifdef FEAT_INS_EXPAND
-      if (c == Ctrl_T && ctrl_x_mode_thesaurus()) {
-        if (has_compl_option(FALSE))
-          goto docomplete;
-        break;
-      }
-#endif
       ins_shift(c, lastc);
       auto_format(FALSE, TRUE);
       inserted_space = FALSE;
@@ -1900,10 +1719,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       break;
 
     case K_UP: /* <Up> */
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       if (mod_mask & MOD_MASK_SHIFT)
         ins_pageup();
       else
@@ -1913,18 +1728,10 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_S_UP: /* <S-Up> */
     case K_PAGEUP:
     case K_KPAGEUP:
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       ins_pageup();
       break;
 
     case K_DOWN: /* <Down> */
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       if (mod_mask & MOD_MASK_SHIFT)
         ins_pagedown();
       else
@@ -1934,10 +1741,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     case K_S_DOWN: /* <S-Down> */
     case K_PAGEDOWN:
     case K_KPAGEDOWN:
-#ifdef FEAT_INS_EXPAND
-      if (pum_visible())
-        goto docomplete;
-#endif
       ins_pagedown();
       break;
 
@@ -1946,10 +1749,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       /* FALLTHROUGH */
 
     case TAB: /* TAB or Complete patterns along path */
-#if defined(FEAT_INS_EXPAND) && defined(FEAT_FIND_ID)
-      if (ctrl_x_mode_path_patterns())
-        goto docomplete;
-#endif
       inserted_space = FALSE;
       if (ins_tab())
         goto normalchar; /* insert TAB as a normal char */
@@ -1988,15 +1787,8 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       inserted_space = FALSE;
       break;
 
-#if defined(FEAT_DIGRAPHS) || defined(FEAT_INS_EXPAND)
+#if defined(FEAT_DIGRAPHS)
     case Ctrl_K: /* digraph or keyword completion */
-#ifdef FEAT_INS_EXPAND
-      if (ctrl_x_mode_dictionary()) {
-        if (has_compl_option(TRUE))
-          goto docomplete;
-        break;
-      }
-#endif
 #ifdef FEAT_DIGRAPHS
       c = ins_digraph();
       if (c == NUL)
@@ -2005,32 +1797,7 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       goto normalchar;
 #endif
 
-#ifdef FEAT_INS_EXPAND
-    case Ctrl_X: /* Enter CTRL-X mode */
-      ins_ctrl_x();
-      break;
-
-    case Ctrl_RSB: /* Tag name completion after ^X */
-      if (!ctrl_x_mode_tags())
-        goto normalchar;
-      goto docomplete;
-
-    case Ctrl_F: /* File name completion after ^X */
-      if (!ctrl_x_mode_files())
-        goto normalchar;
-      goto docomplete;
-
-    case 's': /* Spelling completion after ^X */
-    case Ctrl_S:
-      if (!ctrl_x_mode_spell())
-        goto normalchar;
-      goto docomplete;
-#endif
-
     case Ctrl_L: /* Whole line completion after ^X */
-#ifdef FEAT_INS_EXPAND
-      if (!ctrl_x_mode_whole_line())
-#endif
       {
         /* CTRL-L with 'insertmode' set: Leave Insert mode */
         if (p_im) {
@@ -2040,32 +1807,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
         }
         goto normalchar;
       }
-#ifdef FEAT_INS_EXPAND
-      /* FALLTHROUGH */
-
-    case Ctrl_P: /* Do previous/next pattern completion */
-    case Ctrl_N:
-      /* if 'complete' is empty then plain ^P is no longer special,
-       * but it is under other ^X modes */
-      if (*curbuf->b_p_cpt == NUL &&
-          (ctrl_x_mode_normal() || ctrl_x_mode_whole_line()) &&
-          !(compl_cont_status & CONT_LOCAL))
-        goto normalchar;
-
-    docomplete:
-      compl_busy = TRUE;
-#ifdef FEAT_FOLDING
-      disable_fold_update++; /* don't redraw folds here */
-#endif
-      if (ins_complete(c, TRUE) == FAIL)
-        compl_cont_status = 0;
-#ifdef FEAT_FOLDING
-      disable_fold_update--;
-#endif
-      compl_busy = FALSE;
-      break;
-#endif /* FEAT_INS_EXPAND */
-
     case Ctrl_Y: /* copy from previous line or scroll down */
     case Ctrl_E: /* copy from next line	   or scroll up */
       c = ins_ctrl_ey(c);
@@ -2119,10 +1860,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
 
       if (c == ' ') {
         inserted_space = TRUE;
-#ifdef FEAT_CINDENT
-        if (inindent(0))
-          can_cindent = FALSE;
-#endif
         if (Insstart_blank_vcol == MAXCOL &&
             curwin->w_cursor.lnum == Insstart.lnum)
           Insstart_blank_vcol = get_nolist_virtcol();
@@ -2164,24 +1901,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
     if (arrow_used)
       inserted_space = FALSE;
 
-#ifdef FEAT_CINDENT
-    if (can_cindent && cindent_on()
-#ifdef FEAT_INS_EXPAND
-        && ctrl_x_mode_normal()
-#endif
-    ) {
-    force_cindent:
-      /*
-       * Indent now if a key was typed that is in 'cinkeys'.
-       */
-      if (in_cinkeys(c, ' ', line_is_white)) {
-        if (stop_arrow() == OK)
-          /* re-indent the current line */
-          do_c_expr_indent();
-      }
-    }
-#endif /* FEAT_CINDENT */
-
   } /* for (;;) */
     /* NOTREACHED */
 }
@@ -2197,11 +1916,6 @@ int ins_need_undo_get(void) { return ins_need_undo; }
  */
 void ins_redraw(int ready) // not busy with something
 {
-#ifdef FEAT_CONCEAL
-  linenr_T conceal_old_cursor_line = 0;
-  linenr_T conceal_new_cursor_line = 0;
-  int conceal_update_lines = FALSE;
-#endif
 
   if (char_avail())
     return;
@@ -2213,23 +1927,9 @@ void ins_redraw(int ready) // not busy with something
 #ifdef FEAT_TEXT_PROP
        || popup_visible
 #endif
-#if defined(FEAT_CONCEAL)
-       || curwin->w_p_cole > 0
-#endif
        ) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor)
-#ifdef FEAT_INS_EXPAND
-      && !pum_visible()
-#endif
   ) {
-#ifdef FEAT_SYN_HL
-    /* Need to update the screen first, to make sure syntax
-     * highlighting is correct after making a change (e.g., inserting
-     * a "(".  The autocommand may also require a redraw, so it's done
-     * again below, unfortunately. */
-    if (syntax_present(curwin) && must_redraw)
-      update_screen(0);
-#endif
     if (has_cursormovedI()) {
       /* Make sure curswant is correct, an autocommand may call
        * getcurpos(). */
@@ -2240,22 +1940,12 @@ void ins_redraw(int ready) // not busy with something
     if (popup_visible)
       popup_check_cursor_pos();
 #endif
-#ifdef FEAT_CONCEAL
-    if (curwin->w_p_cole > 0) {
-      conceal_old_cursor_line = last_cursormoved.lnum;
-      conceal_new_cursor_line = curwin->w_cursor.lnum;
-      conceal_update_lines = TRUE;
-    }
-#endif
     last_cursormoved = curwin->w_cursor;
   }
 
   /* Trigger TextChangedI if b_changedtick differs. */
   if (ready && has_textchangedI() &&
       curbuf->b_last_changedtick != CHANGEDTICK(curbuf)
-#ifdef FEAT_INS_EXPAND
-      && !pum_visible()
-#endif
   ) {
     aco_save_T aco;
     varnumber_T tick = CHANGEDTICK(curbuf);
@@ -2269,39 +1959,7 @@ void ins_redraw(int ready) // not busy with something
       u_save(curwin->w_cursor.lnum, (linenr_T)(curwin->w_cursor.lnum + 1));
   }
 
-#ifdef FEAT_INS_EXPAND
-  /* Trigger TextChangedP if b_changedtick differs. When the popupmenu closes
-   * TextChangedI will need to trigger for backwards compatibility, thus use
-   * different b_last_changedtick* variables. */
-  if (ready && has_textchangedP() &&
-      curbuf->b_last_changedtick_pum != CHANGEDTICK(curbuf) && pum_visible()) {
-    aco_save_T aco;
-    varnumber_T tick = CHANGEDTICK(curbuf);
 
-    // save and restore curwin and curbuf, in case the autocmd changes them
-    aucmd_prepbuf(&aco, curbuf);
-    apply_autocmds(EVENT_TEXTCHANGEDP, NULL, NULL, FALSE, curbuf);
-    aucmd_restbuf(&aco);
-    curbuf->b_last_changedtick_pum = CHANGEDTICK(curbuf);
-    if (tick != CHANGEDTICK(curbuf)) // see ins_apply_autocmds()
-      u_save(curwin->w_cursor.lnum, (linenr_T)(curwin->w_cursor.lnum + 1));
-  }
-#endif
-
-#if defined(FEAT_CONCEAL)
-  if ((conceal_update_lines &&
-       (conceal_old_cursor_line != conceal_new_cursor_line ||
-        conceal_cursor_line(curwin))) ||
-      need_cursor_line_redraw) {
-    if (conceal_old_cursor_line != conceal_new_cursor_line)
-      redrawWinline(curwin, conceal_old_cursor_line);
-    redrawWinline(curwin, conceal_new_cursor_line == 0
-                              ? curwin->w_cursor.lnum
-                              : conceal_new_cursor_line);
-    curwin->w_valid &= ~VALID_CROW;
-    need_cursor_line_redraw = FALSE;
-  }
-#endif
   if (must_redraw)
     update_screen(0);
   else if (clear_cmdline || redraw_cmdline)
@@ -3441,9 +3099,6 @@ static void internal_format(int textwidth, int second_indent, int flags,
     }
 
     haveto_redraw = TRUE;
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
     /* moved the cursor, don't autoindent or cindent now */
     did_ai = FALSE;
 #ifdef FEAT_SMARTINDENT
@@ -3682,26 +3337,7 @@ static void start_arrow_common(pos_T *end_insert_pos, /* can be NULL */
     stop_insert(end_insert_pos, FALSE, FALSE);
     arrow_used = TRUE; /* this means we stopped the current insert */
   }
-#ifdef FEAT_SPELL
-  check_spell_redraw();
-#endif
 }
-
-#ifdef FEAT_SPELL
-/*
- * If we skipped highlighting word at cursor, do it now.
- * It may be skipped again, thus reset spell_redraw_lnum first.
- */
-static void check_spell_redraw(void) {
-  if (spell_redraw_lnum != 0) {
-    linenr_T lnum = spell_redraw_lnum;
-
-    spell_redraw_lnum = 0;
-    redrawWinline(curwin, lnum);
-  }
-}
-
-#endif
 
 /*
  * stop_arrow() is called before a change is made in insert mode.
@@ -4654,9 +4290,6 @@ static void ins_reg(void) {
   ++no_u_sync;
   if (regname == '=') {
     pos_T curpos = curwin->w_cursor;
-#ifdef HAVE_INPUT_METHOD
-    int im_on = im_get_status();
-#endif
     /* Sync undo when evaluating the expression calls setline() or
      * append(), so that it can be undone separately. */
     u_sync_once = 2;
@@ -4666,11 +4299,6 @@ static void ins_reg(void) {
     // Cursor may be moved back a column.
     curwin->w_cursor = curpos;
     check_cursor();
-#ifdef HAVE_INPUT_METHOD
-    // Restore the Input Method.
-    if (im_on)
-      im_set_active(TRUE);
-#endif
   }
   if (regname == NUL || !valid_yank_reg(regname, FALSE)) {
     vim_beep(BO_REG);
@@ -4717,10 +4345,6 @@ static void ins_reg(void) {
 static void ins_ctrl_g(void) {
   int c;
 
-#ifdef FEAT_INS_EXPAND
-  /* Right after CTRL-X the cursor will be after the ruler. */
-  setcursor();
-#endif
 
   /*
    * Don't map the second key. This also prevents the mode message to be
@@ -4780,24 +4404,8 @@ static void ins_ctrl_hat(void) {
     } else {
       curbuf->b_p_iminsert = B_IMODE_LMAP;
       State |= LANGMAP;
-#ifdef HAVE_INPUT_METHOD
-      im_set_active(FALSE);
-#endif
     }
   }
-#ifdef HAVE_INPUT_METHOD
-  else {
-    /* There are no ":lmap" mappings, toggle IM */
-    if (im_get_status()) {
-      curbuf->b_p_iminsert = B_IMODE_NONE;
-      im_set_active(FALSE);
-    } else {
-      curbuf->b_p_iminsert = B_IMODE_IM;
-      State &= ~LANGMAP;
-      im_set_active(TRUE);
-    }
-  }
-#endif
   set_iminsert_global();
   showmode();
 #ifdef FEAT_GUI
@@ -4821,9 +4429,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
   int temp;
   static int disabled_redraw = FALSE;
 
-#ifdef FEAT_SPELL
-  check_spell_redraw();
-#endif
 #if defined(FEAT_HANGULIN)
 #if defined(ESC_CHG_TO_ENG_MODE)
   hangul_input_state_set(0);
@@ -4905,15 +4510,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
         mb_adjust_cursor();
     }
   }
-
-#ifdef HAVE_INPUT_METHOD
-  /* Disable IM to allow typing English directly for Normal mode commands.
-   * When ":lmap" is enabled don't change 'iminsert' (IM can be enabled as
-   * well). */
-  if (!(State & LANGMAP))
-    im_save_status(&curbuf->b_p_iminsert);
-  im_set_active(FALSE);
-#endif
 
   State = NORMAL;
   /* need to position cursor again (e.g. when on a TAB ) */
@@ -5079,9 +4675,6 @@ static void ins_shift(int c, int lastc) {
   can_si = FALSE;
   can_si_back = FALSE;
 #endif
-#ifdef FEAT_CINDENT
-  can_cindent = FALSE; /* no cindenting after ^D or ^T */
-#endif
 }
 
 static void ins_del(void) {
@@ -5170,10 +4763,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
   if (stop_arrow() == FAIL)
     return FALSE;
   in_indent = inindent(0);
-#ifdef FEAT_CINDENT
-  if (in_indent)
-    can_cindent = FALSE;
-#endif
 #ifdef FEAT_COMMENTS
   end_comment_pending = NUL; /* After BS, don't auto-end comment */
 #endif
@@ -5293,9 +4882,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p) {
     /* keep indent */
     if (mode == BACKSPACE_LINE &&
         (curbuf->b_p_ai
-#ifdef FEAT_CINDENT
-         || cindent_on()
-#endif
              )
 #ifdef FEAT_RIGHTLEFT
         && !revins_on
@@ -5608,9 +5194,6 @@ void ins_scroll(void) {
   tpos = curwin->w_cursor;
   if (gui_do_scroll()) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   }
 }
 
@@ -5621,9 +5204,6 @@ void ins_horscroll(void) {
   tpos = curwin->w_cursor;
   if (gui_do_horiz_scroll(scrollbar_value, FALSE)) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   }
 }
 #endif
@@ -5804,9 +5384,6 @@ static void ins_up(int startcol) /* when TRUE move to Insstart.col */
     )
       redraw_later(VALID);
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5828,9 +5405,6 @@ static void ins_pageup(void) {
   tpos = curwin->w_cursor;
   if (onepage(BACKWARD, 1L) == OK) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5855,9 +5429,6 @@ static void ins_down(int startcol) /* when TRUE move to Insstart.col */
     )
       redraw_later(VALID);
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5879,9 +5450,6 @@ static void ins_pagedown(void) {
   tpos = curwin->w_cursor;
   if (onepage(FORWARD, 1L) == OK) {
     start_arrow(&tpos);
-#ifdef FEAT_CINDENT
-    can_cindent = TRUE;
-#endif
   } else
     vim_beep(BO_CRSR);
 }
@@ -5901,10 +5469,6 @@ static int ins_tab(void) {
     return FALSE;
 
   ind = inindent(0);
-#ifdef FEAT_CINDENT
-  if (ind)
-    can_cindent = FALSE;
-#endif
 
   /*
    * When nothing special, insert TAB like a normal character.
@@ -6177,9 +5741,6 @@ int ins_eol(int c) {
   }
 
   old_indent = 0;
-#ifdef FEAT_CINDENT
-  can_cindent = TRUE;
-#endif
 #ifdef FEAT_FOLDING
   /* When inserting a line the cursor line must never be in a closed fold. */
   foldOpenCursor();
@@ -6295,16 +5856,6 @@ int ins_copychar(linenr_T lnum) {
 static int ins_ctrl_ey(int tc) {
   int c = tc;
 
-#ifdef FEAT_INS_EXPAND
-  if (ctrl_x_mode_scroll()) {
-    if (c == Ctrl_Y)
-      scrolldown_clamp();
-    else
-      scrollup_clamp();
-    redraw_later(VALID);
-  } else
-#endif
-  {
     c = ins_copychar(curwin->w_cursor.lnum + (c == Ctrl_Y ? -1 : 1));
     if (c != NUL) {
       long tw_save;
@@ -6326,7 +5877,6 @@ static int ins_ctrl_ey(int tc) {
       c = Ctrl_V; /* pretend CTRL-V is last character */
       auto_format(FALSE, TRUE);
     }
-  }
   return c;
 }
 
@@ -6471,10 +6021,6 @@ static char_u *do_insert_char_pre(int c) {
 
   return res;
 }
-#endif
-
-#if defined(FEAT_CINDENT) || defined(PROTO)
-int can_cindent_get(void) { return can_cindent; }
 #endif
 
 /*

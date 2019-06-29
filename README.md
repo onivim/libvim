@@ -1,5 +1,3 @@
-![Vim Logo](https://github.com/vim/vim/blob/master/runtime/vimlogo.gif)
-
 [![Build Status](https://dev.azure.com/onivim/oni2/_apis/build/status/onivim.libvim?branchName=master)](https://dev.azure.com/onivim/oni2/_build/latest?definitionId=4&branchName=master)
 
 ## What is `libvim`?
@@ -27,6 +25,7 @@ It is __NOT__ responsible for:
 - Spell Checking
 - Terminal Support
 - Completion
+- Input methods (IME)
 
 All of these are intended to be handled by the consumer of the library - leaving `libvim` to be focused on the job of fast buffer manipulation.
 
@@ -53,6 +52,11 @@ This library is in active development and we currently make no guarantees about 
 npm install -g esy@0.5.7
 ```
 
+### Get sources
+
+- `git clone https://github.com/onivim/libvim`
+- `cd src`
+
 ### Installing dependencies
 
 - `esy install`
@@ -72,9 +76,9 @@ npm install -g esy@0.5.7
 
 I'm a huge fan of the work the Neovim team is doing (and the team has been incredibly support of the Onivim project). Ideally, we would've stuck with Neovim or implemented `libvim` based on `libnvim`. In fact, the first time I tried to build this 'minimal abstraction' - I tried to base it off Neovim's `libnvim`. I timeboxed the investigation to 2 days, and ran into some serious hurdles - our build environment is a bit challenging on Windows (it's based on Cygwin + MingW cross-compiler toolchain) - I encountered several issues getting Neovim + deps to build in that environment. Based off that spike, I estimated it would take ~3-4 weeks to get it working in that toolchain.
 
-Note that this is not a Neovim issue - the choice of modern C++, dependencies, and build-system make perfect sense - it's a consequence of our OCaml build system. The Cygwin + MingW cross-compiler toolchain isn't well handled by all dependencies (being a weird hybrid of Win32 and Unix, it's often the case where #ifdefs are wrong, incorrect dependencies are pulled in, and it can be a huge time sink working through these issues). It's also easier to pick up libraries via the C FFI (C++ APIs usually need to be wrapped to be picked up in Reason/OCaml).
+Note that this is not a Neovim issue - the dependency usage and leveraging of `CMake` are good decisions - it's a consequence of our OCaml build system. The Cygwin + MingW cross-compiler toolchain isn't well handled by all dependencies (being a weird hybrid of Win32 and Unix, it's often the case where #ifdefs are wrong, incorrect dependencies are pulled in, and it can be a huge time sink working through these issues).
 
-The pure-C codebase of Vim was able to compile in that environment easily (NOTE: If anyone is interested in building a cross-platform, `esy`-enabled Neovim package - we can revisit this!). I'm also interested in WebAssembly builds, for porting the Onivim v1 tutorials to the web, in which this C-abstracted library compiled to WebAssembly would be a perfect fit.
+Vim, in contrast, was able to compile in that environment easily (NOTE: If anyone is interested in building a cross-platform, `esy`-enabled Neovim package - we can revisit this!). I'm also interested in WebAssembly builds, for porting the Onivim v1 tutorials to the web, in which this C-abstracted library compiled to WebAssembly would be a perfect fit.
 
 Beyond the build issues, both Neovim and Vim would need refactoring to provide that synchronous, functional API:
 - Neovim uses an event loop at its core, which would need to be short-circuited or removed to provide that API

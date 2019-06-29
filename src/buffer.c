@@ -129,9 +129,6 @@ open_buffer(
 {
     int		retval = OK;
     bufref_T	old_curbuf;
-#ifdef FEAT_SYN_HL
-    long	old_tw = curbuf->b_p_tw;
-#endif
     int		read_fifo = FALSE;
 
     /*
@@ -164,10 +161,6 @@ open_buffer(
 	}
 	emsg(_("E83: Cannot allocate buffer, using other one..."));
 	enter_buffer(curbuf);
-#ifdef FEAT_SYN_HL
-	if (old_tw != curbuf->b_p_tw)
-	    check_colorcolumn(curwin);
-#endif
 	return FAIL;
     }
 
@@ -240,9 +233,6 @@ open_buffer(
     {
 
 	(void)buf_init_chartab(curbuf, FALSE);
-#ifdef FEAT_CINDENT
-	parse_cino(curbuf);
-#endif
     }
 
     /*
@@ -267,10 +257,6 @@ open_buffer(
     /* Set last_changedtick to avoid triggering a TextChanged autocommand right
      * after it was added. */
     curbuf->b_last_changedtick = CHANGEDTICK(curbuf);
-#ifdef FEAT_INS_EXPAND
-    curbuf->b_last_changedtick_pum = CHANGEDTICK(curbuf);
-#endif
-
     /* require "!" to overwrite the file, because it wasn't read completely */
 #ifdef FEAT_EVAL
     if (aborting())
@@ -768,11 +754,6 @@ buf_freeall(buf_T *buf, int flags)
 #ifdef FEAT_DIFF
     diff_buf_delete(buf);	    /* Can't use 'diff' for unloaded buffer. */
 #endif
-#ifdef FEAT_SYN_HL
-    /* Remove any ownsyntax, unless exiting. */
-    if (curwin != NULL && curwin->w_buffer == buf)
-	reset_synblock(curwin);
-#endif
 
 #ifdef FEAT_FOLDING
     /* No folds in an empty buffer. */
@@ -793,9 +774,6 @@ buf_freeall(buf_T *buf, int flags)
 	u_blockfree(buf);	    /* free the memory allocated for undo */
 	u_clearall(buf);	    /* reset all undo information */
     }
-#ifdef FEAT_SYN_HL
-    syntax_clear(&buf->b_s);	    /* reset syntax info */
-#endif
 #ifdef FEAT_TEXT_PROP
     clear_buf_prop_types(buf);
 #endif
@@ -827,9 +805,6 @@ free_buffer(buf_T *buf)
 #endif
 #ifdef FEAT_PYTHON3
     python3_buffer_free(buf);
-#endif
-#ifdef FEAT_RUBY
-    ruby_buffer_free(buf);
 #endif
 #ifdef FEAT_JOB_CHANNEL
     channel_buffer_free(buf);
@@ -985,9 +960,6 @@ handle_swap_exists(bufref_T *old_curbuf)
 #if defined(FEAT_EVAL)
     cleanup_T	cs;
 #endif
-#ifdef FEAT_SYN_HL
-    long	old_tw = curbuf->b_p_tw;
-#endif
     buf_T	*buf;
 
     if (swap_exists_action == SEA_QUIT)
@@ -1019,10 +991,6 @@ handle_swap_exists(bufref_T *old_curbuf)
 	    // restore msg_silent, so that the command line will be shown
 	    msg_silent = old_msg_silent;
 
-#ifdef FEAT_SYN_HL
-	    if (old_tw != curbuf->b_p_tw)
-		check_colorcolumn(curwin);
-#endif
 	}
 	/* If "old_curbuf" is NULL we are in big trouble here... */
 
@@ -1583,9 +1551,6 @@ set_curbuf(buf_T *buf, int action)
     buf_T	*prevbuf;
     int		unload = (action == DOBUF_UNLOAD || action == DOBUF_DEL
 						     || action == DOBUF_WIPE);
-#ifdef FEAT_SYN_HL
-    long	old_tw = curbuf->b_p_tw;
-#endif
     bufref_T	newbufref;
     bufref_T	prevbufref;
 
@@ -1613,10 +1578,6 @@ set_curbuf(buf_T *buf, int action)
 #endif
 	       ))
     {
-#ifdef FEAT_SYN_HL
-	if (prevbuf == curwin->w_buffer)
-	    reset_synblock(curwin);
-#endif
 	if (unload)
 	    close_windows(prevbuf, FALSE);
 #if defined(FEAT_EVAL)
@@ -1647,10 +1608,6 @@ set_curbuf(buf_T *buf, int action)
 	) || curwin->w_buffer == NULL)
     {
 	enter_buffer(buf);
-#ifdef FEAT_SYN_HL
-	if (old_tw != curbuf->b_p_tw)
-	    check_colorcolumn(curwin);
-#endif
     }
 }
 
@@ -1681,10 +1638,6 @@ enter_buffer(buf_T *buf)
 #ifdef FEAT_DIFF
     if (curwin->w_p_diff)
 	diff_buf_add(curbuf);
-#endif
-
-#ifdef FEAT_SYN_HL
-    curwin->w_s = &(curbuf->b_s);
 #endif
 
     /* Cursor on first line by default. */
@@ -2019,10 +1972,6 @@ buflist_new(
     buf->b_wininfo->wi_fpos.lnum = lnum;
     buf->b_wininfo->wi_win = curwin;
 
-#ifdef FEAT_SYN_HL
-    hash_init(&buf->b_s.b_keywtab);
-    hash_init(&buf->b_s.b_keywtab_ic);
-#endif
 
     buf->b_fname = buf->b_sfname;
 #ifdef UNIX
@@ -2093,10 +2042,6 @@ free_buf_options(
     clear_string_option(&buf->b_p_inex);
 # endif
 #endif
-#if defined(FEAT_CINDENT) && defined(FEAT_EVAL)
-    clear_string_option(&buf->b_p_inde);
-    clear_string_option(&buf->b_p_indk);
-#endif
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
     clear_string_option(&buf->b_p_bexpr);
 #endif
@@ -2136,23 +2081,12 @@ free_buf_options(
     clear_string_option(&buf->b_p_cms);
 #endif
     clear_string_option(&buf->b_p_nf);
-#ifdef FEAT_SYN_HL
-    clear_string_option(&buf->b_p_syn);
-    clear_string_option(&buf->b_s.b_syn_isk);
-#endif
 #ifdef FEAT_SEARCHPATH
     clear_string_option(&buf->b_p_sua);
 #endif
     clear_string_option(&buf->b_p_ft);
-#ifdef FEAT_CINDENT
-    clear_string_option(&buf->b_p_cink);
-    clear_string_option(&buf->b_p_cino);
-#endif
-#if defined(FEAT_CINDENT) || defined(FEAT_SMARTINDENT)
+#if defined(FEAT_SMARTINDENT)
     clear_string_option(&buf->b_p_cinw);
-#endif
-#ifdef FEAT_INS_EXPAND
-    clear_string_option(&buf->b_p_cpt);
 #endif
 #ifdef FEAT_QUICKFIX
     clear_string_option(&buf->b_p_gp);
@@ -2166,18 +2100,11 @@ free_buf_options(
 #ifdef FEAT_EVAL
     clear_string_option(&buf->b_p_tfu);
 #endif
-#ifdef FEAT_INS_EXPAND
-    clear_string_option(&buf->b_p_dict);
-    clear_string_option(&buf->b_p_tsr);
-#endif
 #ifdef FEAT_TEXTOBJ
     clear_string_option(&buf->b_p_qe);
 #endif
     buf->b_p_ar = -1;
     buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
-#ifdef FEAT_LISP
-    clear_string_option(&buf->b_p_lw);
-#endif
     clear_string_option(&buf->b_p_bkc);
     clear_string_option(&buf->b_p_menc);
 }
@@ -2880,9 +2807,6 @@ get_winopts(buf_T *buf)
     if (p_fdls >= 0)
 	curwin->w_p_fdl = p_fdls;
 #endif
-#ifdef FEAT_SYN_HL
-    check_colorcolumn(curwin);
-#endif
 }
 
 /*
@@ -2983,7 +2907,9 @@ buflist_list(exarg_T *eap)
 #endif
 	    ro_char = !buf->b_p_ma ? '-' : (buf->b_p_ro ? '=' : ' ');
 
-	msg_putchar('\n');
+    msg_T *msg = msg2_create(MSG_INFO);
+
+    msg2_put("\n", msg);
 	len = vim_snprintf((char *)IObuff, IOSIZE - 20, "%3d%c%c%c%c%c \"%s\"",
 		buf->b_fnum,
 		buf->b_p_bl ? ' ' : 'u',
@@ -3005,9 +2931,9 @@ buflist_list(exarg_T *eap)
 	vim_snprintf((char *)IObuff + len, (size_t)(IOSIZE - len),
 		_("line %ld"), buf == curbuf ? curwin->w_cursor.lnum
 					       : (long)buflist_findlnum(buf));
-	msg_outtrans(IObuff);
-	out_flush();	    /* output one line at a time */
-	ui_breakcheck();
+	msg2_put(IObuff, msg);
+	msg2_send(msg);
+	msg2_free(msg);
     }
 }
 

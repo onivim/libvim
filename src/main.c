@@ -128,13 +128,6 @@ main2
 #endif
     params.window_count = -1;
 
-#ifdef FEAT_RUBY
-    {
-	int ruby_stack_start;
-	vim_ruby_init((void *)&ruby_stack_start);
-    }
-#endif
-
 #ifdef MEM_PROFILE
     atexit(vim_mem_profile_dump);
 #endif
@@ -786,25 +779,12 @@ vim_main2(void)
     /* Must come before the may_req_ calls. */
     starting = 0;
 
-#if defined(FEAT_TERMRESPONSE)
-    /* Must be done before redrawing, puts a few characters on the screen. */
-    may_req_ambiguous_char_width();
-#endif
-
     RedrawingDisabled = 0;
     redraw_all_later(NOT_VALID);
     no_wait_return = FALSE;
 
     /* 'autochdir' has been postponed */
     DO_AUTOCHDIR;
-
-#ifdef FEAT_TERMRESPONSE
-    /* Requesting the termresponse is postponed until here, so that a "-c q"
-     * argument doesn't make it appear in the shell Vim was started from. */
-    may_req_termresponse();
-
-    may_req_bg_color();
-#endif
 
     /* start in insert mode */
     if (p_im)
@@ -1011,13 +991,6 @@ main_loop(
 {
     oparg_T	oa;	/* operator arguments */
     volatile int previous_got_int = FALSE;	/* "got_int" was TRUE */
-#ifdef FEAT_CONCEAL
-    /* these are static to avoid a compiler warning */
-    static linenr_T	conceal_old_cursor_line = 0;
-    static linenr_T	conceal_new_cursor_line = 0;
-    static int		conceal_update_lines = FALSE;
-#endif
-
 #if defined(FEAT_X11) && defined(FEAT_XCLIPBOARD)
     /* Setup to catch a terminating error from the X server.  Just ignore
      * it, restore the state and continue.  This might not always work
@@ -1114,19 +1087,12 @@ main_loop(
 	    // locked, this would be a good time to handle the drop.
 	    handle_any_postponed_drop();
 #endif
-#ifdef FEAT_CONCEAL
-	    if (curwin->w_p_cole == 0)
-		conceal_update_lines = FALSE;
-#endif
 
 	    /* Trigger CursorMoved if the cursor moved. */
 	    if (!finish_op && (
 			has_cursormoved()
 #ifdef FEAT_TEXT_PROP
 			|| popup_visible
-#endif
-#ifdef FEAT_CONCEAL
-			|| curwin->w_p_cole > 0
 #endif
 			)
 		 && !EQUAL_POS(last_cursormoved, curwin->w_cursor))
@@ -1138,33 +1104,9 @@ main_loop(
 		if (popup_visible)
 		    popup_check_cursor_pos();
 #endif
-#ifdef FEAT_CONCEAL
-		if (curwin->w_p_cole > 0)
-		{
-		    conceal_old_cursor_line = last_cursormoved.lnum;
-		    conceal_new_cursor_line = curwin->w_cursor.lnum;
-		    conceal_update_lines = TRUE;
-		}
-#endif
 		last_cursormoved = curwin->w_cursor;
 	    }
 
-#if defined(FEAT_CONCEAL)
-	    if (conceal_update_lines
-		    && (conceal_old_cursor_line != conceal_new_cursor_line
-			|| conceal_cursor_line(curwin)
-			|| need_cursor_line_redraw))
-	    {
-		if (conceal_old_cursor_line != conceal_new_cursor_line
-			&& conceal_old_cursor_line != 0
-			&& conceal_old_cursor_line
-						<= curbuf->b_ml.ml_line_count)
-		    redrawWinline(curwin, conceal_old_cursor_line);
-		redrawWinline(curwin, conceal_new_cursor_line);
-		curwin->w_valid &= ~VALID_CROW;
-		need_cursor_line_redraw = FALSE;
-	    }
-#endif
 
 	    /* Trigger TextChanged if b:changedtick differs. */
 	    if (!finish_op && has_textchanged()
@@ -1378,7 +1320,7 @@ getout(int exitval)
 #endif
 	windgoto((int)Rows - 1, 0);
 
-#if defined(FEAT_EVAL) || defined(FEAT_SYN_HL)
+#if defined(FEAT_EVAL)
     /* Optionally print hashtable efficiency. */
     hash_debug_results();
 #endif
@@ -1478,9 +1420,6 @@ getout(int exitval)
 #endif
 #ifdef FEAT_TCL
     tcl_end();
-#endif
-#ifdef FEAT_RUBY
-    ruby_end();
 #endif
 #ifdef FEAT_PYTHON
     python_end();
@@ -2005,10 +1944,6 @@ command_line_scan(mparm_T *parmp)
 		break;
 
 	    case 'l':		/* "-l" lisp mode, 'lisp' and 'showmatch' on */
-#ifdef FEAT_LISP
-		set_option_value((char_u *)"lisp", 1L, NULL, 0);
-		p_sm = TRUE;
-#endif
 		break;
 
 	    case 'M':		/* "-M"  no changes or writing of files */
@@ -3275,9 +3210,6 @@ usage(void)
     main_msg(_("-m\t\t\tModifications (writing files) not allowed"));
     main_msg(_("-M\t\t\tModifications in text not allowed"));
     main_msg(_("-b\t\t\tBinary mode"));
-#ifdef FEAT_LISP
-    main_msg(_("-l\t\t\tLisp mode"));
-#endif
     main_msg(_("-C\t\t\tCompatible with Vi: 'compatible'"));
     main_msg(_("-N\t\t\tNot fully Vi compatible: 'nocompatible'"));
     main_msg(_("-V[N][fname]\t\tBe verbose [level N] [log messages to fname]"));
@@ -3919,7 +3851,6 @@ cmdsrv_main(
 
     if (didone)
     {
-	display_errors();	/* display any collected messages */
 	exit(exiterr);	/* Mission accomplished - get out */
     }
 

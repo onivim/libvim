@@ -127,11 +127,7 @@ static char *(features[]) =
 #else
 	"-channel",
 #endif
-#ifdef FEAT_CINDENT
-	"+cindent",
-#else
 	"-cindent",
-#endif
 	"-clientserver",
 #ifdef FEAT_CLIPBOARD
 	"+clipboard",
@@ -153,11 +149,7 @@ static char *(features[]) =
 #else
 	"-comments",
 #endif
-#ifdef FEAT_CONCEAL
-	"+conceal",
-#else
 	"-conceal",
-#endif
 #ifdef FEAT_CRYPT
 	"+cryptv",
 #else
@@ -273,11 +265,7 @@ static char *(features[]) =
 #else
 	"-iconv",
 #endif
-#ifdef FEAT_INS_EXPAND
-	"+insert_expand",
-#else
 	"-insert_expand",
-#endif
 #ifdef FEAT_JOB_CHANNEL
 	"+job",
 #else
@@ -312,11 +300,6 @@ static char *(features[]) =
 	"+linebreak",
 #else
 	"-linebreak",
-#endif
-#ifdef FEAT_LISP
-	"+lispindent",
-#else
-	"-lispindent",
 #endif
 	"+listcmds",
 #ifdef FEAT_LOCALMAP
@@ -432,15 +415,7 @@ static char *(features[]) =
 #else
 	"-rightleft",
 #endif
-#ifdef FEAT_RUBY
-# ifdef DYNAMIC_RUBY
-	"+ruby/dyn",
-# else
-	"+ruby",
-# endif
-#else
 	"-ruby",
-#endif
 	"+scrollbind",
 #ifdef FEAT_SIGNS
 	"+signs",
@@ -463,11 +438,7 @@ static char *(features[]) =
 	"-statusline",
 #endif
 	"-sun_workshop",
-#ifdef FEAT_SYN_HL
-	"+syntax",
-#else
 	"-syntax",
-#endif
 	    /* only interesting on Unix systems */
 #if defined(USE_SYSTEM) && defined(UNIX)
 	"+system()",
@@ -479,11 +450,7 @@ static char *(features[]) =
 #endif
 	"-tag_old_static",
 	"-tag_any_white",
-#ifdef FEAT_TERMGUICOLORS
-	"+termguicolors",
-#else
 	"-termguicolors",
-#endif
 #ifdef FEAT_TERMINAL
 	"+terminal",
 #else
@@ -497,11 +464,7 @@ static char *(features[]) =
 	"-terminfo",
 # endif
 #endif
-#ifdef FEAT_TERMRESPONSE
-	"+termresponse",
-#else
 	"-termresponse",
-#endif
 #ifdef FEAT_TEXTOBJ
 	"+textobjects",
 #else
@@ -3628,9 +3591,6 @@ list_in_columns(char_u **items, int size, int current)
     int		nrow;
     int		item_count = 0;
     int		width = 0;
-#ifdef FEAT_SYN_HL
-    int		use_highlight = (items == (char_u **)features);
-#endif
 
     /* Find the length of the longest item, use that + 1 as the column
      * width. */
@@ -3672,11 +3632,6 @@ list_in_columns(char_u **items, int size, int current)
 
 	    if (idx == current)
 		msg_putchar('[');
-#ifdef FEAT_SYN_HL
-	    if (use_highlight && items[idx][0] == '-')
-		msg_puts_attr((char *)items[idx], HL_ATTR(HLF_W));
-	    else
-#endif
 		msg_puts((char *)items[idx]);
 	    if (idx == current)
 		msg_putchar(']');

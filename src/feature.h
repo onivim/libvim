@@ -167,14 +167,6 @@
 #endif
 
 /*
- * +insert_expand	CTRL-N/CTRL-P/CTRL-X in insert mode. Takes about
- *			4Kbyte of code.
- */
-#ifdef FEAT_NORMAL
-# define FEAT_INS_EXPAND
-#endif
-
-/*
  * +cmdline_compl	completion of mappings/abbreviations in cmdline mode.
  *			Takes a few Kbyte of code.
  */
@@ -411,22 +403,6 @@
 #endif
 
 /*
- * +syntax		syntax highlighting.  When using this, it's a good
- *			idea to have +autocmd and +eval too.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_SYN_HL
-#endif
-
-/*
- * +conceal		'conceal' option.  Needs syntax highlighting
- *			as this is how the concealed text is defined.
- */
-#if defined(FEAT_BIG) && defined(FEAT_SYN_HL)
-# define FEAT_CONCEAL
-#endif
-
-/*
  * +textprop		Text properties and popup windows
  */
 #if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
@@ -458,21 +434,6 @@
 # else
 #  define SOME_BUILTIN_TCAPS		/* default */
 # endif
-#endif
-
-/*
- * +lispindent		lisp indenting (From Eric Fischer).
- * +cindent		C code indenting (From Eric Fischer).
- * +smartindent		smart C code indenting when the 'si' option is set.
- *
- * These two need to be defined when making prototypes.
- */
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_LISP
-#endif
-
-#if defined(FEAT_NORMAL) || defined(PROTO)
-# define FEAT_CINDENT
 #endif
 
 #ifdef FEAT_NORMAL
@@ -532,21 +493,6 @@
 # define USE_ICONV
 #endif
 
-/*
- * +xim			X Input Method.  For entering special languages like
- *			chinese and Japanese.
- * +hangul_input	Internal Hangul input method.  Must be included
- *			through configure: "--enable-hangulin"
- * Both are for Unix and VMS only.
- */
-#ifndef FEAT_XIM
-/* #define FEAT_XIM */
-#endif
-
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-# define USE_XIM 1		/* needed for GTK include files */
-#endif
-
 #ifdef FEAT_HANGULIN
 # define HANGUL_DEFAULT_KEYBOARD 2	/* 2 or 3 bulsik keyboard */
 # define ESC_CHG_TO_ENG_MODE		/* if defined, when ESC pressed,
@@ -556,7 +502,7 @@
 	Error: You should select only ONE of XIM and HANGUL INPUT
 # endif
 #endif
-#if defined(FEAT_HANGULIN) || defined(FEAT_XIM)
+#if defined(FEAT_HANGULIN)
 /* # define X_LOCALE */			/* for OS with incomplete locale
 					   support, like old linux versions. */
 #endif
@@ -627,13 +573,6 @@
 # ifndef ALWAYS_USE_GUI
 #  define FEAT_CON_DIALOG
 # endif
-#endif
-
-/*
- * +termguicolors	'termguicolors' option.
- */
-#if (defined(FEAT_BIG) && defined(FEAT_SYN_HL)) && !defined(ALWAYS_USE_GUI)
-# define FEAT_TERMGUICOLORS
 #endif
 
 /* Mac specific thing: Codewarrior interface. */
@@ -900,15 +839,6 @@
 # define FIND_REPLACE_DIALOG 1
 #endif
 
-/*
- * +termresponse	send t_RV to obtain terminal response.  Used for xterm
- *			to check if mouse dragging can be used and if term
- *			codes can be obtained.
- */
-#if (defined(FEAT_NORMAL)) && defined(HAVE_TGETENT)
-# define FEAT_TERMRESPONSE
-#endif
-
 #if defined(FEAT_MZSCHEME) && (defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_GTK)    \
 	|| defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA)	\
 	|| defined(FEAT_GUI_MAC))
@@ -1005,19 +935,31 @@
 #undef FEAT_AUTOSERVERNAME
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
+#undef FEAT_CONCEAL
 #undef FEAT_CRYPT
 /*
  * +footer		Motif only: Add a message area at the bottom of the
  *			main window area.
  */
 #undef FEAT_FOOTER
+#undef FEAT_INS_EXPAND
+#undef FEAT_LISP
+#undef HAVE_INPUT_METHOD
+#undef IME_WITHOUT_XIM
+
 /*
  * The Netbeans feature
  */
 #undef FEAT_NETBEANS_INTG
+#undef FEAT_SPELL
 #undef FEAT_STL_OPT
+#undef FEAT_SYN_HL
+#undef FEAT_TERMGUICOLORS
+#undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE
 /*
  * +vtp: Win32 virtual console.
  */
 #undef FEAT_VTP
+#undef FEAT_XIM
+

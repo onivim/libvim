@@ -39,31 +39,17 @@ change_warning(int col)
 	if (!curbuf->b_p_ro)
 	    return;
 
-	// Do what msg() does, but with a column offset if the warning should
-	// be after the mode message.
-	msg_start();
-	if (msg_row == Rows - 1)
-	    msg_col = col;
-	msg_source(HL_ATTR(HLF_W));
-	msg_puts_attr(_(w_readonly), HL_ATTR(HLF_W) | MSG_HIST);
+    msg_T *msg = msg2_create(MSG_WARNING);
+    msg2_source(msg);
+    msg2_put(_(w_readonly), msg);
+    msg2_send(msg);
+    msg2_free(msg);
+
 #ifdef FEAT_EVAL
 	set_vim_var_string(VV_WARNINGMSG, (char_u *)_(w_readonly), -1);
 #endif
-	msg_clr_eos();
-	(void)msg_end();
-	if (msg_silent == 0 && !silent_mode
-#ifdef FEAT_EVAL
-		&& time_for_testing != 1
-#endif
-		)
-	{
-	    out_flush();
-	    ui_delay(1000L, TRUE); // give the user time to think about it
-	}
 	curbuf->b_did_warn = TRUE;
 	redraw_cmdline = FALSE;	// don't redraw and erase the message
-	if (msg_row < Rows - 1)
-	    showmode();
     }
 }
 
@@ -452,6 +438,9 @@ changed_common(
     int		add;
 #endif
 
+    // mark the buffer as modified
+    changed();
+
     if (bufferUpdateCallback != NULL) {
 	    bufferUpdate_T bufferUpdate;
 	    bufferUpdate.buf = curbuf;
@@ -460,10 +449,6 @@ changed_common(
 	    bufferUpdate.xtra = xtra;
 	    bufferUpdateCallback(bufferUpdate);
     }
-
-
-    // mark the buffer as modified
-    changed();
 
 #ifdef FEAT_EVAL
     may_record_change(lnum, col, lnume, xtra);
@@ -1036,9 +1021,6 @@ ins_char_bytes(char_u *buf, int charlen)
     // show the match for right parens and braces.
     if (p_sm && (State & INSERT)
 	    && msg_silent == 0
-#ifdef FEAT_INS_EXPAND
-	    && !ins_compl_active()
-#endif
        )
     {
 	if (has_mbyte)
@@ -1448,18 +1430,12 @@ open_line(
 #endif
 #ifdef FEAT_SMARTINDENT
     int		do_si = (!p_paste && curbuf->b_p_si
-# ifdef FEAT_CINDENT
-					&& !curbuf->b_p_cin
-# endif
 # ifdef FEAT_EVAL
 					&& *curbuf->b_p_inde == NUL
 # endif
 			);
     int		no_si = FALSE;		// reset did_si afterwards
     int		first_char = NUL;	// init for GCC
-#endif
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
-    int		vreplace_mode;
 #endif
     int		did_append;		// appended a new line
     int		saved_pi = curbuf->b_p_pi; // copy of preserveindent setting
@@ -2303,52 +2279,6 @@ open_line(
 
     curwin->w_cursor.col = newcol;
     curwin->w_cursor.coladd = 0;
-
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
-    // In VREPLACE mode, we are handling the replace stack ourselves, so stop
-    // fixthisline() from doing it (via change_indent()) by telling it we're in
-    // normal INSERT mode.
-    if (State & VREPLACE_FLAG)
-    {
-	vreplace_mode = State;	// So we know to put things right later
-	State = INSERT;
-    }
-    else
-	vreplace_mode = 0;
-#endif
-#ifdef FEAT_LISP
-    // May do lisp indenting.
-    if (!p_paste
-# ifdef FEAT_COMMENTS
-	    && leader == NULL
-# endif
-	    && curbuf->b_p_lisp
-	    && curbuf->b_p_ai)
-    {
-	fixthisline(get_lisp_indent);
-	ai_col = (colnr_T)getwhitecols_curline();
-    }
-#endif
-#ifdef FEAT_CINDENT
-    // May do indenting after opening a new line.
-    if (!p_paste
-	    && (curbuf->b_p_cin
-#  ifdef FEAT_EVAL
-		    || *curbuf->b_p_inde != NUL
-#  endif
-		)
-	    && in_cinkeys(dir == FORWARD
-		? KEY_OPEN_FORW
-		: KEY_OPEN_BACK, ' ', linewhite(curwin->w_cursor.lnum)))
-    {
-	do_c_expr_indent();
-	ai_col = (colnr_T)getwhitecols_curline();
-    }
-#endif
-#if defined(FEAT_LISP) || defined(FEAT_CINDENT)
-    if (vreplace_mode != 0)
-	State = vreplace_mode;
-#endif
 
     // Finally, VREPLACE gets the stuff on the new line, then puts back the
     // original line, and inserts the new stuff char by char, pushing old stuff

@@ -994,65 +994,6 @@ restore_vimvar(int idx, typval_T *save_tv)
     }
 }
 
-#if defined(FEAT_SPELL) || defined(PROTO)
-/*
- * Evaluate an expression to a list with suggestions.
- * For the "expr:" part of 'spellsuggest'.
- * Returns NULL when there is an error.
- */
-    list_T *
-eval_spell_expr(char_u *badword, char_u *expr)
-{
-    typval_T	save_val;
-    typval_T	rettv;
-    list_T	*list = NULL;
-    char_u	*p = skipwhite(expr);
-
-    /* Set "v:val" to the bad word. */
-    prepare_vimvar(VV_VAL, &save_val);
-    vimvars[VV_VAL].vv_type = VAR_STRING;
-    vimvars[VV_VAL].vv_str = badword;
-    if (p_verbose == 0)
-	++emsg_off;
-
-    if (eval1(&p, &rettv, TRUE) == OK)
-    {
-	if (rettv.v_type != VAR_LIST)
-	    clear_tv(&rettv);
-	else
-	    list = rettv.vval.v_list;
-    }
-
-    if (p_verbose == 0)
-	--emsg_off;
-    restore_vimvar(VV_VAL, &save_val);
-
-    return list;
-}
-
-/*
- * "list" is supposed to contain two items: a word and a number.  Return the
- * word in "pp" and the number as the return value.
- * Return -1 if anything isn't right.
- * Used to get the good word and score from the eval_spell_expr() result.
- */
-    int
-get_spellword(list_T *list, char_u **pp)
-{
-    listitem_T	*li;
-
-    li = list->lv_first;
-    if (li == NULL)
-	return -1;
-    *pp = tv_get_string(&li->li_tv);
-
-    li = li->li_next;
-    if (li == NULL)
-	return -1;
-    return (int)tv_get_number(&li->li_tv);
-}
-#endif
-
 /*
  * Top level evaluation function.
  * Returns an allocated typval_T with the result.
@@ -8559,10 +8500,12 @@ ex_echo(exarg_T *eap)
     char_u	*tofree;
     char_u	*p;
     int		needclr = TRUE;
-    int		atstart = TRUE;
     char_u	numbuf[NUMBUFLEN];
     int		did_emsg_before = did_emsg;
     int		called_emsg_before = called_emsg;
+
+
+    msg_T* msg = msg2_create(MSG_INFO);
 
     if (eap->skip)
 	++emsg_skip;
@@ -8590,24 +8533,9 @@ ex_echo(exarg_T *eap)
 
 	if (!eap->skip)
 	{
-	    if (atstart)
-	    {
-		atstart = FALSE;
-		/* Call msg_start() after eval1(), evaluating the expression
-		 * may cause a message to appear. */
-		if (eap->cmdidx == CMD_echo)
-		{
-		    /* Mark the saved text as finishing the line, so that what
-		     * follows is displayed on a new line when scrolling back
-		     * at the more prompt. */
-		    msg_sb_eol();
-		    msg_start();
-		}
-	    }
-	    else if (eap->cmdidx == CMD_echo)
-		msg_puts_attr(" ", echo_attr);
 	    p = echo_string(&rettv, &tofree, numbuf, get_copyID());
-	    if (p != NULL)
+	    if (p != NULL) {
+        msg2_put(p, msg);
 		for ( ; *p != NUL && !got_int; ++p)
 		{
 		    if (*p == '\n' || *p == '\r' || *p == TAB)
@@ -8633,6 +8561,7 @@ ex_echo(exarg_T *eap)
 			    (void)msg_outtrans_len_attr(p, 1, echo_attr);
 		    }
 		}
+        }
 	    vim_free(tofree);
 	}
 	clear_tv(&rettv);
@@ -8647,9 +8576,13 @@ ex_echo(exarg_T *eap)
 	/* remove text that may still be there from the command */
 	if (needclr)
 	    msg_clr_eos();
-	if (eap->cmdidx == CMD_echo)
+	if (eap->cmdidx == CMD_echo) {
 	    msg_end();
+        msg2_send(msg);
+        }
     }
+
+    msg2_free(msg);
 }
 
 /*
@@ -8726,6 +8659,10 @@ ex_execute(exarg_T *eap)
 
 	if (eap->cmdidx == CMD_echomsg)
 	{
+        msg_T *msg = msg2_create(MSG_INFO);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    msg_attr(ga.ga_data, echo_attr);
 	    out_flush();
 	}
@@ -8734,6 +8671,10 @@ ex_execute(exarg_T *eap)
 	    /* We don't want to abort following commands, restore did_emsg. */
 	    save_did_emsg = did_emsg;
 	    emsg(ga.ga_data);
+        msg_T *msg = msg2_create(MSG_ERROR);
+        msg2_put(ga.ga_data, msg);
+        msg2_send(msg);
+        msg2_free(msg);
 	    if (!force_abort)
 		did_emsg = save_did_emsg;
 	}

@@ -5,11 +5,14 @@ static int updateCount = 0;
 static int lastLnum = 0;
 static int lastLnume = 0;
 static long lastXtra = 0;
+static long lastVersionAtUpdateTime = 0;
 
 void onBufferUpdate(bufferUpdate_T update) {
   lastLnum = update.lnum;
   lastLnume = update.lnume;
   lastXtra = update.xtra;
+  lastVersionAtUpdateTime = vimBufferGetLastChangedTick(curbuf);
+
   updateCount++;
 }
 
@@ -34,6 +37,7 @@ MU_TEST(test_single_line_update) {
   mu_check(lastLnum == 1);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == 0);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST(test_add_line) {
@@ -45,6 +49,7 @@ MU_TEST(test_add_line) {
   mu_check(lastLnum == 2);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == 1);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST(test_add_multiple_lines) {
@@ -57,6 +62,7 @@ MU_TEST(test_add_multiple_lines) {
   mu_check(lastLnum == 2);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == 2);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST(test_delete_line) {
@@ -67,6 +73,7 @@ MU_TEST(test_delete_line) {
   mu_check(lastLnum == 1);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == -1);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST(test_delete_multiple_lines) {
@@ -78,6 +85,7 @@ MU_TEST(test_delete_multiple_lines) {
   mu_check(lastLnum == 1);
   mu_check(lastLnume == 4);
   mu_check(lastXtra == -3);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST(test_insert) {
@@ -89,6 +97,7 @@ MU_TEST(test_insert) {
   mu_check(lastLnum == 1);
   mu_check(lastLnume == 2);
   mu_check(lastXtra == 0);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
 MU_TEST_SUITE(test_suite) {

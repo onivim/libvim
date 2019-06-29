@@ -134,14 +134,6 @@ buf_init_chartab(
 		SET_CHARTAB(buf, c);
 	}
 
-#ifdef FEAT_LISP
-    /*
-     * In lisp mode the '-' character is included in keywords.
-     */
-    if (buf->b_p_lisp)
-	SET_CHARTAB(buf, '-');
-#endif
-
     /* Walk through the 'isident', 'iskeyword', 'isfname' and 'isprint'
      * options Each option is a list of characters, character numbers or
      * ranges, separated by commas, e.g.: "200-210,x,#-178,-"
@@ -312,8 +304,7 @@ trans_characters(
     }
 }
 
-#if defined(FEAT_EVAL) || defined(FEAT_INS_EXPAND) \
-	|| defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Translate a string into allocated memory, replacing special chars with
  * printable chars.  Returns NULL when out of memory.
@@ -379,119 +370,6 @@ transstr(char_u *s)
 	}
     }
     return res;
-}
-#endif
-
-#if defined(FEAT_SYN_HL) || defined(FEAT_INS_EXPAND) || defined(PROTO)
-/*
- * Convert the string "str[orglen]" to do ignore-case comparing.  Uses the
- * current locale.
- * When "buf" is NULL returns an allocated string (NULL for out-of-memory).
- * Otherwise puts the result in "buf[buflen]".
- */
-    char_u *
-str_foldcase(
-    char_u	*str,
-    int		orglen,
-    char_u	*buf,
-    int		buflen)
-{
-    garray_T	ga;
-    int		i;
-    int		len = orglen;
-
-#define GA_CHAR(i)  ((char_u *)ga.ga_data)[i]
-#define GA_PTR(i)   ((char_u *)ga.ga_data + i)
-#define STR_CHAR(i)  (buf == NULL ? GA_CHAR(i) : buf[i])
-#define STR_PTR(i)   (buf == NULL ? GA_PTR(i) : buf + i)
-
-    /* Copy "str" into "buf" or allocated memory, unmodified. */
-    if (buf == NULL)
-    {
-	ga_init2(&ga, 1, 10);
-	if (ga_grow(&ga, len + 1) == FAIL)
-	    return NULL;
-	mch_memmove(ga.ga_data, str, (size_t)len);
-	ga.ga_len = len;
-    }
-    else
-    {
-	if (len >= buflen)	    /* Ugly! */
-	    len = buflen - 1;
-	mch_memmove(buf, str, (size_t)len);
-    }
-    if (buf == NULL)
-	GA_CHAR(len) = NUL;
-    else
-	buf[len] = NUL;
-
-    /* Make each character lower case. */
-    i = 0;
-    while (STR_CHAR(i) != NUL)
-    {
-	if (enc_utf8 || (has_mbyte && MB_BYTE2LEN(STR_CHAR(i)) > 1))
-	{
-	    if (enc_utf8)
-	    {
-		int	c = utf_ptr2char(STR_PTR(i));
-		int	olen = utf_ptr2len(STR_PTR(i));
-		int	lc = utf_tolower(c);
-
-		/* Only replace the character when it is not an invalid
-		 * sequence (ASCII character or more than one byte) and
-		 * utf_tolower() doesn't return the original character. */
-		if ((c < 0x80 || olen > 1) && c != lc)
-		{
-		    int	    nlen = utf_char2len(lc);
-
-		    /* If the byte length changes need to shift the following
-		     * characters forward or backward. */
-		    if (olen != nlen)
-		    {
-			if (nlen > olen)
-			{
-			    if (buf == NULL
-				    ? ga_grow(&ga, nlen - olen + 1) == FAIL
-				    : len + nlen - olen >= buflen)
-			    {
-				/* out of memory, keep old char */
-				lc = c;
-				nlen = olen;
-			    }
-			}
-			if (olen != nlen)
-			{
-			    if (buf == NULL)
-			    {
-				STRMOVE(GA_PTR(i) + nlen, GA_PTR(i) + olen);
-				ga.ga_len += nlen - olen;
-			    }
-			    else
-			    {
-				STRMOVE(buf + i + nlen, buf + i + olen);
-				len += nlen - olen;
-			    }
-			}
-		    }
-		    (void)utf_char2bytes(lc, STR_PTR(i));
-		}
-	    }
-	    /* skip to next multi-byte char */
-	    i += (*mb_ptr2len)(STR_PTR(i));
-	}
-	else
-	{
-	    if (buf == NULL)
-		GA_CHAR(i) = TOLOWER_LOC(GA_CHAR(i));
-	    else
-		buf[i] = TOLOWER_LOC(buf[i]);
-	    ++i;
-	}
-    }
-
-    if (buf == NULL)
-	return (char_u *)ga.ga_data;
-    return buf;
 }
 #endif
 
@@ -1487,7 +1365,7 @@ skipdigits(char_u *q)
     return p;
 }
 
-#if defined(FEAT_SYN_HL) || defined(PROTO)
+#if defined(PROTO)
 /*
  * skip over binary digits
  */
@@ -1954,20 +1832,6 @@ hex2nr(int c)
 	return c - 'A' + 10;
     return c - '0';
 }
-
-#if defined(FEAT_TERMRESPONSE) || defined(FEAT_GUI_GTK) || defined(PROTO)
-/*
- * Convert two hex characters to a byte.
- * Return -1 if one of the characters is not hex.
- */
-    int
-hexhex2nr(char_u *p)
-{
-    if (!vim_isxdigit(p[0]) || !vim_isxdigit(p[1]))
-	return -1;
-    return (hex2nr(p[0]) << 4) + hex2nr(p[1]);
-}
-#endif
 
 /*
  * Return TRUE if "str" starts with a backslash that should be removed.
