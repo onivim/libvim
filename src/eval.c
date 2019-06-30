@@ -10907,7 +10907,7 @@ filter_map(typval_T *argvars, typval_T *rettv, int map)
     typval_T	save_val;
     typval_T	save_key;
     blob_T	*b = NULL;
-    int		rem;
+    int		rem = 0;
     int		todo;
     char_u	*ermsg = (char_u *)(map ? "map()" : "filter()");
     char_u	*arg_errmsg = (char_u *)(map ? N_("map() argument")
