@@ -101,7 +101,7 @@ MU_TEST_SUITE(test_suite) {
 int main(int argc, char **argv) {
   vimInit(argc, argv);
 
-  buf_T *buf = vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
