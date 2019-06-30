@@ -25,7 +25,6 @@ static void msg_scroll_up(void);
 static void inc_msg_scrolled(void);
 static void store_sb_text(char_u **sb_str, char_u *s, int attr, int *sb_col, int finish);
 static void t_puts(int *t_col, char_u *t_s, char_u *s, int attr);
-static void msg_puts_printf(char_u *str, int maxlen);
 static int do_more_prompt(int typed_char);
 static void msg_screen_putchar(int c, int attr);
 static int  msg_check_screen(void);
@@ -1737,13 +1736,8 @@ msg_puts_attr_len(char *str, int maxlen, int attr)
      * different, e.g. for Win32 console) or we just don't know where the
      * cursor is.
      */
+    
     /* libvim - TODO: Does this need to be sent to the client? */
-    /*
-    if (msg_use_printf())
-	msg_puts_printf((char_u *)str, maxlen);
-    else
-	msg_puts_display((char_u *)str, maxlen, attr, FALSE);
-	 */ 
 }
 
 /*
@@ -2225,31 +2219,6 @@ msg_sb_eol(void)
 }
 
 /*
- * Display a screen line from previously displayed text at row "row".
- * Returns a pointer to the text for the next line (can be NULL).
- */
-    static msgchunk_T *
-disp_sb_line(int row, msgchunk_T *smp)
-{
-    msgchunk_T	*mp = smp;
-    char_u	*p;
-
-    for (;;)
-    {
-	msg_row = row;
-	msg_col = mp->sb_msg_col;
-	p = mp->sb_text;
-	if (*p == '\n')	    /* don't display the line break */
-	    ++p;
-	msg_puts_display(p, -1, mp->sb_attr, TRUE);
-	if (mp->sb_eol || mp->sb_next == NULL)
-	    break;
-	mp = mp->sb_next;
-    }
-    return mp->sb_next;
-}
-
-/*
  * Output any postponed text for msg_puts_attr_len().
  */
     static void
@@ -2296,89 +2265,6 @@ msg_use_printf(void)
 #endif
 	    || (swapping_screen() && !termcap_active)
 	       );
-}
-
-/*
- * Print a message when there is no valid screen.
- */
-    static void
-msg_puts_printf(char_u *str, int maxlen)
-{
-    char_u	*s = str;
-    char_u	*buf = NULL;
-    char_u	*p = s;
-
-#ifdef MSWIN
-    if (!(silent_mode && p_verbose == 0))
-	mch_settmode(TMODE_COOK);	/* handle CR and NL correctly */
-#endif
-    while ((maxlen < 0 || (int)(s - str) < maxlen) && *s != NUL)
-    {
-	if (!(silent_mode && p_verbose == 0))
-	{
-	    // NL --> CR NL translation (for Unix, not for "--version")
-	    if (*s == NL)
-	    {
-		int n = (int)(s - p);
-
-		buf = alloc(n + 3);
-		memcpy(buf, p, n);
-		if (!info_message)
-		    buf[n++] = CAR;
-		buf[n++] = NL;
-		buf[n++] = NUL;
-		if (info_message)   // informative message, not an error
-		    mch_msg((char *)buf);
-		else
-		    mch_errmsg((char *)buf);
-		vim_free(buf);
-		p = s + 1;
-	    }
-	}
-
-	// primitive way to compute the current column
-#ifdef FEAT_RIGHTLEFT
-	if (cmdmsg_rl)
-	{
-	    if (*s == CAR || *s == NL)
-		msg_col = Columns - 1;
-	    else
-		--msg_col;
-	}
-	else
-#endif
-	{
-	    if (*s == CAR || *s == NL)
-		msg_col = 0;
-	    else
-		++msg_col;
-	}
-	++s;
-    }
-
-    if (*p != NUL && !(silent_mode && p_verbose == 0))
-    {
-	int c = -1;
-
-	if (maxlen > 0 && STRLEN(p) > (size_t)maxlen)
-	{
-	    c = p[maxlen];
-	    p[maxlen] = 0;
-	}
-	if (info_message)
-	    mch_msg((char *)p);
-	else
-	    mch_errmsg((char *)p);
-	if (c != -1)
-	    p[maxlen] = c;
-    }
-
-    msg_didout = TRUE;	    // assume that line is not empty
-
-#ifdef MSWIN
-    if (!(silent_mode && p_verbose == 0))
-	mch_settmode(TMODE_RAW);
-#endif
 }
 
 /*
