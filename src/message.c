@@ -21,7 +21,6 @@ static void hit_return_msg(void);
 static void msg_home_replace_attr(char_u *fname, int attr);
 static void msg_puts_attr_len(char *str, int maxlen, int attr);
 static int do_more_prompt(int typed_char);
-static void msg_screen_putchar(int c, int attr);
 static int  msg_check_screen(void);
 static void redir_write(char_u *s, int maxlen);
 #ifdef FEAT_CON_DIALOG
@@ -1895,35 +1894,6 @@ mch_msg(char *str)
     msg2_put(str, msg);
     msg2_send(msg);
     msg2_free(msg);
-}
-
-/*
- * Put a character on the screen at the current message position and advance
- * to the next position.  Only for printable ASCII!
- */
-    static void
-msg_screen_putchar(int c, int attr)
-{
-    msg_didout = TRUE;		/* remember that line is not empty */
-    screen_putchar(c, msg_row, msg_col, attr);
-#ifdef FEAT_RIGHTLEFT
-    if (cmdmsg_rl)
-    {
-	if (--msg_col == 0)
-	{
-	    msg_col = Columns;
-	    ++msg_row;
-	}
-    }
-    else
-#endif
-    {
-	if (++msg_col >= Columns)
-	{
-	    msg_col = 0;
-	    ++msg_row;
-	}
-    }
 }
 
     void
