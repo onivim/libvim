@@ -5052,8 +5052,6 @@ static struct initmap initmappings[] =
 init_mappings(void)
 {
 #if defined(MSWIN) || defined(MACOS_X)
-    int		i;
-
 # if defined(MSWIN) && (defined(VIMDLL))
 #  ifdef VIMDLL
     if (!gui.starting)

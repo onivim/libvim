@@ -2550,7 +2550,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 
     got_int = FALSE;
 
-theend:
 	return context;
 };
 
