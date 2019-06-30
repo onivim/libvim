@@ -20,7 +20,6 @@ static void add_msg_hist(char_u *s, int len, int attr);
 static void hit_return_msg(void);
 static void msg_home_replace_attr(char_u *fname, int attr);
 static void msg_puts_attr_len(char *str, int maxlen, int attr);
-static void msg_puts_display(char_u *str, int maxlen, int attr, int recurse);
 static void msg_scroll_up(void);
 static void inc_msg_scrolled(void);
 static void store_sb_text(char_u **sb_str, char_u *s, int attr, int *sb_col, int finish);
