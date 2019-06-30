@@ -20,10 +20,6 @@ static void add_msg_hist(char_u *s, int len, int attr);
 static void hit_return_msg(void);
 static void msg_home_replace_attr(char_u *fname, int attr);
 static void msg_puts_attr_len(char *str, int maxlen, int attr);
-static void msg_scroll_up(void);
-static void inc_msg_scrolled(void);
-static void store_sb_text(char_u **sb_str, char_u *s, int attr, int *sb_col, int finish);
-static void t_puts(int *t_col, char_u *t_s, char_u *s, int attr);
 static int do_more_prompt(int typed_char);
 static void msg_screen_putchar(int c, int attr);
 static int  msg_check_screen(void);
@@ -1595,52 +1591,6 @@ msg_prt_line(char_u *s, int list)
 }
 
 /*
- * Use screen_puts() to output one multi-byte character.
- * Return the pointer "s" advanced to the next character.
- */
-    static char_u *
-screen_puts_mbyte(char_u *s, int l, int attr)
-{
-    int		cw;
-
-    msg_didout = TRUE;		/* remember that line is not empty */
-    cw = (*mb_ptr2cells)(s);
-    if (cw > 1 && (
-#ifdef FEAT_RIGHTLEFT
-		cmdmsg_rl ? msg_col <= 1 :
-#endif
-		msg_col == Columns - 1))
-    {
-	/* Doesn't fit, print a highlighted '>' to fill it up. */
-	msg_screen_putchar('>', HL_ATTR(HLF_AT));
-	return s;
-    }
-
-    screen_puts_len(s, l, msg_row, msg_col, attr);
-#ifdef FEAT_RIGHTLEFT
-    if (cmdmsg_rl)
-    {
-	msg_col -= cw;
-	if (msg_col == 0)
-	{
-	    msg_col = Columns;
-	    ++msg_row;
-	}
-    }
-    else
-#endif
-    {
-	msg_col += cw;
-	if (msg_col >= Columns)
-	{
-	    msg_col = 0;
-	    ++msg_row;
-	}
-    }
-    return s + l;
-}
-
-/*
  * Output a string to the screen at position msg_row, msg_col.
  * Update msg_row and msg_col for the next message.
  */
@@ -1755,75 +1705,6 @@ message_filtered(char_u *msg)
 }
 
 /*
- * Scroll the screen up one line for displaying the next message line.
- */
-    static void
-msg_scroll_up(void)
-{
-#ifdef FEAT_GUI
-    /* Remove the cursor before scrolling, ScreenLines[] is going
-     * to become invalid. */
-    if (gui.in_use)
-	gui_undraw_cursor();
-#endif
-    /* scrolling up always works */
-    mch_disable_flush();
-    screen_del_lines(0, 0, 1, (int)Rows, TRUE, 0, NULL);
-    mch_enable_flush();
-
-    if (!can_clear((char_u *)" "))
-    {
-	/* Scrolling up doesn't result in the right background.  Set the
-	 * background here.  It's not efficient, but avoids that we have to do
-	 * it all over the code. */
-	screen_fill((int)Rows - 1, (int)Rows, 0, (int)Columns, ' ', ' ', 0);
-
-	/* Also clear the last char of the last but one line if it was not
-	 * cleared before to avoid a scroll-up. */
-	if (ScreenAttrs[LineOffset[Rows - 2] + Columns - 1] == (sattr_T)-1)
-	    screen_fill((int)Rows - 2, (int)Rows - 1,
-				 (int)Columns - 1, (int)Columns, ' ', ' ', 0);
-    }
-}
-
-/*
- * Increment "msg_scrolled".
- */
-    static void
-inc_msg_scrolled(void)
-{
-#ifdef FEAT_EVAL
-    if (*get_vim_var_str(VV_SCROLLSTART) == NUL)
-    {
-	char_u	    *p = sourcing_name;
-	char_u	    *tofree = NULL;
-	int	    len;
-
-	/* v:scrollstart is empty, set it to the script/function name and line
-	 * number */
-	if (p == NULL)
-	    p = (char_u *)_("Unknown");
-	else
-	{
-	    len = (int)STRLEN(p) + 40;
-	    tofree = alloc(len);
-	    if (tofree != NULL)
-	    {
-		vim_snprintf((char *)tofree, len, _("%s line %ld"),
-						      p, (long)sourcing_lnum);
-		p = tofree;
-	    }
-	}
-	set_vim_var_string(VV_SCROLLSTART, p, -1);
-	vim_free(tofree);
-    }
-#endif
-    ++msg_scrolled;
-    if (must_redraw < VALID)
-	must_redraw = VALID;
-}
-
-/*
  * To be able to scroll back at the "more" and "hit-enter" prompts we need to
  * store the displayed text and remember where screen lines start.
  */
@@ -1851,57 +1732,6 @@ typedef enum {
 
 /* When to clear text on next msg. */
 static sb_clear_T do_clear_sb_text = SB_CLEAR_NONE;
-
-/*
- * Store part of a printed message for displaying when scrolling back.
- */
-    static void
-store_sb_text(
-    char_u	**sb_str,	/* start of string */
-    char_u	*s,		/* just after string */
-    int		attr,
-    int		*sb_col,
-    int		finish)		/* line ends */
-{
-    msgchunk_T	*mp;
-
-    if (do_clear_sb_text == SB_CLEAR_ALL
-	    || do_clear_sb_text == SB_CLEAR_CMDLINE_DONE)
-    {
-	clear_sb_text(do_clear_sb_text == SB_CLEAR_ALL);
-	do_clear_sb_text = SB_CLEAR_NONE;
-    }
-
-    if (s > *sb_str)
-    {
-	mp = alloc(sizeof(msgchunk_T) + (s - *sb_str));
-	if (mp != NULL)
-	{
-	    mp->sb_eol = finish;
-	    mp->sb_msg_col = *sb_col;
-	    mp->sb_attr = attr;
-	    vim_strncpy(mp->sb_text, *sb_str, s - *sb_str);
-
-	    if (last_msgchunk == NULL)
-	    {
-		last_msgchunk = mp;
-		mp->sb_prev = NULL;
-	    }
-	    else
-	    {
-		mp->sb_prev = last_msgchunk;
-		last_msgchunk->sb_next = mp;
-		last_msgchunk = mp;
-	    }
-	    mp->sb_next = NULL;
-	}
-    }
-    else if (finish && last_msgchunk != NULL)
-	last_msgchunk->sb_eol = TRUE;
-
-    *sb_str = s;
-    *sb_col = 0;
-}
 
 /*
  * Finished showing messages, clear the scroll-back text on the next message.
@@ -2000,32 +1830,6 @@ msg_sb_eol(void)
 {
     if (last_msgchunk != NULL)
 	last_msgchunk->sb_eol = TRUE;
-}
-
-/*
- * Output any postponed text for msg_puts_attr_len().
- */
-    static void
-t_puts(
-    int		*t_col,
-    char_u	*t_s,
-    char_u	*s,
-    int		attr)
-{
-    /* output postponed text */
-    msg_didout = TRUE;		/* remember that line is not empty */
-    screen_puts_len(t_s, (int)(s - t_s), msg_row, msg_col, attr);
-    msg_col += *t_col;
-    *t_col = 0;
-    /* If the string starts with a composing character don't increment the
-     * column position for it. */
-    if (enc_utf8 && utf_iscomposing(utf_ptr2char(t_s)))
-	--msg_col;
-    if (msg_col >= Columns)
-    {
-	msg_col = 0;
-	++msg_row;
-    }
 }
 
 /*
