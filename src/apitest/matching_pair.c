@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/brackets.txt", 1, 0);
+  vimBufferOpen("collateral/brackets.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

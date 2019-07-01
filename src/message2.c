@@ -31,6 +31,7 @@ char_u* msg2_get_contents(msg_T *msg) {
 
 void msg2_free(msg_T *msg) {
     if (msg != NULL) {
+        sdsfree(msg->title);
         sdsfree(msg->contents);
         vim_free(msg);
     }

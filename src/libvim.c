@@ -57,7 +57,7 @@ char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }
 
 int vimCommandLineGetPosition(void) { return ccline.cmdpos; }
 
-void vimCommandLineGetCompletions(char ***completions, int *count) {
+void vimCommandLineGetCompletions(char_u ***completions, int *count) {
   /* set_expand_context(&ccline.xpc); */
   if (!ccline.xpc) {
     *count = 0;
@@ -187,7 +187,7 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
     startPos.col = startPos.col + 1;
     count++;
   }
-
+  
   searchHighlight_T *ret = alloc(sizeof(searchHighlight_T) * count);
 
   cur = head->next;
@@ -197,8 +197,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
   while (cur != NULL) {
     ret[i] = cur->highlight;
     shlNode_T *prev = cur;
-    vim_free(prev);
     cur = cur->next;
+    vim_free(prev);
     i++;
   }
 

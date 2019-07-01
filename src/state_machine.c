@@ -19,7 +19,7 @@ void sm_push(int mode, void *context, state_execute executeFn,
 
   sm_T *newState = (sm_T *)alloc(sizeof(sm_T));
 
-  newState->prev = lastState;
+  newState->prev = (sm_T *)lastState;
   newState->execute_fn = executeFn;
   newState->cleanup_fn = cleanupFn;
   newState->context = context;
@@ -66,6 +66,7 @@ void sm_execute_normal(char_u *keys) {
 void sm_execute(char_u *keys) {
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
+  vim_free(keys_esc);
 
   // Reset abbr_cnt after each input here,
   // to enable correct cabbrev expansions
@@ -92,12 +93,12 @@ void sm_execute(char_u *keys) {
       case COMPLETED_UNHANDLED:
         vungetc(c);
         current->cleanup_fn(state_current->context);
-        state_current = current->prev;
+        state_current = (sm_T *)current->prev;
         vim_free(current);
         break;
       case COMPLETED:
         current->cleanup_fn(state_current->context);
-        state_current = current->prev;
+        state_current = (sm_T *)current->prev;
         vim_free(current);
         break;
       }

@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   win_setwidth(80);
   win_setheight(40);
 
-  buf_T *buf = vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

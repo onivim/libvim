@@ -51,7 +51,7 @@ MU_TEST(test_macro_saves_register) {
   vimRegisterGet('a', &num_lines, &lines);
 
   mu_check(num_lines == 1);
-  mu_check(strcmp(lines[0], "jjjkk") == 0);
+  mu_check(strcmp(lines[0], ("jjjkk")) == 0);
 }
 
 MU_TEST_SUITE(test_suite) {
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen((char_u *)"collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
