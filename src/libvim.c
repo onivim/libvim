@@ -187,7 +187,7 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
     startPos.col = startPos.col + 1;
     count++;
   }
-
+  
   searchHighlight_T *ret = alloc(sizeof(searchHighlight_T) * count);
 
   cur = head->next;
@@ -197,8 +197,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
   while (cur != NULL) {
     ret[i] = cur->highlight;
     shlNode_T *prev = cur;
-    vim_free(prev);
     cur = cur->next;
+    vim_free(prev);
     i++;
   }
 
