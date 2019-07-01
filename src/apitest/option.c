@@ -92,8 +92,8 @@ MU_TEST(test_tab_size) {
 MU_TEST(test_encoding_cannot_change) {
 
   mu_check(strcmp(p_enc, "utf-8") == 0);
-//  vimExecute("set encoding=latin1");
-  // mu_check(strcmp(p_enc, "utf-8") == 0);
+  vimExecute("set encoding=latin1");
+  mu_check(strcmp(p_enc, "utf-8") == 0);
 }
 
 MU_TEST_SUITE(test_suite) {

@@ -3252,11 +3252,9 @@ set_init_1(int clean_arg)
     p = enc_locale();
     if (p != NULL)
     {
-	char_u *save_enc;
-
+        vim_free(p);
 	/* Try setting 'encoding' and check if the value is valid.
 	 * If not, go back to the default "utf-8". */
-	save_enc = p_enc;
 	if (mb_init() == NULL)
 	{
 	    opt_idx = findoption((char_u *)"encoding");
@@ -5852,7 +5850,6 @@ did_set_string_option(
             if (STRCMP(p_enc, ENC_DFLT) != 0) {
 		        errmsg = N_("E617: Cannot be changed in Onivim 2.");
             }
-            printf("p_enc IS: %s\n", p_enc);
 	    }
 	}
 
