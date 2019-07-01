@@ -3322,9 +3322,14 @@ mch_call_shell_system(
 
 #else /* USE_SYSTEM */
 
-#define EXEC_FAILED 122      /* Exit code when shell didn't execute.  Don't use \ \
+// clang-format off
+
+#define EXEC_FAILED 122      /* Exit code when shell didn't execute.  Don't use \
                                 127, some shells use that already */
+
 #define OPEN_NULL_FAILED 123 /* Exit code if /dev/null can't be opened */
+
+// clang-format on
 
 /*
  * Don't use system(), use fork()/exec().
@@ -5172,8 +5177,10 @@ int mch_expand_wildcards(
 #define STYLE_GLOB 1    /* use "glob", for csh */
 #define STYLE_VIMGLOB 2 /* use "vimglob", for Posix sh */
 #define STYLE_PRINT 3   /* use "print -N", for zsh */
-#define STYLE_BT 4      /* `cmd` expansion, execute the pattern \ \
+// clang_format off
+#define STYLE_BT 4      /* `cmd` expansion, execute the pattern \
                          * directly */
+// clang_format on
   int shell_style = STYLE_ECHO;
   int check_spaces;
   static int did_find_nul = FALSE;
