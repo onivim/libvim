@@ -790,12 +790,6 @@ win_split_ins(
 	need_status = STATUS_HEIGHT;
     }
 
-#ifdef FEAT_GUI
-    /* May be needed for the scrollbars that are going to change. */
-    if (gui.in_use)
-	out_flush();
-#endif
-
     if (flags & WSP_VERT)
     {
 	int	wmw1;
@@ -2427,13 +2421,6 @@ win_close(win_T *win, int free_buf)
 #endif
     }
 
-#ifdef FEAT_GUI
-    // Avoid trouble with scrollbars that are going to be deleted in
-    // win_free().
-    if (gui.in_use)
-	out_flush();
-#endif
-
     win_close_buffer(win, free_buf, TRUE);
 
     if (only_one_window() && win_valid(win) && win->w_buffer == NULL
@@ -3427,18 +3414,6 @@ close_others(
 	    }
 	    if (!r)
 	    {
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-		if (message && (p_confirm || cmdmod.confirm) && p_write)
-		{
-		    dialog_changed(wp->w_buffer, FALSE);
-		    if (!win_valid(wp))		/* autocommands messed wp up */
-		    {
-			nextwp = firstwin;
-			continue;
-		    }
-		}
-		if (bufIsChanged(wp->w_buffer))
-#endif
 		    continue;
 	    }
 	    win_close(wp, !buf_hide(wp->w_buffer)

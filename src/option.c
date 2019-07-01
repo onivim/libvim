@@ -3255,20 +3255,9 @@ set_init_1(int clean_arg)
     p = enc_locale();
     if (p != NULL)
     {
-	char_u *save_enc;
-
+        vim_free(p);
 	/* Try setting 'encoding' and check if the value is valid.
-	 * If not, go back to the default "latin1". */
-	save_enc = p_enc;
-	p_enc = p;
-	if (STRCMP(p_enc, "gb18030") == 0)
-	{
-	    /* We don't support "gb18030", but "cp936" is a good substitute
-	     * for practical purposes, thus use that.  It's not an alias to
-	     * still support conversion between gb18030 and utf-8. */
-	    p_enc = vim_strsave((char_u *)"cp936");
-	    vim_free(p);
-	}
+	 * If not, go back to the default "utf-8". */
 	if (mb_init() == NULL)
 	{
 	    opt_idx = findoption((char_u *)"encoding");
@@ -3298,48 +3287,10 @@ set_init_1(int clean_arg)
 	    }
 #endif
 
-#if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
-	    /* Win32 console: When GetACP() returns a different value from
-	     * GetConsoleCP() set 'termencoding'. */
-	    if (
-# ifdef VIMDLL
-	       (!gui.in_use && !gui.starting) &&
-# endif
-	        GetACP() != GetConsoleCP())
-	    {
-		char	buf[50];
-
-		/* Win32 console: In ConPTY, GetConsoleCP() returns zero.
-		 * Use an alternative value. */
-		if (GetConsoleCP() == 0)
-		    sprintf(buf, "cp%ld", (long)GetACP());
-		else
-		    sprintf(buf, "cp%ld", (long)GetConsoleCP());
-		p_tenc = vim_strsave((char_u *)buf);
-		if (p_tenc != NULL)
-		{
-		    opt_idx = findoption((char_u *)"termencoding");
-		    if (opt_idx >= 0)
-		    {
-			options[opt_idx].def_val[VI_DEFAULT] = p_tenc;
-			options[opt_idx].flags |= P_DEF_ALLOCED;
-		    }
-		    convert_setup(&input_conv, p_tenc, p_enc);
-		    convert_setup(&output_conv, p_enc, p_tenc);
-		}
-		else
-		    p_tenc = empty_option;
-	    }
-#endif
 #if defined(MSWIN)
 	    /* $HOME may have characters in active code page. */
 	    init_homedir();
 #endif
-	}
-	else
-	{
-	    vim_free(p_enc);
-	    p_enc = save_enc;
 	}
     }
 
@@ -4878,7 +4829,6 @@ theend:
 	info_message = TRUE;	/* use mch_msg(), not mch_errmsg() */
 	msg_putchar('\n');
 	cursor_on();		/* msg_start() switches it off */
-	out_flush();
 	silent_mode = TRUE;
 	info_message = FALSE;	/* use mch_msg(), not mch_errmsg() */
     }
@@ -5898,26 +5848,20 @@ did_set_string_option(
 	if (errmsg == NULL)
 	{
 	    /* canonize the value, so that STRCMP() can be used on it */
-	    p = enc_canonize(*varp);
-	    if (p != NULL)
-	    {
-		vim_free(*varp);
-		*varp = p;
-	    }
 	    if (varp == &p_enc)
 	    {
-		errmsg = mb_init();
+            if (STRCMP(p_enc, ENC_DFLT) != 0) {
+		        errmsg = N_("E617: Cannot be changed in Onivim 2.");
+            }
 	    }
 	}
 
-#if defined(FEAT_GUI_GTK)
-	if (errmsg == NULL && varp == &p_tenc && gui.in_use)
+	if (errmsg == NULL && varp == &p_tenc)
 	{
 	    /* GTK+ 2 uses only a single encoding, and that is UTF-8. */
 	    if (STRCMP(p_tenc, "utf-8") != 0)
-		errmsg = N_("E617: Cannot be changed in the GTK+ 2 GUI");
+		errmsg = N_("E617: Cannot be changed in Onivim 2.");
 	}
-#endif
 
 	if (errmsg == NULL)
 	{
@@ -6570,7 +6514,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -6585,7 +6528,6 @@ did_set_string_option(
 	    errmsg = e_invarg;
 	else
 	{
-	    out_flush();
 	    gui_mch_show_toolbar((toolbar_flags &
 				  (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
 	}
@@ -8899,7 +8841,6 @@ showoptions(
 		showoneopt(items[i], opt_flags);
 		col += INC;
 	    }
-	    out_flush();
 	    ui_breakcheck();
 	}
     }

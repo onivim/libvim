@@ -89,6 +89,13 @@ MU_TEST(test_tab_size) {
   mu_check(calculatedTabSize == 4);
 }
 
+MU_TEST(test_encoding_cannot_change) {
+
+  mu_check(strcmp(p_enc, "utf-8") == 0);
+  vimExecute("set encoding=latin1");
+  mu_check(strcmp(p_enc, "utf-8") == 0);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -96,6 +103,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_insert_spaces);
   MU_RUN_TEST(test_insert_tabs);
   MU_RUN_TEST(test_tab_size);
+  MU_RUN_TEST(test_encoding_cannot_change);
 }
 
 int main(int argc, char **argv) {

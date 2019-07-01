@@ -464,7 +464,6 @@ may_do_incsearch_highlighting(
 	int search_flags = SEARCH_OPT + SEARCH_NOOF + SEARCH_PEEK;
 
 	cursor_off();	// so the user knows we're busy
-	out_flush();
 	++emsg_off;	// so it doesn't beep if bad expr
 #ifdef FEAT_RELTIME
 	// Set the time limit to half a second.
@@ -605,7 +604,6 @@ may_adjust_incsearch_highlighting(
 	pat = ccline.cmdbuff + skiplen;
 
     cursor_off();
-    out_flush();
     if (c == Ctrl_G)
     {
 	t = is_state->match_end;
@@ -838,6 +836,7 @@ getcmdline_int(
     ccline.cmdindent = (firstc > 0 ? indent : 0);
 
     /* alloc initial ccline.cmdbuff */
+    VIM_CLEAR(ccline.cmdbuff);
     alloc_cmdbuff(exmode_active ? 250 : indent + 1);
     if (ccline.cmdbuff == NULL)
 	goto theend;	// out of memory
@@ -1354,7 +1353,6 @@ getcmdline_int(
 		if (!cmd_silent)
 		{
 		    windgoto(msg_row, 0);
-		    out_flush();
 		}
 		break;
 	    }
@@ -2437,14 +2435,16 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 	context->b_im_ptr = NULL;
 	context->did_save_ccline = FALSE;
 
-    if (ccline.cmdbuff != NULL)
-    {
+    // if (ccline.cmdbuff != NULL)
+    // {
 	// Being called recursively.  Since ccline is global, we need to save
 	// the current buffer and restore it when returning.
-	save_cmdline(&context->save_ccline);
-	context->did_save_ccline = TRUE;
-    }
+	// save_cmdline(&context->save_ccline);
+	// context->did_save_ccline = TRUE;
+    // }
 
+    VIM_CLEAR(ccline.cmdbuff);
+    
     /* TODO: Where does init_ccline come from? When is it not TRUE? */
     /* if (init_ccline) */
 	vim_memset(&ccline, 0, sizeof(struct cmdline_info));
@@ -2958,7 +2958,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c) {
 		if (!cmd_silent)
 		{
 		    windgoto(msg_row, 0);
-		    out_flush();
 		}
 		goto returncmd;
 	    }
@@ -4665,7 +4664,6 @@ nextwild(
     }
 
     msg_puts("...");	    /* show that we are busy */
-    out_flush();
 
     i = (int)(xp->xp_pattern - ccline.cmdbuff);
     xp->xp_pattern_len = ccline.cmdpos - i;
@@ -5261,7 +5259,6 @@ showmatches(expand_T *xp, int wildmenu UNUSED)
 	msg_didany = FALSE;		/* lines_left will be set */
 	msg_start();			/* prepare for paging */
 	msg_putchar('\n');
-	out_flush();
 	cmdline_row = msg_row;
 	msg_didany = FALSE;		/* lines_left will be set again */
 	msg_start();			/* prepare for paging */
@@ -5379,7 +5376,6 @@ showmatches(expand_T *xp, int wildmenu UNUSED)
 		msg_clr_eos();
 		msg_putchar('\n');
 	    }
-	    out_flush();		    /* show one line at a time */
 	    if (got_int)
 	    {
 		got_int = FALSE;
@@ -7371,7 +7367,6 @@ ex_history(exarg_T *eap)
 		    else
 			STRCAT(IObuff, hist[i].hisstr);
 		    msg_outtrans(IObuff);
-		    out_flush();
 		}
 		if (i == idx)
 		    break;

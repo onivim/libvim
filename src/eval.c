@@ -8663,8 +8663,6 @@ ex_execute(exarg_T *eap)
         msg2_put(ga.ga_data, msg);
         msg2_send(msg);
         msg2_free(msg);
-	    msg_attr(ga.ga_data, echo_attr);
-	    out_flush();
 	}
 	else if (eap->cmdidx == CMD_echoerr)
 	{

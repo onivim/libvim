@@ -1006,7 +1006,6 @@ update_cursor(term_T *term, int redraw)
     {
 	if (term->tl_buffer == curbuf && term->tl_cursor_visible)
 	    cursor_on();
-	out_flush();
 #ifdef FEAT_GUI
 	if (gui.in_use)
 	{
@@ -1286,20 +1285,6 @@ term_try_stop_job(buf_T *buf)
     int	    count;
     char    *how = (char *)buf->b_term->tl_kill;
 
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-    if ((how == NULL || *how == NUL) && (p_confirm || cmdmod.confirm))
-    {
-	char_u	buff[DIALOG_MSG_SIZE];
-	int	ret;
-
-	dialog_msg(buff, _("Kill job in \"%s\"?"), buf->b_fname);
-	ret = vim_dialog_yesnocancel(VIM_QUESTION, NULL, buff, 1);
-	if (ret == VIM_YES)
-	    how = "kill";
-	else if (ret == VIM_CANCEL)
-	    return FAIL;
-    }
-#endif
     if (how == NULL || *how == NUL)
 	return FAIL;
 
@@ -2480,7 +2465,6 @@ handle_settermprop(
 	case VTERM_PROP_CURSORVISIBLE:
 	    term->tl_cursor_visible = value->boolean;
 	    may_toggle_cursor(term);
-	    out_flush();
 	    break;
 
 	case VTERM_PROP_CURSORBLINK:
