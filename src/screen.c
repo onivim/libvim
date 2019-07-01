@@ -89,8 +89,7 @@
 
 #include "vim.h"
 
-#define MB_FILLER_CHAR '<' /* character used when a double-width character \ \
-                            * doesn't fit. */
+#define MB_FILLER_CHAR '<' /* character used when a double-width character * doesn't fit. */
 
 /*
  * The attributes that are actually active for writing to the screen.
