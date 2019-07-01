@@ -23,6 +23,8 @@ MU_TEST(test_search_in_large_file) {
   int num;
   searchHighlight_T *highlights;
   vimSearchGetHighlights(0, 0, &num, &highlights);
+  printf("Got %d highlights\n", num);
+  vim_free(highlights);
   mu_check(num == 3);
 }
 
