@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<Esc>");
   vimInput("<Esc>");
   vimExecute("e!");
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(insert_abbrev_multiple) {
+MU_TEST(insert_abbrev_multiple)
+{
 
   vimExecute("iabbrev waht what");
 
@@ -35,7 +37,8 @@ MU_TEST(insert_abbrev_multiple) {
            0);
 }
 
-MU_TEST(insert_abbrev_no_recursive) {
+MU_TEST(insert_abbrev_no_recursive)
+{
   vimExecute("iabbrev waht what");
   vimExecute("iabbrev what what2");
 
@@ -57,7 +60,8 @@ MU_TEST(insert_abbrev_no_recursive) {
            0);
 }
 
-MU_TEST(insert_abbrev_expr) {
+MU_TEST(insert_abbrev_expr)
+{
   vimExecute("iabbrev <expr> waht col('.')");
 
   vimInput("I");
@@ -77,7 +81,8 @@ MU_TEST(insert_abbrev_expr) {
   mu_check(strcmp(line, "5 7 This is the first line of a test file") == 0);
 }
 
-MU_TEST(command_abbrev) {
+MU_TEST(command_abbrev)
+{
   vimExecute("cabbrev abc def");
 
   vimInput(":");
@@ -95,7 +100,8 @@ MU_TEST(command_abbrev) {
   mu_check(strcmp(line, "def def ") == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(insert_abbrev_multiple);
@@ -104,7 +110,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(command_abbrev);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);

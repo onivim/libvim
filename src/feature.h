@@ -477,8 +477,8 @@
 
 #ifdef FEAT_HANGULIN
 #define HANGUL_DEFAULT_KEYBOARD 2 /* 2 or 3 bulsik keyboard */
-#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed, \
-                                   * turn to english mode          \
+#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed, \ \
+                                   * turn to english mode          \ \
                                    */
 #if defined(FEAT_XIM) && !defined(LINT)
 Error : You should select only ONE of XIM and HANGUL INPUT

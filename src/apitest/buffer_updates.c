@@ -7,7 +7,8 @@ static int lastLnume = 0;
 static long lastXtra = 0;
 static long lastVersionAtUpdateTime = 0;
 
-void onBufferUpdate(bufferUpdate_T update) {
+void onBufferUpdate(bufferUpdate_T update)
+{
   lastLnum = update.lnum;
   lastLnume = update.lnume;
   lastXtra = update.xtra;
@@ -16,7 +17,8 @@ void onBufferUpdate(bufferUpdate_T update) {
   updateCount++;
 }
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimExecute("e!");
 
   vimInput("g");
@@ -30,7 +32,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_single_line_update) {
+MU_TEST(test_single_line_update)
+{
   vimInput("x");
 
   mu_check(updateCount == 1);
@@ -40,7 +43,8 @@ MU_TEST(test_single_line_update) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST(test_add_line) {
+MU_TEST(test_add_line)
+{
   vimInput("y");
   vimInput("y");
   vimInput("p");
@@ -52,7 +56,8 @@ MU_TEST(test_add_line) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST(test_add_multiple_lines) {
+MU_TEST(test_add_multiple_lines)
+{
   vimInput("y");
   vimInput("y");
   vimInput("2");
@@ -65,7 +70,8 @@ MU_TEST(test_add_multiple_lines) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST(test_delete_line) {
+MU_TEST(test_delete_line)
+{
   vimInput("d");
   vimInput("d");
 
@@ -76,7 +82,8 @@ MU_TEST(test_delete_line) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST(test_delete_multiple_lines) {
+MU_TEST(test_delete_multiple_lines)
+{
   vimInput("d");
   vimInput("2");
   vimInput("j");
@@ -88,7 +95,8 @@ MU_TEST(test_delete_multiple_lines) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST(test_insert) {
+MU_TEST(test_insert)
+{
   vimInput("i");
   vimInput("a");
   vimInput("b");
@@ -100,7 +108,8 @@ MU_TEST(test_insert) {
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_single_line_update);
@@ -111,7 +120,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_insert);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimSetBufferUpdateCallback(&onBufferUpdate);

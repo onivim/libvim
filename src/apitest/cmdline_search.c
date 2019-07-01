@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_search_forward_esc) {
+MU_TEST(test_search_forward_esc)
+{
   vimInput("/");
   vimInput("s");
   mu_check(vimCursorGetLine() == 1);
@@ -55,7 +57,8 @@ MU_TEST(test_search_forward_esc) {
   mu_check(strcmp(vimSearchGetPattern(), "st") == 0);
 }
 
-MU_TEST(test_cancel_inc_search) {
+MU_TEST(test_cancel_inc_search)
+{
   vimInput("/");
   vimInput("s");
   mu_check(vimCursorGetLine() == 1);
@@ -72,7 +75,8 @@ MU_TEST(test_cancel_inc_search) {
   mu_check(vimCursorGetColumn() == 0);
 }
 
-MU_TEST(test_cancel_n) {
+MU_TEST(test_cancel_n)
+{
   // Start a query
   vimInput("/");
   vimInput("e");
@@ -94,7 +98,8 @@ MU_TEST(test_cancel_n) {
   mu_check(vimCursorGetColumn() == 29);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_cancel_inc_search);
@@ -102,7 +107,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_cancel_n);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);

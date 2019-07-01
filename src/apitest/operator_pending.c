@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_delete_operator_pending) {
+MU_TEST(test_delete_operator_pending)
+{
   vimInput("d");
 
   // Pressing 'd' should bring us to operator-pending state
@@ -31,13 +33,15 @@ MU_TEST(test_delete_operator_pending) {
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_delete_operator_pending);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
