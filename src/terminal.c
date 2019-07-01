@@ -5678,25 +5678,25 @@ int use_conpty(void)
 void *(*winpty_config_new)(UINT64, void *);
 void *(*winpty_open)(void *, void *);
 void *(*winpty_spawn_config_new)(UINT64, void *, LPCWSTR, void *, void *, void *);
-BOOL (*winpty_spawn)
+BOOL(*winpty_spawn)
 (void *, void *, HANDLE *, HANDLE *, DWORD *, void *);
 void (*winpty_config_set_mouse_mode)(void *, int);
 void (*winpty_config_set_initial_size)(void *, int, int);
-LPCWSTR (*winpty_conin_name)
+LPCWSTR(*winpty_conin_name)
 (void *);
-LPCWSTR (*winpty_conout_name)
+LPCWSTR(*winpty_conout_name)
 (void *);
-LPCWSTR (*winpty_conerr_name)
+LPCWSTR(*winpty_conerr_name)
 (void *);
 void (*winpty_free)(void *);
 void (*winpty_config_free)(void *);
 void (*winpty_spawn_config_free)(void *);
 void (*winpty_error_free)(void *);
-LPCWSTR (*winpty_error_msg)
+LPCWSTR(*winpty_error_msg)
 (void *);
-BOOL (*winpty_set_size)
+BOOL(*winpty_set_size)
 (void *, int, int, void *);
-HANDLE (*winpty_agent_process)
+HANDLE(*winpty_agent_process)
 (void *);
 
 #define WINPTY_DLL "winpty.dll"

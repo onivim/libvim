@@ -2997,8 +2997,8 @@ int vim_vsnprintf_typval(
 
       /* temporary buffer for simple numeric->string conversion */
 #if defined(FEAT_FLOAT)
-#define TMP_LEN 350 /* On my system 1e308 is the biggest number possible. \
-                     * That sounds reasonable to use as the maximum       \
+#define TMP_LEN 350 /* On my system 1e308 is the biggest number possible. \ \
+                     * That sounds reasonable to use as the maximum       \ \
                      * printable. */
 #elif defined(FEAT_NUM64)
 #define TMP_LEN 66

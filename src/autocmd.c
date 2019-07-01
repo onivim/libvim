@@ -214,15 +214,15 @@ static AutoPat *last_autopat[NUM_EVENTS] =
  */
 typedef struct AutoPatCmd
 {
-  AutoPat *curpat;  // next AutoPat to examine
-  AutoCmd *nextcmd; // next AutoCmd to execute
-  int group;        // group being used
-  char_u *fname;    // fname to match with
-  char_u *sfname;   // sfname to match with
-  char_u *tail;     // tail of fname
-  event_T event;    // current event
-  int arg_bufnr;    // Initially equal to <abuf>, set to zero when
-      // buf is deleted.
+  AutoPat *curpat;         // next AutoPat to examine
+  AutoCmd *nextcmd;        // next AutoCmd to execute
+  int group;               // group being used
+  char_u *fname;           // fname to match with
+  char_u *sfname;          // sfname to match with
+  char_u *tail;            // tail of fname
+  event_T event;           // current event
+  int arg_bufnr;           // Initially equal to <abuf>, set to zero when
+                           // buf is deleted.
   struct AutoPatCmd *next; // chain of active apc-s for auto-invalidation
 } AutoPatCmd;
 

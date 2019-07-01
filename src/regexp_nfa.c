@@ -763,7 +763,8 @@ nfa_emit_equi_class(int c)
     case A_diaeresis:
     case A_ring:
       CASEMBC(0x100)
-      CASEMBC(0x102) CASEMBC(0x104)
+      CASEMBC(0x102)
+      CASEMBC(0x104)
           CASEMBC(0x1cd) CASEMBC(0x1de) CASEMBC(0x1e0)
               CASEMBC(0x1ea2)
                   EMIT2('A');
@@ -774,35 +775,41 @@ nfa_emit_equi_class(int c)
       EMIT2(A_diaeresis);
       EMIT2(A_ring);
       EMITMBC(0x100)
-      EMITMBC(0x102) EMITMBC(0x104)
+      EMITMBC(0x102)
+      EMITMBC(0x104)
           EMITMBC(0x1cd) EMITMBC(0x1de) EMITMBC(0x1e0)
               EMITMBC(0x1ea2) return OK;
 
     case 'B':
       CASEMBC(0x1e02)
       CASEMBC(0x1e06)
-          EMIT2('B');
+      EMIT2('B');
       EMITMBC(0x1e02)
-      EMITMBC(0x1e06) return OK;
+      EMITMBC(0x1e06)
+      return OK;
 
     case 'C':
     case C_cedilla:
       CASEMBC(0x106)
       CASEMBC(0x108)
-          CASEMBC(0x10a) CASEMBC(0x10c)
-              EMIT2('C');
+      CASEMBC(0x10a)
+      CASEMBC(0x10c)
+          EMIT2('C');
       EMIT2(C_cedilla);
       EMITMBC(0x106)
       EMITMBC(0x108)
-          EMITMBC(0x10a) EMITMBC(0x10c) return OK;
+      EMITMBC(0x10a)
+      EMITMBC(0x10c) return OK;
 
     case 'D':
       CASEMBC(0x10e)
-      CASEMBC(0x110) CASEMBC(0x1e0a)
+      CASEMBC(0x110)
+      CASEMBC(0x1e0a)
           CASEMBC(0x1e0e) CASEMBC(0x1e10)
               EMIT2('D');
       EMITMBC(0x10e)
-      EMITMBC(0x110) EMITMBC(0x1e0a)
+      EMITMBC(0x110)
+      EMITMBC(0x1e0a)
           EMITMBC(0x1e0e) EMITMBC(0x1e10) return OK;
 
     case 'E':
@@ -812,15 +819,17 @@ nfa_emit_equi_class(int c)
     case E_diaeresis:
       CASEMBC(0x112)
       CASEMBC(0x114)
-          CASEMBC(0x116) CASEMBC(0x118) CASEMBC(0x11a)
-              CASEMBC(0x1eba) CASEMBC(0x1ebc)
-                  EMIT2('E');
+      CASEMBC(0x116)
+      CASEMBC(0x118) CASEMBC(0x11a)
+          CASEMBC(0x1eba) CASEMBC(0x1ebc)
+              EMIT2('E');
       EMIT2(E_grave);
       EMIT2(E_acute);
       EMIT2(E_circumflex);
       EMIT2(E_diaeresis);
       EMITMBC(0x112)
-      EMITMBC(0x114) EMITMBC(0x116)
+      EMITMBC(0x114)
+      EMITMBC(0x116)
           EMITMBC(0x118) EMITMBC(0x11a) EMITMBC(0x1eba)
               EMITMBC(0x1ebc) return OK;
 
@@ -832,22 +841,26 @@ nfa_emit_equi_class(int c)
 
     case 'G':
       CASEMBC(0x11c)
-      CASEMBC(0x11e) CASEMBC(0x120)
+      CASEMBC(0x11e)
+      CASEMBC(0x120)
           CASEMBC(0x122) CASEMBC(0x1e4) CASEMBC(0x1e6)
               CASEMBC(0x1f4) CASEMBC(0x1e20)
                   EMIT2('G');
       EMITMBC(0x11c)
-      EMITMBC(0x11e) EMITMBC(0x120)
+      EMITMBC(0x11e)
+      EMITMBC(0x120)
           EMITMBC(0x122) EMITMBC(0x1e4) EMITMBC(0x1e6)
               EMITMBC(0x1f4) EMITMBC(0x1e20) return OK;
 
     case 'H':
       CASEMBC(0x124)
-      CASEMBC(0x126) CASEMBC(0x1e22)
+      CASEMBC(0x126)
+      CASEMBC(0x1e22)
           CASEMBC(0x1e26) CASEMBC(0x1e28)
               EMIT2('H');
       EMITMBC(0x124)
-      EMITMBC(0x126) EMITMBC(0x1e22)
+      EMITMBC(0x126)
+      EMITMBC(0x1e22)
           EMITMBC(0x1e26) EMITMBC(0x1e28) return OK;
 
     case 'I':
@@ -857,17 +870,19 @@ nfa_emit_equi_class(int c)
     case I_diaeresis:
       CASEMBC(0x128)
       CASEMBC(0x12a)
-          CASEMBC(0x12c) CASEMBC(0x12e) CASEMBC(0x130)
-              CASEMBC(0x1cf) CASEMBC(0x1ec8)
-                  EMIT2('I');
+      CASEMBC(0x12c)
+      CASEMBC(0x12e) CASEMBC(0x130)
+          CASEMBC(0x1cf) CASEMBC(0x1ec8)
+              EMIT2('I');
       EMIT2(I_grave);
       EMIT2(I_acute);
       EMIT2(I_circumflex);
       EMIT2(I_diaeresis);
       EMITMBC(0x128)
       EMITMBC(0x12a)
-          EMITMBC(0x12c) EMITMBC(0x12e) EMITMBC(0x130)
-              EMITMBC(0x1cf) EMITMBC(0x1ec8) return OK;
+      EMITMBC(0x12c)
+      EMITMBC(0x12e) EMITMBC(0x130)
+          EMITMBC(0x1cf) EMITMBC(0x1ec8) return OK;
 
     case 'J':
       CASEMBC(0x134)
@@ -877,39 +892,46 @@ nfa_emit_equi_class(int c)
 
     case 'K':
       CASEMBC(0x136)
-      CASEMBC(0x1e8) CASEMBC(0x1e30)
+      CASEMBC(0x1e8)
+      CASEMBC(0x1e30)
           CASEMBC(0x1e34)
               EMIT2('K');
       EMITMBC(0x136)
-      EMITMBC(0x1e8) EMITMBC(0x1e30)
+      EMITMBC(0x1e8)
+      EMITMBC(0x1e30)
           EMITMBC(0x1e34) return OK;
 
     case 'L':
       CASEMBC(0x139)
-      CASEMBC(0x13b) CASEMBC(0x13d)
+      CASEMBC(0x13b)
+      CASEMBC(0x13d)
           CASEMBC(0x13f) CASEMBC(0x141) CASEMBC(0x1e3a)
               EMIT2('L');
       EMITMBC(0x139)
-      EMITMBC(0x13b) EMITMBC(0x13d)
+      EMITMBC(0x13b)
+      EMITMBC(0x13d)
           EMITMBC(0x13f) EMITMBC(0x141) EMITMBC(0x1e3a) return OK;
 
     case 'M':
       CASEMBC(0x1e3e)
       CASEMBC(0x1e40)
-          EMIT2('M');
+      EMIT2('M');
       EMITMBC(0x1e3e)
-      EMITMBC(0x1e40) return OK;
+      EMITMBC(0x1e40)
+      return OK;
 
     case 'N':
     case N_virguilla:
       CASEMBC(0x143)
       CASEMBC(0x145)
-          CASEMBC(0x147) CASEMBC(0x1e44) CASEMBC(0x1e48)
-              EMIT2('N');
+      CASEMBC(0x147)
+      CASEMBC(0x1e44) CASEMBC(0x1e48)
+          EMIT2('N');
       EMIT2(N_virguilla);
       EMITMBC(0x143)
       EMITMBC(0x145)
-          EMITMBC(0x147) EMITMBC(0x1e44) EMITMBC(0x1e48) return OK;
+      EMITMBC(0x147)
+      EMITMBC(0x1e44) EMITMBC(0x1e48) return OK;
 
     case 'O':
     case O_grave:
@@ -919,7 +941,8 @@ nfa_emit_equi_class(int c)
     case O_diaeresis:
     case O_slash:
       CASEMBC(0x14c)
-      CASEMBC(0x14e) CASEMBC(0x150)
+      CASEMBC(0x14e)
+      CASEMBC(0x150)
           CASEMBC(0x1a0) CASEMBC(0x1d1) CASEMBC(0x1ea)
               CASEMBC(0x1ec) CASEMBC(0x1ece)
                   EMIT2('O');
@@ -930,7 +953,8 @@ nfa_emit_equi_class(int c)
       EMIT2(O_diaeresis);
       EMIT2(O_slash);
       EMITMBC(0x14c)
-      EMITMBC(0x14e) EMITMBC(0x150)
+      EMITMBC(0x14e)
+      EMITMBC(0x150)
           EMITMBC(0x1a0) EMITMBC(0x1d1) EMITMBC(0x1ea)
               EMITMBC(0x1ec) EMITMBC(0x1ece) return OK;
 
@@ -939,33 +963,40 @@ nfa_emit_equi_class(int c)
     case 0x1e56:
       EMIT2('P');
       EMITMBC(0x1e54)
-      EMITMBC(0x1e56) return OK;
+      EMITMBC(0x1e56)
+      return OK;
 
     case 'R':
       CASEMBC(0x154)
-      CASEMBC(0x156) CASEMBC(0x158)
+      CASEMBC(0x156)
+      CASEMBC(0x158)
           CASEMBC(0x1e58) CASEMBC(0x1e5e)
               EMIT2('R');
       EMITMBC(0x154)
-      EMITMBC(0x156) EMITMBC(0x158)
+      EMITMBC(0x156)
+      EMITMBC(0x158)
           EMITMBC(0x1e58) EMITMBC(0x1e5e) return OK;
 
     case 'S':
       CASEMBC(0x15a)
-      CASEMBC(0x15c) CASEMBC(0x15e)
+      CASEMBC(0x15c)
+      CASEMBC(0x15e)
           CASEMBC(0x160) CASEMBC(0x1e60)
               EMIT2('S');
       EMITMBC(0x15a)
-      EMITMBC(0x15c) EMITMBC(0x15e)
+      EMITMBC(0x15c)
+      EMITMBC(0x15e)
           EMITMBC(0x160) EMITMBC(0x1e60) return OK;
 
     case 'T':
       CASEMBC(0x162)
-      CASEMBC(0x164) CASEMBC(0x166)
+      CASEMBC(0x164)
+      CASEMBC(0x166)
           CASEMBC(0x1e6a) CASEMBC(0x1e6e)
               EMIT2('T');
       EMITMBC(0x162)
-      EMITMBC(0x164) EMITMBC(0x166)
+      EMITMBC(0x164)
+      EMITMBC(0x166)
           EMITMBC(0x1e6a) EMITMBC(0x1e6e) return OK;
 
     case 'U':
@@ -975,19 +1006,21 @@ nfa_emit_equi_class(int c)
     case U_circumflex:
       CASEMBC(0x168)
       CASEMBC(0x16a)
-          CASEMBC(0x16c) CASEMBC(0x16e) CASEMBC(0x170)
-              CASEMBC(0x172) CASEMBC(0x1af) CASEMBC(0x1d3)
-                  CASEMBC(0x1ee6)
-                      EMIT2('U');
+      CASEMBC(0x16c)
+      CASEMBC(0x16e) CASEMBC(0x170)
+          CASEMBC(0x172) CASEMBC(0x1af) CASEMBC(0x1d3)
+              CASEMBC(0x1ee6)
+                  EMIT2('U');
       EMIT2(U_grave);
       EMIT2(U_acute);
       EMIT2(U_diaeresis);
       EMIT2(U_circumflex);
       EMITMBC(0x168)
       EMITMBC(0x16a)
-          EMITMBC(0x16c) EMITMBC(0x16e) EMITMBC(0x170)
-              EMITMBC(0x172) EMITMBC(0x1af) EMITMBC(0x1d3)
-                  EMITMBC(0x1ee6) return OK;
+      EMITMBC(0x16c)
+      EMITMBC(0x16e) EMITMBC(0x170)
+          EMITMBC(0x172) EMITMBC(0x1af) EMITMBC(0x1d3)
+              EMITMBC(0x1ee6) return OK;
 
     case 'V':
       CASEMBC(0x1e7c)
@@ -997,40 +1030,47 @@ nfa_emit_equi_class(int c)
 
     case 'W':
       CASEMBC(0x174)
-      CASEMBC(0x1e80) CASEMBC(0x1e82)
+      CASEMBC(0x1e80)
+      CASEMBC(0x1e82)
           CASEMBC(0x1e84) CASEMBC(0x1e86)
               EMIT2('W');
       EMITMBC(0x174)
-      EMITMBC(0x1e80) EMITMBC(0x1e82)
+      EMITMBC(0x1e80)
+      EMITMBC(0x1e82)
           EMITMBC(0x1e84) EMITMBC(0x1e86) return OK;
 
     case 'X':
       CASEMBC(0x1e8a)
       CASEMBC(0x1e8c)
-          EMIT2('X');
+      EMIT2('X');
       EMITMBC(0x1e8a)
-      EMITMBC(0x1e8c) return OK;
+      EMITMBC(0x1e8c)
+      return OK;
 
     case 'Y':
     case Y_acute:
       CASEMBC(0x176)
       CASEMBC(0x178)
-          CASEMBC(0x1e8e) CASEMBC(0x1ef2) CASEMBC(0x1ef6)
-              CASEMBC(0x1ef8)
-                  EMIT2('Y');
+      CASEMBC(0x1e8e)
+      CASEMBC(0x1ef2) CASEMBC(0x1ef6)
+          CASEMBC(0x1ef8)
+              EMIT2('Y');
       EMIT2(Y_acute);
       EMITMBC(0x176)
       EMITMBC(0x178)
-          EMITMBC(0x1e8e) EMITMBC(0x1ef2) EMITMBC(0x1ef6)
-              EMITMBC(0x1ef8) return OK;
+      EMITMBC(0x1e8e)
+      EMITMBC(0x1ef2) EMITMBC(0x1ef6)
+          EMITMBC(0x1ef8) return OK;
 
     case 'Z':
       CASEMBC(0x179)
-      CASEMBC(0x17b) CASEMBC(0x17d)
+      CASEMBC(0x17b)
+      CASEMBC(0x17d)
           CASEMBC(0x1b5) CASEMBC(0x1e90) CASEMBC(0x1e94)
               EMIT2('Z');
       EMITMBC(0x179)
-      EMITMBC(0x17b) EMITMBC(0x17d)
+      EMITMBC(0x17b)
+      EMITMBC(0x17d)
           EMITMBC(0x1b5) EMITMBC(0x1e90) EMITMBC(0x1e94) return OK;
 
     case 'a':
@@ -1041,7 +1081,8 @@ nfa_emit_equi_class(int c)
     case a_diaeresis:
     case a_ring:
       CASEMBC(0x101)
-      CASEMBC(0x103) CASEMBC(0x105)
+      CASEMBC(0x103)
+      CASEMBC(0x105)
           CASEMBC(0x1ce) CASEMBC(0x1df) CASEMBC(0x1e1)
               CASEMBC(0x1ea3)
                   EMIT2('a');
@@ -1052,36 +1093,42 @@ nfa_emit_equi_class(int c)
       EMIT2(a_diaeresis);
       EMIT2(a_ring);
       EMITMBC(0x101)
-      EMITMBC(0x103) EMITMBC(0x105)
+      EMITMBC(0x103)
+      EMITMBC(0x105)
           EMITMBC(0x1ce) EMITMBC(0x1df) EMITMBC(0x1e1)
               EMITMBC(0x1ea3) return OK;
 
     case 'b':
       CASEMBC(0x1e03)
       CASEMBC(0x1e07)
-          EMIT2('b');
+      EMIT2('b');
       EMITMBC(0x1e03)
-      EMITMBC(0x1e07) return OK;
+      EMITMBC(0x1e07)
+      return OK;
 
     case 'c':
     case c_cedilla:
       CASEMBC(0x107)
       CASEMBC(0x109)
-          CASEMBC(0x10b) CASEMBC(0x10d)
-              EMIT2('c');
+      CASEMBC(0x10b)
+      CASEMBC(0x10d)
+          EMIT2('c');
       EMIT2(c_cedilla);
       EMITMBC(0x107)
       EMITMBC(0x109)
-          EMITMBC(0x10b) EMITMBC(0x10d) return OK;
+      EMITMBC(0x10b)
+      EMITMBC(0x10d) return OK;
 
     case 'd':
       CASEMBC(0x10f)
-      CASEMBC(0x111) CASEMBC(0x1e0b)
+      CASEMBC(0x111)
+      CASEMBC(0x1e0b)
           CASEMBC(0x1e0f) CASEMBC(0x1e11)
               EMIT2('d');
       EMITMBC(0x10f)
       EMITMBC(0x111)
-          EMITMBC(0x1e0b) EMITMBC(0x1e0f) EMITMBC(0x1e11) return OK;
+      EMITMBC(0x1e0b)
+      EMITMBC(0x1e0f) EMITMBC(0x1e11) return OK;
 
     case 'e':
     case e_grave:
@@ -1090,17 +1137,19 @@ nfa_emit_equi_class(int c)
     case e_diaeresis:
       CASEMBC(0x113)
       CASEMBC(0x115)
-          CASEMBC(0x117) CASEMBC(0x119) CASEMBC(0x11b)
-              CASEMBC(0x1ebb) CASEMBC(0x1ebd)
-                  EMIT2('e');
+      CASEMBC(0x117)
+      CASEMBC(0x119) CASEMBC(0x11b)
+          CASEMBC(0x1ebb) CASEMBC(0x1ebd)
+              EMIT2('e');
       EMIT2(e_grave);
       EMIT2(e_acute);
       EMIT2(e_circumflex);
       EMIT2(e_diaeresis);
       EMITMBC(0x113)
       EMITMBC(0x115)
-          EMITMBC(0x117) EMITMBC(0x119) EMITMBC(0x11b)
-              EMITMBC(0x1ebb) EMITMBC(0x1ebd) return OK;
+      EMITMBC(0x117)
+      EMITMBC(0x119) EMITMBC(0x11b)
+          EMITMBC(0x1ebb) EMITMBC(0x1ebd) return OK;
 
     case 'f':
       CASEMBC(0x1e1f)
@@ -1110,22 +1159,26 @@ nfa_emit_equi_class(int c)
 
     case 'g':
       CASEMBC(0x11d)
-      CASEMBC(0x11f) CASEMBC(0x121)
+      CASEMBC(0x11f)
+      CASEMBC(0x121)
           CASEMBC(0x123) CASEMBC(0x1e5) CASEMBC(0x1e7)
               CASEMBC(0x1f5) CASEMBC(0x1e21)
                   EMIT2('g');
       EMITMBC(0x11d)
-      EMITMBC(0x11f) EMITMBC(0x121)
+      EMITMBC(0x11f)
+      EMITMBC(0x121)
           EMITMBC(0x123) EMITMBC(0x1e5) EMITMBC(0x1e7)
               EMITMBC(0x1f5) EMITMBC(0x1e21) return OK;
 
     case 'h':
       CASEMBC(0x125)
-      CASEMBC(0x127) CASEMBC(0x1e23)
+      CASEMBC(0x127)
+      CASEMBC(0x1e23)
           CASEMBC(0x1e27) CASEMBC(0x1e29) CASEMBC(0x1e96)
               EMIT2('h');
       EMITMBC(0x125)
-      EMITMBC(0x127) EMITMBC(0x1e23)
+      EMITMBC(0x127)
+      EMITMBC(0x1e23)
           EMITMBC(0x1e27) EMITMBC(0x1e29) EMITMBC(0x1e96) return OK;
 
     case 'i':
@@ -1135,62 +1188,72 @@ nfa_emit_equi_class(int c)
     case i_diaeresis:
       CASEMBC(0x129)
       CASEMBC(0x12b)
-          CASEMBC(0x12d) CASEMBC(0x12f) CASEMBC(0x1d0)
-              CASEMBC(0x1ec9)
-                  EMIT2('i');
+      CASEMBC(0x12d)
+      CASEMBC(0x12f) CASEMBC(0x1d0)
+          CASEMBC(0x1ec9)
+              EMIT2('i');
       EMIT2(i_grave);
       EMIT2(i_acute);
       EMIT2(i_circumflex);
       EMIT2(i_diaeresis);
       EMITMBC(0x129)
       EMITMBC(0x12b)
-          EMITMBC(0x12d) EMITMBC(0x12f) EMITMBC(0x1d0)
-              EMITMBC(0x1ec9) return OK;
+      EMITMBC(0x12d)
+      EMITMBC(0x12f) EMITMBC(0x1d0)
+          EMITMBC(0x1ec9) return OK;
 
     case 'j':
       CASEMBC(0x135)
       CASEMBC(0x1f0)
-          EMIT2('j');
+      EMIT2('j');
       EMITMBC(0x135)
-      EMITMBC(0x1f0) return OK;
+      EMITMBC(0x1f0)
+      return OK;
 
     case 'k':
       CASEMBC(0x137)
-      CASEMBC(0x1e9) CASEMBC(0x1e31)
+      CASEMBC(0x1e9)
+      CASEMBC(0x1e31)
           CASEMBC(0x1e35)
               EMIT2('k');
       EMITMBC(0x137)
-      EMITMBC(0x1e9) EMITMBC(0x1e31)
+      EMITMBC(0x1e9)
+      EMITMBC(0x1e31)
           EMITMBC(0x1e35) return OK;
 
     case 'l':
       CASEMBC(0x13a)
-      CASEMBC(0x13c) CASEMBC(0x13e)
+      CASEMBC(0x13c)
+      CASEMBC(0x13e)
           CASEMBC(0x140) CASEMBC(0x142) CASEMBC(0x1e3b)
               EMIT2('l');
       EMITMBC(0x13a)
-      EMITMBC(0x13c) EMITMBC(0x13e)
+      EMITMBC(0x13c)
+      EMITMBC(0x13e)
           EMITMBC(0x140) EMITMBC(0x142) EMITMBC(0x1e3b) return OK;
 
     case 'm':
       CASEMBC(0x1e3f)
       CASEMBC(0x1e41)
-          EMIT2('m');
+      EMIT2('m');
       EMITMBC(0x1e3f)
-      EMITMBC(0x1e41) return OK;
+      EMITMBC(0x1e41)
+      return OK;
 
     case 'n':
     case n_virguilla:
       CASEMBC(0x144)
       CASEMBC(0x146)
-          CASEMBC(0x148) CASEMBC(0x149) CASEMBC(0x1e45)
-              CASEMBC(0x1e49)
-                  EMIT2('n');
+      CASEMBC(0x148)
+      CASEMBC(0x149) CASEMBC(0x1e45)
+          CASEMBC(0x1e49)
+              EMIT2('n');
       EMIT2(n_virguilla);
       EMITMBC(0x144)
       EMITMBC(0x146)
-          EMITMBC(0x148) EMITMBC(0x149) EMITMBC(0x1e45)
-              EMITMBC(0x1e49) return OK;
+      EMITMBC(0x148)
+      EMITMBC(0x149) EMITMBC(0x1e45)
+          EMITMBC(0x1e49) return OK;
 
     case 'o':
     case o_grave:
@@ -1200,7 +1263,8 @@ nfa_emit_equi_class(int c)
     case o_diaeresis:
     case o_slash:
       CASEMBC(0x14d)
-      CASEMBC(0x14f) CASEMBC(0x151)
+      CASEMBC(0x14f)
+      CASEMBC(0x151)
           CASEMBC(0x1a1) CASEMBC(0x1d2) CASEMBC(0x1eb)
               CASEMBC(0x1ed) CASEMBC(0x1ecf)
                   EMIT2('o');
@@ -1211,42 +1275,50 @@ nfa_emit_equi_class(int c)
       EMIT2(o_diaeresis);
       EMIT2(o_slash);
       EMITMBC(0x14d)
-      EMITMBC(0x14f) EMITMBC(0x151)
+      EMITMBC(0x14f)
+      EMITMBC(0x151)
           EMITMBC(0x1a1) EMITMBC(0x1d2) EMITMBC(0x1eb)
               EMITMBC(0x1ed) EMITMBC(0x1ecf) return OK;
 
     case 'p':
       CASEMBC(0x1e55)
       CASEMBC(0x1e57)
-          EMIT2('p');
+      EMIT2('p');
       EMITMBC(0x1e55)
-      EMITMBC(0x1e57) return OK;
+      EMITMBC(0x1e57)
+      return OK;
 
     case 'r':
       CASEMBC(0x155)
-      CASEMBC(0x157) CASEMBC(0x159)
+      CASEMBC(0x157)
+      CASEMBC(0x159)
           CASEMBC(0x1e59) CASEMBC(0x1e5f)
               EMIT2('r');
       EMITMBC(0x155)
-      EMITMBC(0x157) EMITMBC(0x159)
+      EMITMBC(0x157)
+      EMITMBC(0x159)
           EMITMBC(0x1e59) EMITMBC(0x1e5f) return OK;
 
     case 's':
       CASEMBC(0x15b)
-      CASEMBC(0x15d) CASEMBC(0x15f)
+      CASEMBC(0x15d)
+      CASEMBC(0x15f)
           CASEMBC(0x161) CASEMBC(0x1e61)
               EMIT2('s');
       EMITMBC(0x15b)
-      EMITMBC(0x15d) EMITMBC(0x15f)
+      EMITMBC(0x15d)
+      EMITMBC(0x15f)
           EMITMBC(0x161) EMITMBC(0x1e61) return OK;
 
     case 't':
       CASEMBC(0x163)
-      CASEMBC(0x165) CASEMBC(0x167)
+      CASEMBC(0x165)
+      CASEMBC(0x167)
           CASEMBC(0x1e6b) CASEMBC(0x1e6f) CASEMBC(0x1e97)
               EMIT2('t');
       EMITMBC(0x163)
-      EMITMBC(0x165) EMITMBC(0x167)
+      EMITMBC(0x165)
+      EMITMBC(0x167)
           EMITMBC(0x1e6b) EMITMBC(0x1e6f) EMITMBC(0x1e97) return OK;
 
     case 'u':
@@ -1256,19 +1328,21 @@ nfa_emit_equi_class(int c)
     case u_diaeresis:
       CASEMBC(0x169)
       CASEMBC(0x16b)
-          CASEMBC(0x16d) CASEMBC(0x16f) CASEMBC(0x171)
-              CASEMBC(0x173) CASEMBC(0x1b0) CASEMBC(0x1d4)
-                  CASEMBC(0x1ee7)
-                      EMIT2('u');
+      CASEMBC(0x16d)
+      CASEMBC(0x16f) CASEMBC(0x171)
+          CASEMBC(0x173) CASEMBC(0x1b0) CASEMBC(0x1d4)
+              CASEMBC(0x1ee7)
+                  EMIT2('u');
       EMIT2(u_grave);
       EMIT2(u_acute);
       EMIT2(u_circumflex);
       EMIT2(u_diaeresis);
       EMITMBC(0x169)
       EMITMBC(0x16b)
-          EMITMBC(0x16d) EMITMBC(0x16f) EMITMBC(0x171)
-              EMITMBC(0x173) EMITMBC(0x1b0) EMITMBC(0x1d4)
-                  EMITMBC(0x1ee7) return OK;
+      EMITMBC(0x16d)
+      EMITMBC(0x16f) EMITMBC(0x171)
+          EMITMBC(0x173) EMITMBC(0x1b0) EMITMBC(0x1d4)
+              EMITMBC(0x1ee7) return OK;
 
     case 'v':
       CASEMBC(0x1e7d)
@@ -1278,42 +1352,49 @@ nfa_emit_equi_class(int c)
 
     case 'w':
       CASEMBC(0x175)
-      CASEMBC(0x1e81) CASEMBC(0x1e83)
+      CASEMBC(0x1e81)
+      CASEMBC(0x1e83)
           CASEMBC(0x1e85) CASEMBC(0x1e87) CASEMBC(0x1e98)
               EMIT2('w');
       EMITMBC(0x175)
-      EMITMBC(0x1e81) EMITMBC(0x1e83)
+      EMITMBC(0x1e81)
+      EMITMBC(0x1e83)
           EMITMBC(0x1e85) EMITMBC(0x1e87) EMITMBC(0x1e98) return OK;
 
     case 'x':
       CASEMBC(0x1e8b)
       CASEMBC(0x1e8d)
-          EMIT2('x');
+      EMIT2('x');
       EMITMBC(0x1e8b)
-      EMITMBC(0x1e8d) return OK;
+      EMITMBC(0x1e8d)
+      return OK;
 
     case 'y':
     case y_acute:
     case y_diaeresis:
       CASEMBC(0x177)
       CASEMBC(0x1e8f)
-      CASEMBC(0x1e99) CASEMBC(0x1ef3)
+      CASEMBC(0x1e99)
+      CASEMBC(0x1ef3)
           CASEMBC(0x1ef7) CASEMBC(0x1ef9)
               EMIT2('y');
       EMIT2(y_acute);
       EMIT2(y_diaeresis);
       EMITMBC(0x177)
       EMITMBC(0x1e8f)
-      EMITMBC(0x1e99) EMITMBC(0x1ef3)
+      EMITMBC(0x1e99)
+      EMITMBC(0x1ef3)
           EMITMBC(0x1ef7) EMITMBC(0x1ef9) return OK;
 
     case 'z':
       CASEMBC(0x17a)
-      CASEMBC(0x17c) CASEMBC(0x17e)
+      CASEMBC(0x17c)
+      CASEMBC(0x17e)
           CASEMBC(0x1b6) CASEMBC(0x1e91) CASEMBC(0x1e95)
               EMIT2('z');
       EMITMBC(0x17a)
-      EMITMBC(0x17c) EMITMBC(0x17e)
+      EMITMBC(0x17c)
+      EMITMBC(0x17e)
           EMITMBC(0x1b6) EMITMBC(0x1e91) EMITMBC(0x1e95) return OK;
 
       /* default: character itself */

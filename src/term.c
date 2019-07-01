@@ -2730,7 +2730,7 @@ void settmode(int tmode)
           out_str(T_BD); // disable bracketed paste mode
         else
           out_str(T_BE); // enable bracketed paste mode (should
-              // be before mch_settmode().
+                         // be before mch_settmode().
       }
       mch_settmode(tmode); // machine specific function
       cur_tmode = tmode;

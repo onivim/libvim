@@ -2106,7 +2106,7 @@ get_buffer_count(void *data UNUSED, int argc UNUSED, Scheme_Object **argv UNUSED
   int n = 0;
 
   FOR_ALL_BUFFERS(b)
-  ++ n;
+  ++n;
   return scheme_make_integer(n);
 }
 
