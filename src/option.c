@@ -351,17 +351,20 @@ struct vimoption
 /*
  * Flags
  */
+
+// clang-format off
+
 #define P_BOOL 0x01        /* the option is boolean */
 #define P_NUM 0x02         /* the option is numeric */
 #define P_STRING 0x04      /* the option is a string */
-#define P_ALLOCED 0x08     /* the string option is in allocated memory,
-                              must use free_string_option() when
-                              assigning new value. Not set if default is
+#define P_ALLOCED 0x08     /* the string option is in allocated memory,  \
+                              must use free_string_option() when         \
+                              assigning new value. Not set if default is \
                               the same. */
-#define P_EXPAND 0x10      /* environment expansion.  NOTE: P_EXPAND can
+#define P_EXPAND 0x10      /* environment expansion.  NOTE: P_EXPAND can \
                               never be used for local or hidden options! */
 #define P_NODEFAULT 0x40   /* don't set to default value */
-#define P_DEF_ALLOCED 0x80 /* default value is in allocated memory, must
+#define P_DEF_ALLOCED 0x80 /* default value is in allocated memory, must \
                                use vim_free() when assigning new value */
 #define P_WAS_SET 0x100    /* option has been set/reset */
 #define P_NO_MKRC 0x200    /* don't include in :mkvimrc output */
@@ -376,7 +379,7 @@ struct vimoption
 #define P_RCLR 0x7000  /* clear and redraw all */
 
 #define P_COMMA 0x8000      /* comma separated list */
-#define P_ONECOMMA 0x18000L /* P_COMMA and cannot have two consecutive
+#define P_ONECOMMA 0x18000L /* P_COMMA and cannot have two consecutive \
                              * commas */
 #define P_NODUP 0x20000L    /* don't allow duplicate strings */
 #define P_FLAGLIST 0x40000L /* list of single-char flags */
@@ -386,16 +389,18 @@ struct vimoption
 #define P_NOGLOB 0x200000L     /* do not use local value for global vimrc */
 #define P_NFNAME 0x400000L     /* only normal file name chars allowed */
 #define P_INSECURE 0x800000L   /* option was set from a modeline */
-#define P_PRI_MKRC 0x1000000L  /* priority for :mkvimrc (setting option has
+#define P_PRI_MKRC 0x1000000L  /* priority for :mkvimrc (setting option has \
                                   side effects) */
 #define P_NO_ML 0x2000000L     /* not allowed in modeline */
-#define P_CURSWANT 0x4000000L  /* update curswant required; not needed when
+#define P_CURSWANT 0x4000000L  /* update curswant required; not needed when \
                                 * there is a redraw flag */
 #define P_NDNAME 0x8000000L    /* only normal dir name chars allowed */
 #define P_RWINONLY 0x10000000L /* only redraw current window */
 #define P_MLE 0x20000000L      /* under control of 'modelineexpr' */
 
 #define ISK_LATIN1 (char_u *)"@,48-57,_,192-255"
+
+// clang-format on
 
 /* 'isprint' for latin1 is also used for MS-Windows cp1252, where 0x80 is used
  * for the currency sign. */
