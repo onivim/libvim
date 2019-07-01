@@ -2230,11 +2230,6 @@ termcapinit(char_u *name)
  */
 #define OUT_SIZE	2047
 
-// add one to allow mch_write() in os_win32.c to append a NUL
-static char_u		out_buf[OUT_SIZE + 1];
-
-static int		out_pos = 0;	// number of chars in out_buf
-
 // Since the maximum number of SGR parameters shown as a normal value range is
 // 16, the escape sequence length can be 4 * 16 + lead + tail.
 #define MAX_ESC_SEQ_LEN	80
