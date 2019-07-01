@@ -1313,7 +1313,7 @@ NO_ATTR=
 PROTO_FLAGS = -d -E"$(CPP)" $(NO_ATTR)
 
 
-WARN_FLAGS = -Wall -Wno-pointer-sign -Wno-unused-parameter -Werror
+WARN_FLAGS = -Wall -Wno-pointer-sign -Wno-unused-parameter -Wno-unknown-pragmas -Werror
 
 ################################################
 ##   no changes required below this line      ##
