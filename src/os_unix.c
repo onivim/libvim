@@ -1469,23 +1469,6 @@ xopen_message(long elapsed_msec)
 static int	got_x_error = FALSE;
 
 /*
- * X Error handler, otherwise X just exits!  (very rude) -- webb
- */
-    static int
-x_error_handler(Display *dpy, XErrorEvent *error_event)
-{
-    XGetErrorText(dpy, error_event->error_code, (char *)IObuff, IOSIZE);
-    STRCAT(IObuff, _("\nVim: Got X error\n"));
-
-    /* We cannot print a message and continue, because no X calls are allowed
-     * here (causes my system to hang).  Silently continuing might be an
-     * alternative... */
-    preserve_exit();		    /* preserve files and exit */
-
-    return 0;		/* NOTREACHED */
-}
-
-/*
  * Another X Error handler, just used to check for errors.
  */
     static int
