@@ -6654,24 +6654,22 @@ static void nv_edit(cmdarg_T *cap) {
 static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
                         int cmd, int startln) {
 
-// TODO: Bring back this 'restart_edit' functionality
-#pragma GCC diagnostic push
-// Seems only the windows compiler has 'unused-but-set-variable'...
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-  int restart_edit_save = 0;
- #pragma GCC diagnostic pop
-
+  /* int restart_edit_save = 0; */
   /* Complicated: When the user types "a<C-O>a" we don't want to do Insert
    * mode recursively.  But when doing "a<C-O>." or "a<C-O>rx" we do allow
    * it. */
-  if (repl || !stuff_empty())
+
+  /* libvim TODO: Bring back restart_edit & restart_edit save */
+
+  /* if (repl || !stuff_empty())
     restart_edit_save = restart_edit;
   else
-    restart_edit_save = 0;
+    restart_edit_save = 0; */
 
   /* Always reset "restart_edit", this is not a restarted edit. */
-  restart_edit = 0;
+  
+  /* libvim TODO: Bring back */
+  /* restart_edit = 0; */
 
   sm_push_insert(cmd, startln, cap->count1);
  
@@ -6703,10 +6701,7 @@ static void nv_object(cmdarg_T *cap) {
   switch (cap->nchar) {
   case 'w': /* "aw" = a word */
     flag = current_word(cap->oap, cap->count1, include, FALSE);
-    break;
-  case 'W': /* "aW" = a WORD */
-    flag = current_word(cap->oap, cap->count1, include, TRUE);
-    break;
+    break; case 'W': /* "aW" = a WORD */ flag = current_word(cap->oap, cap->count1, include, TRUE); break;
   case 'b': /* "ab" = a braces block */
   case '(':
   case ')':

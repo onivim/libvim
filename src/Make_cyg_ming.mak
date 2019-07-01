@@ -439,7 +439,7 @@ endif
 #>>>>> end of choices
 ###########################################################################
 
-CFLAGS = -I. -Iproto $(DEFINES) -pipe -march=$(ARCH) -Wall -Wextra -Wno-pointer-sign -Wno-unused-parameter -Werror
+CFLAGS = -I. -Iproto $(DEFINES) -pipe -march=$(ARCH) -Wall -Wextra -Wno-strict-overflow -Wno-pointer-sign -Wno-unused-parameter -Werror
 CXXFLAGS = -std=gnu++11
 WINDRES_FLAGS = --preprocessor="$(WINDRES_CC) -E -xc" -DRC_INVOKED
 EXTRA_LIBS =
