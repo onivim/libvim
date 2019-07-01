@@ -68,7 +68,7 @@ MU_TEST(test_characterwise_range) {
 
 MU_TEST(test_ctrl_q) {
   vimInput("<c-q>");
-  
+
   mu_check((vimGetMode() & VISUAL) == VISUAL);
   mu_check(vimVisualGetType() == Ctrl_V);
   mu_check(vimVisualIsActive() == 1);
@@ -76,7 +76,7 @@ MU_TEST(test_ctrl_q) {
 
 MU_TEST(test_ctrl_Q) {
   vimInput("<c-Q>");
-  
+
   mu_check((vimGetMode() & VISUAL) == VISUAL);
   mu_check(vimVisualGetType() == Ctrl_V);
   mu_check(vimVisualIsActive() == 1);
