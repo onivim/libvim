@@ -1,10 +1,6 @@
 #include "libvim.h"
 #include "minunit.h"
 
-static int cmdLineEnterCount = 0;
-static int cmdLineLeaveCount = 0;
-static int cmdLineChangedCount = 0;
-
 void test_setup(void) {
   vimInput("<esc>");
   vimInput("<esc>");
@@ -24,6 +20,8 @@ MU_TEST(test_search_in_large_file) {
   vimInput("e");
   printf("Typed e! \n");
 
+  int num;
+  searchHighlight_T *highlights;
   vimSearchGetHighlights(0, 0, &num, &highlights);
   mu_check(num == 3);
 }
