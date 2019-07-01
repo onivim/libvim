@@ -17,7 +17,7 @@ MU_TEST(test_cmdline_null) {
   mu_check(vimCommandLineGetType() == NUL);
   mu_check(vimCommandLineGetPosition() == 0);
 
-  char **completions;
+  char_u **completions;
   int count = 1;
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 0);
@@ -53,7 +53,7 @@ MU_TEST(test_cmdline_get_text) {
 }
 
 MU_TEST(test_cmdline_completions) {
-  char **completions;
+  char_u **completions;
   int count = 1;
 
   vimInput(":");

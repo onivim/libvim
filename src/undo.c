@@ -250,8 +250,11 @@ u_save(linenr_T top, linenr_T bot)
     if (undo_off)
 	return OK;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
     if (top >= bot || bot > curbuf->b_ml.ml_line_count + 1)
 	return FAIL;	// rely on caller to give an error message
+#pragma GCC diagnostic pop
 
     if (top + 2 == bot)
 	u_saveline((linenr_T)(top + 1));
