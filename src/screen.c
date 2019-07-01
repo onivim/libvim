@@ -2896,9 +2896,6 @@ win_line(
 #if defined(LINE_ATTR)
     int		did_line_attr = 0;
 #endif
-#ifdef FEAT_TERMINAL
-    int		get_term_attr = FALSE;
-#endif
 
     /* draw_state: items that are drawn in sequence: */
 #define WL_START	0		/* nothing done yet */
@@ -2954,7 +2951,6 @@ win_line(
 	if (term_show_buffer(wp->w_buffer))
 	{
 	    extra_check = TRUE;
-	    get_term_attr = TRUE;
 	    win_attr = term_get_attr(wp->w_buffer, lnum, -1);
 	}
 #endif
