@@ -5902,7 +5902,9 @@ did_set_string_option(
 	    }
 	    if (varp == &p_enc)
 	    {
-		errmsg = mb_init();
+            if (STRCMP(p_enc, "utf-8") != 0) {
+                errmsg = e_invarg;
+            }
 	    }
 	}
 
