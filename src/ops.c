@@ -855,7 +855,7 @@ void put_register(int name, void *reg) {
 #endif
 }
 
-#if (defined(FEAT_CLIPBOARD) && defined(FEAT_X11) && defined(USE_SYSTEM)) || \
+#if (defined(FEAT_CLIPBOARD) && defined(FEAT_X11) && defined(USE_SYSTEM)) ||   \
     defined(PROTO)
 void free_register(void *reg) {
   yankreg_T tmp;
@@ -980,7 +980,7 @@ static int execreg_lastc = NUL;
  */
 int do_execreg(int regname, int colon, /* insert ':' before each line */
                int addcr,              /* always add '\n' to end of line */
-               int silent)             /* set "silent" flag in typeahead buffer */
+               int silent) /* set "silent" flag in typeahead buffer */
 {
   long i;
   char_u *p;
@@ -2039,6 +2039,7 @@ void op_tilde(oparg_T *oap) {
       pos.col = bd.textcol;
       one_change = swapchars(oap->op_type, &pos, bd.textlen);
       did_change |= one_change;
+
     }
     if (did_change)
       changed_lines(oap->start.lnum, 0, oap->end.lnum + 1, 0L);
@@ -2347,20 +2348,20 @@ void op_insert(oparg_T *oap, long count1) {
 }
 
 typedef struct {
-  oparg_T *oap;
-  void *editContext;
-  colnr_T l;
-  int retval;
-  long offset;
-  linenr_T linenr;
-  long ins_len;
-  long pre_textlen;
-  long pre_indent;
-  char_u *firstline;
-  char_u *ins_text;
-  char_u *newp;
-  char_u *oldp;
-  struct block_def bd;
+    oparg_T* oap;
+    void* editContext;
+    colnr_T l;
+    int retval;
+    long offset;
+    linenr_T linenr;
+    long ins_len;
+    long pre_textlen;
+    long pre_indent;
+    char_u *firstline;
+    char_u *ins_text;
+    char_u *newp;
+    char_u *oldp;
+    struct block_def bd;
 } changeState_T;
 
 void *state_change_initialize(oparg_T *oap) {
@@ -2374,7 +2375,8 @@ void *state_change_initialize(oparg_T *oap) {
   if (oap->motion_type == MLINE) {
     context->l = 0;
 #ifdef FEAT_SMARTINDENT
-    if (!p_paste && curbuf->b_p_si)
+    if (!p_paste && curbuf->b_p_si
+    )
       can_si = TRUE; /* It's like opening a new line, do si */
 #endif
   }
@@ -3492,7 +3494,7 @@ void adjust_cursor_eol(void) {
   }
 }
 
-#if defined(FEAT_SMARTINDENT) || defined(PROTO)
+#if defined(FEAT_SMARTINDENT) ||  defined(PROTO)
 /*
  * Return TRUE if lines starting with '#' should be left aligned.
  */
@@ -3501,7 +3503,7 @@ int preprocs_left(void) {
 #ifdef FEAT_SMARTINDENT
       curbuf->b_p_si
 #endif
-      ;
+          ;
 }
 #endif
 

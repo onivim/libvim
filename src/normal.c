@@ -142,8 +142,8 @@ typedef void (*nv_func_T)(cmdarg_T *cap);
 
 /* Values for cmd_flags. */
 #define NV_NCH 0x01 /* may need to get a second char */
-#define NV_NCH_NOP \
-  (0x02 | NV_NCH)                  /* get second char when no operator pending */
+#define NV_NCH_NOP                                                             \
+  (0x02 | NV_NCH) /* get second char when no operator pending */
 #define NV_NCH_ALW (0x04 | NV_NCH) /* always get a second char */
 #define NV_LANG 0x08               /* second char needs language adjustment */
 
@@ -450,6 +450,7 @@ typedef enum {
   NORMAL_EXECUTE_COMMAND,
 } normalState_T;
 
+
 typedef struct {
   cmdarg_T ca;
   oparg_T *oap;
@@ -464,7 +465,7 @@ typedef struct {
   normalState_T state;
 #endif
 
-  int returnState;           // The state we are returning from
+  int returnState; // The state we are returning from
   pos_T returnPriorPosition; // The cursor position prior to running the state
 } normalCmd_T;
 
@@ -544,43 +545,45 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c) {
   normalCmd_T *context = (normalCmd_T *)ctx;
 
   if (context->returnState != NORMAL) {
+      
+      switch (context->returnState) {
+		    case INSERT:
+			    // If we are coming back from insert, restart normal mode
+			    start_normal_mode(context);
+			    break;
+		    case CMDLINE: ;
+			    // If we're coming back from command line, the command
+		      // hasn't been executed yet.
+			    char_u *cmd = ccline.cmdbuff;
+			    char_u cmdc = ccline.cmdfirstc;
+				    if (cmd == NULL) {
+						    curwin->w_cursor = context->returnPriorPosition;
+						    clearop(context->oap);
+				    } else if (cmdc == '/' || cmdc == '?') {
+					    context->ca.searchbuf = cmd;
+					    /* Seed the search - bump it forward and back so everything is set for N and n */
+			      (void)normal_search(&context->ca, cmdc, cmd, 0);
+			      (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
 
-    switch (context->returnState) {
-    case INSERT:
-      // If we are coming back from insert, restart normal mode
-      start_normal_mode(context);
-      break;
-    case CMDLINE:;
-      // If we're coming back from command line, the command
-      // hasn't been executed yet.
-      char_u *cmd = ccline.cmdbuff;
-      char_u cmdc = ccline.cmdfirstc;
-      if (cmd == NULL) {
-        curwin->w_cursor = context->returnPriorPosition;
-        clearop(context->oap);
-      } else if (cmdc == '/' || cmdc == '?') {
-        context->ca.searchbuf = cmd;
-        /* Seed the search - bump it forward and back so everything is set for N and n */
-        (void)normal_search(&context->ca, cmdc, cmd, 0);
-        (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
-
-        /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
-        /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
-        /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
-        /*                         ? 0 */
-        /*                         : SEARCH_MARK); */
+			      /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
+				      /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
+				      /*                     (cap->arg || !EQUAL_POS(save_cursor, curwin->w_cursor)) */
+				      /*                         ? 0 */
+				      /*                         : SEARCH_MARK); */
+				    }
+			    start_normal_mode(context);
+			    return HANDLED;
+			    break;
+			  default:
+			    break;
       }
-      start_normal_mode(context);
-      return HANDLED;
-      break;
-    default:
-      break;
-    }
 
-    context->returnState = NORMAL;
+      context->returnState = NORMAL;
   }
 
   oparg_T *oap = context->oap;
+
+
 
 restart_state:
   switch (context->state) {
@@ -735,7 +738,7 @@ restart_state:
     goto restart_state;
     break;
 
-  case NORMAL_EXECUTE_COMMAND:;
+  case NORMAL_EXECUTE_COMMAND: ;
 
     int previous_finish_op = finish_op;
     /*
@@ -789,7 +792,7 @@ restart_state:
      * If an operation is pending, handle it...
      */
     if (finish_op || VIsual_active) {
-      do_pending_operator(&context->ca, context->old_col, FALSE);
+	     do_pending_operator(&context->ca, context->old_col, FALSE);
     }
 
     /*
@@ -799,9 +802,9 @@ restart_state:
      */
     stateMode = sm_get_current_mode();
     if (stateMode != NORMAL) {
-      context->returnState = stateMode;
-      context->returnPriorPosition = curwin->w_cursor;
-      return HANDLED;
+	    context->returnState = stateMode;
+	    context->returnPriorPosition = curwin->w_cursor;
+	    return HANDLED;
     }
 
     if (finish_op || oap->op_type == OP_NOP) {
@@ -1934,6 +1937,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank) {
         /* if (restart_edit == 0) */
         /*   restart_edit = restart_edit_save; */
         return;
+
       }
       break;
 
@@ -3623,25 +3627,25 @@ static void nv_colon(cmdarg_T *cap) {
     sm_push_cmdline(':', 0, 0);
 
     /* TODO: Port this over */
-    //    If 'insertmode' changed, enter or exit Insert mode
-    //    if (p_im != old_p_im) {
-    //      if (p_im)
-    //        restart_edit = 'i';
-    //      else
-    //        restart_edit = 0;
-    //    }
-    //
-    //    if (cmd_result == FAIL)
-    //      /* The Ex command failed, do not execute the operator. */
-    //      clearop(cap->oap);
-    //    else if (cap->oap->op_type != OP_NOP &&
-    //             (cap->oap->start.lnum > curbuf->b_ml.ml_line_count ||
-    //              cap->oap->start.col >
-    //                  (colnr_T)STRLEN(ml_get(cap->oap->start.lnum)) ||
-    //              did_emsg))
-    //      /* The start of the operator has become invalid by the Ex command.
-    //       */
-    //      clearopbeep(cap->oap);
+//    If 'insertmode' changed, enter or exit Insert mode 
+//    if (p_im != old_p_im) {
+//      if (p_im)
+//        restart_edit = 'i';
+//      else
+//        restart_edit = 0;
+//    }
+//
+//    if (cmd_result == FAIL)
+//      /* The Ex command failed, do not execute the operator. */
+//      clearop(cap->oap);
+//    else if (cap->oap->op_type != OP_NOP &&
+//             (cap->oap->start.lnum > curbuf->b_ml.ml_line_count ||
+//              cap->oap->start.col >
+//                  (colnr_T)STRLEN(ml_get(cap->oap->start.lnum)) ||
+//              did_emsg))
+//      /* The start of the operator has become invalid by the Ex command.
+//       */
+//      clearopbeep(cap->oap);
   }
 }
 
@@ -4295,9 +4299,9 @@ static void nv_down(cmdarg_T *cap) {
 #endif
   else {
 #ifdef FEAT_JOB_CHANNEL
-    /* In a prompt buffer a <CR> in the last line invokes the callback. */
-    if (bt_prompt(curbuf) && cap->cmdchar == CAR &&
-        curwin->w_cursor.lnum == curbuf->b_ml.ml_line_count) {
+        /* In a prompt buffer a <CR> in the last line invokes the callback. */
+        if (bt_prompt(curbuf) && cap->cmdchar == CAR &&
+            curwin->w_cursor.lnum == curbuf->b_ml.ml_line_count) {
       invoke_prompt_callback();
       if (restart_edit == 0)
         restart_edit = 'a';
@@ -5281,8 +5285,8 @@ static void nv_abbrev(cmdarg_T *cap) {
  * Translate a command into another command.
  */
 static void nv_optrans(cmdarg_T *cap) {
-  static char_u *(ar[8]) = {(char_u *)"dl", (char_u *)"dh", (char_u *)"d$",
-                            (char_u *)"c$", (char_u *)"cl", (char_u *)"cc",
+  static char_u *(ar[8]) = {(char_u *)"dl", (char_u *)"dh",  (char_u *)"d$",
+                            (char_u *)"c$", (char_u *)"cl",  (char_u *)"cc",
                             (char_u *)"yy", (char_u *)":s\r"};
   static char_u *str = (char_u *)"xXDCsSY&";
 
@@ -6524,7 +6528,8 @@ static void nv_esc(cmdarg_T *cap) {
 
   if (cap->arg) /* TRUE for CTRL-C */
   {
-    if (restart_edit == 0 && !VIsual_active && no_reason) {
+    if (restart_edit == 0
+        && !VIsual_active && no_reason) {
       if (anyBufIsChanged())
         msg(_("Type  :qa!  and press <Enter> to abandon all changes and exit "
               "Vim"));
@@ -6699,7 +6704,7 @@ static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
   restart_edit = 0;
 
   sm_push_insert(cmd, startln, cap->count1);
-
+ 
   /* if (edit(cmd, startln, cap->count1)) */
   /*   cap->retval |= CA_COMMAND_BUSY; */
 
@@ -6801,9 +6806,9 @@ static void nv_record(cmdarg_T *cap) {
     cap->nchar = 'q';
     nv_operator(cap);
   } else if (!checkclearop(cap->oap)) {
-    /* (stop) recording into a named register, unless executing a
+        /* (stop) recording into a named register, unless executing a
          * register */
-    if (reg_executing == 0 && do_record(cap->nchar) == FAIL)
+        if (reg_executing == 0 && do_record(cap->nchar) == FAIL)
       clearopbeep(cap->oap);
   }
 }
