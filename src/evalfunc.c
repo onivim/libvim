@@ -3077,10 +3077,13 @@ f_empty(typval_T *argvars, typval_T *rettv)
     static void
 f_environ(typval_T *argvars UNUSED, typval_T *rettv)
 {
+    int i = 0;
+    char_u  *entry, *value;
 # ifdef MSWIN
     extern wchar_t	**_wenviron;
 # else
     extern char		**environ;
+#endif
 
     if (rettv_dict_alloc(rettv) != OK)
 	return;
@@ -3117,7 +3120,6 @@ f_environ(typval_T *argvars UNUSED, typval_T *rettv)
 	dict_add_string(rettv->vval.v_dict, (char *)entry, value);
 	vim_free(entry);
     }
-#endif
 }
 
 /*
