@@ -13,12 +13,12 @@
  * TODO: Can we remove this? (Dany)
  */
 #if 0
-# define OPAQUE_TOOLBOX_STRUCTS 0
+#define OPAQUE_TOOLBOX_STRUCTS 0
 #endif
 
 /* Include MAC_OS_X_VERSION_* macros */
 #ifdef HAVE_AVAILABILITYMACROS_H
-# include <AvailabilityMacros.h>
+#include <AvailabilityMacros.h>
 #endif
 
 /*
@@ -28,40 +28,40 @@
  * files have many conflicts).
  */
 #ifdef FEAT_GUI_MAC
-# include <Quickdraw.h>	    /* Apple calls it QuickDraw.h... */
-# include <ToolUtils.h>
-# include <LowMem.h>
-# include <Scrap.h>
-# include <Sound.h>
-# include <TextUtils.h>
-# include <Memory.h>
-# include <OSUtils.h>
-# include <Files.h>
-# include <Script.h>
+#include <Files.h>
+#include <LowMem.h>
+#include <Memory.h>
+#include <OSUtils.h>
+#include <Quickdraw.h> /* Apple calls it QuickDraw.h... */
+#include <Scrap.h>
+#include <Script.h>
+#include <Sound.h>
+#include <TextUtils.h>
+#include <ToolUtils.h>
 #endif
 
 /*
  * Unix interface
  */
 #if defined(__APPLE_CC__) /* for Project Builder and ... */
-# include <unistd.h>
+#include <unistd.h>
 /* Get stat.h or something similar. Comment: How come some OS get in in vim.h */
-# include <sys/stat.h>
+#include <sys/stat.h>
 /* && defined(HAVE_CURSE) */
 /* The curses.h from MacOS X provides by default some BACKWARD compatibility
  * definition which can cause us problem later on. So we undefine a few of them. */
-# include <curses.h>
-# undef reg
-# undef ospeed
+#include <curses.h>
+#undef reg
+#undef ospeed
 /* OK defined to 0 in MacOS X 10.2 curses!  Remove it, we define it to be 1. */
-# undef OK
+#undef OK
 #endif
-#include <signal.h>
+#include <dirent.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <dirent.h>
 
 /*
  * MacOS specific #define
@@ -77,7 +77,6 @@
  * we use the Unix File path style.  Also when UNIX is defined. */
 #define USE_UNIXFILENAME
 
-
 /*
  * Generic Vim #define
  */
@@ -85,33 +84,33 @@
 #define FEAT_SOURCE_FFS
 #define FEAT_SOURCE_FF_MAC
 
-#define USE_EXE_NAME		    /* to find  $VIM */
-#define CASE_INSENSITIVE_FILENAME   /* ignore case when comparing file names */
+#define USE_EXE_NAME              /* to find  $VIM */
+#define CASE_INSENSITIVE_FILENAME /* ignore case when comparing file names */
 #define SPACE_IN_FILENAME
-#define BREAKCHECK_SKIP	   32	    /* call mch_breakcheck() each time, it's
-				       quite fast. Did I forgot to update the
-				       comment */
+#define BREAKCHECK_SKIP 32 /* call mch_breakcheck() each time, it's  \
+                              quite fast. Did I forgot to update the \
+                              comment */
 
-#define USE_FNAME_CASE		/* make ":e os_Mac.c" open the file in its
-				   original case, as "os_mac.c" */
+#define USE_FNAME_CASE /* make ":e os_Mac.c" open the file in its \
+                          original case, as "os_mac.c" */
 #define BINARY_FILE_IO
 #define EOL_DEFAULT EOL_MAC
 #define HAVE_AVAIL_MEM
 
 #ifndef HAVE_CONFIG_H
-# define HAVE_STRING_H
-# define HAVE_STRCSPN
-# define HAVE_MEMSET
-# define USE_TMPNAM		/* use tmpnam() instead of mktemp() */
-# define HAVE_FCNTL_H
-# define HAVE_QSORT
-# define HAVE_ST_MODE		/* have stat.st_mode */
-# define HAVE_MATH_H
+#define HAVE_STRING_H
+#define HAVE_STRCSPN
+#define HAVE_MEMSET
+#define USE_TMPNAM /* use tmpnam() instead of mktemp() */
+#define HAVE_FCNTL_H
+#define HAVE_QSORT
+#define HAVE_ST_MODE /* have stat.st_mode */
+#define HAVE_MATH_H
 
-# if defined(__DATE__) && defined(__TIME__)
-#  define HAVE_DATE_TIME
-# endif
-# define HAVE_STRFTIME
+#if defined(__DATE__) && defined(__TIME__)
+#define HAVE_DATE_TIME
+#endif
+#define HAVE_STRFTIME
 #endif
 
 /*
@@ -120,113 +119,113 @@
  */
 
 #ifndef SYS_VIMRC_FILE
-# define SYS_VIMRC_FILE "$VIM/vimrc"
+#define SYS_VIMRC_FILE "$VIM/vimrc"
 #endif
 #ifndef SYS_GVIMRC_FILE
-# define SYS_GVIMRC_FILE "$VIM/gvimrc"
+#define SYS_GVIMRC_FILE "$VIM/gvimrc"
 #endif
 #ifndef SYS_MENU_FILE
-# define SYS_MENU_FILE	"$VIMRUNTIME/menu.vim"
+#define SYS_MENU_FILE "$VIMRUNTIME/menu.vim"
 #endif
 #ifndef SYS_OPTWIN_FILE
-# define SYS_OPTWIN_FILE "$VIMRUNTIME/optwin.vim"
+#define SYS_OPTWIN_FILE "$VIMRUNTIME/optwin.vim"
 #endif
 #ifndef VIM_DEFAULTS_FILE
-# define VIM_DEFAULTS_FILE "$VIMRUNTIME/defaults.vim"
+#define VIM_DEFAULTS_FILE "$VIMRUNTIME/defaults.vim"
 #endif
 #ifndef EVIM_FILE
-# define EVIM_FILE	"$VIMRUNTIME/evim.vim"
+#define EVIM_FILE "$VIMRUNTIME/evim.vim"
 #endif
 
 #ifdef FEAT_GUI
-# ifndef USR_GVIMRC_FILE
-#  define USR_GVIMRC_FILE "~/.gvimrc"
-# endif
-# ifndef GVIMRC_FILE
-#  define GVIMRC_FILE	"_gvimrc"
-# endif
+#ifndef USR_GVIMRC_FILE
+#define USR_GVIMRC_FILE "~/.gvimrc"
+#endif
+#ifndef GVIMRC_FILE
+#define GVIMRC_FILE "_gvimrc"
+#endif
 #endif
 #ifndef USR_VIMRC_FILE
-# define USR_VIMRC_FILE	"~/.vimrc"
+#define USR_VIMRC_FILE "~/.vimrc"
 #endif
 
 #ifndef USR_EXRC_FILE
-# define USR_EXRC_FILE	"~/.exrc"
+#define USR_EXRC_FILE "~/.exrc"
 #endif
 
 #ifndef VIMRC_FILE
-# define VIMRC_FILE	"_vimrc"
+#define VIMRC_FILE "_vimrc"
 #endif
 
 #ifndef EXRC_FILE
-# define EXRC_FILE	"_exrc"
+#define EXRC_FILE "_exrc"
 #endif
 
 #ifndef DFLT_HELPFILE
-# define DFLT_HELPFILE	"$VIMRUNTIME/doc/help.txt"
+#define DFLT_HELPFILE "$VIMRUNTIME/doc/help.txt"
 #endif
 
 #ifndef FILETYPE_FILE
-# define FILETYPE_FILE	"filetype.vim"
+#define FILETYPE_FILE "filetype.vim"
 #endif
 #ifndef FTPLUGIN_FILE
-# define FTPLUGIN_FILE	"ftplugin.vim"
+#define FTPLUGIN_FILE "ftplugin.vim"
 #endif
 #ifndef INDENT_FILE
-# define INDENT_FILE	"indent.vim"
+#define INDENT_FILE "indent.vim"
 #endif
 #ifndef FTOFF_FILE
-# define FTOFF_FILE	"ftoff.vim"
+#define FTOFF_FILE "ftoff.vim"
 #endif
 #ifndef FTPLUGOF_FILE
-# define FTPLUGOF_FILE	"ftplugof.vim"
+#define FTPLUGOF_FILE "ftplugof.vim"
 #endif
 #ifndef INDOFF_FILE
-# define INDOFF_FILE	"indoff.vim"
+#define INDOFF_FILE "indoff.vim"
 #endif
 
 #ifndef SYNTAX_FNAME
-# define SYNTAX_FNAME	"$VIMRUNTIME/syntax/%s.vim"
+#define SYNTAX_FNAME "$VIMRUNTIME/syntax/%s.vim"
 #endif
 
 #ifdef FEAT_VIMINFO
-# ifndef VIMINFO_FILE
-#  define VIMINFO_FILE	"~/.viminfo"
-# endif
+#ifndef VIMINFO_FILE
+#define VIMINFO_FILE "~/.viminfo"
+#endif
 #endif /* FEAT_VIMINFO */
 
 #ifndef DFLT_BDIR
-# define DFLT_BDIR	"."	/* default for 'backupdir' */
+#define DFLT_BDIR "." /* default for 'backupdir' */
 #endif
 
 #ifndef DFLT_DIR
-# define DFLT_DIR	"."	/* default for 'directory' */
+#define DFLT_DIR "." /* default for 'directory' */
 #endif
 
 #ifndef DFLT_VDIR
-# define DFLT_VDIR	"$VIM/vimfiles/view"	/* default for 'viewdir' */
+#define DFLT_VDIR "$VIM/vimfiles/view" /* default for 'viewdir' */
 #endif
 
-#define DFLT_ERRORFILE		"errors.err"
+#define DFLT_ERRORFILE "errors.err"
 
 #ifndef DFLT_RUNTIMEPATH
-# define DFLT_RUNTIMEPATH	"~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
+#define DFLT_RUNTIMEPATH "~/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,~/.vim/after"
 #endif
 #ifndef CLEAN_RUNTIMEPATH
-# define CLEAN_RUNTIMEPATH	"$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after"
+#define CLEAN_RUNTIMEPATH "$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after"
 #endif
 
 /*
  * Macintosh has plenty of memory, use large buffers
  */
-#define CMDBUFFSIZE 1024	/* size of the command processing buffer */
+#define CMDBUFFSIZE 1024 /* size of the command processing buffer */
 
 #ifndef DFLT_MAXMEM
-# define DFLT_MAXMEM	512	/* use up to  512 Kbyte for buffer */
+#define DFLT_MAXMEM 512 /* use up to  512 Kbyte for buffer */
 #endif
 
 #ifndef DFLT_MAXMEMTOT
-# define DFLT_MAXMEMTOT	2048	/* use up to 2048 Kbyte for Vim */
+#define DFLT_MAXMEMTOT 2048 /* use up to 2048 Kbyte for Vim */
 #endif
 
 #define WILDCHAR_LIST "*?[{`$"
@@ -235,25 +234,25 @@
 #define mch_rename(src, dst) rename(src, dst)
 #define mch_remove(x) unlink((char *)(x))
 #ifndef mch_getenv
-# if defined(__APPLE_CC__)
-#  define mch_getenv(name)  ((char_u *)getenv((char *)(name)))
-#  define mch_setenv(name, val, x) setenv(name, val, x)
-# else
-  /* vim_getenv() is in pty.c */
-#  define USE_VIMPTY_GETENV
-#  define mch_getenv(x) vimpty_getenv(x)
-#  define mch_setenv(name, val, x) setenv(name, val, x)
-# endif
+#if defined(__APPLE_CC__)
+#define mch_getenv(name) ((char_u *)getenv((char *)(name)))
+#define mch_setenv(name, val, x) setenv(name, val, x)
+#else
+/* vim_getenv() is in pty.c */
+#define USE_VIMPTY_GETENV
+#define mch_getenv(x) vimpty_getenv(x)
+#define mch_setenv(name, val, x) setenv(name, val, x)
+#endif
 #endif
 
 #ifndef HAVE_CONFIG_H
-# ifdef __APPLE_CC__
+#ifdef __APPLE_CC__
 /* Assuming compiling for MacOS X */
 /* Trying to take advantage of the prebinding */
-#  define HAVE_TGETENT
-#  define OSPEED_EXTERN
-#  define UP_BC_PC_EXTERN
-# endif
+#define HAVE_TGETENT
+#define OSPEED_EXTERN
+#define UP_BC_PC_EXTERN
+#endif
 #endif
 
 /* Some "prep work" definition to be able to compile the MacOS X
@@ -262,31 +261,31 @@
  */
 
 #ifndef SIGPROTOARG
-# define SIGPROTOARG	(int)
+#define SIGPROTOARG (int)
 #endif
 #ifndef SIGDEFARG
-# define SIGDEFARG(s)	(s) int s UNUSED;
+#define SIGDEFARG(s) (s) int s UNUSED;
 #endif
 #ifndef SIGDUMMYARG
-# define SIGDUMMYARG	0
+#define SIGDUMMYARG 0
 #endif
-#undef  HAVE_AVAIL_MEM
+#undef HAVE_AVAIL_MEM
 #ifndef HAVE_CONFIG_H
-# define RETSIGTYPE void
-# define SIGRETURN  return
+#define RETSIGTYPE void
+#define SIGRETURN return
 /*# define USE_SYSTEM */  /* Output ship do debugger :(, but ot compile */
-# define HAVE_SYS_WAIT_H 1 /* Attempt */
-# define HAVE_TERMIOS_H 1
-# define SYS_SELECT_WITH_SYS_TIME 1
-# define HAVE_SELECT 1
-# define HAVE_SYS_SELECT_H 1
-# define HAVE_PUTENV
-# define HAVE_SETENV
-# define HAVE_RENAME
+#define HAVE_SYS_WAIT_H 1 /* Attempt */
+#define HAVE_TERMIOS_H 1
+#define SYS_SELECT_WITH_SYS_TIME 1
+#define HAVE_SELECT 1
+#define HAVE_SYS_SELECT_H 1
+#define HAVE_PUTENV
+#define HAVE_SETENV
+#define HAVE_RENAME
 #endif
 
 #if !defined(HAVE_CONFIG_H)
-# define HAVE_PUTENV
+#define HAVE_PUTENV
 #endif
 
 /* A Mac constant causing big problem to syntax highlighting */

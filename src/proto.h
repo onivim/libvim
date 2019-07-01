@@ -20,71 +20,71 @@
  * Machine-dependent routines.
  */
 /* avoid errors in function prototypes */
-# if !defined(FEAT_X11) && !defined(FEAT_GUI_GTK)
-#  define Display int
-#  define Widget int
-# endif
-# ifndef FEAT_GUI_GTK
-#  define GdkEvent int
-#  define GdkEventKey int
-# endif
-# ifndef FEAT_X11
-#  define XImage int
-# endif
+#if !defined(FEAT_X11) && !defined(FEAT_GUI_GTK)
+#define Display int
+#define Widget int
+#endif
+#ifndef FEAT_GUI_GTK
+#define GdkEvent int
+#define GdkEventKey int
+#endif
+#ifndef FEAT_X11
+#define XImage int
+#endif
 
-# if defined(UNIX) || defined(VMS)
-#  include "os_unix.pro"
-# endif
-# ifdef MSWIN
-#  include "os_win32.pro"
-#  include "os_mswin.pro"
-#  include "winclip.pro"
-#  if (defined(__GNUC__) && !defined(__MINGW32__))
+#if defined(UNIX) || defined(VMS)
+#include "os_unix.pro"
+#endif
+#ifdef MSWIN
+#include "os_mswin.pro"
+#include "os_win32.pro"
+#include "winclip.pro"
+#if (defined(__GNUC__) && !defined(__MINGW32__))
 extern int _stricoll(char *a, char *b);
-#  endif
-# endif
-# ifdef VMS
-#  include "os_vms.pro"
-# endif
-# ifdef __BEOS__
-#  include "os_beos.pro"
-# endif
+#endif
+#endif
+#ifdef VMS
+#include "os_vms.pro"
+#endif
+#ifdef __BEOS__
+#include "os_beos.pro"
+#endif
 
-# include "autocmd.pro"
-# include "buffer.pro"
-# include "change.pro"
-# include "charset.pro"
-# include "debugger.pro"
-# include "dict.pro"
-# include "diff.pro"
-# include "digraph.pro"
-# include "edit.pro"
-# include "eval.pro"
-# include "evalfunc.pro"
-# include "ex_cmds.pro"
-# include "ex_cmds2.pro"
-# include "ex_docmd.pro"
-# include "ex_eval.pro"
-# include "ex_getln.pro"
-# include "fileio.pro"
-# include "findfile.pro"
-# include "fold.pro"
-# include "getchar.pro"
-# ifdef FEAT_HANGULIN
-#  include "hangulin.pro"
-# endif
-# include "hashtab.pro"
-# include "indent.pro"
-# include "json.pro"
-# include "list.pro"
-# include "blob.pro"
-# include "main.pro"
-# include "mark.pro"
-# include "memfile.pro"
-# include "memline.pro"
-# ifdef FEAT_ARABIC
-#  include "arabic.pro"
-# endif
+#include "autocmd.pro"
+#include "buffer.pro"
+#include "change.pro"
+#include "charset.pro"
+#include "debugger.pro"
+#include "dict.pro"
+#include "diff.pro"
+#include "digraph.pro"
+#include "edit.pro"
+#include "eval.pro"
+#include "evalfunc.pro"
+#include "ex_cmds.pro"
+#include "ex_cmds2.pro"
+#include "ex_docmd.pro"
+#include "ex_eval.pro"
+#include "ex_getln.pro"
+#include "fileio.pro"
+#include "findfile.pro"
+#include "fold.pro"
+#include "getchar.pro"
+#ifdef FEAT_HANGULIN
+#include "hangulin.pro"
+#endif
+#include "blob.pro"
+#include "hashtab.pro"
+#include "indent.pro"
+#include "json.pro"
+#include "list.pro"
+#include "main.pro"
+#include "mark.pro"
+#include "memfile.pro"
+#include "memline.pro"
+#ifdef FEAT_ARABIC
+#include "arabic.pro"
+#endif
 
 /* These prototypes cannot be produced automatically. */
 int smsg(const char *, ...)
@@ -134,77 +134,77 @@ int vim_snprintf(char *, size_t, const char *, ...)
 int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap);
 int vim_vsnprintf_typval(char *str, size_t str_m, const char *fmt, va_list ap, typval_T *tvs);
 
-# include "message.pro"
-# include "message2.pro"
-# include "misc1.pro"
-# include "misc2.pro"
-#ifndef HAVE_STRPBRK	    /* not generated automatically from misc2.c */
+#include "message.pro"
+#include "message2.pro"
+#include "misc1.pro"
+#include "misc2.pro"
+#ifndef HAVE_STRPBRK /* not generated automatically from misc2.c */
 char_u *vim_strpbrk(char_u *s, char_u *charset);
 #endif
 #ifndef HAVE_QSORT
 /* Use our own qsort(), don't define the prototype when not used. */
 void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void *, const void *));
 #endif
-# include "move.pro"
-# include "mbyte.pro"
-# include "normal.pro"
-# include "ops.pro"
-# include "option.pro"
-# ifdef FEAT_QUICKFIX
-#  include "quickfix.pro"
-# endif
-# include "regexp.pro"
-# include "screen.pro"
-# if defined(FEAT_PERSISTENT_UNDO)
-#  include "sha256.pro"
-# endif
-# include "search.pro"
-# ifdef FEAT_SIGNS
-#  include "sign.pro"
-# endif
-# include "state_machine.pro"
-# include "syntax.pro"
-# include "tag.pro"
-# include "term.pro"
-# ifdef FEAT_TERMINAL
-#  include "terminal.pro"
-# endif
-# if defined(HAVE_TGETENT) && (defined(VMS))
-#  include "termlib.pro"
-# endif
-# ifdef FEAT_TEXT_PROP
-#  include "popupwin.pro"
-#  include "textprop.pro"
-# endif
-# include "ui.pro"
-# include "undo.pro"
-# include "usercmd.pro"
-# include "userfunc.pro"
-# include "version.pro"
-# include "window.pro"
+#include "mbyte.pro"
+#include "move.pro"
+#include "normal.pro"
+#include "ops.pro"
+#include "option.pro"
+#ifdef FEAT_QUICKFIX
+#include "quickfix.pro"
+#endif
+#include "regexp.pro"
+#include "screen.pro"
+#if defined(FEAT_PERSISTENT_UNDO)
+#include "sha256.pro"
+#endif
+#include "search.pro"
+#ifdef FEAT_SIGNS
+#include "sign.pro"
+#endif
+#include "state_machine.pro"
+#include "syntax.pro"
+#include "tag.pro"
+#include "term.pro"
+#ifdef FEAT_TERMINAL
+#include "terminal.pro"
+#endif
+#if defined(HAVE_TGETENT) && (defined(VMS))
+#include "termlib.pro"
+#endif
+#ifdef FEAT_TEXT_PROP
+#include "popupwin.pro"
+#include "textprop.pro"
+#endif
+#include "ui.pro"
+#include "undo.pro"
+#include "usercmd.pro"
+#include "userfunc.pro"
+#include "version.pro"
+#include "window.pro"
 
-# ifdef FEAT_LUA
-#  include "if_lua.pro"
-# endif
+#ifdef FEAT_LUA
+#include "if_lua.pro"
+#endif
 
-# ifdef FEAT_MZSCHEME
-#  include "if_mzsch.pro"
-# endif
+#ifdef FEAT_MZSCHEME
+#include "if_mzsch.pro"
+#endif
 
-# ifdef FEAT_PYTHON
-#  include "if_python.pro"
-# endif
+#ifdef FEAT_PYTHON
+#include "if_python.pro"
+#endif
 
-# ifdef FEAT_PYTHON3
-#  include "if_python3.pro"
-# endif
+#ifdef FEAT_PYTHON3
+#include "if_python3.pro"
+#endif
 
 /* Ugly solution for "BalloonEval" not being defined while it's used in some
  * .pro files. */
-#  define BalloonEval int
+#define BalloonEval int
 
-# ifdef FEAT_JOB_CHANNEL
-#  include "channel.pro"
+#ifdef FEAT_JOB_CHANNEL
+#include "channel.pro"
 
 /* Not generated automatically, to add extra attribute. */
 void ch_log(channel_T *ch, const char *fmt, ...)
@@ -213,20 +213,20 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 #endif
     ;
 
-# endif
+#endif
 
-# if defined(FEAT_GUI) || defined(FEAT_JOB_CHANNEL)
-#  if defined(UNIX) || defined(MACOS_X) || defined(VMS)
-#   include "pty.pro"
-#  endif
-# endif
+#if defined(FEAT_GUI) || defined(FEAT_JOB_CHANNEL)
+#if defined(UNIX) || defined(MACOS_X) || defined(VMS)
+#include "pty.pro"
+#endif
+#endif
 
-# ifdef FEAT_OLE
-#  include "if_ole.pro"
-# endif
+#ifdef FEAT_OLE
+#include "if_ole.pro"
+#endif
 
 #ifdef MACOS_CONVERT
-# include "os_mac_conv.pro"
+#include "os_mac_conv.pro"
 #endif
 #if defined(MACOS_X_DARWIN) && defined(FEAT_CLIPBOARD) && !defined(FEAT_GUI)
 /* functions in os_macosx.m */
