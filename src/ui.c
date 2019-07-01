@@ -1069,7 +1069,6 @@ clip_process_selection(
     int_u	repeated_click)
 {
     VimClipboard	*cb = &clip_star;
-    int			diff;
     int			slen = 1;	/* cursor shape width */
 
     row = check_row(row);

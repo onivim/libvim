@@ -6656,6 +6656,8 @@ static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
 
 // TODO: Bring back this 'restart_edit' functionality
 #pragma GCC diagnostic push
+// Seems only the windows compiler has 'unused-but-set-variable'...
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
   int restart_edit_save = 0;
  #pragma GCC diagnostic pop

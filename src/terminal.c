@@ -1076,27 +1076,6 @@ write_to_term(buf_T *buffer, char_u *msg, channel_T *channel)
 }
 
 /*
- * Send a mouse position and click to the vterm
- */
-    static int
-term_send_mouse(VTerm *vterm, int button, int pressed)
-{
-    /* libvim - noop */
-    return TRUE;
-}
-
-/*
- * Handle a mouse click, drag or release.
- * Return TRUE when a mouse event is sent to the terminal.
- */
-    static int
-term_mouse_click(VTerm *vterm, int key)
-{
-    /* libvim - noop */
-    return TRUE;
-}
-
-/*
  * Convert typed key "c" into bytes to send to the job.
  * Return the number of bytes in "buf".
  */
@@ -1745,7 +1724,6 @@ send_keys_to_term(term_T *term, int c, int typed)
 {
     char	msg[KEY_BUF_LEN];
     size_t	len;
-    int		dragging_outside = FALSE;
 
     /* Catch keys that need to be handled as in Normal mode. */
     switch (c)

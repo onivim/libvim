@@ -3595,7 +3595,11 @@ cmdline_changed:
 		)
 #endif
     return HANDLED;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
 }
+#pragma GCC diagnostic pop
 
 void state_cmdline_cleanup(void *ctx) {
     cmdlineState_T *context = (cmdlineState_T *)ctx;
