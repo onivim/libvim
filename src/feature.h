@@ -854,6 +854,11 @@
 #endif
 
 // ------------------------------------------------
+// Temporarily disabled features
+// ------------------------------------------------
+#undef FEAT_DIGRAPHS
+
+// ------------------------------------------------
 // Features in the process of removing for 'libvim'
 // ------------------------------------------------
 #undef FEAT_AUTOSERVERNAME
