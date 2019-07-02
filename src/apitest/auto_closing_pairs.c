@@ -267,6 +267,17 @@ MU_TEST(test_acp_should_pass_through) {
   mu_check(acp_should_pass_through('a') == FALSE);
 }
 
+MU_TEST(test_pass_through_last_character) {
+  vimInput("o");
+  vimInput("{");
+  vimInput("}");
+  vimInput("a");
+  vimInput("<esc>");
+  
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2),
+                  "{}a") == 0);
+}
+
 MU_TEST_SUITE(test_suite) {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -282,6 +293,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_pass_through_in_pairs);
   MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
   MU_RUN_TEST(test_matching_pair_double_quotes);
+  MU_RUN_TEST(test_pass_through_last_character);
 }
 
 int main(int argc, char **argv) {
@@ -290,7 +302,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
