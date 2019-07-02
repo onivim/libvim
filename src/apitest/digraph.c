@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_digraph_doesnt_hang) {
+MU_TEST(test_digraph_doesnt_hang)
+{
   vimInput("i");
 
   // Start inserting digraph... should be no-op right now
@@ -21,13 +23,15 @@ MU_TEST(test_digraph_doesnt_hang) {
   vimInput("<c-k>");
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_digraph_doesnt_hang);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
