@@ -13,7 +13,8 @@ void end_visual_mode(void);
 void reset_VIsual_and_resel(void);
 void reset_VIsual(void);
 int find_ident_under_cursor(char_u **string, int find_type);
-int find_ident_at_pos(win_T *wp, linenr_T lnum, colnr_T startcol, char_u **string, int find_type);
+int find_ident_at_pos(win_T *wp, linenr_T lnum, colnr_T startcol,
+                      char_u **string, int find_type);
 void clear_showcmd(void);
 int add_to_showcmd(int c);
 void add_to_showcmd_c(int c);

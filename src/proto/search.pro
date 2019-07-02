@@ -1,5 +1,6 @@
 /* search.c */
-int search_regcomp(char_u *pat, int pat_save, int pat_use, int options, regmmatch_T *regmatch);
+int search_regcomp(char_u *pat, int pat_save, int pat_use, int options,
+                   regmmatch_T *regmatch);
 char_u *get_search_pat(void);
 char_u *reverse_text(char_u *s);
 void save_re_pat(int idx, char_u *pat, int magic);
@@ -22,9 +23,12 @@ char_u *last_search_pat(void);
 void reset_search_dir(void);
 void set_last_search_pat(char_u *s, int idx, int magic, int setlast);
 void last_pat_prog(regmmatch_T *regmatch);
-int searchit(win_T *win, buf_T *buf, pos_T *pos, pos_T *end_pos, int dir, char_u *pat, long count, int options, int pat_use, linenr_T stop_lnum, proftime_T *tm, int *timed_out);
+int searchit(win_T *win, buf_T *buf, pos_T *pos, pos_T *end_pos, int dir,
+             char_u *pat, long count, int options, int pat_use,
+             linenr_T stop_lnum, proftime_T *tm, int *timed_out);
 void set_search_direction(int cdir);
-int do_search(oparg_T *oap, int dirc, char_u *pat, long count, int options, proftime_T *tm, int *timed_out);
+int do_search(oparg_T *oap, int dirc, char_u *pat, long count, int options,
+              proftime_T *tm, int *timed_out);
 int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, char_u *pat);
 int searchc(cmdarg_T *cap, int t_cmd);
 pos_T *findmatch(oparg_T *oap, int initc);
@@ -45,7 +49,9 @@ int current_par(oparg_T *oap, long count, int include, int type);
 int current_quote(oparg_T *oap, long count, int include, int quotechar);
 int current_search(long count, int forward);
 int linewhite(linenr_T lnum);
-void find_pattern_in_path(char_u *ptr, int dir, int len, int whole, int skip_comments, int type, long count, int action, linenr_T start_lnum, linenr_T end_lnum);
+void find_pattern_in_path(char_u *ptr, int dir, int len, int whole,
+                          int skip_comments, int type, long count, int action,
+                          linenr_T start_lnum, linenr_T end_lnum);
 int read_viminfo_search_pattern(vir_T *virp, int force);
 void write_viminfo_search_pattern(FILE *fp);
 /* vim: set ft=c : */

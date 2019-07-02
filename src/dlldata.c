@@ -16,23 +16,22 @@
 #include <rpcproxy.h>
 
 #ifdef __cplusplus
-extern "C"   {
+extern "C"
+{
 #endif
 
-EXTERN_PROXY_FILE( if_ole )
+  EXTERN_PROXY_FILE(if_ole)
 
+  PROXYFILE_LIST_START
+  /* Start of list */
+  REFERENCE_PROXY_FILE(if_ole),
+      /* End of list */
+      PROXYFILE_LIST_END
 
-PROXYFILE_LIST_START
-/* Start of list */
-  REFERENCE_PROXY_FILE( if_ole ),
-/* End of list */
-PROXYFILE_LIST_END
-
-
-DLLDATA_ROUTINES( aProxyFileList, GET_DLL_CLSID )
+      DLLDATA_ROUTINES(aProxyFileList, GET_DLL_CLSID)
 
 #ifdef __cplusplus
-}  /*extern "C" */
+} /*extern "C" */
 #endif
 
 /* end of generated dlldata file */

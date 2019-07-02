@@ -1,8 +1,10 @@
 /* ex_docmd.c */
 void do_exmode(int improved);
 int do_cmdline_cmd(char_u *cmd);
-int do_cmdline(char_u *cmdline, char_u *(*fgetline)(int, void *, int), void *cookie, int flags);
-int getline_equal(char_u *(*fgetline)(int, void *, int), void *cookie, char_u *(*func)(int, void *, int));
+int do_cmdline(char_u *cmdline, char_u *(*fgetline)(int, void *, int),
+               void *cookie, int flags);
+int getline_equal(char_u *(*fgetline)(int, void *, int), void *cookie,
+                  char_u *(*func)(int, void *, int));
 void *getline_cookie(char_u *(*fgetline)(int, void *, int), void *cookie);
 int parse_command_modifiers(exarg_T *eap, char **errormsg, int skip_only);
 int parse_cmd_address(exarg_T *eap, char **errormsg, int silent);
@@ -23,14 +25,16 @@ void not_exiting(void);
 void tabpage_close(int forceit);
 void tabpage_close_other(tabpage_T *tp, int forceit);
 void ex_all(exarg_T *eap);
-void handle_drop(int filec, char_u **filev, int split, void (*callback)(void *), void *cookie);
+void handle_drop(int filec, char_u **filev, int split, void (*callback)(void *),
+                 void *cookie);
 void handle_any_postponed_drop(void);
 void alist_clear(alist_T *al);
 void alist_init(alist_T *al);
 void alist_unlink(alist_T *al);
 void alist_new(void);
 void alist_expand(int *fnum_list, int fnum_len);
-void alist_set(alist_T *al, int count, char_u **files, int use_curbuf, int *fnum_list, int fnum_len);
+void alist_set(alist_T *al, int count, char_u **files, int use_curbuf,
+               int *fnum_list, int fnum_len);
 void alist_add(alist_T *al, char_u *fname, int set_fnum);
 void alist_slash_adjust(void);
 void ex_splitview(exarg_T *eap);
@@ -52,7 +56,8 @@ void ex_normal(exarg_T *eap);
 void exec_normal_cmd(char_u *cmd, int remap, int silent);
 void exec_normal(int was_typed, int use_vpeekc, int may_use_terminal_loop);
 int find_cmdline_var(char_u *src, int *usedlen);
-char_u *eval_vars(char_u *src, char_u *srcstart, int *usedlen, linenr_T *lnump, char **errormsg, int *escaped);
+char_u *eval_vars(char_u *src, char_u *srcstart, int *usedlen, linenr_T *lnump,
+                  char **errormsg, int *escaped);
 char_u *expand_sfile(char_u *arg);
 int put_eol(FILE *fd);
 int put_line(FILE *fd, char *s);

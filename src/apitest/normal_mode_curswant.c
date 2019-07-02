@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_curswant_column2) {
+MU_TEST(test_curswant_column2)
+{
   mu_check(vimCursorGetLine() == 1);
 
   // Move one character right
@@ -34,7 +36,8 @@ MU_TEST(test_curswant_column2) {
   mu_check(vimCursorGetLine() == 4);
 }
 
-MU_TEST(test_curswant_maxcolumn) {
+MU_TEST(test_curswant_maxcolumn)
+{
   mu_check(vimCursorGetLine() == 1);
 
   // Move all the way to the right
@@ -53,7 +56,8 @@ MU_TEST(test_curswant_maxcolumn) {
   mu_check(vimCursorGetLine() == 4);
 }
 
-MU_TEST(test_curswant_reset) {
+MU_TEST(test_curswant_reset)
+{
   mu_check(vimCursorGetLine() == 1);
 
   // Move all the way to the right...
@@ -74,7 +78,8 @@ MU_TEST(test_curswant_reset) {
   mu_check(vimCursorGetLine() == 4);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_curswant_column2);
@@ -82,7 +87,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_curswant_reset);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);

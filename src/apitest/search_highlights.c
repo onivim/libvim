@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_no_highlights_initially) {
+MU_TEST(test_no_highlights_initially)
+{
   int num;
   searchHighlight_T *highlights;
   vimSearchGetHighlights(0, 0, &num, &highlights);
@@ -22,7 +24,8 @@ MU_TEST(test_no_highlights_initially) {
   mu_check(highlights == NULL);
 }
 
-MU_TEST(test_get_highlights) {
+MU_TEST(test_get_highlights)
+{
 
   vimInput("/");
   vimInput("o");
@@ -49,14 +52,16 @@ MU_TEST(test_get_highlights) {
   mu_check(num == 3);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_no_highlights_initially);
   MU_RUN_TEST(test_get_highlights);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);

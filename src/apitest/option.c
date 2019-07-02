@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_get_set_tab_options) {
+MU_TEST(test_get_set_tab_options)
+{
   vimOptionSetTabSize(4);
   mu_check(vimOptionGetTabSize() == 4);
 
@@ -27,7 +29,8 @@ MU_TEST(test_get_set_tab_options) {
   mu_check(vimOptionGetInsertSpaces() == FALSE);
 }
 
-MU_TEST(test_insert_spaces) {
+MU_TEST(test_insert_spaces)
+{
   vimOptionSetTabSize(3);
   vimOptionSetInsertSpaces(TRUE);
 
@@ -53,7 +56,8 @@ MU_TEST(test_insert_spaces) {
   mu_check(strcmp(line, "    Line 1") == 0);
 }
 
-MU_TEST(test_insert_tabs) {
+MU_TEST(test_insert_tabs)
+{
   vimOptionSetTabSize(3);
   vimOptionSetInsertSpaces(FALSE);
 
@@ -79,7 +83,8 @@ MU_TEST(test_insert_tabs) {
   mu_check(strcmp(line, "\tLine 1") == 0);
 }
 
-MU_TEST(test_tab_size) {
+MU_TEST(test_tab_size)
+{
   vimOptionSetTabSize(3);
   int calculatedTabSize = chartabsize("\t", 0);
   mu_check(calculatedTabSize == 3);
@@ -89,14 +94,16 @@ MU_TEST(test_tab_size) {
   mu_check(calculatedTabSize == 4);
 }
 
-MU_TEST(test_encoding_cannot_change) {
+MU_TEST(test_encoding_cannot_change)
+{
 
   mu_check(strcmp(p_enc, "utf-8") == 0);
   vimExecute("set encoding=latin1");
   mu_check(strcmp(p_enc, "utf-8") == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_get_set_tab_options);
@@ -106,7 +113,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_encoding_cannot_change);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimBufferOpen("collateral/lines_100.txt", 1, 0);

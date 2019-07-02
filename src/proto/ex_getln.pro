@@ -6,7 +6,8 @@ void state_cmdline_cleanup(void *context);
 
 void cmdline_init(void);
 char_u *getcmdline(int firstc, long count, int indent);
-char_u *getcmdline_prompt(int firstc, char_u *prompt, int attr, int xp_context, char_u *xp_arg);
+char_u *getcmdline_prompt(int firstc, char_u *prompt, int attr, int xp_context,
+                          char_u *xp_arg);
 int text_locked(void);
 void text_locked_msg(void);
 char *get_text_locked_msg(void);
@@ -27,17 +28,23 @@ void redrawcmdline_ex(int do_compute_cmdrow);
 void redrawcmd(void);
 void compute_cmdrow(void);
 void gotocmdline(int clr);
-char_u *ExpandOne(expand_T *xp, char_u *str, char_u *orig, int options, int mode);
+char_u *ExpandOne(expand_T *xp, char_u *str, char_u *orig, int options,
+                  int mode);
 void ExpandInit(expand_T *xp);
 void ExpandCleanup(expand_T *xp);
-void ExpandEscape(expand_T *xp, char_u *str, int numfiles, char_u **files, int options);
+void ExpandEscape(expand_T *xp, char_u *str, int numfiles, char_u **files,
+                  int options);
 char_u *vim_strsave_fnameescape(char_u *fname, int shell);
 void tilde_replace(char_u *orig_pat, int num_files, char_u **files);
 char_u *sm_gettail(char_u *s);
 char_u *addstar(char_u *fname, int len, int context);
-void set_cmd_context(expand_T *xp, char_u *str, int len, int col, int use_ccline);
-int expand_cmdline(expand_T *xp, char_u *str, int col, int *matchcount, char_u ***matches);
-int ExpandGeneric(expand_T *xp, regmatch_T *regmatch, int *num_file, char_u ***file, char_u *((*func)(expand_T *, int)), int escaped);
+void set_cmd_context(expand_T *xp, char_u *str, int len, int col,
+                     int use_ccline);
+int expand_cmdline(expand_T *xp, char_u *str, int col, int *matchcount,
+                   char_u ***matches);
+int ExpandGeneric(expand_T *xp, regmatch_T *regmatch, int *num_file,
+                  char_u ***file, char_u *((*func)(expand_T *, int)),
+                  int escaped);
 void globpath(char_u *path, char_u *file, garray_T *ga, int expand_options);
 void init_history(void);
 int get_histtype(char_u *name);
