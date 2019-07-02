@@ -416,7 +416,7 @@ typedef struct dsc$descriptor DESC;
                         exists for a file */
 // clang-format on
 
-#ifdef VMS          /* Use less memory because of older systems  */
+#ifdef VMS /* Use less memory because of older systems  */
 #ifndef DFLT_MAXMEM
 #define DFLT_MAXMEM (2 * 1024)
 #endif

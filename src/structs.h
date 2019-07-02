@@ -1271,7 +1271,7 @@ typedef struct
 } typval_T;
 
 /* Values for "dv_scope". */
-#define VAR_SCOPE 1     /* a:, v:, s:, etc. scope dictionaries */
+#define VAR_SCOPE 1 /* a:, v:, s:, etc. scope dictionaries */
 
 // clang-format off
 #define VAR_DEF_SCOPE 2 /* l:, g: scope dictionaries: here funcrefs are not \
