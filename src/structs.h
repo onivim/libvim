@@ -1272,8 +1272,11 @@ typedef struct
 
 /* Values for "dv_scope". */
 #define VAR_SCOPE 1     /* a:, v:, s:, etc. scope dictionaries */
-#define VAR_DEF_SCOPE 2 /* l:, g: scope dictionaries: here funcrefs are not \ \ \
+
+// clang-format off
+#define VAR_DEF_SCOPE 2 /* l:, g: scope dictionaries: here funcrefs are not \
                            allowed to mask existing functions */
+// clang-format on
 
 /* Values for "v_lock". */
 #define VAR_LOCKED 1 /* locked with lock(), can use unlock() */
