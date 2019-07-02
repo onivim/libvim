@@ -18,6 +18,7 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
+static int oneright2(int allowMoveToNull);
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -909,7 +910,7 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 
         if (acp_is_closing_pair(c) && (*ml_get_cursor() == c)) {
              AppendCharToRedobuff(c);
-             oneright();
+             oneright2(TRUE);
          } else {
            insert_special(c, FALSE, FALSE);
            if (acp_is_opening_pair(c)) {
@@ -3511,7 +3512,7 @@ void beginline(int flags) {
  * Return OK when successful, FAIL when we hit a line of file boundary.
  */
 
-int oneright(void) {
+int oneright2(int allowMoveToNull) {
   char_u *ptr;
   int l;
 
@@ -3542,12 +3543,16 @@ int oneright(void) {
 
   /* move "l" bytes right, but don't end up on the NUL, unless 'virtualedit'
    * contains "onemore". */
-  if (ptr[l] == NUL && (ve_flags & VE_ONEMORE) == 0)
+  if (ptr[l] == NUL && (((ve_flags & VE_ONEMORE) == 0) && allowMoveToNull != TRUE))
     return FAIL;
   curwin->w_cursor.col += l;
 
   curwin->w_set_curswant = TRUE;
   return OK;
+}
+
+int oneright(void) {
+  return oneright2(FALSE);
 }
 
 int oneleft(void) {
