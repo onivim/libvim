@@ -411,8 +411,11 @@ typedef struct dsc$descriptor DESC;
 #define MAXPATHL 1024
 #endif
 
-#define CHECK_INODE /* used when checking if a swap file already \ \ \
+// clang-format off
+#define CHECK_INODE /* used when checking if a swap file already \
                         exists for a file */
+// clang-format on
+
 #ifdef VMS          /* Use less memory because of older systems  */
 #ifndef DFLT_MAXMEM
 #define DFLT_MAXMEM (2 * 1024)
