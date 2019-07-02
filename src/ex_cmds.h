@@ -27,6 +27,8 @@
  *    long name of the command.
  */
 
+// clang-format off
+
 #ifdef RANGE
 #undef RANGE // SASC on Amiga defines it
 #endif
@@ -37,7 +39,7 @@
 #define XFILE 0x008           // expand wildcards in extra part
 #define NOSPC 0x010           // no spaces allowed in the extra part
 #define DFLALL 0x020          // default file range is 1,$
-#define WHOLEFOLD 0x040       // extend range to include whole fold also \
+#define WHOLEFOLD 0x040       // extend range to include whole fold also
                               // when less than two numbers given
 #define NEEDARG 0x080         // argument required
 #define TRLBAR 0x100          // check for trailing vertical bar
@@ -51,8 +53,8 @@
 #define BUFUNL 0x10000L       // accepts unlisted buffer too
 #define ARGOPT 0x20000L       // allow "++opt=val" argument
 #define SBOXOK 0x40000L       // allowed in the sandbox
-#define CMDWIN 0x80000L       // allowed in cmdline window; when missing \
-                              // disallows editing another buffer when   \
+#define CMDWIN 0x80000L       // allowed in cmdline window; when missing
+                              // disallows editing another buffer when
                               // curbuf_lock is set
 #define MODIFY 0x100000L      // forbidden in non-'modifiable' buffer
 #define EXFLAGS 0x200000L     // allow flags after count in argument

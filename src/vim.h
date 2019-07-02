@@ -772,8 +772,7 @@ extern int (*dyn_libintl_wputenv)(const wchar_t *envstring);
 // Note: mostly EW_NOTFOUND and EW_SILENT are mutually exclusive: EW_NOTFOUND
 // is used when executing commands and EW_SILENT for interactive expanding.
 #define EW_ALLLINKS 0x1000 // also links not pointing to existing file
-#define EW_SHELLCMD 0x2000 // called from expand_shellcmd(), don't check \
-                           // if executable is in $PATH
+#define EW_SHELLCMD 0x2000 // called from expand_shellcmd(), don't check if executable is in $PATH
 #define EW_DODOT 0x4000    // also files starting with a dot
 #define EW_EMPTYOK 0x8000  // no matches is not an error
 #define EW_NOTENV 0x10000  // do not expand environment variables
@@ -1064,7 +1063,7 @@ typedef struct
 #define TAG_KEEP_LANG 128  // keep current language
 #define TAG_NO_TAGFUNC 256 // do not use 'tagfunc'
 
-#define TAG_MANY 300 // When finding many tags (for completion), \
+#define TAG_MANY 300 // When finding many tags (for completion),
                      // find up to this many tags
 
 /*
