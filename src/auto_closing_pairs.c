@@ -103,14 +103,12 @@ int acp_is_cursor_between_pair(void) {
   }
 
   char_u charBefore = *(ml_get_cursor() - 1);
-  printf("charBefore: %c\n", charBefore);
 
   if (!openCharacter[charBefore]) {
     return FALSE;
   }
 
   char_u charAfter = *(ml_get_cursor());
-  printf("charAfter: %c\n", charAfter);
 
   return charAfter == openCharacter[charBefore]->close;
 }
