@@ -225,6 +225,30 @@ MU_TEST(test_pass_through_in_pairs_undo_redo) {
                   "{}aThis is the first line of a test file") == 0);
 }
 
+MU_TEST(test_matching_pair_double_quotes) {
+  vimInput("I");
+  vimInput("\"");
+  vimInput("a");
+  
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1),
+                  "\"a\"This is the first line of a test file") == 0);
+  vimInput("\"");
+  vimInput("b");
+  vimInput("<esc>");
+
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1),
+                  "\"a\"bThis is the first line of a test file") == 0);
+  
+
+  vimInput("u");
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1),
+                  "This is the first line of a test file") == 0);
+
+  vimInput("<c-r>");
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1),
+                  "\"a\"bThis is the first line of a test file") == 0);
+}
+
 MU_TEST(test_setting_acp_option) {
   vimExecute("set autoclosingpairs");
   mu_check(p_acp == TRUE);
@@ -257,6 +281,7 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_enter_between_pairs_dot);
   MU_RUN_TEST(test_pass_through_in_pairs);
   MU_RUN_TEST(test_pass_through_in_pairs_undo_redo);
+  MU_RUN_TEST(test_matching_pair_double_quotes);
 }
 
 int main(int argc, char **argv) {
