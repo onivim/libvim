@@ -22,6 +22,8 @@
 
 #include "vim.h"
 
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 #ifdef FEAT_MZSCHEME
 # include "if_mzsch.h"
 #endif
@@ -247,9 +249,11 @@ typedef BOOL (WINAPI *PfnRtlGetVersion)(LPOSVERSIONINFOW);
     static DWORD
 get_build_number(void)
 {
-    OSVERSIONINFOW	osver = {sizeof(OSVERSIONINFOW)};
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+    OSVERSIONINFOW		osver = {sizeof(OSVERSIONINFOW)};
     HMODULE		hNtdll;
-    PfnRtlGetVersion	pRtlGetVersion;
+    PfnRtlGetVersion		pRtlGetVersion;
     DWORD		ver = MAKE_VER(0, 0, 0);
 
     hNtdll = GetModuleHandle("ntdll.dll");
@@ -264,6 +268,7 @@ get_build_number(void)
     }
     return ver;
 }
+#pragma GCC diagnostic pop
 
 #if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 /*

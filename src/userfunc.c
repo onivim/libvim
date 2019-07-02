@@ -3828,7 +3828,10 @@ get_funccal(void)
     funccal = current_funccal;
     if (debug_backtrace_level > 0)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
 	for (i = 0; i < debug_backtrace_level; i++)
+#pragma GCC diagnostic pop
 	{
 	    temp_funccal = funccal->caller;
 	    if (temp_funccal)

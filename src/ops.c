@@ -715,7 +715,7 @@ void get_yank_register_value(int regname, int *num_lines, char_u ***lines) {
   yankreg_T *prev_y_current = y_current;
   int prev_y_append = y_append;
 
-  int r = get_yank_register(regname, 0);
+  get_yank_register(regname, 0);
 
   *lines = y_current->y_array;
   *num_lines = y_current->y_size;

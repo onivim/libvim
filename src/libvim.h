@@ -50,7 +50,7 @@ void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
 char_u vimCommandLineGetType(void);
 char_u *vimCommandLineGetText(void);
 int vimCommandLineGetPosition(void);
-void vimCommandLineGetCompletions(char ***completions, int *count);
+void vimCommandLineGetCompletions(char_u ***completions, int *count);
 
 /***
  * Cursor Methods

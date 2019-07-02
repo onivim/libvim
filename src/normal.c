@@ -53,7 +53,6 @@ static void nv_zet(cmdarg_T *cap);
 static void nv_ver_scrollbar(cmdarg_T *cap);
 static void nv_hor_scrollbar(cmdarg_T *cap);
 #endif
-static void nv_exmode(cmdarg_T *cap);
 static void nv_colon(cmdarg_T *cap);
 static void nv_ctrlg(cmdarg_T *cap);
 static void nv_ctrlh(cmdarg_T *cap);
@@ -1124,9 +1123,6 @@ getcount:
     int lit = FALSE;            /* get extra character literally */
     int langmap_active = FALSE; /* using :lmap mappings */
     int lang;                   /* getting a text character */
-#ifdef HAVE_INPUT_METHOD
-    int save_smd; /* saved value of p_smd */
-#endif
 
     ++no_mapping;
     ++allow_keys; /* no mapping for nchar, but allow key codes */
@@ -3594,9 +3590,6 @@ static void nv_hor_scrollbar(cmdarg_T *cap) {
  * Handle a ":" command.
  */
 static void nv_colon(cmdarg_T *cap) {
-  int old_p_im;
-  int cmd_result;
-
   if (VIsual_active)
     nv_operator(cap);
   else {
@@ -3617,35 +3610,7 @@ static void nv_colon(cmdarg_T *cap) {
     if (KeyTyped)
       compute_cmdrow();
 
-    old_p_im = p_im;
-
-    /* TODO: Import this */
-    /* get a command line and execute it */
-    /* cmd_result = do_cmdline(NULL, getexline, NULL, */
-    /*                         cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0); */
-
     sm_push_cmdline(':', 0, 0);
-
-    /* TODO: Port this over */
-//    If 'insertmode' changed, enter or exit Insert mode 
-//    if (p_im != old_p_im) {
-//      if (p_im)
-//        restart_edit = 'i';
-//      else
-//        restart_edit = 0;
-//    }
-//
-//    if (cmd_result == FAIL)
-//      /* The Ex command failed, do not execute the operator. */
-//      clearop(cap->oap);
-//    else if (cap->oap->op_type != OP_NOP &&
-//             (cap->oap->start.lnum > curbuf->b_ml.ml_line_count ||
-//              cap->oap->start.col >
-//                  (colnr_T)STRLEN(ml_get(cap->oap->start.lnum)) ||
-//              did_emsg))
-//      /* The start of the operator has become invalid by the Ex command.
-//       */
-//      clearopbeep(cap->oap);
   }
 }
 
@@ -4395,8 +4360,6 @@ static void nv_dollar(cmdarg_T *cap) {
  * If cap->arg is TRUE don't set PC mark.
  */
 static void nv_search(cmdarg_T *cap) {
-  oparg_T *oap = cap->oap;
-
   if (cap->cmdchar == '?' && cap->oap->op_type == OP_ROT13) {
     /* Translate "g??" to "g?g?" */
     cap->cmdchar = 'g';
@@ -6690,18 +6653,23 @@ static void nv_edit(cmdarg_T *cap) {
  */
 static void invoke_edit(cmdarg_T *cap, int repl, /* "r" or "gr" command */
                         int cmd, int startln) {
-  int restart_edit_save = 0;
 
+  /* int restart_edit_save = 0; */
   /* Complicated: When the user types "a<C-O>a" we don't want to do Insert
    * mode recursively.  But when doing "a<C-O>." or "a<C-O>rx" we do allow
    * it. */
-  if (repl || !stuff_empty())
+
+  /* libvim TODO: Bring back restart_edit & restart_edit save */
+
+  /* if (repl || !stuff_empty())
     restart_edit_save = restart_edit;
   else
-    restart_edit_save = 0;
+    restart_edit_save = 0; */
 
   /* Always reset "restart_edit", this is not a restarted edit. */
-  restart_edit = 0;
+  
+  /* libvim TODO: Bring back */
+  /* restart_edit = 0; */
 
   sm_push_insert(cmd, startln, cap->count1);
  
@@ -6733,10 +6701,7 @@ static void nv_object(cmdarg_T *cap) {
   switch (cap->nchar) {
   case 'w': /* "aw" = a word */
     flag = current_word(cap->oap, cap->count1, include, FALSE);
-    break;
-  case 'W': /* "aW" = a WORD */
-    flag = current_word(cap->oap, cap->count1, include, TRUE);
-    break;
+    break; case 'W': /* "aW" = a WORD */ flag = current_word(cap->oap, cap->count1, include, TRUE); break;
   case 'b': /* "ab" = a braces block */
   case '(':
   case ')':

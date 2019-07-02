@@ -550,6 +550,8 @@ executionStatus_T state_edit_execute(void *ctx, int c) {
 #endif
 
 #ifdef UNIX
+  /* Suppress unused-label error */
+  goto do_intr;
   do_intr:
 #endif
     /* when 'insertmode' set, and not halfway a mapping, don't leave

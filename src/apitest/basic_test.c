@@ -19,12 +19,12 @@ int main(int argc, char **argv) {
   size_t len = vimBufferGetLineCount(buf);
   assert(len == 3);
 
-  printf("cursor line: %d\n", vimCursorGetLine());
+  printf("cursor line: %ld\n", vimCursorGetLine());
 
   assert(vimCursorGetLine() == 1);
 
   vimInput("G");
-  printf("cursor line: %d\n", vimCursorGetLine());
+  printf("cursor line: %ld\n", vimCursorGetLine());
 
   assert(vimCursorGetLine() > 1);
 
@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
   vimInput("l");
   vimInput("x");
 
-  printf("CURSOR LINE: %d\n", vimCursorGetLine());
   /* assert(vimGetMode() & INSERT == INSERT); */
 
   line = vimBufferGetLine(buf, 1);

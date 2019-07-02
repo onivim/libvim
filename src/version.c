@@ -3631,10 +3631,12 @@ list_in_columns(char_u **items, int size, int current)
 	    int last_col = (i + 1) % ncol == 0;
 
 	    if (idx == current)
-		msg_putchar('[');
+		    msg_putchar('[');
+        
 		msg_puts((char *)items[idx]);
 	    if (idx == current)
-		msg_putchar(']');
+		    msg_putchar(']');
+        
 	    if (last_col)
 	    {
 		if (msg_col > 0)

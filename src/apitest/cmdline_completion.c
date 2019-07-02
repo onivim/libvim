@@ -14,10 +14,10 @@ MU_TEST(test_cmdline_null) {
   // Verify values are expected when we're not in command line mode
 
   mu_check(vimCommandLineGetText() == NULL);
-  mu_check(vimCommandLineGetType() == NULL);
+  mu_check(vimCommandLineGetType() == NUL);
   mu_check(vimCommandLineGetPosition() == 0);
 
-  char **completions;
+  char_u **completions;
   int count = 1;
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 0);
@@ -55,7 +55,7 @@ MU_TEST(test_cmdline_get_text) {
 }
 
 MU_TEST(test_cmdline_completions) {
-  char **completions;
+  char_u **completions;
   int count = 1;
 
   vimInput(":");
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

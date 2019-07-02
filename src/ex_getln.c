@@ -2553,7 +2553,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent) {
 
     got_int = FALSE;
 
-theend:
 	return context;
 };
 
@@ -3595,6 +3594,7 @@ cmdline_changed:
 # endif
 		)
 #endif
+
     return HANDLED;
 }
 

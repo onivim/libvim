@@ -75,7 +75,7 @@ typedef struct
    int mode;
    state_execute execute_fn;
    state_cleanup cleanup_fn;
-   struct sm_T* prev;
+   void* prev;
 } sm_T;
 
 /*
