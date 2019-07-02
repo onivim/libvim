@@ -1,8 +1,14 @@
 /* ui.c */
 void ui_inchar_undo(char_u *s, int len);
 int ui_inchar(char_u *buf, int maxlen, long wtime, int tb_change_cnt);
-int inchar_loop(char_u *buf, int maxlen, long wtime, int tb_change_cnt, int (*wait_func)(long wtime, int *interrupted, int ignore_input), int (*resize_func)(int check_only));
-int ui_wait_for_chars_or_timer(long wtime, int (*wait_func)(long wtime, int *interrupted, int ignore_input), int *interrupted, int ignore_input);
+int inchar_loop(char_u *buf, int maxlen, long wtime, int tb_change_cnt,
+                int (*wait_func)(long wtime, int *interrupted,
+                                 int ignore_input),
+                int (*resize_func)(int check_only));
+int ui_wait_for_chars_or_timer(long wtime,
+                               int (*wait_func)(long wtime, int *interrupted,
+                                                int ignore_input),
+                               int *interrupted, int ignore_input);
 int ui_char_avail(void);
 void ui_delay(long msec, int ignoreinput);
 void ui_suspend(void);
@@ -56,7 +62,8 @@ int check_row(int row);
 void open_app_context(void);
 void x11_setup_atoms(Display *dpy);
 void x11_setup_selection(Widget w);
-void clip_x11_request_selection(Widget myShell, Display *dpy, VimClipboard *cbd);
+void clip_x11_request_selection(Widget myShell, Display *dpy,
+                                VimClipboard *cbd);
 void clip_x11_lose_selection(Widget myShell, VimClipboard *cbd);
 int clip_x11_own_selection(Widget myShell, VimClipboard *cbd);
 void clip_x11_set_selection(VimClipboard *cbd);

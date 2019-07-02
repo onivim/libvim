@@ -23,18 +23,22 @@ char_u *ml_get_cursor(void);
 char_u *ml_get_buf(buf_T *buf, linenr_T lnum, int will_change);
 int ml_line_alloced(void);
 int ml_append(linenr_T lnum, char_u *line, colnr_T len, int newfile);
-int ml_append_buf(buf_T *buf, linenr_T lnum, char_u *line, colnr_T len, int newfile);
+int ml_append_buf(buf_T *buf, linenr_T lnum, char_u *line, colnr_T len,
+                  int newfile);
 int ml_replace(linenr_T lnum, char_u *line, int copy);
-int ml_replace_len(linenr_T lnum, char_u *line_arg, colnr_T len_arg, int has_props, int copy);
+int ml_replace_len(linenr_T lnum, char_u *line_arg, colnr_T len_arg,
+                   int has_props, int copy);
 int ml_delete(linenr_T lnum, int message);
 void ml_setmarked(linenr_T lnum);
 linenr_T ml_firstmarked(void);
 void ml_clearmarked(void);
 int resolve_symlink(char_u *fname, char_u *buf);
-char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf, char_u *dir_name);
+char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf,
+                     char_u *dir_name);
 char_u *get_file_in_dir(char_u *fname, char_u *dname);
 void ml_setflags(buf_T *buf);
-char_u *ml_encrypt_data(memfile_T *mfp, char_u *data, off_T offset, unsigned size);
+char_u *ml_encrypt_data(memfile_T *mfp, char_u *data, off_T offset,
+                        unsigned size);
 void ml_decrypt_data(memfile_T *mfp, char_u *data, off_T offset, unsigned size);
 long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp);
 void goto_byte(long cnt);

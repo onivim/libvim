@@ -6,14 +6,16 @@ static int lastLnum = 0;
 static int lastLnume = 0;
 static long lastXtra = 0;
 
-void onBufferUpdate(bufferUpdate_T update) {
+void onBufferUpdate(bufferUpdate_T update)
+{
   lastLnum = update.lnum;
   lastLnume = update.lnume;
   lastXtra = update.xtra;
   updateCount++;
 }
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -29,7 +31,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_macro_saves_register) {
+MU_TEST(test_macro_saves_register)
+{
   /* Record a macro into the 'a' register */
   vimInput("q");
   vimInput("a");
@@ -54,13 +57,15 @@ MU_TEST(test_macro_saves_register) {
   mu_check(strcmp(lines[0], ("jjjkk")) == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_macro_saves_register);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimSetBufferUpdateCallback(&onBufferUpdate);

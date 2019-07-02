@@ -11,7 +11,8 @@ char_u *prompt_text(void);
 int prompt_curpos_editable(void);
 void edit_unputchar(void);
 void display_dollar(colnr_T col);
-void change_indent(int type, int amount, int round, int replaced, int call_changed_bytes);
+void change_indent(int type, int amount, int round, int replaced,
+                   int call_changed_bytes);
 void truncate_spaces(char_u *line);
 void backspace_until_column(int col);
 int get_literal(void);

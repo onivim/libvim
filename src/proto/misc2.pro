@@ -35,7 +35,8 @@ char_u *vim_strsave(char_u *string);
 char_u *vim_strnsave(char_u *string, int len);
 char_u *vim_memsave(char_u *p, size_t len);
 char_u *vim_strsave_escaped(char_u *string, char_u *esc_chars);
-char_u *vim_strsave_escaped_ext(char_u *string, char_u *esc_chars, int cc, int bsl);
+char_u *vim_strsave_escaped_ext(char_u *string, char_u *esc_chars, int cc,
+                                int bsl);
 int csh_like_shell(void);
 char_u *vim_strsave_shellescape(char_u *string, int do_special, int do_newline);
 char_u *vim_strsave_up(char_u *string);
@@ -70,7 +71,8 @@ int handle_x_keys(int key);
 char_u *get_special_key_name(int c, int modifiers);
 int trans_special(char_u **srcp, char_u *dst, int keycode, int in_string);
 int special_to_buf(int key, int modifiers, int keycode, char_u *dst);
-int find_special_key(char_u **srcp, int *modp, int keycode, int keep_x_key, int in_string);
+int find_special_key(char_u **srcp, int *modp, int keycode, int keep_x_key,
+                     int in_string);
 int extract_modifiers(int key, int *modp);
 int find_special_key_in_table(int c);
 int get_special_key_code(char_u *name);

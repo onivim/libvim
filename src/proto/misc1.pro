@@ -7,7 +7,8 @@ int get_indent_str_vtab(char_u *ptr, int ts, int *vts, int list);
 int set_indent(int size, int flags);
 int get_number_indent(linenr_T lnum);
 int get_breakindent_win(win_T *wp, char_u *line);
-int get_leader_len(char_u *line, char_u **flags, int backward, int include_space);
+int get_leader_len(char_u *line, char_u **flags, int backward,
+                   int include_space);
 int get_last_leader_offset(char_u *line, char_u **flags);
 int plines(linenr_T lnum);
 int plines_win(win_T *wp, linenr_T lnum, int winheight);
@@ -36,7 +37,8 @@ void free_users(void);
 char_u *expand_env_save(char_u *src);
 char_u *expand_env_save_opt(char_u *src, int one);
 void expand_env(char_u *src, char_u *dst, int dstlen);
-void expand_env_esc(char_u *srcp, char_u *dst, int dstlen, int esc, int one, char_u *startstr);
+void expand_env_esc(char_u *srcp, char_u *dst, int dstlen, int esc, int one,
+                    char_u *startstr);
 char_u *vim_getenv(char_u *name, int *mustfree);
 void vim_unsetenv(char_u *var);
 void vim_setenv(char_u *name, char_u *val);
@@ -65,12 +67,16 @@ void preserve_exit(void);
 int vim_fexists(char_u *fname);
 void line_breakcheck(void);
 void fast_breakcheck(void);
-int expand_wildcards_eval(char_u **pat, int *num_file, char_u ***file, int flags);
-int expand_wildcards(int num_pat, char_u **pat, int *num_files, char_u ***files, int flags);
+int expand_wildcards_eval(char_u **pat, int *num_file, char_u ***file,
+                          int flags);
+int expand_wildcards(int num_pat, char_u **pat, int *num_files, char_u ***files,
+                     int flags);
 int match_suffix(char_u *fname);
-int unix_expandpath(garray_T *gap, char_u *path, int wildoff, int flags, int didstar);
+int unix_expandpath(garray_T *gap, char_u *path, int wildoff, int flags,
+                    int didstar);
 void remove_duplicates(garray_T *gap);
-int gen_expand_wildcards(int num_pat, char_u **pat, int *num_file, char_u ***file, int flags);
+int gen_expand_wildcards(int num_pat, char_u **pat, int *num_file,
+                         char_u ***file, int flags);
 void addfile(garray_T *gap, char_u *f, int flags);
 char_u *get_cmd_output(char_u *cmd, char_u *infile, int flags, int *ret_len);
 void FreeWild(int count, char_u **files);

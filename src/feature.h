@@ -44,8 +44,7 @@
  * Uncomment one of these to override the default.  For unix use a configure
  * argument, see Makefile.
  */
-#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) \
-	&& !defined(FEAT_BIG) && !defined(FEAT_HUGE)
+#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) && !defined(FEAT_BIG) && !defined(FEAT_HUGE)
 /* #define FEAT_TINY */
 /* #define FEAT_SMALL */
 /* #define FEAT_NORMAL */
@@ -59,33 +58,32 @@
  * Use +big for older systems: Other MS-Windows and VMS.
  * Otherwise use +normal
  */
-#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) \
-	&& !defined(FEAT_BIG) && !defined(FEAT_HUGE)
-# if defined(UNIX) || defined(MSWIN) || defined(MACOS_X)
-#  define FEAT_HUGE
-# else
-#  if defined(MSWIN) || defined(VMS)
-#   define FEAT_BIG
-#  else
-#   define FEAT_NORMAL
-#  endif
-# endif
+#if !defined(FEAT_TINY) && !defined(FEAT_SMALL) && !defined(FEAT_NORMAL) && !defined(FEAT_BIG) && !defined(FEAT_HUGE)
+#if defined(UNIX) || defined(MSWIN) || defined(MACOS_X)
+#define FEAT_HUGE
+#else
+#if defined(MSWIN) || defined(VMS)
+#define FEAT_BIG
+#else
+#define FEAT_NORMAL
+#endif
+#endif
 #endif
 
 /*
  * Each feature implies including the "smaller" ones.
  */
 #ifdef FEAT_HUGE
-# define FEAT_BIG
+#define FEAT_BIG
 #endif
 #ifdef FEAT_BIG
-# define FEAT_NORMAL
+#define FEAT_NORMAL
 #endif
 #ifdef FEAT_NORMAL
-# define FEAT_SMALL
+#define FEAT_SMALL
 #endif
 #ifdef FEAT_SMALL
-# define FEAT_TINY
+#define FEAT_TINY
 #endif
 
 /*
@@ -104,30 +102,30 @@
  * +cmdhist		Command line history.
  */
 #ifdef FEAT_SMALL
-# define FEAT_CMDHIST
+#define FEAT_CMDHIST
 #endif
 
 /*
  * Message history is fixed at 200 message, 20 for the tiny version.
  */
 #ifdef FEAT_SMALL
-# define MAX_MSG_HIST_LEN 200
+#define MAX_MSG_HIST_LEN 200
 #else
-# define MAX_MSG_HIST_LEN 20
+#define MAX_MSG_HIST_LEN 20
 #endif
 
 /*
  * +jumplist		Jumplist, CTRL-O and CTRL-I commands.
  */
 #ifdef FEAT_SMALL
-# define FEAT_JUMPLIST
+#define FEAT_JUMPLIST
 #endif
 
 /*
  * +folding		Fold lines.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_FOLDING
+#define FEAT_FOLDING
 #endif
 
 /*
@@ -138,7 +136,7 @@
  *			Vim 5.x.  The new ones are from RFC 1345.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_DIGRAPHS
+#define FEAT_DIGRAPHS
 /* #define OLD_DIGRAPHS */
 #endif
 
@@ -148,7 +146,7 @@
  *			greek.
  */
 #ifdef FEAT_BIG
-# define FEAT_LANGMAP
+#define FEAT_LANGMAP
 #endif
 
 /*
@@ -156,14 +154,14 @@
  *			Insert mode for a special language.
  */
 #ifdef FEAT_BIG
-# define FEAT_KEYMAP
+#define FEAT_KEYMAP
 #endif
 
 /*
  * +localmap		Mappings and abbreviations local to a buffer.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_LOCALMAP
+#define FEAT_LOCALMAP
 #endif
 
 /*
@@ -171,11 +169,11 @@
  *			Takes a few Kbyte of code.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_CMDL_COMPL
+#define FEAT_CMDL_COMPL
 #endif
 
 #ifdef FEAT_NORMAL
-# define VIM_BACKTICK		/* internal backtick expansion */
+#define VIM_BACKTICK /* internal backtick expansion */
 #endif
 
 /*
@@ -194,44 +192,44 @@
  *			Also 'numberwidth'.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_LINEBREAK
+#define FEAT_LINEBREAK
 #endif
 
 /*
  * +extra_search	'hlsearch' and 'incsearch' options.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_SEARCH_EXTRA
+#define FEAT_SEARCH_EXTRA
 #endif
 
 /*
  * +quickfix		Quickfix commands.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_QUICKFIX
+#define FEAT_QUICKFIX
 #endif
 
 /*
  * +file_in_path	"gf" and "<cfile>" commands.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_SEARCHPATH
+#define FEAT_SEARCHPATH
 #endif
 
 /*
  * +find_in_path	"[I" ":isearch" "^W^I", ":checkpath", etc.
  */
 #ifdef FEAT_NORMAL
-# ifdef FEAT_SEARCHPATH	/* FEAT_SEARCHPATH is required */
-#  define FEAT_FIND_ID
-# endif
+#ifdef FEAT_SEARCHPATH /* FEAT_SEARCHPATH is required */
+#define FEAT_FIND_ID
+#endif
 #endif
 
 /*
  * +path_extra		up/downwards searching in 'path' and 'tags'.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_PATH_EXTRA
+#define FEAT_PATH_EXTRA
 #endif
 
 /*
@@ -240,7 +238,7 @@
  * Disabled for EBCDIC as it requires multibyte.
  */
 #if defined(FEAT_BIG) && !defined(DISABLE_RIGHTLEFT) && !defined(EBCDIC)
-# define FEAT_RIGHTLEFT
+#define FEAT_RIGHTLEFT
 #endif
 
 /*
@@ -255,12 +253,12 @@
  * Disabled for EBCDIC as it requires multibyte.
  */
 #if defined(FEAT_BIG) && !defined(DISABLE_ARABIC) && !defined(EBCDIC)
-# define FEAT_ARABIC
+#define FEAT_ARABIC
 #endif
 #ifdef FEAT_ARABIC
-# ifndef FEAT_RIGHTLEFT
-#   define FEAT_RIGHTLEFT
-# endif
+#ifndef FEAT_RIGHTLEFT
+#define FEAT_RIGHTLEFT
+#endif
 #endif
 
 /*
@@ -268,7 +266,7 @@
  *			emacs style TAGS file.
  */
 #ifdef FEAT_BIG
-# define FEAT_EMACS_TAGS
+#define FEAT_EMACS_TAGS
 #endif
 
 /*
@@ -281,7 +279,7 @@
  * do a EBCDIC to ASCII conversion for this??
  */
 #if !defined(EBCDIC)
-# define FEAT_TAG_BINS
+#define FEAT_TAG_BINS
 #endif
 
 /*
@@ -296,51 +294,45 @@
  * +num64		64-bit Number.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_EVAL
-# if defined(HAVE_FLOAT_FUNCS) || defined(MSWIN) || defined(MACOS_X)
-#  define FEAT_FLOAT
-# endif
-# if defined(HAVE_STDINT_H) || defined(MSWIN) || (VIM_SIZEOF_LONG >= 8)
-#  define FEAT_NUM64
-# endif
+#define FEAT_EVAL
+#if defined(HAVE_FLOAT_FUNCS) || defined(MSWIN) || defined(MACOS_X)
+#define FEAT_FLOAT
+#endif
+#if defined(HAVE_STDINT_H) || defined(MSWIN) || (VIM_SIZEOF_LONG >= 8)
+#define FEAT_NUM64
+#endif
 #endif
 
 #ifdef FEAT_EVAL
-# define HAVE_SANDBOX
+#define HAVE_SANDBOX
 #endif
 
 /*
  * +profile		Profiling for functions and scripts.
  */
-#if defined(FEAT_HUGE) \
-	&& defined(FEAT_EVAL) \
-	&& ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) \
-		|| defined(MSWIN))
-# define FEAT_PROFILE
+#if defined(FEAT_HUGE) && defined(FEAT_EVAL) && ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
+#define FEAT_PROFILE
 #endif
 
 /*
  * +reltime		reltime() function
  */
-#if defined(FEAT_NORMAL) \
-	&& defined(FEAT_EVAL) \
-	&& ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) \
-		|| defined(MSWIN))
-# define FEAT_RELTIME
+#if defined(FEAT_NORMAL) && defined(FEAT_EVAL) && ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
+#define FEAT_RELTIME
 #endif
 
 /*
  * +timers		timer_start()
  */
-#if defined(FEAT_RELTIME) && (defined(UNIX) || defined(MSWIN) || defined(VMS) )
-# define FEAT_TIMERS
+#if defined(FEAT_RELTIME) && (defined(UNIX) || defined(MSWIN) || defined(VMS))
+#define FEAT_TIMERS
 #endif
 
 /*
  * +textobjects		Text objects: "vaw", "das", etc.
  */
 #if defined(FEAT_NORMAL) && defined(FEAT_EVAL)
-# define FEAT_TEXTOBJ
+#define FEAT_TEXTOBJ
 #endif
 
 /*
@@ -351,16 +343,15 @@
 /*
  * +postscript		Printing uses PostScript file output.
  */
-#if defined(FEAT_PRINTER) && ((defined(MSWIN) && defined(MSWINPS)) \
-	|| (!defined(MSWIN) && defined(FEAT_EVAL)))
-# define FEAT_POSTSCRIPT
+#if defined(FEAT_PRINTER) && ((defined(MSWIN) && defined(MSWINPS)) || (!defined(MSWIN) && defined(FEAT_EVAL)))
+#define FEAT_POSTSCRIPT
 #endif
 
 /*
  * +modify_fname	modifiers for file name.  E.g., "%:p:h".
  */
 #ifdef FEAT_NORMAL
-# define FEAT_MODIFY_FNAME
+#define FEAT_MODIFY_FNAME
 #endif
 
 /*
@@ -368,11 +359,11 @@
  *			Requires +windows and +autocmd.
  */
 #if defined(FEAT_NORMAL)
-# define FEAT_DIFF
+#define FEAT_DIFF
 #endif
 
 #ifdef FEAT_NORMAL
-# define FEAT_BYTEOFF
+#define FEAT_BYTEOFF
 #endif
 
 /*
@@ -380,14 +371,14 @@
  *			Needed for Unix to make "crontab -e" work.
  */
 #if defined(FEAT_NORMAL) || defined(UNIX)
-# define FEAT_WILDIGN
+#define FEAT_WILDIGN
 #endif
 
 /*
  * +wildmenu		'wildmenu' option
  */
 #if defined(FEAT_NORMAL)
-# define FEAT_WILDMENU
+#define FEAT_WILDMENU
 #endif
 
 /*
@@ -397,7 +388,7 @@
  * VIMINFO_FILE2	Location of alternate user .viminfo file.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_VIMINFO
+#define FEAT_VIMINFO
 /* #define VIMINFO_FILE	"$HOME/foo/.viminfo" */
 /* #define VIMINFO_FILE2 "~/bar/.viminfo" */
 #endif
@@ -406,7 +397,7 @@
  * +textprop		Text properties and popup windows
  */
 #if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
-# define FEAT_TEXT_PROP
+#define FEAT_TEXT_PROP
 #endif
 
 /*
@@ -429,22 +420,22 @@
 #endif
 
 #if !defined(NO_BUILTIN_TCAPS)
-# ifdef FEAT_BIG
-#  define ALL_BUILTIN_TCAPS
-# else
-#  define SOME_BUILTIN_TCAPS		/* default */
-# endif
+#ifdef FEAT_BIG
+#define ALL_BUILTIN_TCAPS
+#else
+#define SOME_BUILTIN_TCAPS /* default */
+#endif
 #endif
 
 #ifdef FEAT_NORMAL
-# define FEAT_SMARTINDENT
+#define FEAT_SMARTINDENT
 #endif
 
 /*
  * +comments		'comments' option.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_COMMENTS
+#define FEAT_COMMENTS
 #endif
 
 /*
@@ -459,7 +450,7 @@
  *			Requires +windows and +vertsplit.
  */
 #if defined(FEAT_NORMAL)
-# define FEAT_SESSION
+#define FEAT_SESSION
 #endif
 
 /*
@@ -468,11 +459,10 @@
  *			(only when "lang" archive unpacked)
  */
 #ifdef FEAT_NORMAL
-# define FEAT_MULTI_LANG
+#define FEAT_MULTI_LANG
 #endif
-#if defined(HAVE_GETTEXT) && defined(FEAT_MULTI_LANG) \
-	&& (defined(HAVE_LOCALE_H) || defined(X_LOCALE))
-# define FEAT_GETTEXT
+#if defined(HAVE_GETTEXT) && defined(FEAT_MULTI_LANG) && (defined(HAVE_LOCALE_H) || defined(X_LOCALE))
+#define FEAT_GETTEXT
 #endif
 
 /*
@@ -482,20 +472,23 @@
 
 /* Use iconv() when it's available. */
 #if (defined(HAVE_ICONV_H) && defined(HAVE_ICONV)) || defined(DYNAMIC_ICONV)
-# define USE_ICONV
+#define USE_ICONV
 #endif
 
+// clang-format off
 #ifdef FEAT_HANGULIN
-# define HANGUL_DEFAULT_KEYBOARD 2	/* 2 or 3 bulsik keyboard */
-# define ESC_CHG_TO_ENG_MODE		/* if defined, when ESC pressed,
-					 * turn to english mode
-					 */
-# if defined(FEAT_XIM) && !defined(LINT)
-	Error: You should select only ONE of XIM and HANGUL INPUT
-# endif
+#define HANGUL_DEFAULT_KEYBOARD 2 /* 2 or 3 bulsik keyboard */
+#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed, \
+                                   * turn to english mode          \
+                                   */
+#if defined(FEAT_XIM) && !defined(LINT)
+Error : You should select only ONE of XIM and HANGUL INPUT
 #endif
+#endif
+// clang-format on
+
 #if defined(FEAT_HANGULIN)
-/* # define X_LOCALE */			/* for OS with incomplete locale
+/* # define X_LOCALE */ /* for OS with incomplete locale
 					   support, like old linux versions. */
 #endif
 
@@ -503,11 +496,11 @@
  * +xfontset		X fontset support.  For outputting wide characters.
  */
 #ifndef FEAT_XFONTSET
-# if defined(HAVE_X11) && !defined(FEAT_GUI_GTK)
-#  define FEAT_XFONTSET
-# else
+#if defined(HAVE_X11) && !defined(FEAT_GUI_GTK)
+#define FEAT_XFONTSET
+#else
 /* #  define FEAT_XFONTSET */
-# endif
+#endif
 #endif
 
 /*
@@ -515,11 +508,10 @@
  */
 /* Using dlopen() also requires dlsym() to be available. */
 #if defined(HAVE_DLOPEN) && defined(HAVE_DLSYM)
-# define USE_DLOPEN
+#define USE_DLOPEN
 #endif
-#if defined(FEAT_EVAL) && (defined(MSWIN) || ((defined(UNIX) || defined(VMS)) \
-	&& (defined(USE_DLOPEN) || defined(HAVE_SHL_LOAD))))
-# define FEAT_LIBCALL
+#if defined(FEAT_EVAL) && (defined(MSWIN) || ((defined(UNIX) || defined(VMS)) && (defined(USE_DLOPEN) || defined(HAVE_SHL_LOAD))))
+#define FEAT_LIBCALL
 #endif
 
 /*
@@ -527,14 +519,14 @@
  *			or just the ":browse" command modifier
  */
 #if defined(FEAT_NORMAL)
-# define FEAT_BROWSE_CMD
+#define FEAT_BROWSE_CMD
 #endif
 
 /*
  * +vartabs		'vartabstop' and 'varsofttabstop' options.
  */
 #ifdef FEAT_BIG
-# define FEAT_VARTABS
+#define FEAT_VARTABS
 #endif
 
 /*
@@ -554,7 +546,7 @@
  *			Overwrite will write to the new version.
  */
 #ifndef VMS
-# define FEAT_WRITEBACKUP
+#define FEAT_WRITEBACKUP
 #endif
 
 /*
@@ -573,10 +565,8 @@
  * STARTUPTIME		Time the startup process.  Writes a file with
  *			timestamps.
  */
-#if defined(FEAT_NORMAL) \
-	&& ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) \
-		|| defined(MSWIN))
-# define STARTUPTIME 1
+#if defined(FEAT_NORMAL) && ((defined(HAVE_GETTIMEOFDAY) && defined(HAVE_SYS_TIME_H)) || defined(MSWIN))
+#define STARTUPTIME 1
 #endif
 
 /*
@@ -602,7 +592,7 @@
 /*
  * SESSION_FILE		Name of the default ":mksession" file.
  */
-#define SESSION_FILE	"Session.vim"
+#define SESSION_FILE "Session.vim"
 
 /*
  * USR_VIMRC_FILE	Name of the user .vimrc file.
@@ -678,7 +668,7 @@
  * SYS_OPTWIN_FILE	Name of the default optwin.vim file.
  */
 #ifndef SYS_OPTWIN_FILE
-# define SYS_OPTWIN_FILE	"$VIMRUNTIME/optwin.vim"
+#define SYS_OPTWIN_FILE "$VIMRUNTIME/optwin.vim"
 #endif
 
 /*
@@ -690,7 +680,7 @@
  * RUNTIME_DIRNAME	Generic name for the directory of the runtime files.
  */
 #ifndef RUNTIME_DIRNAME
-# define RUNTIME_DIRNAME "runtime"
+#define RUNTIME_DIRNAME "runtime"
 #endif
 
 /*
@@ -735,7 +725,7 @@
  *			clipboard.  Only works if HAVE_X11 is also defined.
  */
 #if (defined(FEAT_NORMAL))
-# define WANT_X11
+#define WANT_X11
 #endif
 
 /*
@@ -748,10 +738,10 @@
  * I'm assuming that any X11 implementation will cope with this for now.
  */
 #if defined(HAVE_X11) && defined(WANT_X11) && defined(HAVE_X11_SM_SMLIB_H)
-# define USE_XSMP
+#define USE_XSMP
 #endif
 #if defined(USE_XSMP_INTERACT) && !defined(USE_XSMP)
-# undef USE_XSMP_INTERACT
+#undef USE_XSMP_INTERACT
 #endif
 
 /*
@@ -761,24 +751,21 @@
  */
 
 #ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
-# define FEAT_CLIPBOARD
+#define FEAT_CLIPBOARD
 #endif
 
-#if defined(FEAT_NORMAL) \
-	&& (defined(UNIX) || defined(VMS)) \
-	&& defined(WANT_X11) && defined(HAVE_X11)
-# define FEAT_XCLIPBOARD
-# ifndef FEAT_CLIPBOARD
-#  define FEAT_CLIPBOARD
-# endif
+#if defined(FEAT_NORMAL) && (defined(UNIX) || defined(VMS)) && defined(WANT_X11) && defined(HAVE_X11)
+#define FEAT_XCLIPBOARD
+#ifndef FEAT_CLIPBOARD
+#define FEAT_CLIPBOARD
 #endif
-
+#endif
 
 /*
  * +ARP			Amiga only. Use arp.library, DOS 2.0 is not required.
  */
 #if !defined(NO_ARP) && !defined(__amigaos4__)
-# define FEAT_ARP
+#define FEAT_ARP
 #endif
 
 /*
@@ -811,7 +798,7 @@
  * The +channel feature requires +eval.
  */
 #if !defined(FEAT_EVAL) && defined(FEAT_JOB_CHANNEL)
-# undef FEAT_JOB_CHANNEL
+#undef FEAT_JOB_CHANNEL
 #endif
 
 /*
@@ -819,7 +806,7 @@
  *			requires +channel
  */
 #if defined(FEAT_TERMINAL) && !defined(FEAT_JOB_CHANNEL)
-# undef FEAT_TERMINAL
+#undef FEAT_TERMINAL
 #endif
 
 /*
@@ -827,14 +814,14 @@
  *			Adds the ":sign" command.
  */
 #if defined(FEAT_BIG)
-# define FEAT_SIGNS
+#define FEAT_SIGNS
 #endif
 
 /*
  * +autochdir		'autochdir' option.
  */
 #if defined(FEAT_BIG)
-# define FEAT_AUTOCHDIR
+#define FEAT_AUTOCHDIR
 #endif
 
 /*
@@ -842,15 +829,14 @@
  * implementation.
  */
 #ifdef FEAT_NORMAL
-# define FEAT_PERSISTENT_UNDO
+#define FEAT_PERSISTENT_UNDO
 #endif
 
 /*
  * +filterpipe
  */
-#if (defined(UNIX) && !defined(USE_SYSTEM)) \
-	    || (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
-# define FEAT_FILTERPIPE
+#if (defined(UNIX) && !defined(USE_SYSTEM)) || (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
+#define FEAT_FILTERPIPE
 #endif
 
 // ------------------------------------------------
@@ -901,4 +887,3 @@
  */
 #undef FEAT_VTP
 #undef FEAT_XIM
-

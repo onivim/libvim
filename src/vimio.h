@@ -9,11 +9,11 @@
 
 /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
 #if _MSC_VER >= 1400
-# define _CRT_SECURE_NO_DEPRECATE
-# define _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 
 /* cproto fails on missing include files */
 #ifndef PROTO
-# include <io.h>
+#include <io.h>
 #endif

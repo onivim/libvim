@@ -32,7 +32,8 @@ void close_tabpage(tabpage_T *tab);
 tabpage_T *find_tabpage(int n);
 int tabpage_index(tabpage_T *ftp);
 void goto_tabpage(int n);
-void goto_tabpage_tp(tabpage_T *tp, int trigger_enter_autocmds, int trigger_leave_autocmds);
+void goto_tabpage_tp(tabpage_T *tp, int trigger_enter_autocmds,
+                     int trigger_leave_autocmds);
 void goto_tabpage_win(tabpage_T *tp, win_T *wp);
 void tabpage_move(int nr);
 void win_goto(win_T *wp);
@@ -76,14 +77,18 @@ void check_lnums(int do_curwin);
 void reset_lnums(void);
 void make_snapshot(int idx);
 void restore_snapshot(int idx, int close_curwin);
-int switch_win(win_T **save_curwin, tabpage_T **save_curtab, win_T *win, tabpage_T *tp, int no_display);
-int switch_win_noblock(win_T **save_curwin, tabpage_T **save_curtab, win_T *win, tabpage_T *tp, int no_display);
+int switch_win(win_T **save_curwin, tabpage_T **save_curtab, win_T *win,
+               tabpage_T *tp, int no_display);
+int switch_win_noblock(win_T **save_curwin, tabpage_T **save_curtab, win_T *win,
+                       tabpage_T *tp, int no_display);
 void restore_win(win_T *save_curwin, tabpage_T *save_curtab, int no_display);
-void restore_win_noblock(win_T *save_curwin, tabpage_T *save_curtab, int no_display);
+void restore_win_noblock(win_T *save_curwin, tabpage_T *save_curtab,
+                         int no_display);
 void switch_buffer(bufref_T *save_curbuf, buf_T *buf);
 void restore_buffer(bufref_T *save_curbuf);
 int win_hasvertsplit(void);
-int match_add(win_T *wp, char_u *grp, char_u *pat, int prio, int id, list_T *pos_list, char_u *conceal_char);
+int match_add(win_T *wp, char_u *grp, char_u *pat, int prio, int id,
+              list_T *pos_list, char_u *conceal_char);
 int match_delete(win_T *wp, int id, int perr);
 void clear_matches(win_T *wp);
 matchitem_T *get_match(win_T *wp, int id);

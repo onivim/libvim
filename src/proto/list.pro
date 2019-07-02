@@ -30,13 +30,15 @@ int list_insert_tv(list_T *l, typval_T *tv, listitem_T *item);
 void list_insert(list_T *l, listitem_T *ni, listitem_T *item);
 int list_extend(list_T *l1, list_T *l2, listitem_T *bef);
 
-/* Renamed from list_concat -> vim_list_concat due to clash with OCaml namespace */
+/* Renamed from list_concat -> vim_list_concat due to clash with OCaml namespace
+ */
 int vim_list_concat(list_T *l1, list_T *l2, typval_T *tv);
 
 list_T *list_copy(list_T *orig, int deep, int copyID);
 void vimlist_remove(list_T *l, listitem_T *item, listitem_T *item2);
 char_u *list2string(typval_T *tv, int copyID, int restore_copyID);
-int list_join(garray_T *gap, list_T *l, char_u *sep, int echo_style, int restore_copyID, int copyID);
+int list_join(garray_T *gap, list_T *l, char_u *sep, int echo_style,
+              int restore_copyID, int copyID);
 int get_list_tv(char_u **arg, typval_T *rettv, int evaluate);
 int write_list(FILE *fd, list_T *list, int binary);
 void init_static_list(staticList10_T *sl);

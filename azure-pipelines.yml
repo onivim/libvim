@@ -91,3 +91,10 @@ jobs:
   - template: .ci/libvim-test.yml
     parameters:
         testRunner: run-tests.bat
+
+- job: HygieneChecks
+  displayName: "Hygiene Checks"
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  steps:
+  - template: .ci/check-hygiene.yml

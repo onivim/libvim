@@ -26,12 +26,15 @@ void ex_file(exarg_T *eap);
 void ex_update(exarg_T *eap);
 void ex_write(exarg_T *eap);
 int do_write(exarg_T *eap);
-int check_overwrite(exarg_T *eap, buf_T *buf, char_u *fname, char_u *ffname, int other);
+int check_overwrite(exarg_T *eap, buf_T *buf, char_u *fname, char_u *ffname,
+                    int other);
 void ex_wnext(exarg_T *eap);
 void do_wqall(exarg_T *eap);
 int not_writing(void);
-int getfile(int fnum, char_u *ffname_arg, char_u *sfname_arg, int setpm, linenr_T lnum, int forceit);
-int do_ecmd(int fnum, char_u *ffname, char_u *sfname, exarg_T *eap, linenr_T newlnum, int flags, win_T *oldwin);
+int getfile(int fnum, char_u *ffname_arg, char_u *sfname_arg, int setpm,
+            linenr_T lnum, int forceit);
+int do_ecmd(int fnum, char_u *ffname, char_u *sfname, exarg_T *eap,
+            linenr_T newlnum, int flags, win_T *oldwin);
 void ex_append(exarg_T *eap);
 void ex_change(exarg_T *eap);
 void ex_z(exarg_T *eap);
@@ -49,7 +52,8 @@ void ex_help(exarg_T *eap);
 void ex_helpclose(exarg_T *eap);
 char_u *check_help_lang(char_u *arg);
 int help_heuristic(char_u *matched_string, int offset, int wrong_case);
-int find_help_tags(char_u *arg, int *num_matches, char_u ***matches, int keep_lang);
+int find_help_tags(char_u *arg, int *num_matches, char_u ***matches,
+                   int keep_lang);
 void fix_help_buffer(void);
 void ex_exusage(exarg_T *eap);
 void ex_viusage(exarg_T *eap);
