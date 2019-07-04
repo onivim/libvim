@@ -2123,9 +2123,7 @@ static struct modmasktable
         {MOD_MASK_MULTI_CLICK, MOD_MASK_2CLICK, (char_u)'2'},
         {MOD_MASK_MULTI_CLICK, MOD_MASK_3CLICK, (char_u)'3'},
         {MOD_MASK_MULTI_CLICK, MOD_MASK_4CLICK, (char_u)'4'},
-#ifdef MACOS_X
         {MOD_MASK_CMD, MOD_MASK_CMD, (char_u)'D'},
-#endif
         /* 'A' must be the last one */
         {MOD_MASK_ALT, MOD_MASK_ALT, (char_u)'A'},
         {0, 0, NUL}
@@ -2532,11 +2530,7 @@ get_special_key_name(int c, int modifiers)
     }
     if (table_idx < 0 && !vim_isprintc(c) && c < ' ')
     {
-#ifdef EBCDIC
-      c = CtrlChar(c);
-#else
       c += '@';
-#endif
       modifiers |= MOD_MASK_CTRL;
     }
   }
@@ -2806,10 +2800,8 @@ int extract_modifiers(int key, int *modp)
 {
   int modifiers = *modp;
 
-#ifdef MACOS_X
   /* Command-key really special, no fancynest */
   if (!(modifiers & MOD_MASK_CMD))
-#endif
     if ((modifiers & MOD_MASK_SHIFT) && ASCII_ISALPHA(key))
     {
       key = TOUPPER_ASC(key);
@@ -2832,10 +2824,8 @@ int extract_modifiers(int key, int *modp)
     if (key == 0)
       key = K_ZERO;
   }
-#ifdef MACOS_X
   /* Command-key really special, no fancynest */
   if (!(modifiers & MOD_MASK_CMD))
-#endif
     if ((modifiers & MOD_MASK_ALT) && key < 0x80 && !enc_dbcs) // avoid creating a lead byte
     {
       key |= 0x80;
