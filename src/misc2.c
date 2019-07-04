@@ -2543,8 +2543,6 @@ get_special_key_name(int c, int modifiers)
       string[idx++] = (char_u)'-';
     }
 
-  printf("KEY: %s\n", string);
-
   if (table_idx < 0) /* unknown special key, may output t_xx */
   {
     if (IS_SPECIAL(c))
@@ -2571,7 +2569,6 @@ get_special_key_name(int c, int modifiers)
   }
   else /* use name of special key */
   {
-    printf("using name of special key\n");
     size_t len = STRLEN(key_names_table[table_idx].name);
 
     if (len + idx + 2 <= MAX_KEY_NAME_LEN)

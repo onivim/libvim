@@ -862,7 +862,6 @@ executionStatus_T state_edit_execute(void *ctx, int c)
 
 #if defined(FEAT_DIGRAPHS)
   case Ctrl_K: /* digraph or keyword completion */
-    printf("digraph insertion time");
     c = ins_digraph();
     if (c == NUL)
       break;
@@ -2622,18 +2621,13 @@ static void insert_special(int c, int allow_modmask,
   /* Command-key never produces a normal key */
   if (mod_mask & MOD_MASK_CMD)
   {
-    printf("MOD_MASK_CMD\n");
     allow_modmask = TRUE;
   }
   else
   {
-
-    printf("insert special: |%c| allow_modmask: %d\n", c, allow_modmask);
-
     if (IS_SPECIAL(c) || (mod_mask && allow_modmask))
     {
       p = get_special_key_name(c, mod_mask);
-      printf("Special key name: %s\n", p);
       len = (int)STRLEN(p);
       c = p[len - 1];
       if (len > 2)
