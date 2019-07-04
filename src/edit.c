@@ -862,6 +862,7 @@ executionStatus_T state_edit_execute(void *ctx, int c)
 
 #if defined(FEAT_DIGRAPHS)
   case Ctrl_K: /* digraph or keyword completion */
+    printf("digraph insertion time");
     c = ins_digraph();
     if (c == NUL)
       break;

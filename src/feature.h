@@ -840,6 +840,11 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #endif
 
 // ------------------------------------------------
+// Temporarily disabled features
+// ------------------------------------------------
+#undef FEAT_DIGRAPHS
+
+// ------------------------------------------------
 // Features in the process of removing for 'libvim'
 // ------------------------------------------------
 #undef FEAT_AUTOSERVERNAME
