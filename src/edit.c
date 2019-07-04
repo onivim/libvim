@@ -2619,28 +2619,36 @@ static void insert_special(int c, int allow_modmask,
    * Only use mod_mask for special keys, to avoid things like <S-Space>,
    * unless 'allow_modmask' is TRUE.
    */
-#ifdef MACOS_X
   /* Command-key never produces a normal key */
   if (mod_mask & MOD_MASK_CMD)
-    allow_modmask = TRUE;
-#endif
-  if (IS_SPECIAL(c) || (mod_mask && allow_modmask))
   {
-    p = get_special_key_name(c, mod_mask);
-    len = (int)STRLEN(p);
-    c = p[len - 1];
-    if (len > 2)
-    {
-      if (stop_arrow() == FAIL)
-        return;
-      p[len - 1] = NUL;
-      ins_str(p);
-      AppendToRedobuffLit(p, -1);
-      ctrlv = FALSE;
-    }
+    printf("MOD_MASK_CMD\n");
+    allow_modmask = TRUE;
   }
-  if (stop_arrow() == OK)
-    insertchar(c, ctrlv ? INSCHAR_CTRLV : 0, -1);
+  else
+  {
+
+    printf("insert special: |%c| allow_modmask: %d\n", c, allow_modmask);
+
+    if (IS_SPECIAL(c) || (mod_mask && allow_modmask))
+    {
+      p = get_special_key_name(c, mod_mask);
+      printf("Special key name: %s\n", p);
+      len = (int)STRLEN(p);
+      c = p[len - 1];
+      if (len > 2)
+      {
+        if (stop_arrow() == FAIL)
+          return;
+        p[len - 1] = NUL;
+        ins_str(p);
+        AppendToRedobuffLit(p, -1);
+        ctrlv = FALSE;
+      }
+    }
+    if (stop_arrow() == OK)
+      insertchar(c, ctrlv ? INSCHAR_CTRLV : 0, -1);
+  }
 }
 
 /*

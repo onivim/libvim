@@ -16,11 +16,20 @@ void test_teardown(void) {}
 
 MU_TEST(test_cmd_key_insert)
 {
-
   vimInput("o");
   vimInput("<D-A>");
 
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "") == 0);
+}
+
+MU_TEST(test_cmd_key_binding)
+{
+  vimExecute("inoremap <D-A> b");
+
+  vimInput("o");
+  vimInput("<D-A>");
+
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "b") == 0);
 }
 
 MU_TEST(test_arrow_keys_normal)
@@ -51,6 +60,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_arrow_keys_normal);
   MU_RUN_TEST(test_cmd_key_insert);
+  MU_RUN_TEST(test_cmd_key_binding);
 }
 
 int main(int argc, char **argv)
