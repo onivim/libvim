@@ -49,7 +49,7 @@ EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
-EXTERN QuitCallback quitCallback INIT=(NULL);
+EXTERN QuitCallback quitCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine
