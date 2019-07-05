@@ -2386,6 +2386,7 @@ typedef struct
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
+typedef void (*DirectoryChangedCallback)(char_u *path);
 
 #ifdef FEAT_DIFF
 /*

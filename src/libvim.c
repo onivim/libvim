@@ -56,6 +56,11 @@ void vimSetMessageCallback(MessageCallback f)
   messageCallback = f;
 }
 
+void vimSetDirectoryChangedCallback(DirectoryChangedCallback f)
+{
+  directoryChangedCallback = f;
+}
+
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
 char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }

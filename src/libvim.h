@@ -81,6 +81,12 @@ void vimExecute(char_u *cmd);
 
 void vimSetMessageCallback(MessageCallback messageCallback);
 
+/**
+ * Misc
+ **/
+
+void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
+
 /***
  * Options
  **/

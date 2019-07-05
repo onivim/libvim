@@ -7232,6 +7232,11 @@ int changedir_func(
 
     post_chdir(scope);
 
+    if (directoryChangedCallback != NULL)
+    {
+      directoryChangedCallback(new_dir);
+    }
+
     if (dir_differs)
     {
       if (scope == CDSCOPE_WINDOW)
