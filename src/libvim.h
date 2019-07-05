@@ -86,6 +86,7 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  **/
 
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
+void vimSetQuitCallback(QuitCallback callback);
 
 /*
  * vimSetQuitCallback
