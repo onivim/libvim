@@ -5977,6 +5977,9 @@ int ins_eol(int c)
    * in open_line().
    */
 
+  int prev_indent = get_indent();
+  char_u cur = *ml_get_cursor();
+
   /* Put cursor on NUL if on the last char and coladd is 1 (happens after
    * CTRL-O). */
   if (virtual_active() && curwin->w_cursor.coladd > 0)
@@ -5996,6 +5999,21 @@ int ins_eol(int c)
 #endif
                                                0,
                 old_indent);
+
+  /* If a closing pair, and we pressed enter, split up lines */
+  if (acp_is_closing_pair(cur)) {
+  i = open_line(FORWARD,
+#ifdef FEAT_COMMENTS
+                has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
+#endif
+                                               0,
+                old_indent);
+
+      set_indent(prev_indent, SIN_INSERT);
+      cursor_up(1, FALSE);
+      shift_line(FALSE, p_sr, 1, FALSE);
+  }
+
   old_indent = 0;
 #ifdef FEAT_FOLDING
   /* When inserting a line the cursor line must never be in a closed fold. */
