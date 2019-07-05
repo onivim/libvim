@@ -18,7 +18,7 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
-static int oneright2(allowMoveToNull);
+int oneright2(int allowMoveToNull);
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -954,7 +954,7 @@ executionStatus_T state_edit_execute(void *ctx, int c)
         if (acp_is_opening_pair(c)) {
           char_u close = acp_get_closing_character(c);
           ins_char(close);
-          one_left();
+          oneleft();
         }
       }
 #ifdef FEAT_RIGHTLEFT
@@ -2827,7 +2827,6 @@ void insertchar(int c,             /* character to insert or NUL */
         redo_literal(c);
       else
         AppendCharToRedobuff(c);
-    }
 }
 
 /*
@@ -3722,7 +3721,7 @@ void beginline(int flags)
  * Return OK when successful, FAIL when we hit a line of file boundary.
  */
 
-int oneright2(int allowMoveToNULL)
+int oneright2(int allowMoveToNull)
 {
   char_u *ptr;
   int l;

@@ -37,7 +37,7 @@ typedef enum
   MSG_ERROR,
 } msgPriority_T;
 
-typedef enum
+typedef struct
 {
   char open;
   char close;
