@@ -290,6 +290,7 @@ EXTERN long p_aleph; /* 'aleph' */
 #ifdef FEAT_AUTOCHDIR
 EXTERN int p_acd; /* 'autochdir' */
 #endif
+EXTERN int p_acp; /* 'autoclosingpairs' */
 EXTERN char_u *p_ambw;  /* 'ambiwidth' */
 EXTERN char_u *p_emoji; /* 'emoji' */
 #if defined(FEAT_GUI) && defined(MACOS_X)

@@ -51,6 +51,7 @@ extern int _stricoll(char *a, char *b);
 #endif
 
 #include "autocmd.pro"
+#include "auto_closing_pairs.pro"
 #include "buffer.pro"
 #include "change.pro"
 #include "charset.pro"

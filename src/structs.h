@@ -37,6 +37,12 @@ typedef enum
   MSG_ERROR,
 } msgPriority_T;
 
+typedef enum
+{
+  char open;
+  char close;
+} autoClosingPair_T;
+
 typedef struct
 {
   sds contents;
