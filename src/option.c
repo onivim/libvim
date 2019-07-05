@@ -348,12 +348,11 @@ struct vimoption
 #define VI_DEFAULT 0  /* def_val[VI_DEFAULT] is Vi default value */
 #define VIM_DEFAULT 1 /* def_val[VIM_DEFAULT] is Vim default value */
 
+// clang-format off
+
 /*
  * Flags
  */
-
-// clang-format off
-
 #define P_BOOL 0x01        /* the option is boolean */
 #define P_NUM 0x02         /* the option is numeric */
 #define P_STRING 0x04      /* the option is a string */
@@ -398,9 +397,9 @@ struct vimoption
 #define P_RWINONLY 0x10000000L /* only redraw current window */
 #define P_MLE 0x20000000L      /* under control of 'modelineexpr' */
 
-#define ISK_LATIN1 (char_u *)"@,48-57,_,192-255"
-
 // clang-format on
+
+#define ISK_LATIN1 (char_u *)"@,48-57,_,192-255"
 
 /* 'isprint' for latin1 is also used for MS-Windows cp1252, where 0x80 is used
  * for the currency sign. */
@@ -502,6 +501,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
+        {"autoclosingpairs", "acp", P_BOOL | P_VI_DEF, (char_u *)&p_acp, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"autoindent", "ai", P_BOOL | P_VI_DEF, (char_u *)&p_ai, PV_AI, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"autoprint", "ap", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"autoread", "ar", P_BOOL | P_VI_DEF, (char_u *)&p_ar, PV_AR, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},

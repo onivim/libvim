@@ -555,6 +555,7 @@ CUIOBJ = $(OUTDIR)/iscygpty.o
 OBJ = \
 	$(OUTDIR)/arabic.o \
 	$(OUTDIR)/autocmd.o \
+	$(OUTDIR)/auto_closing_pairs.o \
 	$(OUTDIR)/blob.o \
 	$(OUTDIR)/buffer.o \
 	$(OUTDIR)/change.o \
