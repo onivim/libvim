@@ -1949,7 +1949,7 @@ static struct vimoption options[] =
         {"showmatch", "sm", P_BOOL | P_VI_DEF, (char_u *)&p_sm, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"showmode", "smd", P_BOOL | P_VIM, (char_u *)&p_smd, PV_NONE, {(char_u *)FALSE, (char_u *)TRUE} SCTX_INIT},
         {"showtabline", "stal", P_NUM | P_VI_DEF | P_RALL, (char_u *)&p_stal, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
-        {"sidescroll", "ss", P_NUM | P_VI_DEF, (char_u *)&p_ss, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
+        {"sidescroll", "ss", P_NUM | P_VI_DEF, (char_u *)&p_ss, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
         {"sidescrolloff", "siso", P_NUM | P_VI_DEF | P_VIM | P_RBUF, (char_u *)&p_siso, PV_SISO, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"signcolumn", "scl", P_STRING | P_ALLOCED | P_VI_DEF | P_RWIN,
 #ifdef FEAT_SIGNS
