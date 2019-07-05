@@ -3754,7 +3754,7 @@ int oneright2(int allowMoveToNull)
 
   /* move "l" bytes right, but don't end up on the NUL, unless 'virtualedit'
    * contains "onemore". */
-  if (ptr[l] == NUL && ((ve_flags & VE_ONEMORE) == 0) && allowMoveToNull != TRUE)
+  if (ptr[l] == NUL && (((ve_flags & VE_ONEMORE) == 0) && allowMoveToNull != TRUE))
     return FAIL;
   curwin->w_cursor.col += l;
 
