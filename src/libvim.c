@@ -268,7 +268,8 @@ int vimWindowGetHeight(void) { return curwin->w_height; }
 int vimWindowGetTopLine(void) { return curwin->w_topline; }
 int vimWindowGetLeftColumn(void) { return curwin->w_leftcol; }
 
-void vimWindowSetTopLeft(int top, int left) {
+void vimWindowSetTopLeft(int top, int left)
+{
   curwin->w_topline = top;
   curwin->w_leftcol = left;
   curs_columns(TRUE);
