@@ -5563,30 +5563,12 @@ ex_quit(exarg_T *eap)
   if (before_quit_autocmds(wp, FALSE, eap->forceit))
     return;
 
-  /*
-     * If there are more files or windows we won't exit.
-     */
-  if (check_more(FALSE, eap->forceit) == OK && only_one_window())
-    exiting = TRUE;
-  if ((!buf_hide(wp->w_buffer) && check_changed(wp->w_buffer, (p_awa ? CCGD_AW : 0) | (eap->forceit ? CCGD_FORCEIT : 0) | CCGD_EXCMD)) || check_more(TRUE, eap->forceit) == FAIL || (only_one_window() && check_changed_any(eap->forceit, TRUE)))
+  if (quitCallback != NULL)
   {
-    not_exiting();
+     quitCallback(wp->w_buffer, eap->forceit);
   }
-  else
-  {
-    /* quit last window
-	 * Note: only_one_window() returns true, even so a help window is
-	 * still open. In that case only quit, if no address has been
-	 * specified. Example:
-	 * :h|wincmd w|1q     - don't quit
-	 * :h|wincmd w|q      - quit
-	 */
-    if (only_one_window() && (ONE_WINDOW || eap->addr_count == 0))
-      getout(0);
-    not_exiting();
-    /* close window; may free buffer */
-    win_close(wp, !buf_hide(wp->w_buffer) || eap->forceit);
-  }
+
+  not_exiting();
 }
 
 /*
@@ -5616,9 +5598,13 @@ ex_quit_all(exarg_T *eap)
     return;
 
   exiting = TRUE;
-  if (eap->forceit || !check_changed_any(FALSE, FALSE))
-    getout(0);
+
+  if (quitCallback != NULL) {
+    quitCallback(NULL, eap->forceit);
+  }
+  
   not_exiting();
+  
 }
 
 /*
@@ -5978,21 +5964,7 @@ ex_hide(exarg_T *eap UNUSED)
 static void
 ex_stop(exarg_T *eap)
 {
-  /*
-     * Disallow suspending for "rvim".
-     */
-  if (!check_restricted())
-  {
-    if (!eap->forceit)
-      autowrite_all();
-    windgoto((int)Rows - 1, 0);
-    stoptermcap();
-    ui_suspend(); /* call machine specific function */
-    starttermcap();
-    scroll_start(); /* scroll screen before redrawing */
-    redraw_later_clear();
-    shell_resized(); /* may have resized window */
-  }
+  /* libvim - noop */
 }
 
 /*
@@ -6022,11 +5994,11 @@ ex_exit(exarg_T *eap)
   }
   else
   {
-    if (only_one_window()) /* quit last window, exit Vim */
-      getout(0);
+     if (quitCallback != NULL) {
+       quitCallback(curbuf, eap->forceit);
+     }
+     
     not_exiting();
-    /* Quit current window, may free the buffer. */
-    win_close(curwin, !buf_hide(curwin->w_buffer));
   }
 }
 

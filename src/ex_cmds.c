@@ -3440,8 +3440,9 @@ void do_wqall(exarg_T *eap)
   }
   if (exiting)
   {
-    if (!error)
-      getout(0); /* exit Vim */
+    if (quitCallback != NULL) {
+      quitCallback(NULL, eap->forceit);
+    }
     not_exiting();
   }
 }
