@@ -41,12 +41,32 @@ MU_TEST(test_q_force)
   mu_check(lastForce == TRUE);
 }
 
+MU_TEST(test_xall)
+{
+  vimExecute("xall");
+  
+  mu_check(quitCount == 1);
+  mu_check(lastQuitBuf == NULL);
+  mu_check(lastForce == FALSE);
+}
+
+MU_TEST(test_xit)
+{
+  vimExecute("xit!");
+  
+  mu_check(quitCount == 1);
+  mu_check(lastQuitBuf == curbuf);
+  mu_check(lastForce == TRUE);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_q);
   MU_RUN_TEST(test_q_force);
+  MU_RUN_TEST(test_xall);
+  MU_RUN_TEST(test_xit);
 }
 
 int main(int argc, char **argv)
