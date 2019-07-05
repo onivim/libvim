@@ -128,6 +128,7 @@ void vimInput(char_u *input)
   }
 
   update_curswant();
+  curs_columns(TRUE);
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }

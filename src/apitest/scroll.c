@@ -131,6 +131,72 @@ MU_TEST(test_only_scroll_at_boundary)
   mu_check(vimWindowGetTopLine() == 2);
 }
 
+MU_TEST(test_no_scroll_after_setting_topline) 
+{
+  vimWindowSetWidth(10);
+  vimWindowSetHeight(10);
+  
+  pos_T pos;
+  pos.lnum = 95;
+  pos.col = 1;
+
+  vimCursorSetPosition(pos);
+
+  vimWindowSetTopLeft(90, 1);
+
+  mu_check(vimWindowGetTopLine() == 90);
+  vimInput("j");
+  
+  mu_check(vimWindowGetTopLine() == 90);
+  mu_check(vimCursorGetLine() == 96);
+}
+
+MU_TEST(test_scroll_left_at_boundary) 
+{
+  vimWindowSetWidth(4);
+  vimWindowSetHeight(10);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 0);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 0);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 0);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 1);
+  
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 2);
+}
+
+MU_TEST(test_no_scroll_after_setting_left) 
+{
+  vimWindowSetWidth(4);
+  vimWindowSetHeight(10);
+
+  pos_T pos;
+  pos.lnum = 99;
+  pos.col = 2;
+  vimCursorSetPosition(pos);
+
+  vimWindowSetTopLeft(1, 2);
+  
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 2);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 2);
+
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 2);
+  
+  vimInput("l");
+  mu_check(vimWindowGetLeftColumn() == 3);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -140,6 +206,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_small_screen_scroll);
   MU_RUN_TEST(test_h_m_l);
   MU_RUN_TEST(test_only_scroll_at_boundary);
+  MU_RUN_TEST(test_no_scroll_after_setting_topline);
+  MU_RUN_TEST(test_scroll_left_at_boundary);
+  MU_RUN_TEST(test_no_scroll_after_setting_left);
 }
 
 int main(int argc, char **argv)
