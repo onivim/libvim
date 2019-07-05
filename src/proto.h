@@ -50,8 +50,8 @@ extern int _stricoll(char *a, char *b);
 #include "os_beos.pro"
 #endif
 
-#include "autocmd.pro"
 #include "auto_closing_pairs.pro"
+#include "autocmd.pro"
 #include "buffer.pro"
 #include "change.pro"
 #include "charset.pro"

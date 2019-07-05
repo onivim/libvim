@@ -946,12 +946,16 @@ executionStatus_T state_edit_execute(void *ctx, int c)
          c != Ctrl_RSB))
     {
 
-      if (acp_is_closing_pair(c) && (*ml_get_cursor() == c)) {
+      if (acp_is_closing_pair(c) && (*ml_get_cursor() == c))
+      {
         AppendCharToRedobuff(c);
         oneright2(TRUE);
-      } else {
+      }
+      else
+      {
         insert_special(c, FALSE, FALSE);
-        if (acp_is_opening_pair(c)) {
+        if (acp_is_opening_pair(c))
+        {
           char_u close = acp_get_closing_character(c);
           ins_char(close);
           oneleft();
@@ -2822,11 +2826,11 @@ void insertchar(int c,             /* character to insert or NUL */
    * Do the check for InsertCharPre before the call to vpeekc() because the
    * InsertCharPre autocommand could change the input buffer.
    */
-      ins_char(c);
-      if (flags & INSCHAR_CTRLV)
-        redo_literal(c);
-      else
-        AppendCharToRedobuff(c);
+  ins_char(c);
+  if (flags & INSCHAR_CTRLV)
+    redo_literal(c);
+  else
+    AppendCharToRedobuff(c);
 }
 
 /*
@@ -3762,7 +3766,8 @@ int oneright2(int allowMoveToNull)
   return OK;
 }
 
-int oneright(void) {
+int oneright(void)
+{
   return oneright2(FALSE);
 }
 
@@ -5208,13 +5213,18 @@ static int ins_bs(int c, int mode, int *inserted_space_p)
        * happen when using 'sts' and 'linebreak'. */
       if (vcol >= start_vcol)
         ins_bs_one(&vcol);
-    } else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0) {
+    }
+    else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0)
+    {
       colnr_T vcol;
-      if (acp_is_cursor_between_pair()) {
-      getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
-      ins_bs_one(&vcol);
-      del_char(TRUE);
-      } else {
+      if (acp_is_cursor_between_pair())
+      {
+        getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
+        ins_bs_one(&vcol);
+        del_char(TRUE);
+      }
+      else
+      {
         getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
         ins_bs_one(&vcol);
       }
@@ -6001,17 +6011,18 @@ int ins_eol(int c)
                 old_indent);
 
   /* If a closing pair, and we pressed enter, split up lines */
-  if (acp_is_closing_pair(cur)) {
-  i = open_line(FORWARD,
+  if (acp_is_closing_pair(cur))
+  {
+    i = open_line(FORWARD,
 #ifdef FEAT_COMMENTS
-                has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
+                  has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
 #endif
-                                               0,
-                old_indent);
+                                                 0,
+                  old_indent);
 
-      set_indent(prev_indent, SIN_INSERT);
-      cursor_up(1, FALSE);
-      shift_line(FALSE, p_sr, 1, FALSE);
+    set_indent(prev_indent, SIN_INSERT);
+    cursor_up(1, FALSE);
+    shift_line(FALSE, p_sr, 1, FALSE);
   }
 
   old_indent = 0;

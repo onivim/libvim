@@ -2,7 +2,8 @@
 #include "minunit.h"
 #include "vim.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -28,7 +29,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_matching_pair_undo_redo) {
+MU_TEST(test_matching_pair_undo_redo)
+{
   vimInput("i");
   vimInput("{");
   vimInput("[");
@@ -46,7 +48,8 @@ MU_TEST(test_matching_pair_undo_redo) {
                   "{[]}This is the first line of a test file") == 0);
 }
 
-MU_TEST(test_matching_pair_dot) {
+MU_TEST(test_matching_pair_dot)
+{
   vimInput("A");
   vimInput("a");
   vimInput("b");
@@ -73,7 +76,8 @@ MU_TEST(test_matching_pair_dot) {
                   "This is the third line of a test fileabc{[{d}]}") == 0);
 }
 
-MU_TEST(test_matching_pair_macro) {
+MU_TEST(test_matching_pair_macro)
+{
   vimInput("q");
   vimInput("a");
   vimInput("I");
@@ -103,7 +107,8 @@ MU_TEST(test_matching_pair_macro) {
                   "{[d]}This is the third line of a test file") == 0);
 }
 
-MU_TEST(test_backspace_matching_pair) {
+MU_TEST(test_backspace_matching_pair)
+{
   vimInput("i");
   vimInput("{");
   vimInput("[");
@@ -120,7 +125,8 @@ MU_TEST(test_backspace_matching_pair) {
                   "This is the first line of a test file") == 0);
 }
 
-MU_TEST(test_enter_between_pairs) {
+MU_TEST(test_enter_between_pairs)
+{
   vimInput("I");
   vimInput("{");
   vimInput("<cr>");
@@ -136,7 +142,8 @@ MU_TEST(test_enter_between_pairs) {
                   "This is the second line of a test file") == 0);
 }
 
-MU_TEST(test_enter_between_pairs_undo) {
+MU_TEST(test_enter_between_pairs_undo)
+{
   vimInput("I");
   vimInput("{");
   vimInput("<cr>");
@@ -169,7 +176,8 @@ MU_TEST(test_enter_between_pairs_undo) {
                   "This is the second line of a test file") == 0);
 }
 
-MU_TEST(test_enter_between_pairs_dot) {
+MU_TEST(test_enter_between_pairs_dot)
+{
   vimInput("I");
   vimInput("{");
   vimInput("<cr>");
@@ -192,7 +200,8 @@ MU_TEST(test_enter_between_pairs_dot) {
                   "}This is the second line of a test file") == 0);
 }
 
-MU_TEST(test_pass_through_in_pairs) {
+MU_TEST(test_pass_through_in_pairs)
+{
   vimInput("I");
   vimInput("{");
   vimInput("}");
@@ -209,7 +218,8 @@ MU_TEST(test_pass_through_in_pairs) {
                   "{}aThis is the second line of a test file") == 0);
 }
 
-MU_TEST(test_pass_through_in_pairs_undo_redo) {
+MU_TEST(test_pass_through_in_pairs_undo_redo)
+{
   vimInput("I");
   vimInput("{");
   vimInput("}");
@@ -225,11 +235,12 @@ MU_TEST(test_pass_through_in_pairs_undo_redo) {
                   "{}aThis is the first line of a test file") == 0);
 }
 
-MU_TEST(test_matching_pair_double_quotes) {
+MU_TEST(test_matching_pair_double_quotes)
+{
   vimInput("I");
   vimInput("\"");
   vimInput("a");
-  
+
   mu_check(strcmp(vimBufferGetLine(curbuf, 1),
                   "\"a\"This is the first line of a test file") == 0);
   vimInput("\"");
@@ -238,7 +249,6 @@ MU_TEST(test_matching_pair_double_quotes) {
 
   mu_check(strcmp(vimBufferGetLine(curbuf, 1),
                   "\"a\"bThis is the first line of a test file") == 0);
-  
 
   vimInput("u");
   mu_check(strcmp(vimBufferGetLine(curbuf, 1),
@@ -249,7 +259,8 @@ MU_TEST(test_matching_pair_double_quotes) {
                   "\"a\"bThis is the first line of a test file") == 0);
 }
 
-MU_TEST(test_setting_acp_option) {
+MU_TEST(test_setting_acp_option)
+{
   vimExecute("set autoclosingpairs");
   mu_check(p_acp == TRUE);
 
@@ -263,22 +274,25 @@ MU_TEST(test_setting_acp_option) {
   mu_check(p_acp == FALSE);
 }
 
-MU_TEST(test_acp_should_pass_through) {
+MU_TEST(test_acp_should_pass_through)
+{
   mu_check(acp_should_pass_through('a') == FALSE);
 }
 
-MU_TEST(test_pass_through_last_character) {
+MU_TEST(test_pass_through_last_character)
+{
   vimInput("o");
   vimInput("{");
   vimInput("}");
   vimInput("a");
   vimInput("<esc>");
-  
+
   mu_check(strcmp(vimBufferGetLine(curbuf, 2),
                   "{}a") == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_setting_acp_option);
@@ -296,7 +310,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_pass_through_last_character);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
