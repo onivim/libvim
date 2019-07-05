@@ -86,6 +86,19 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  **/
 
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
+void vimSetQuitCallback(QuitCallback callback);
+
+/*
+ * vimSetQuitCallback
+ *
+ * Called when a `:q`, `:qa`, `:q!` is called
+ * 
+ * It is up to the libvim consumer how to handle the 'quit' call.
+ * There are two arguments passed:
+ * - `buffer`: the buffer quit was requested for
+ * - `force`: a boolean if the command was forced (ie, if `q!` was used)
+ */
+void vimSetQuitCallback(QuitCallback callback);
 
 /***
  * Options
