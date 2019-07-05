@@ -5565,7 +5565,7 @@ ex_quit(exarg_T *eap)
 
   if (quitCallback != NULL)
   {
-     quitCallback(wp->w_buffer, eap->forceit);
+    quitCallback(wp->w_buffer, eap->forceit);
   }
 
   not_exiting();
@@ -5599,12 +5599,12 @@ ex_quit_all(exarg_T *eap)
 
   exiting = TRUE;
 
-  if (quitCallback != NULL) {
+  if (quitCallback != NULL)
+  {
     quitCallback(NULL, eap->forceit);
   }
-  
+
   not_exiting();
-  
 }
 
 /*
@@ -5994,10 +5994,11 @@ ex_exit(exarg_T *eap)
   }
   else
   {
-     if (quitCallback != NULL) {
-       quitCallback(curbuf, eap->forceit);
-     }
-     
+    if (quitCallback != NULL)
+    {
+      quitCallback(curbuf, eap->forceit);
+    }
+
     not_exiting();
   }
 }

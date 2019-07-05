@@ -3440,7 +3440,8 @@ void do_wqall(exarg_T *eap)
   }
   if (exiting)
   {
-    if (quitCallback != NULL) {
+    if (quitCallback != NULL)
+    {
       quitCallback(NULL, eap->forceit);
     }
     not_exiting();
