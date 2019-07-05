@@ -18,6 +18,7 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
+static int oneright2(allowMoveToNull);
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -944,7 +945,18 @@ executionStatus_T state_edit_execute(void *ctx, int c)
              (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
          c != Ctrl_RSB))
     {
-      insert_special(c, FALSE, FALSE);
+
+      if (acp_is_closing_pair(c) && (*ml_get_cursor() == c)) {
+        AppendCharToRedobuff(c);
+        oneright2(TRUE);
+      } else {
+        insert_special(c, FALSE, FALSE);
+        if (acp_is_opening_pair(c)) {
+          char_u close = acp_get_closing_character(c);
+          ins_char(close);
+          one_left();
+        }
+      }
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
       revins_chars++;
@@ -2798,6 +2810,7 @@ void insertchar(int c,             /* character to insert or NUL */
   can_si_back = FALSE;
 #endif
 
+  /* LIBVIM todo - this breaks auto-closing pairs */
   /*
    * If there's any pending input, grab up to INPUT_BUFLEN at once.
    * This speeds up normal text input considerably.
@@ -2809,84 +2822,12 @@ void insertchar(int c,             /* character to insert or NUL */
    * Do the check for InsertCharPre before the call to vpeekc() because the
    * InsertCharPre autocommand could change the input buffer.
    */
-  if (!ISSPECIAL(c) && (!has_mbyte || (*mb_char2len)(c) == 1) &&
-      !has_insertcharpre() && vpeekc() != NUL && !(State & REPLACE_FLAG)
-#ifdef FEAT_RIGHTLEFT
-      && !p_ri
-#endif
-  )
-  {
-#define INPUT_BUFLEN 100
-    char_u buf[INPUT_BUFLEN + 1];
-    int i;
-    colnr_T virtcol = 0;
-
-    buf[0] = c;
-    i = 1;
-    if (textwidth > 0)
-      virtcol = get_nolist_virtcol();
-    /*
-     * Stop the string when:
-     * - no more chars available
-     * - finding a special character (command key)
-     * - buffer is full
-     * - running into the 'textwidth' boundary
-     * - need to check for abbreviation: A non-word char after a word-char
-     */
-    while ((c = vpeekc()) != NUL && !ISSPECIAL(c) &&
-           (!has_mbyte || MB_BYTE2LEN_CHECK(c) == 1) && i < INPUT_BUFLEN &&
-           (textwidth == 0 ||
-            (virtcol += byte2cells(buf[i - 1])) < (colnr_T)textwidth) &&
-           !(!no_abbr && !vim_iswordc(c) && vim_iswordc(buf[i - 1])))
-    {
-#ifdef FEAT_RIGHTLEFT
-      c = vgetc();
-      if (p_hkmap && KeyTyped)
-        c = hkmap(c); /* Hebrew mode mapping */
-      buf[i++] = c;
-#else
-      buf[i++] = vgetc();
-#endif
-    }
-
-#ifdef FEAT_DIGRAPHS
-    do_digraph(-1);         /* clear digraphs */
-    do_digraph(buf[i - 1]); /* may be the start of a digraph */
-#endif
-    buf[i] = NUL;
-    ins_str(buf);
-    if (flags & INSCHAR_CTRLV)
-    {
-      redo_literal(*buf);
-      i = 1;
-    }
-    else
-      i = 0;
-    if (buf[i] != NUL)
-      AppendToRedobuffLit(buf + i, -1);
-  }
-  else
-  {
-    int cc;
-
-    if (has_mbyte && (cc = (*mb_char2len)(c)) > 1)
-    {
-      char_u buf[MB_MAXBYTES + 1];
-
-      (*mb_char2bytes)(c, buf);
-      buf[cc] = NUL;
-      ins_char_bytes(buf, cc);
-      AppendCharToRedobuff(c);
-    }
-    else
-    {
       ins_char(c);
       if (flags & INSCHAR_CTRLV)
         redo_literal(c);
       else
         AppendCharToRedobuff(c);
     }
-  }
 }
 
 /*
@@ -3781,7 +3722,7 @@ void beginline(int flags)
  * Return OK when successful, FAIL when we hit a line of file boundary.
  */
 
-int oneright(void)
+int oneright2(int allowMoveToNULL)
 {
   char_u *ptr;
   int l;
@@ -3814,12 +3755,16 @@ int oneright(void)
 
   /* move "l" bytes right, but don't end up on the NUL, unless 'virtualedit'
    * contains "onemore". */
-  if (ptr[l] == NUL && (ve_flags & VE_ONEMORE) == 0)
+  if (ptr[l] == NUL && ((ve_flags & VE_ONEMORE) == 0) && allowMoveToNull != TRUE)
     return FAIL;
   curwin->w_cursor.col += l;
 
   curwin->w_set_curswant = TRUE;
   return OK;
+}
+
+int oneright(void) {
+  return oneright2(FALSE);
 }
 
 int oneleft(void)
@@ -5264,6 +5209,16 @@ static int ins_bs(int c, int mode, int *inserted_space_p)
        * happen when using 'sts' and 'linebreak'. */
       if (vcol >= start_vcol)
         ins_bs_one(&vcol);
+    } else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0) {
+      colnr_T vcol;
+      if (acp_is_cursor_between_pair()) {
+      getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
+      ins_bs_one(&vcol);
+      del_char(TRUE);
+      } else {
+        getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
+        ins_bs_one(&vcol);
+      }
     }
 
     /*
