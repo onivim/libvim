@@ -1026,12 +1026,6 @@ static RETSIGTYPE
 
   /* NOTREACHED */
 
-#ifdef NBDEBUG
-  reset_signals();
-  may_core_dump();
-  abort();
-#endif
-
   SIGRETURN;
 }
 

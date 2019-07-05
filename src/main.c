@@ -874,14 +874,6 @@ void common_init(mparm_T *paramp)
     mch_exit(0);
   TIME_MSG("Allocated generic buffers");
 
-#ifdef NBDEBUG
-  /* Wait a moment for debugging NetBeans.  Must be after allocating
-     * NameBuff. */
-  nbdebug_log_init("SPRO_GVIM_DEBUG", "SPRO_GVIM_DLEVEL");
-  nbdebug_wait(WT_ENV | WT_WAIT | WT_STOP, "SPRO_GVIM_WAIT", 20);
-  TIME_MSG("NetBeans debug wait");
-#endif
-
 #if defined(HAVE_LOCALE_H) || defined(X_LOCALE)
   /*
      * Setup to use the current locale (for ctype() and many other things).
