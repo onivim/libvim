@@ -35,7 +35,7 @@ MU_TEST(test_q)
 MU_TEST(test_q_force)
 {
   vimExecute("q!");
-  
+
   mu_check(quitCount == 1);
   mu_check(lastQuitBuf == curbuf);
   mu_check(lastForce == TRUE);
@@ -44,7 +44,7 @@ MU_TEST(test_q_force)
 MU_TEST(test_xall)
 {
   vimExecute("xall");
-  
+
   mu_check(quitCount == 1);
   mu_check(lastQuitBuf == NULL);
   mu_check(lastForce == FALSE);
@@ -53,7 +53,7 @@ MU_TEST(test_xall)
 MU_TEST(test_xit)
 {
   vimExecute("xit!");
-  
+
   mu_check(quitCount == 1);
   mu_check(lastQuitBuf == curbuf);
   mu_check(lastForce == TRUE);
