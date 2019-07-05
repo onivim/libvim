@@ -58,7 +58,7 @@ MU_TEST(test_tabnew) {
   mu_check(lastSplitType == TAB_PAGE);
 }
 
-MU_TEST(test_win_move_down) {
+MU_TEST(test_win_movements) {
 
   printf("Entering <c-w>\n");
   vimInput("<c-w>");
@@ -67,6 +67,52 @@ MU_TEST(test_win_move_down) {
 
   mu_check(lastMovement  == ONE_DOWN);
   mu_check(lastMovementCount == 1);
+  
+  vimInput("<c-w>");
+  vimInput("k");
+  
+  mu_check(lastMovement  == ONE_UP);
+  mu_check(lastMovementCount == 1);
+  
+  vimInput("<c-w>");
+  vimInput("h");
+  
+  mu_check(lastMovement  == ONE_LEFT);
+  mu_check(lastMovementCount == 1);
+  
+  vimInput("<c-w>");
+  vimInput("l");
+  
+  mu_check(lastMovement  == ONE_RIGHT);
+  mu_check(lastMovementCount == 1);
+}
+
+MU_TEST(test_win_move_count_before) {
+  vimInput("2");
+  vimInput("<c-w>");
+  vimInput("k");
+  
+  mu_check(lastMovement  == ONE_UP);
+  mu_check(lastMovementCount == 2);
+}
+
+MU_TEST(test_win_move_count_after) {
+  vimInput("<c-w>");
+  vimInput("4");
+  vimInput("k");
+  
+  mu_check(lastMovement  == ONE_UP);
+  mu_check(lastMovementCount == 4);
+}
+
+MU_TEST(test_win_move_count_before_and_after) {
+  vimInput("3");
+  vimInput("<c-w>");
+  vimInput("5");
+  vimInput("k");
+  
+  mu_check(lastMovement  == ONE_UP);
+  mu_check(lastMovementCount == 35);
 }
 
 MU_TEST_SUITE(test_suite) {
@@ -75,7 +121,10 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_vsplit);
   MU_RUN_TEST(test_hsplit);
   MU_RUN_TEST(test_tabnew);
-  MU_RUN_TEST(test_win_move_down);
+  MU_RUN_TEST(test_win_movements);
+  MU_RUN_TEST(test_win_move_count_before);
+  MU_RUN_TEST(test_win_move_count_after);
+  MU_RUN_TEST(test_win_move_count_before_and_after);
 }
 
 int main(int argc, char **argv) {
