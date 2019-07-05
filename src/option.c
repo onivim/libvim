@@ -327,14 +327,14 @@ static char_u *p_vsts_nopaste;
 
 struct vimoption
 {
-  char *fullname;  // full option name
-  char *shortname; // permissible abbreviation
-  long_u flags;    // see below
-  char_u *var;     // global option: pointer to variable;
-      // window-local option: VAR_WIN;
-      // buffer-local option: global value
-  idopt_T indir; // global option: PV_NONE;
-      // local option: indirect option index
+  char *fullname;     // full option name
+  char *shortname;    // permissible abbreviation
+  long_u flags;       // see below
+  char_u *var;        // global option: pointer to variable;
+                      // window-local option: VAR_WIN;
+                      // buffer-local option: global value
+  idopt_T indir;      // global option: PV_NONE;
+                      // local option: indirect option index
   char_u *def_val[2]; // default values for variable (vi and vim)
 #ifdef FEAT_EVAL
   sctx_T script_ctx; // script context where the option was last set
@@ -347,6 +347,8 @@ struct vimoption
 
 #define VI_DEFAULT 0  /* def_val[VI_DEFAULT] is Vi default value */
 #define VIM_DEFAULT 1 /* def_val[VIM_DEFAULT] is Vim default value */
+
+// clang-format off
 
 /*
  * Flags
@@ -394,6 +396,8 @@ struct vimoption
 #define P_NDNAME 0x8000000L    /* only normal dir name chars allowed */
 #define P_RWINONLY 0x10000000L /* only redraw current window */
 #define P_MLE 0x20000000L      /* under control of 'modelineexpr' */
+
+// clang-format on
 
 #define ISK_LATIN1 (char_u *)"@,48-57,_,192-255"
 
