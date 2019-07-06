@@ -23,8 +23,9 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 
 void test_setup(void)
 {
-
-  strcpy(tempFile, vim_tempname('t', FALSE));
+  char_u *tmp = vim_tempname('t', FALSE));
+  strcpy(tempFile, tmp);
+  vim_free(tmp);
 
   printf("\nUsing testfile: %s\n", tempFile);
   vimInput("<esc>");
