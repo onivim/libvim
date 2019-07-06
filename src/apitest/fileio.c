@@ -23,8 +23,11 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 
 void test_setup(void)
 {
+  printf("SETUP - 1\n");
   char_u *tmp = vim_tempname('t', FALSE);
+  printf("SETUP - 2\n");
   strcpy(tempFile, tmp);
+  printf("SETUP - 3\n");
   vim_free(tmp);
 
   printf("\nUsing testfile: %s\n", tempFile);
@@ -58,6 +61,7 @@ MU_TEST(test_write_while_file_open)
 
   printf("BUF: %s\n", buff);
   mu_check(strcmp(buff, "Hello!\n") == 0);
+  printf("test_write_while_file_open - done!\n");
 }
 
 MU_TEST(test_overwrite_file)
