@@ -57,6 +57,7 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   }
   else
   {
+    printf("state_insert_literal_execute - else block 1\n");
     if (context->hex || context->unicode != 0)
     {
       /* We return COMPLETED_UNHANDLED here so that the last key press
@@ -65,6 +66,7 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
        * take care of returning HANDLED */
       if (!vim_isxdigit(context->nc))
         return COMPLETED_UNHANDLED;
+
       context->cc = context->cc * 16 + hex2nr(context->nc);
     }
     else if (context->octal)
@@ -78,10 +80,14 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
     }
     else
     {
+      
+      printf("state_insert_literal_execute - else block 2\n");
+      printf(" - VIM_ISDIGIT(context->nc): %d\n", VIM_ISDIGIT(context->nc));
       if (!VIM_ISDIGIT(context->nc))
       {
         return COMPLETED_UNHANDLED;
       }
+
       context->cc = context->cc * 10 + context->nc - '0';
     }
 
