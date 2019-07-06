@@ -40,7 +40,6 @@ void *state_insert_literal_initialize(int *ret)
 
 executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
-  printf("state_insert_literal_execute - c: |%d|\n", nc);
   insertLiteral_T *context = (insertLiteral_T *)ctx;
   context->nc = nc;
 
@@ -58,7 +57,6 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   }
   else
   {
-    printf("state_insert_literal_execute - else block 1\n");
     if (context->hex || context->unicode != 0)
     {
       /* We return COMPLETED_UNHANDLED here so that the last key press
@@ -81,9 +79,6 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
     }
     else
     {
-
-      printf("state_insert_literal_execute - else block 2\n");
-      printf(" - VIM_ISDIGIT(context->nc): %d\n", VIM_ISDIGIT(context->nc));
       if (!VIM_ISDIGIT(context->nc))
       {
         return COMPLETED_UNHANDLED;
@@ -114,11 +109,9 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   }
   else if (context->i >= 3) /* decimal or octal: up to three chars */
   {
-    printf("state_insert_literal_execute - leaving after 3 decimal / octal chars\n");
     return COMPLETED_UNHANDLED;
   }
 
-  printf("state_insert_literal_execute - returning HANDLED\n");
   return HANDLED;
 }
 
@@ -140,7 +133,6 @@ void state_insert_literal_cleanup(void *ctx)
     }
   }
 
-  printf("state_insert_literal_cleanup: |%d|\n", context->cc);
   *(context->ret) = context->cc;
 
   --no_mapping;

@@ -373,13 +373,11 @@ void state_edit_cleanup(void *ctx)
 executionStatus_T state_edit_execute(void *ctx, int c)
 {
   editState_T *context = (editState_T *)ctx;
-  printf("state_edit_execute - c: %d\n", c);
 
   /* If we are coming back ctrl-v, handle that */
 
   if (context->is_ctrlv)
   {
-    printf("state_edit_execute - coming back from ctrl_v. c is: |%d| and ret is |%d|\n", c, context->ctrlv_ret);
     insert_special(context->ctrlv_ret, FALSE, TRUE);
 #ifdef FEAT_RIGHTLEFT
     revins_chars++;
