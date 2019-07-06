@@ -1478,7 +1478,6 @@ BASIC_SRC = \
 	option.c \
 	os_unix.c \
 	auto/pathdef.c \
-	popupwin.c \
 	pty.c \
 	quickfix.c \
 	regexp.c \
@@ -1492,7 +1491,6 @@ BASIC_SRC = \
 	tag.c \
 	term.c \
 	terminal.c \
-	textprop.c \
 	ui.c \
 	undo.c \
 	usercmd.c \
@@ -1586,7 +1584,6 @@ OBJ_COMMON = \
 	objects/option.o \
 	objects/os_unix.o \
 	objects/pathdef.o \
-	objects/popupwin.o \
 	objects/pty.o \
 	objects/quickfix.o \
 	objects/regexp.o \
@@ -1601,7 +1598,6 @@ OBJ_COMMON = \
 	objects/tag.o \
 	objects/term.o \
 	objects/terminal.o \
-	objects/textprop.o \
 	objects/ui.o \
 	objects/undo.o \
 	objects/usercmd.o \
@@ -1718,7 +1714,6 @@ PRO_AUTO = \
 	option.pro \
 	os_mac_conv.pro \
 	os_unix.pro \
-	popupwin.pro \
 	pty.pro \
 	quickfix.pro \
 	regexp.pro \
@@ -1731,7 +1726,6 @@ PRO_AUTO = \
 	term.pro \
 	terminal.pro \
 	termlib.pro \
-	textprop.pro \
 	ui.pro \
 	undo.pro \
 	usercmd.pro \
@@ -2948,9 +2942,6 @@ objects/winclip.o: winclip.c
 objects/pathdef.o: auto/pathdef.c
 	$(CCC) -o $@ auto/pathdef.c
 
-objects/popupwin.o: popupwin.c
-	$(CCC) -o $@ popupwin.c
-
 objects/pty.o: pty.c
 	$(CCC) -o $@ pty.c
 
@@ -2992,9 +2983,6 @@ objects/term.o: term.c
 
 objects/terminal.o: terminal.c $(TERM_DEPS)
 	$(CCC) -o $@ terminal.c
-
-objects/textprop.o: textprop.c
-	$(CCC) -o $@ textprop.c
 
 objects/ui.o: ui.c
 	$(CCC) -o $@ ui.c
@@ -3323,10 +3311,6 @@ objects/pathdef.o: auto/pathdef.c vim.h protodef.h auto/config.h feature.h \
  os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/popupwin.o: popupwin.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/pty.o: pty.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3373,10 +3357,6 @@ objects/terminal.o: terminal.c vim.h protodef.h auto/config.h feature.h os_unix.
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h libvterm/include/vterm.h \
  libvterm/include/vterm_keycodes.h
-objects/textprop.o: textprop.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/ui.o: ui.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

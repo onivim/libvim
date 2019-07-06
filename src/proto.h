@@ -174,10 +174,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #if defined(HAVE_TGETENT) && (defined(VMS))
 #include "termlib.pro"
 #endif
-#ifdef FEAT_TEXT_PROP
-#include "popupwin.pro"
-#include "textprop.pro"
-#endif
 #include "ui.pro"
 #include "undo.pro"
 #include "usercmd.pro"

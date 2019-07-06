@@ -2600,66 +2600,6 @@ int ml_line_alloced(void)
   return (curbuf->b_ml.ml_flags & ML_LINE_DIRTY);
 }
 
-#ifdef FEAT_TEXT_PROP
-static void
-add_text_props_for_append(
-    buf_T *buf,
-    linenr_T lnum,
-    char_u **line,
-    int *len,
-    char_u **tofree)
-{
-  int round;
-  int new_prop_count = 0;
-  int count;
-  int n;
-  char_u *props;
-  int new_len;
-  char_u *new_line;
-  textprop_T prop;
-
-  // Make two rounds:
-  // 1. calculate the extra space needed
-  // 2. allocate the space and fill it
-  for (round = 1; round <= 2; ++round)
-  {
-    if (round == 2)
-    {
-      if (new_prop_count == 0)
-        return; // nothing to do
-      new_len = *len + new_prop_count * sizeof(textprop_T);
-      new_line = alloc(new_len);
-      if (new_line == NULL)
-        return;
-      mch_memmove(new_line, *line, *len);
-      new_prop_count = 0;
-    }
-
-    // Get the line above to find any props that continue in the next
-    // line.
-    count = get_text_props(buf, lnum, &props, FALSE);
-    for (n = 0; n < count; ++n)
-    {
-      mch_memmove(&prop, props + n * sizeof(textprop_T), sizeof(textprop_T));
-      if (prop.tp_flags & TP_FLAG_CONT_NEXT)
-      {
-        if (round == 2)
-        {
-          prop.tp_flags |= TP_FLAG_CONT_PREV;
-          prop.tp_col = 1;
-          prop.tp_len = *len;
-          mch_memmove(new_line + *len + new_prop_count * sizeof(textprop_T), &prop, sizeof(textprop_T));
-        }
-        ++new_prop_count;
-      }
-    }
-  }
-  *line = new_line;
-  *tofree = new_line;
-  *len = new_len;
-}
-#endif
-
 /*
  * Append a line after lnum (may be 0 to insert a line in front of the file).
  * "line" does not need to be allocated, but can't be another line in a
@@ -2732,9 +2672,6 @@ ml_append_int(
   DATA_BL *dp;
   PTR_BL *pp;
   infoptr_T *ip;
-#ifdef FEAT_TEXT_PROP
-  char_u *tofree = NULL;
-#endif
   int ret = FAIL;
 
   if (lnum > buf->b_ml.ml_line_count || buf->b_ml.ml_mfp == NULL)
@@ -2750,12 +2687,6 @@ ml_append_int(
   // When inserting above recorded changes: flush the changes before changing
   // the text.
   may_invoke_listeners(buf, lnum + 1, lnum + 1, 1);
-#endif
-
-#ifdef FEAT_TEXT_PROP
-  if (curbuf->b_has_textprop && lnum > 0)
-    // Add text properties that continue from the previous line.
-    add_text_props_for_append(buf, lnum, &line, &len, &tofree);
 #endif
 
   space_needed = len + INDEX_SIZE; // space needed for text + index
@@ -3219,9 +3150,6 @@ ml_append_int(
   ret = OK;
 
 theend:
-#ifdef FEAT_TEXT_PROP
-  vim_free(tofree);
-#endif
   return ret;
 }
 
@@ -3273,12 +3201,7 @@ int ml_replace_len(
   if (copy)
   {
     // copy the line to allocated memory
-#ifdef FEAT_TEXT_PROP
-    if (has_props)
-      line = vim_memsave(line, len);
-    else
-#endif
-      line = vim_strnsave(line, len - 1);
+    line = vim_strnsave(line, len - 1);
     if (line == NULL)
       return FAIL;
   }
@@ -3288,37 +3211,7 @@ int ml_replace_len(
     // another line is buffered, flush it
     ml_flush_line(curbuf);
     curbuf->b_ml.ml_flags &= ~ML_LINE_DIRTY;
-
-#ifdef FEAT_TEXT_PROP
-    if (curbuf->b_has_textprop && !has_props)
-      // Need to fetch the old line to copy over any text properties.
-      ml_get_buf(curbuf, lnum, TRUE);
-#endif
   }
-
-#ifdef FEAT_TEXT_PROP
-  if (curbuf->b_has_textprop && !has_props)
-  {
-    size_t oldtextlen = STRLEN(curbuf->b_ml.ml_line_ptr) + 1;
-
-    if (oldtextlen < (size_t)curbuf->b_ml.ml_line_len)
-    {
-      char_u *newline;
-      size_t textproplen = curbuf->b_ml.ml_line_len - oldtextlen;
-
-      // Need to copy over text properties, stored after the text.
-      newline = alloc(len + (int)textproplen);
-      if (newline != NULL)
-      {
-        mch_memmove(newline, line, len);
-        mch_memmove(newline + len, curbuf->b_ml.ml_line_ptr + oldtextlen, textproplen);
-        vim_free(line);
-        line = newline;
-        len += (colnr_T)textproplen;
-      }
-    }
-  }
-#endif
 
   if (curbuf->b_ml.ml_flags & ML_LINE_DIRTY) // same line allocated
     vim_free(curbuf->b_ml.ml_line_ptr);      // free it
@@ -3330,100 +3223,6 @@ int ml_replace_len(
 
   return OK;
 }
-
-#ifdef FEAT_TEXT_PROP
-/*
- * Adjust text properties in line "lnum" for a deleted line.
- * When "above" is true this is the line above the deleted line.
- * "del_props" are the properties of the deleted line.
- */
-static void
-adjust_text_props_for_delete(
-    buf_T *buf,
-    linenr_T lnum,
-    char_u *del_props,
-    int del_props_len,
-    int above)
-{
-  int did_get_line = FALSE;
-  int done_del;
-  int done_this;
-  textprop_T prop_del;
-  textprop_T prop_this;
-  bhdr_T *hp;
-  DATA_BL *dp;
-  int idx;
-  int line_start;
-  long line_size;
-  int this_props_len;
-  char_u *text;
-  size_t textlen;
-  int found;
-
-  for (done_del = 0; done_del < del_props_len; done_del += sizeof(textprop_T))
-  {
-    mch_memmove(&prop_del, del_props + done_del, sizeof(textprop_T));
-    if ((above && (prop_del.tp_flags & TP_FLAG_CONT_PREV) && !(prop_del.tp_flags & TP_FLAG_CONT_NEXT)) || (!above && (prop_del.tp_flags & TP_FLAG_CONT_NEXT) && !(prop_del.tp_flags & TP_FLAG_CONT_PREV)))
-    {
-      if (!did_get_line)
-      {
-        did_get_line = TRUE;
-        if ((hp = ml_find_line(buf, lnum, ML_FIND)) == NULL)
-          return;
-
-        dp = (DATA_BL *)(hp->bh_data);
-        idx = lnum - buf->b_ml.ml_locked_low;
-        line_start = ((dp->db_index[idx]) & DB_INDEX_MASK);
-        if (idx == 0) // first line in block, text at the end
-          line_size = dp->db_txt_end - line_start;
-        else
-          line_size = ((dp->db_index[idx - 1]) & DB_INDEX_MASK) - line_start;
-        text = (char_u *)dp + line_start;
-        textlen = STRLEN(text) + 1;
-        if ((long)textlen >= line_size)
-        {
-          if (above)
-            internal_error("no text property above deleted line");
-          else
-            internal_error("no text property below deleted line");
-          return;
-        }
-        this_props_len = line_size - (int)textlen;
-      }
-
-      found = FALSE;
-      for (done_this = 0; done_this < this_props_len; done_this += sizeof(textprop_T))
-      {
-        mch_memmove(&prop_this, text + textlen + done_del, sizeof(textprop_T));
-        if (prop_del.tp_id == prop_this.tp_id && prop_del.tp_type == prop_this.tp_type)
-        {
-          int flag = above ? TP_FLAG_CONT_NEXT : TP_FLAG_CONT_PREV;
-
-          found = TRUE;
-          if (prop_this.tp_flags & flag)
-          {
-            prop_this.tp_flags &= ~flag;
-            mch_memmove(text + textlen + done_del, &prop_this, sizeof(textprop_T));
-          }
-          else if (above)
-            internal_error("text property above deleted line does not continue");
-          else
-            internal_error("text property below deleted line does not continue");
-        }
-      }
-      if (!found)
-      {
-        if (above)
-          internal_error("text property above deleted line not found");
-        else
-          internal_error("text property below deleted line not found");
-      }
-
-      buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
-    }
-  }
-}
-#endif
 
 /*
  * Delete line "lnum" in the current buffer.
@@ -3456,11 +3255,6 @@ ml_delete_int(buf_T *buf, linenr_T lnum, int message)
   long line_size;
   int i;
   int ret = FAIL;
-#ifdef FEAT_TEXT_PROP
-  char_u *textprop_save = NULL;
-  int textprop_save_len;
-#endif
-
   if (lnum < 1 || lnum > buf->b_ml.ml_line_count)
     return FAIL;
 
@@ -3511,22 +3305,6 @@ ml_delete_int(buf_T *buf, linenr_T lnum, int message)
     line_size = dp->db_txt_end - line_start;
   else
     line_size = ((dp->db_index[idx - 1]) & DB_INDEX_MASK) - line_start;
-
-#ifdef FEAT_TEXT_PROP
-  // If there are text properties, make a copy, so that we can update
-  // properties in preceding and following lines.
-  if (buf->b_has_textprop)
-  {
-    size_t textlen = STRLEN((char_u *)dp + line_start) + 1;
-
-    if ((long)textlen < line_size)
-    {
-      textprop_save_len = line_size - (int)textlen;
-      textprop_save = vim_memsave((char_u *)dp + line_start + textlen,
-                                  textprop_save_len);
-    }
-  }
-#endif
 
   /*
  * special case: If there is only one line in the data block it becomes empty.
@@ -3613,17 +3391,6 @@ ml_delete_int(buf_T *buf, linenr_T lnum, int message)
   ret = OK;
 
 theend:
-#ifdef FEAT_TEXT_PROP
-  if (textprop_save != NULL)
-  {
-    // Adjust text properties in the line above and below.
-    if (lnum > 1)
-      adjust_text_props_for_delete(buf, lnum - 1, textprop_save, textprop_save_len, TRUE);
-    if (lnum <= buf->b_ml.ml_line_count)
-      adjust_text_props_for_delete(buf, lnum, textprop_save, textprop_save_len, FALSE);
-  }
-  vim_free(textprop_save);
-#endif
   return ret;
 }
 
@@ -5353,19 +5120,6 @@ ml_updatechunk(
           end_idx = count - 1;
           linecnt += rest;
         }
-#ifdef FEAT_TEXT_PROP
-        if (buf->b_has_textprop)
-        {
-          int i;
-
-          // We cannot use the text pointers to get the text length,
-          // the text prop info would also be counted.  Go over the
-          // lines.
-          for (i = end_idx; i < idx; ++i)
-            size += (int)STRLEN((char_u *)dp + (dp->db_index[i] & DB_INDEX_MASK)) + 1;
-        }
-        else
-#endif
         {
           if (idx == 0) /* first line in block, text at the end */
             text_end = dp->db_txt_end;
@@ -5544,20 +5298,7 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         idx++;
       }
     }
-#ifdef FEAT_TEXT_PROP
-    if (buf->b_has_textprop)
-    {
-      int i;
-
-      // cannot use the db_index pointer, need to get the actual text
-      // lengths.
-      len = 0;
-      for (i = start_idx; i <= idx; ++i)
-        len += (int)STRLEN((char_u *)dp + ((dp->db_index[i]) & DB_INDEX_MASK)) + 1;
-    }
-    else
-#endif
-      len = text_end - ((dp->db_index[idx]) & DB_INDEX_MASK);
+    len = text_end - ((dp->db_index[idx]) & DB_INDEX_MASK);
     size += len;
     if (offset != 0 && size >= offset)
     {

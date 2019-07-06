@@ -1067,20 +1067,12 @@ void main_loop(
 #endif
 
       /* Trigger CursorMoved if the cursor moved. */
-      if (!finish_op && (has_cursormoved()
-#ifdef FEAT_TEXT_PROP
-                         || popup_visible
-#endif
-                         ) &&
+      if (!finish_op && (has_cursormoved()) &&
           !EQUAL_POS(last_cursormoved, curwin->w_cursor))
       {
         if (has_cursormoved())
           apply_autocmds(EVENT_CURSORMOVED, NULL, NULL,
                          FALSE, curbuf);
-#ifdef FEAT_TEXT_PROP
-        if (popup_visible)
-          popup_check_cursor_pos();
-#endif
         last_cursormoved = curwin->w_cursor;
       }
 
