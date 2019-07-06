@@ -85,6 +85,24 @@ MU_TEST(test_cmdline_completions)
   FreeWild(count, completions);
 }
 
+MU_TEST(test_cmdline_completions_empty_space)
+{
+  char_u **completions;
+  int count = -1;
+
+  vimInput(":");
+
+  // Try to get completions for an invalid command
+  vimInput("d");
+  vimInput("e");
+  vimInput("r");
+  vimInput("p");
+  vimInput(" ");
+
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -93,6 +111,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_cmdline_get_text);
   MU_RUN_TEST(test_cmdline_get_type);
   MU_RUN_TEST(test_cmdline_completions);
+  MU_RUN_TEST(test_cmdline_completions_empty_space);
 }
 
 int main(int argc, char **argv)
