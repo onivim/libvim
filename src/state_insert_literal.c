@@ -39,6 +39,7 @@ void *state_insert_literal_initialize(int *ret)
 
 executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
+  printf("state_insert_literal_execute - c: |%d|\n", c);
   insertLiteral_T *context = (insertLiteral_T *)ctx;
   context->nc = nc;
 
@@ -130,6 +131,7 @@ void state_insert_literal_cleanup(void *ctx)
     }
   }
 
+  printf("state_insert_literal_cleanup: |%d|\n", context->cc);
   *(context->ret) = context->cc;
 
   --no_mapping;
