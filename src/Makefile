@@ -1486,6 +1486,7 @@ BASIC_SRC = \
 	search.c \
 	sha256.c \
 	sign.c \
+	state_insert_literal.c \
 	state_machine.c \
 	syntax.c \
 	tag.c \
@@ -1594,6 +1595,7 @@ OBJ_COMMON = \
 	objects/search.o \
 	objects/sha256.o \
 	objects/sign.o \
+	objects/state_insert_literal.o \
 	objects/state_machine.o \
 	objects/syntax.o \
 	objects/tag.o \
@@ -2972,6 +2974,9 @@ objects/sha256.o: sha256.c
 
 objects/sign.o: sign.c
 	$(CCC) -o $@ sign.c
+
+objects/state_insert_literal.o: state_insert_literal.c
+	$(CCC) -o $@ state_insert_literal.c
 
 objects/state_machine.o: state_machine.c
 	$(CCC) -o $@ state_machine.c
