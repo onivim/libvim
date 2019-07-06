@@ -702,11 +702,13 @@ restart_state:
         context->ca.count0 *= context->ca.opcount;
       else
         context->ca.count0 = context->ca.opcount;
-    } else if(c == Ctrl_W && !context->ctrl_w) {
-        context->ctrl_w = TRUE;
-        // After <C-W>, might get another count...
-        context->state = NORMAL_START_COUNT;
-        return HANDLED;
+    }
+    else if (c == Ctrl_W && !context->ctrl_w)
+    {
+      context->ctrl_w = TRUE;
+      // After <C-W>, might get another count...
+      context->state = NORMAL_START_COUNT;
+      return HANDLED;
     }
 
     /*

@@ -6427,39 +6427,38 @@ void ex_splitview(exarg_T *eap)
   int browse_flag = cmdmod.browse;
 #endif
 
-    int use_tab = eap->cmdidx == CMD_tabedit
-                  || eap->cmdidx == CMD_tabfind
-                  || eap->cmdidx == CMD_tabnew;
-    
-    windowSplit_T splitType = HORIZONTAL_SPLIT;
+  int use_tab = eap->cmdidx == CMD_tabedit || eap->cmdidx == CMD_tabfind || eap->cmdidx == CMD_tabnew;
 
-    switch (eap->cmdidx) {
-        case CMD_vsplit:
-        case CMD_vnew:
-            splitType = VERTICAL_SPLIT;
-            break;
-        case CMD_tabfind:
-        case CMD_tabedit:
-        case CMD_tabnew:
-            splitType = TAB_PAGE;
-            break;
-        default:
-            break;
-    }
+  windowSplit_T splitType = HORIZONTAL_SPLIT;
 
-    fname = eap->arg;
+  switch (eap->cmdidx)
+  {
+  case CMD_vsplit:
+  case CMD_vnew:
+    splitType = VERTICAL_SPLIT;
+    break;
+  case CMD_tabfind:
+  case CMD_tabedit:
+  case CMD_tabnew:
+    splitType = TAB_PAGE;
+    break;
+  default:
+    break;
+  }
 
-    if (windowSplitCallback != NULL) {
-	    windowSplitCallback(splitType, fname);
-    }
-    
+  fname = eap->arg;
 
-    /* libvim - noop */
+  if (windowSplitCallback != NULL)
+  {
+    windowSplitCallback(splitType, fname);
+  }
+
+  /* libvim - noop */
+  return;
+
+  if (NOT_IN_POPUP_WINDOW)
     return;
 
-    if (NOT_IN_POPUP_WINDOW)
-	return;
-  
 #ifdef FEAT_QUICKFIX
   /* A ":split" in the quickfix window works like ":new".  Don't want two
      * quickfix windows.  But it's OK when doing ":tab split". */

@@ -1,13 +1,14 @@
-#include "vim.h"
 #include "libvim.h"
 #include "minunit.h"
+#include "vim.h"
 
 #define MAX_FNAME 8192
 
 char_u lastFilename[MAX_FNAME];
 windowSplit_T lastSplitType;
 
-void onWindowSplit(windowSplit_T splitType, char_u* filename) {
+void onWindowSplit(windowSplit_T splitType, char_u *filename)
+{
   printf("onWindowSplit - type: |%d| file: |%s|\n", splitType, filename);
 
   assert(strlen(filename) < MAX_FNAME);
@@ -19,14 +20,16 @@ void onWindowSplit(windowSplit_T splitType, char_u* filename) {
 windowMovement_T lastMovement;
 int lastMovementCount;
 
-void onWindowMovement(windowMovement_T movementType, int count) {
+void onWindowMovement(windowMovement_T movementType, int count)
+{
   printf("onWindowMovement - type: |%d| count: |%d|\n", movementType, count);
 
   lastMovement = movementType;
   lastMovementCount = count;
 };
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -37,85 +40,93 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_vsplit) {
+MU_TEST(test_vsplit)
+{
   vimExecute("vsp test-file.txt");
 
   mu_check(strcmp(lastFilename, "test-file.txt") == 0);
   mu_check(lastSplitType == VERTICAL_SPLIT);
 }
 
-MU_TEST(test_hsplit) {
+MU_TEST(test_hsplit)
+{
   vimExecute("sp test-h-file.txt");
 
   mu_check(strcmp(lastFilename, "test-h-file.txt") == 0);
   mu_check(lastSplitType == HORIZONTAL_SPLIT);
 }
 
-MU_TEST(test_tabnew) {
+MU_TEST(test_tabnew)
+{
   vimExecute("tabnew test-tabnew-file.txt");
 
   mu_check(strcmp(lastFilename, "test-tabnew-file.txt") == 0);
   mu_check(lastSplitType == TAB_PAGE);
 }
 
-MU_TEST(test_win_movements) {
+MU_TEST(test_win_movements)
+{
 
   printf("Entering <c-w>\n");
   vimInput("<c-w>");
   printf("Entering <c-j>\n");
   vimInput("<c-j>");
 
-  mu_check(lastMovement  == ONE_DOWN);
+  mu_check(lastMovement == ONE_DOWN);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("k");
-  
-  mu_check(lastMovement  == ONE_UP);
+
+  mu_check(lastMovement == ONE_UP);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("h");
-  
-  mu_check(lastMovement  == ONE_LEFT);
+
+  mu_check(lastMovement == ONE_LEFT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("l");
-  
-  mu_check(lastMovement  == ONE_RIGHT);
+
+  mu_check(lastMovement == ONE_RIGHT);
   mu_check(lastMovementCount == 1);
 }
 
-MU_TEST(test_win_move_count_before) {
+MU_TEST(test_win_move_count_before)
+{
   vimInput("2");
   vimInput("<c-w>");
   vimInput("k");
-  
-  mu_check(lastMovement  == ONE_UP);
+
+  mu_check(lastMovement == ONE_UP);
   mu_check(lastMovementCount == 2);
 }
 
-MU_TEST(test_win_move_count_after) {
+MU_TEST(test_win_move_count_after)
+{
   vimInput("<c-w>");
   vimInput("4");
   vimInput("k");
-  
-  mu_check(lastMovement  == ONE_UP);
+
+  mu_check(lastMovement == ONE_UP);
   mu_check(lastMovementCount == 4);
 }
 
-MU_TEST(test_win_move_count_before_and_after) {
+MU_TEST(test_win_move_count_before_and_after)
+{
   vimInput("3");
   vimInput("<c-w>");
   vimInput("5");
   vimInput("k");
-  
-  mu_check(lastMovement  == ONE_UP);
+
+  mu_check(lastMovement == ONE_UP);
   mu_check(lastMovementCount == 35);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_vsplit);
@@ -127,7 +138,8 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_win_move_count_before_and_after);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimSetWindowSplitCallback(&onWindowSplit);

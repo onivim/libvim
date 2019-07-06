@@ -56,11 +56,13 @@ void vimSetMessageCallback(MessageCallback f)
   messageCallback = f;
 }
 
-void vimSetWindowSplitCallback(WindowSplitCallback f) {
+void vimSetWindowSplitCallback(WindowSplitCallback f)
+{
   windowSplitCallback = f;
 }
 
-void vimSetWindowMovementCallback(WindowMovementCallback f) {
+void vimSetWindowMovementCallback(WindowMovementCallback f)
+{
   windowMovementCallback = f;
 }
 
