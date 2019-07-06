@@ -107,9 +107,11 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   }
   else if (context->i >= 3) /* decimal or octal: up to three chars */
   {
+    printf("state_insert_literal_execute - leaving after 3 decimal / octal chars\n");
     return COMPLETED_UNHANDLED;
   }
 
+  printf("state_insert_literal_execute - returning HANDLED\n");
   return HANDLED;
 }
 
