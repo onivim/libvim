@@ -58,6 +58,7 @@ MU_TEST(test_write_while_file_open)
   char buff[255];
   fp = fopen(tempFile, "r");
   fgets(buff, 255, fp);
+  fclose(fp);
 
   printf("BUF: %s\n", buff);
   mu_check(strcmp(buff, "Hello!\n") == 0);
@@ -80,6 +81,7 @@ MU_TEST(test_overwrite_file)
   char buff[255];
   fp = fopen(tempFile, "r");
   fgets(buff, 255, fp);
+  fclose(fp);
 
   printf("BUF: |%s|\n", buff);
   mu_check((strcmp(buff, "a\r\n") == 0) || (strcmp(buff, "a\n") == 0));
