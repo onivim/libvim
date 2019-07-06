@@ -605,6 +605,7 @@ OBJ = \
 	$(OUTDIR)/search.o \
 	$(OUTDIR)/sha256.o \
 	$(OUTDIR)/sign.o \
+	$(OUTDIR)/state_insert_literal.o \
 	$(OUTDIR)/state_machine.o \
 	$(OUTDIR)/syntax.o \
 	$(OUTDIR)/tag.o \

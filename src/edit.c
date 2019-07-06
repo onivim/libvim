@@ -118,6 +118,8 @@ typedef struct
   int replaceState;
   int nomove;
   int cmdchar_todo;
+  int is_ctrlv;  /* If we are coming back from inserting a literal */
+  int ctrlv_ret; /* Return value from inserting a literal */
 } editState_T;
 
 static linenr_T o_lnum = 0;
@@ -132,6 +134,8 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
   context->lastc = 0;
   context->old_topline = 0;
   context->old_topfill = -1;
+  context->is_ctrlv = FALSE;
+  context->ctrlv_ret = 0;
 
   /* Remember whether editing was restarted after CTRL-O. */
   did_restart_edit = restart_edit;
@@ -369,6 +373,20 @@ void state_edit_cleanup(void *ctx)
 executionStatus_T state_edit_execute(void *ctx, int c)
 {
   editState_T *context = (editState_T *)ctx;
+
+  /* If we are coming back ctrl-v, handle that */
+
+  if (context->is_ctrlv)
+  {
+    insert_special(context->ctrlv_ret, FALSE, TRUE);
+#ifdef FEAT_RIGHTLEFT
+    revins_chars++;
+    revins_legal++;
+#endif
+    context->is_ctrlv = FALSE;
+    return HANDLED;
+  }
+
 #ifdef FEAT_RIGHTLEFT
   if (!revins_legal)
     revins_scol = -1; /* reset on illegal motions */
@@ -515,8 +533,9 @@ executionStatus_T state_edit_execute(void *ctx, int c)
 
   if (c == Ctrl_V || c == Ctrl_Q)
   {
-    ins_ctrl_v();
+    context->is_ctrlv = TRUE;
     context->c = Ctrl_V; /* pretend CTRL-V is last typed character */
+    sm_push_insert_literal(&context->ctrlv_ret);
     return HANDLED;
   }
 
@@ -2017,9 +2036,12 @@ static void ins_ctrl_v(void)
 
   c = get_literal();
   if (did_putchar)
+  {
     /* when the line fits in 'columns' the '^' is at the start of the next
      * line and will not removed by the redraw */
     edit_unputchar();
+  }
+
   insert_special(c, FALSE, TRUE);
 #ifdef FEAT_RIGHTLEFT
   revins_chars++;

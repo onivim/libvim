@@ -163,6 +163,7 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #ifdef FEAT_SIGNS
 #include "sign.pro"
 #endif
+#include "state_insert_literal.pro"
 #include "state_machine.pro"
 #include "syntax.pro"
 #include "tag.pro"
