@@ -6,14 +6,16 @@ static int lastLnum = 0;
 static int lastLnume = 0;
 static long lastXtra = 0;
 
-void onBufferUpdate(bufferUpdate_T update) {
+void onBufferUpdate(bufferUpdate_T update)
+{
   lastLnum = update.lnum;
   lastLnume = update.lnume;
   lastXtra = update.xtra;
   updateCount++;
 }
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -29,7 +31,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_macro_saves_register) {
+MU_TEST(test_macro_saves_register)
+{
   /* Record a macro into the 'a' register */
   vimInput("q");
   vimInput("a");
@@ -51,16 +54,18 @@ MU_TEST(test_macro_saves_register) {
   vimRegisterGet('a', &num_lines, &lines);
 
   mu_check(num_lines == 1);
-  mu_check(strcmp(lines[0], "jjjkk") == 0);
+  mu_check(strcmp(lines[0], ("jjjkk")) == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_macro_saves_register);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   vimSetBufferUpdateCallback(&onBufferUpdate);
@@ -68,7 +73,7 @@ int main(int argc, char **argv) {
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen((char_u *)"collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

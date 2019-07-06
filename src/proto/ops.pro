@@ -43,8 +43,10 @@ void adjust_cursor_eol(void);
 int preprocs_left(void);
 int get_register_name(int num);
 void ex_display(exarg_T *eap);
-char_u *skip_comment(char_u *line, int process, int include_space, int *is_comment);
-int do_join(long count, int insert_space, int save_undo, int use_formatoptions, int setmark);
+char_u *skip_comment(char_u *line, int process, int include_space,
+                     int *is_comment);
+int do_join(long count, int insert_space, int save_undo, int use_formatoptions,
+            int setmark);
 void op_format(oparg_T *oap, int keep_cursor);
 void op_formatexpr(oparg_T *oap);
 int fex_format(linenr_T lnum, long count, int c);
@@ -65,8 +67,10 @@ void dnd_yank_drag_data(char_u *str, long len);
 char_u get_reg_type(int regname, long *reglen);
 char_u *get_reg_contents(int regname, int flags);
 void write_reg_contents(int name, char_u *str, int maxlen, int must_append);
-void write_reg_contents_lst(int name, char_u **strings, int maxlen, int must_append, int yank_type, long block_len);
-void write_reg_contents_ex(int name, char_u *str, int maxlen, int must_append, int yank_type, long block_len);
+void write_reg_contents_lst(int name, char_u **strings, int maxlen,
+                            int must_append, int yank_type, long block_len);
+void write_reg_contents_ex(int name, char_u *str, int maxlen, int must_append,
+                           int yank_type, long block_len);
 void clear_oparg(oparg_T *oap);
 void cursor_pos_info(dict_T *dict);
 /* vim: set ft=c : */

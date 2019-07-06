@@ -5,7 +5,8 @@ void set_internal_string_var(char_u *name, char_u *value);
 int var_redir_start(char_u *name, int append);
 void var_redir_str(char_u *value, int value_len);
 void var_redir_stop(void);
-int eval_charconvert(char_u *enc_from, char_u *enc_to, char_u *fname_from, char_u *fname_to);
+int eval_charconvert(char_u *enc_from, char_u *enc_to, char_u *fname_from,
+                     char_u *fname_to);
 int eval_printexpr(char_u *fname, char_u *args);
 void eval_diff(char_u *origfile, char_u *newfile, char_u *outfile);
 void eval_patch(char_u *origfile, char_u *difffile, char_u *outfile);
@@ -29,7 +30,8 @@ void *call_func_retlist(char_u *func, int argc, typval_T *argv);
 int eval_foldexpr(char_u *arg, int *cp);
 void ex_let(exarg_T *eap);
 void list_hashtable_vars(hashtab_T *ht, char *prefix, int empty, int *first);
-char_u *get_lval(char_u *name, typval_T *rettv, lval_T *lp, int unlet, int skip, int flags, int fne_flags);
+char_u *get_lval(char_u *name, typval_T *rettv, lval_T *lp, int unlet, int skip,
+                 int flags, int fne_flags);
 void clear_lval(lval_T *lp);
 void *eval_for_line(char_u *arg, int *errp, char_u **nextcmdp, int skip);
 int next_for_item(void *fi_void, char_u *arg);
@@ -50,8 +52,11 @@ int get_copyID(void);
 int garbage_collect(int testing);
 int set_ref_in_ht(hashtab_T *ht, int copyID, list_stack_T **list_stack);
 int set_ref_in_list(list_T *l, int copyID, ht_stack_T **ht_stack);
-int set_ref_in_item(typval_T *tv, int copyID, ht_stack_T **ht_stack, list_stack_T **list_stack);
-char_u *echo_string_core(typval_T *tv, char_u **tofree, char_u *numbuf, int copyID, int echo_style, int restore_copyID, int composite_val);
+int set_ref_in_item(typval_T *tv, int copyID, ht_stack_T **ht_stack,
+                    list_stack_T **list_stack);
+char_u *echo_string_core(typval_T *tv, char_u **tofree, char_u *numbuf,
+                         int copyID, int echo_style, int restore_copyID,
+                         int composite_val);
 char_u *echo_string(typval_T *tv, char_u **tofree, char_u *numbuf, int copyID);
 char_u *tv2string(typval_T *tv, char_u **tofree, char_u *numbuf, int copyID);
 char_u *string_quote(char_u *str, int function);
@@ -60,7 +65,8 @@ pos_T *var2fpos(typval_T *varp, int dollar_lnum, int *fnum);
 int list2fpos(typval_T *arg, pos_T *posp, int *fnump, colnr_T *curswantp);
 int get_id_len(char_u **arg);
 int get_name_len(char_u **arg, char_u **alias, int evaluate, int verbose);
-char_u *find_name_end(char_u *arg, char_u **expr_start, char_u **expr_end, int flags);
+char_u *find_name_end(char_u *arg, char_u **expr_start, char_u **expr_end,
+                      int flags);
 int eval_isnamec(int c);
 int eval_isnamec1(int c);
 void set_vim_var_nr(int idx, varnumber_T val);
@@ -79,7 +85,8 @@ void set_reg_var(int c);
 char_u *v_exception(char_u *oldval);
 char_u *v_throwpoint(char_u *oldval);
 char_u *set_cmdarg(exarg_T *eap, char_u *oldarg);
-int get_var_tv(char_u *name, int len, typval_T *rettv, dictitem_T **dip, int verbose, int no_autoload);
+int get_var_tv(char_u *name, int len, typval_T *rettv, dictitem_T **dip,
+               int verbose, int no_autoload);
 int handle_subscript(char_u **arg, typval_T *rettv, int evaluate, int verbose);
 typval_T *alloc_tv(void);
 void free_tv(typval_T *varp);
@@ -94,7 +101,8 @@ char_u *tv_get_string_chk(typval_T *varp);
 char_u *tv_get_string_buf_chk(typval_T *varp, char_u *buf);
 char_u *tv_stringify(typval_T *varp, char_u *buf);
 dictitem_T *find_var(char_u *name, hashtab_T **htp, int no_autoload);
-dictitem_T *find_var_in_ht(hashtab_T *ht, int htname, char_u *varname, int no_autoload);
+dictitem_T *find_var_in_ht(hashtab_T *ht, int htname, char_u *varname,
+                           int no_autoload);
 hashtab_T *find_var_ht(char_u *name, char_u **varname);
 char_u *get_var_value(char_u *name);
 void new_script_vars(scid_T id);
@@ -110,7 +118,8 @@ int var_check_lock(int lock, char_u *name, int use_gettext);
 int valid_varname(char_u *varname);
 void copy_tv(typval_T *from, typval_T *to);
 int item_copy(typval_T *from, typval_T *to, int deep, int copyID);
-void get_user_input(typval_T *argvars, typval_T *rettv, int inputdialog, int secret);
+void get_user_input(typval_T *argvars, typval_T *rettv, int inputdialog,
+                    int secret);
 void ex_echo(exarg_T *eap);
 void ex_echohl(exarg_T *eap);
 void ex_execute(exarg_T *eap);
@@ -137,11 +146,15 @@ int assert_report(typval_T *argvars);
 int assert_exception(typval_T *argvars);
 int assert_beeps(typval_T *argvars);
 int assert_fails(typval_T *argvars);
-void fill_assert_error(garray_T *gap, typval_T *opt_msg_tv, char_u *exp_str, typval_T *exp_tv, typval_T *got_tv, assert_type_T atype);
-int typval_compare(typval_T *typ1, typval_T *typ2, exptype_T type, int type_is, int ic);
+void fill_assert_error(garray_T *gap, typval_T *opt_msg_tv, char_u *exp_str,
+                       typval_T *exp_tv, typval_T *got_tv, assert_type_T atype);
+int typval_compare(typval_T *typ1, typval_T *typ2, exptype_T type, int type_is,
+                   int ic);
 char_u *typval_tostring(typval_T *arg);
 int var_exists(char_u *var);
-int modify_fname(char_u *src, int tilde_file, int *usedlen, char_u **fnamep, char_u **bufp, int *fnamelen);
-char_u *do_string_sub(char_u *str, char_u *pat, char_u *sub, typval_T *expr, char_u *flags);
+int modify_fname(char_u *src, int tilde_file, int *usedlen, char_u **fnamep,
+                 char_u **bufp, int *fnamelen);
+char_u *do_string_sub(char_u *str, char_u *pat, char_u *sub, typval_T *expr,
+                      char_u *flags);
 void filter_map(typval_T *argvars, typval_T *rettv, int map);
 /* vim: set ft=c : */

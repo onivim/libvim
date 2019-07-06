@@ -28,12 +28,16 @@ int vim_isprintc(int c);
 int vim_isprintc_strict(int c);
 int lbr_chartabsize(char_u *line, unsigned char *s, colnr_T col);
 int lbr_chartabsize_adv(char_u *line, char_u **s, colnr_T col);
-int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *headp);
+int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col,
+                        int *headp);
 int in_win_border(win_T *wp, colnr_T vcol);
-void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end);
+void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
+             colnr_T *end);
 colnr_T getvcol_nolist(pos_T *posp);
-void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end);
-void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left, colnr_T *right);
+void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor,
+              colnr_T *end);
+void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left,
+              colnr_T *right);
 char_u *skipwhite(char_u *q);
 int getwhitecols_curline(void);
 int getwhitecols(char_u *p);
@@ -54,7 +58,8 @@ char_u *skiptowhite(char_u *p);
 char_u *skiptowhite_esc(char_u *p);
 long getdigits(char_u **pp);
 int vim_isblankline(char_u *lbuf);
-void vim_str2nr(char_u *start, int *prep, int *len, int what, varnumber_T *nptr, uvarnumber_T *unptr, int maxlen, int strict);
+void vim_str2nr(char_u *start, int *prep, int *len, int what, varnumber_T *nptr,
+                uvarnumber_T *unptr, int maxlen, int strict);
 int hex2nr(int c);
 int hexhex2nr(char_u *p);
 int rem_backslash(char_u *str);

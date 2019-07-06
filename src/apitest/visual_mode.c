@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -12,7 +13,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_visual_is_active) {
+MU_TEST(test_visual_is_active)
+{
   mu_check(vimVisualIsActive() == 0);
 
   vimInput("v");
@@ -39,7 +41,8 @@ MU_TEST(test_visual_is_active) {
   mu_check((vimGetMode() & VISUAL) == VISUAL);
 }
 
-MU_TEST(test_characterwise_range) {
+MU_TEST(test_characterwise_range)
+{
   vimInput("v");
 
   vimInput("l");
@@ -66,20 +69,42 @@ MU_TEST(test_characterwise_range) {
   mu_check(end.col == 2);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST(test_ctrl_q)
+{
+  vimInput("<c-q>");
+
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
+  mu_check(vimVisualGetType() == Ctrl_V);
+  mu_check(vimVisualIsActive() == 1);
+}
+
+MU_TEST(test_ctrl_Q)
+{
+  vimInput("<c-Q>");
+
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
+  mu_check(vimVisualGetType() == Ctrl_V);
+  mu_check(vimVisualIsActive() == 1);
+}
+
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_visual_is_active);
   MU_RUN_TEST(test_characterwise_range);
+  MU_RUN_TEST(test_ctrl_q);
+  MU_RUN_TEST(test_ctrl_Q);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

@@ -50,7 +50,7 @@ void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
 char_u vimCommandLineGetType(void);
 char_u *vimCommandLineGetText(void);
 int vimCommandLineGetPosition(void);
-void vimCommandLineGetCompletions(char ***completions, int *count);
+void vimCommandLineGetCompletions(char_u ***completions, int *count);
 
 /***
  * Cursor Methods
@@ -80,6 +80,25 @@ void vimExecute(char_u *cmd);
  ***/
 
 void vimSetMessageCallback(MessageCallback messageCallback);
+
+/**
+ * Misc
+ **/
+
+void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
+void vimSetQuitCallback(QuitCallback callback);
+
+/*
+ * vimSetQuitCallback
+ *
+ * Called when a `:q`, `:qa`, `:q!` is called
+ * 
+ * It is up to the libvim consumer how to handle the 'quit' call.
+ * There are two arguments passed:
+ * - `buffer`: the buffer quit was requested for
+ * - `force`: a boolean if the command was forced (ie, if `q!` was used)
+ */
+void vimSetQuitCallback(QuitCallback callback);
 
 /***
  * Options

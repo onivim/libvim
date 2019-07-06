@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -14,7 +15,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_change_word) {
+MU_TEST(test_change_word)
+{
   vimInput("c");
   vimInput("w");
   vimInput("a");
@@ -27,7 +29,8 @@ MU_TEST(test_change_word) {
                   "abc is the first line of a test file") == 0);
 }
 
-MU_TEST(test_change_line_C) {
+MU_TEST(test_change_line_C)
+{
   vimInput("C");
   vimInput("a");
   vimInput("b");
@@ -38,7 +41,8 @@ MU_TEST(test_change_line_C) {
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 }
 
-MU_TEST(test_change_line_c$) {
+MU_TEST(test_change_line_c$)
+{
   vimInput("c");
   vimInput("$");
   vimInput("a");
@@ -50,7 +54,8 @@ MU_TEST(test_change_line_c$) {
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 }
 
-MU_TEST(test_change_redo) {
+MU_TEST(test_change_redo)
+{
   vimInput("c");
   vimInput("w");
   vimInput("a");
@@ -62,10 +67,12 @@ MU_TEST(test_change_redo) {
   vimInput(".");
 
   printf("LINE: %s\n", vimBufferGetLine(curbuf, 2));
-  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "abc is the second line of a test file") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2),
+                  "abc is the second line of a test file") == 0);
 }
 
-MU_TEST(test_change_macro) {
+MU_TEST(test_change_macro)
+{
   vimInput("q");
   vimInput("a");
 
@@ -77,7 +84,6 @@ MU_TEST(test_change_macro) {
   vimInput("<c-c>");
   vimInput("q");
 
-
   vimInput("j");
   vimInput("@");
   vimInput("a");
@@ -86,7 +92,8 @@ MU_TEST(test_change_macro) {
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "123") == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_change_word);
@@ -96,13 +103,14 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_change_macro);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

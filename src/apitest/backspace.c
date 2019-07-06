@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<Esc>");
   vimInput("<Esc>");
   vimExecute("e!");
@@ -13,7 +14,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(backspace_beyond_insert) {
+MU_TEST(backspace_beyond_insert)
+{
   // Go to end of 'This'
   vimInput("e");
 
@@ -31,19 +33,21 @@ MU_TEST(backspace_beyond_insert) {
   mu_check(strcmp(line, "Th is the first line of a test file") == 0);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(backspace_beyond_insert);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

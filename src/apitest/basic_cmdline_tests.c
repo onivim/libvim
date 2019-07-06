@@ -5,8 +5,10 @@ static int cmdLineEnterCount = 0;
 static int cmdLineLeaveCount = 0;
 static int cmdLineChangedCount = 0;
 
-void onAutoCommand(event_T command, buf_T *buf) {
-  switch (command) {
+void onAutoCommand(event_T command, buf_T *buf)
+{
+  switch (command)
+  {
   case EVENT_CMDLINECHANGED:
     cmdLineChangedCount++;
     return;
@@ -21,34 +23,39 @@ void onAutoCommand(event_T command, buf_T *buf) {
   }
 }
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
   vimExecute("e!");
 }
 
-void test_teardown(void) {
+void test_teardown(void)
+{
   cmdLineEnterCount = 0;
   cmdLineLeaveCount = 0;
   cmdLineChangedCount = 0;
 }
 
-MU_TEST(test_cmdline_esc) {
+MU_TEST(test_cmdline_esc)
+{
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
   vimInput("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
-MU_TEST(test_cmdline_enter) {
+MU_TEST(test_cmdline_enter)
+{
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
   vimInput("<cr>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
-MU_TEST(test_cmdline_autocmds) {
+MU_TEST(test_cmdline_autocmds)
+{
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
@@ -73,7 +80,8 @@ MU_TEST(test_cmdline_autocmds) {
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
-MU_TEST(test_cmdline_no_execute_with_esc) {
+MU_TEST(test_cmdline_no_execute_with_esc)
+{
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
@@ -90,7 +98,8 @@ MU_TEST(test_cmdline_no_execute_with_esc) {
   mu_check(lc == 3);
 }
 
-MU_TEST(test_cmdline_execute) {
+MU_TEST(test_cmdline_execute)
+{
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
@@ -107,7 +116,8 @@ MU_TEST(test_cmdline_execute) {
   mu_check(lc == 1);
 }
 
-MU_TEST(test_cmdline_substitution) {
+MU_TEST(test_cmdline_substitution)
+{
   buf_T *buffer = vimBufferGetCurrent();
   int lc = vimBufferGetLineCount(buffer);
   mu_check(lc == 3);
@@ -126,7 +136,8 @@ MU_TEST(test_cmdline_substitution) {
                   "Ahis is the first line of a test file") == 0);
 }
 
-MU_TEST(test_cmdline_get_type) {
+MU_TEST(test_cmdline_get_type)
+{
   vimInput(":");
   mu_check(vimCommandLineGetType() == ':');
   vimInput("<esc>");
@@ -140,7 +151,8 @@ MU_TEST(test_cmdline_get_type) {
   vimInput("<esc>");
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   /* MU_RUN_TEST(test_search_forward_esc); */
@@ -153,14 +165,15 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_cmdline_get_type);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimSetAutoCommandCallback(&onAutoCommand);
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

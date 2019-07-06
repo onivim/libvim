@@ -439,7 +439,7 @@ endif
 #>>>>> end of choices
 ###########################################################################
 
-CFLAGS = -I. -Iproto $(DEFINES) -pipe -march=$(ARCH) -Wall
+CFLAGS = -I. -Iproto $(DEFINES) -pipe -march=$(ARCH) -Wall -Wextra -Wno-strict-overflow -Wno-pointer-sign -Wno-unused-parameter -Werror
 CXXFLAGS = -std=gnu++11
 WINDRES_FLAGS = --preprocessor="$(WINDRES_CC) -E -xc" -DRC_INVOKED
 EXTRA_LIBS =
@@ -555,6 +555,7 @@ CUIOBJ = $(OUTDIR)/iscygpty.o
 OBJ = \
 	$(OUTDIR)/arabic.o \
 	$(OUTDIR)/autocmd.o \
+	$(OUTDIR)/auto_closing_pairs.o \
 	$(OUTDIR)/blob.o \
 	$(OUTDIR)/buffer.o \
 	$(OUTDIR)/change.o \
@@ -834,7 +835,7 @@ copy-apitest-collateral:
 	ls $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
-	$(CC) -I. -Iproto -L. -Lproto $< $(EXELFLAGS) -o $@ libvim.a -lstdc++ -lole32 -lws2_32 -lnetapi32 -lversion -lcomctl32 -luuid -lgdi32
+	$(CC) -I. -Iproto -L. -Lproto $< $(EXELFLAGS) -Wall -Wno-pointer-sign -Werror -o $@ libvim.a -lstdc++ -lole32 -lws2_32 -lnetapi32 -lversion -lcomctl32 -luuid -lgdi32
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
 

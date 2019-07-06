@@ -12,9 +12,12 @@ void ex_doautoall(exarg_T *eap);
 int check_nomodeline(char_u **argp);
 void aucmd_prepbuf(aco_save_T *aco, buf_T *buf);
 void aucmd_restbuf(aco_save_T *aco);
-int apply_autocmds(event_T event, char_u *fname, char_u *fname_io, int force, buf_T *buf);
-int apply_autocmds_exarg(event_T event, char_u *fname, char_u *fname_io, int force, buf_T *buf, exarg_T *eap);
-int apply_autocmds_retval(event_T event, char_u *fname, char_u *fname_io, int force, buf_T *buf, int *retval);
+int apply_autocmds(event_T event, char_u *fname, char_u *fname_io, int force,
+                   buf_T *buf);
+int apply_autocmds_exarg(event_T event, char_u *fname, char_u *fname_io,
+                         int force, buf_T *buf, exarg_T *eap);
+int apply_autocmds_retval(event_T event, char_u *fname, char_u *fname_io,
+                          int force, buf_T *buf, int *retval);
 int has_cursorhold(void);
 int trigger_cursorhold(void);
 int has_cursormoved(void);

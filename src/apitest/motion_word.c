@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("g");
   vimInput("g");
   vimInput("0");
@@ -9,7 +10,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_w) {
+MU_TEST(test_w)
+{
   mu_check(vimCursorGetColumn() == 0);
 
   vimInput("w");
@@ -29,7 +31,8 @@ MU_TEST(test_w) {
   mu_check(vimCursorGetColumn() == 19);
 }
 
-MU_TEST(test_e) {
+MU_TEST(test_e)
+{
   mu_check(vimCursorGetColumn() == 0);
 
   vimInput("e");
@@ -50,7 +53,8 @@ MU_TEST(test_e) {
   mu_check(vimCursorGetColumn() == 36);
 }
 
-MU_TEST(test_b) {
+MU_TEST(test_b)
+{
   mu_check(vimCursorGetColumn() == 0);
 
   vimInput("$");
@@ -63,7 +67,8 @@ MU_TEST(test_b) {
   mu_check(vimCursorGetColumn() == 12);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_w);
@@ -71,13 +76,14 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_b);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/testfile.txt", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -10,14 +11,16 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_matching_bracket) {
+MU_TEST(test_matching_bracket)
+{
   pos_T *bracket = vimSearchGetMatchingPair(0);
 
   mu_check(bracket->lnum == 6);
   mu_check(bracket->col == 0);
 }
 
-MU_TEST(test_matching_parentheses_cursor) {
+MU_TEST(test_matching_parentheses_cursor)
+{
   vimInput("l");
   vimInput("l");
 
@@ -27,7 +30,8 @@ MU_TEST(test_matching_parentheses_cursor) {
   mu_check(bracket->col == 38);
 }
 
-MU_TEST(test_no_match) {
+MU_TEST(test_no_match)
+{
   vimInput("j");
 
   pos_T *bracket = vimSearchGetMatchingPair(0);
@@ -35,7 +39,8 @@ MU_TEST(test_no_match) {
   mu_check(bracket == NULL);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_matching_bracket);
@@ -43,13 +48,14 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_no_match);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
   win_setwidth(5);
   win_setheight(100);
 
-  buf_T *buf = vimBufferOpen("collateral/brackets.txt", 1, 0);
+  vimBufferOpen("collateral/brackets.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

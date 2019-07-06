@@ -1313,6 +1313,8 @@ NO_ATTR=
 PROTO_FLAGS = -d -E"$(CPP)" $(NO_ATTR)
 
 
+WARN_FLAGS = -Wall -Wno-pointer-sign -Wno-cpp -Wno-unused-parameter -Wno-strict-overflow -Wno-return-type -Werror
+
 ################################################
 ##   no changes required below this line      ##
 ################################################
@@ -1332,7 +1334,7 @@ VTERM_CFLAGS = -Ilibvterm/include
 PRE_DEFS = -Iproto $(DEFS) $(GUI_DEFS) $(GUI_IPATH) $(CPPFLAGS) $(EXTRA_IPATHS)
 POST_DEFS = $(X_CFLAGS) $(MZSCHEME_CFLAGS) $(EXTRA_DEFS)
 
-ALL_CFLAGS = $(PRE_DEFS) $(CFLAGS) $(PROFILE_CFLAGS) $(SANITIZER_CFLAGS) $(LEAK_CFLAGS) $(ABORT_CFLAGS) $(POST_DEFS)
+ALL_CFLAGS = $(PRE_DEFS) $(CFLAGS) $(WARN_FLAGS) $(PROFILE_CFLAGS) $(SANITIZER_CFLAGS) $(LEAK_CFLAGS) $(ABORT_CFLAGS) $(POST_DEFS)
 
 # Exclude $CFLAGS for osdef.sh, for Mac 10.4 some flags don't work together
 # with "-E".
@@ -1435,6 +1437,7 @@ include testdir/Make_all.mak
 BASIC_SRC = \
 	arabic.c \
 	autocmd.c \
+	auto_closing_pairs.c \
 	blob.c \
 	buffer.c \
 	change.c \
@@ -1544,6 +1547,7 @@ LINT_SRC = $(BASIC_SRC) $(GUI_SRC) $(HANGULIN_SRC) \
 
 OBJ_COMMON = \
 	objects/arabic.o \
+	objects/auto_closing_pairs.o \
 	objects/autocmd.o \
 	objects/buffer.o \
 	objects/change.o \
@@ -1667,6 +1671,7 @@ ALL_OBJ = $(OBJ_COMMON) \
 
 PRO_AUTO = \
 	arabic.pro \
+	auto_closing_pairs.pro \
 	autocmd.pro \
 	buffer.pro \
 	change.pro \
@@ -2071,7 +2076,7 @@ copy-apitest-collateral: $(TEST_COLLATERAL)
 	ls $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
-	$(CC) -I. $(ALL_CFLAGS) $< -o $@ libvim.a $(ALL_LIBS)
+	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
 
@@ -2767,6 +2772,9 @@ $(ALL_OBJ): objects/.dirstamp
 objects/arabic.o: arabic.c
 	$(CCC) -o $@ arabic.c
 
+objects/auto_closing_pairs.o: auto_closing_pairs.c
+	$(CCC) -o $@ auto_closing_pairs.c
+    
 objects/autocmd.o: autocmd.c
 	$(CCC) -o $@ autocmd.c
 

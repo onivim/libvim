@@ -24,7 +24,8 @@ void status_redraw_all(void);
 void status_redraw_curbuf(void);
 void redraw_statuslines(void);
 void win_redraw_last_status(frame_T *frp);
-void win_redr_status_matches(expand_T *xp, int num_matches, char_u **matches, int match, int showtail);
+void win_redr_status_matches(expand_T *xp, int num_matches, char_u **matches,
+                             int match, int showtail);
 int stl_connected(win_T *wp);
 int get_keymap_str(win_T *wp, char_u *fmt, char_u *buf, int len);
 void screen_putchar(int c, int row, int col, int attr);
@@ -34,7 +35,8 @@ void screen_puts_len(char_u *text, int textlen, int row, int col, int attr);
 void screen_stop_highlight(void);
 void reset_cterm_colors(void);
 void screen_draw_rectangle(int row, int col, int height, int width, int invert);
-void screen_fill(int start_row, int end_row, int start_col, int end_col, int c1, int c2, int attr);
+void screen_fill(int start_row, int end_row, int start_col, int end_col, int c1,
+                 int c2, int attr);
 void check_for_delay(int check_msg_scroll);
 int screen_valid(int doclear);
 void screenalloc(int doclear);
@@ -45,10 +47,14 @@ void screen_start(void);
 void windgoto(int row, int col);
 void setcursor(void);
 void setcursor_mayforce(int force);
-int win_ins_lines(win_T *wp, int row, int line_count, int invalid, int mayclear);
-int win_del_lines(win_T *wp, int row, int line_count, int invalid, int mayclear, int clear_attr);
-int screen_ins_lines(int off, int row, int line_count, int end, int clear_attr, win_T *wp);
-int screen_del_lines(int off, int row, int line_count, int end, int force, int clear_attr, win_T *wp);
+int win_ins_lines(win_T *wp, int row, int line_count, int invalid,
+                  int mayclear);
+int win_del_lines(win_T *wp, int row, int line_count, int invalid, int mayclear,
+                  int clear_attr);
+int screen_ins_lines(int off, int row, int line_count, int end, int clear_attr,
+                     win_T *wp);
+int screen_del_lines(int off, int row, int line_count, int end, int force,
+                     int clear_attr, win_T *wp);
 int skip_showmode(void);
 int showmode(void);
 void unshowmode(int force);

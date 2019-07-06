@@ -1,7 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
-void test_setup(void) {
+void test_setup(void)
+{
   vimExecute("e!");
 
   vimInput("g");
@@ -15,7 +16,8 @@ void test_setup(void) {
 
 void test_teardown(void) {}
 
-MU_TEST(test_set_get_metrics) {
+MU_TEST(test_set_get_metrics)
+{
   vimWindowSetWidth(80);
   vimWindowSetHeight(10);
 
@@ -35,7 +37,8 @@ MU_TEST(test_set_get_metrics) {
   mu_check(vimWindowGetHeight() == 101);
 }
 
-MU_TEST(test_simple_scroll) {
+MU_TEST(test_simple_scroll)
+{
   vimWindowSetWidth(80);
   vimWindowSetHeight(40);
 
@@ -57,7 +60,8 @@ MU_TEST(test_simple_scroll) {
   mu_check(vimCursorGetLine() == 50);
 }
 
-MU_TEST(test_small_screen_scroll) {
+MU_TEST(test_small_screen_scroll)
+{
   vimWindowSetWidth(80);
   vimWindowSetHeight(3);
 
@@ -79,7 +83,8 @@ MU_TEST(test_small_screen_scroll) {
   mu_check(vimCursorGetLine() == 50);
 }
 
-MU_TEST(test_h_m_l) {
+MU_TEST(test_h_m_l)
+{
   vimWindowSetWidth(80);
   vimWindowSetHeight(40);
 
@@ -98,7 +103,8 @@ MU_TEST(test_h_m_l) {
   mu_check(vimCursorGetLine() == 50);
 }
 
-MU_TEST(test_only_scroll_at_boundary) {
+MU_TEST(test_only_scroll_at_boundary)
+{
 
   vimWindowSetWidth(80);
   vimWindowSetHeight(63);
@@ -125,7 +131,8 @@ MU_TEST(test_only_scroll_at_boundary) {
   mu_check(vimWindowGetTopLine() == 2);
 }
 
-MU_TEST_SUITE(test_suite) {
+MU_TEST_SUITE(test_suite)
+{
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_set_get_metrics);
@@ -135,10 +142,11 @@ MU_TEST_SUITE(test_suite) {
   MU_RUN_TEST(test_only_scroll_at_boundary);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   vimInit(argc, argv);
 
-  buf_T *buf = vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

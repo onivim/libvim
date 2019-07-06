@@ -15,4 +15,3 @@ typedef double _Float128;
 typedef double _Float32x;
 typedef double _Float64x;
 #endif
-
