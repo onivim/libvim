@@ -39,7 +39,7 @@ void *state_insert_literal_initialize(int *ret)
 
 executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
-  printf("state_insert_literal_execute - c: |%d|\n", c);
+  printf("state_insert_literal_execute - c: |%d|\n", nc);
   insertLiteral_T *context = (insertLiteral_T *)ctx;
   context->nc = nc;
 
