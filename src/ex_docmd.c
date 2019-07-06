@@ -6426,6 +6426,10 @@ void ex_splitview(exarg_T *eap)
 #ifdef FEAT_BROWSE
   int browse_flag = cmdmod.browse;
 #endif
+
+    int use_tab = eap->cmdidx == CMD_tabedit
+                  || eap->cmdidx == CMD_tabfind
+                  || eap->cmdidx == CMD_tabnew;
     
     windowSplit_T splitType = HORIZONTAL_SPLIT;
 
