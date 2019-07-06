@@ -78,7 +78,7 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   printf("getting completions...\n");
   *count = 0;
   *completions = NULL;
-  
+
   /* set_expand_context(&ccline.xpc); */
   if (!ccline.xpc)
   {
