@@ -6426,7 +6426,35 @@ void ex_splitview(exarg_T *eap)
 #ifdef FEAT_BROWSE
   int browse_flag = cmdmod.browse;
 #endif
+
   int use_tab = eap->cmdidx == CMD_tabedit || eap->cmdidx == CMD_tabfind || eap->cmdidx == CMD_tabnew;
+
+  windowSplit_T splitType = HORIZONTAL_SPLIT;
+
+  switch (eap->cmdidx)
+  {
+  case CMD_vsplit:
+  case CMD_vnew:
+    splitType = VERTICAL_SPLIT;
+    break;
+  case CMD_tabfind:
+  case CMD_tabedit:
+  case CMD_tabnew:
+    splitType = TAB_PAGE;
+    break;
+  default:
+    break;
+  }
+
+  fname = eap->arg;
+
+  if (windowSplitCallback != NULL)
+  {
+    windowSplitCallback(splitType, fname);
+  }
+
+  /* libvim - noop */
+  return;
 
   if (NOT_IN_POPUP_WINDOW)
     return;

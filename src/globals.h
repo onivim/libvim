@@ -49,6 +49,8 @@ EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
+EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
+EXTERN WindowMovementCallback windowMovementCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
 
 /*

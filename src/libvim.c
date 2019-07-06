@@ -56,6 +56,16 @@ void vimSetMessageCallback(MessageCallback f)
   messageCallback = f;
 }
 
+void vimSetWindowSplitCallback(WindowSplitCallback f)
+{
+  windowSplitCallback = f;
+}
+
+void vimSetWindowMovementCallback(WindowMovementCallback f)
+{
+  windowMovementCallback = f;
+}
+
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback f)
 {
   directoryChangedCallback = f;

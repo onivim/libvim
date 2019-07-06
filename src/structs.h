@@ -37,6 +37,30 @@ typedef enum
   MSG_ERROR,
 } msgPriority_T;
 
+typedef enum
+{
+  HORIZONTAL_SPLIT,
+  VERTICAL_SPLIT,
+  TAB_PAGE,
+} windowSplit_T;
+
+typedef enum
+{
+  ONE_LEFT,
+  ONE_RIGHT,
+  ONE_UP,
+  ONE_DOWN,
+  FULL_LEFT,
+  FULL_RIGHT,
+  FULL_UP,
+  FULL_DOWN,
+  TOP_LEFT,
+  BOTTOM_RIGHT
+} windowMovement_T;
+
+typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
+typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
+
 typedef struct
 {
   char open;
@@ -2390,7 +2414,6 @@ typedef struct
 } bufferUpdate_T;
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
-
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);

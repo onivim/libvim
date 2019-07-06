@@ -86,6 +86,44 @@ void do_window(
 #endif
   char_u cbuf[40];
 
+  if (windowMovementCallback == NULL)
+    return;
+
+  Prenum1 = Prenum == 0 ? 1 : Prenum;
+
+  switch (nchar)
+  {
+    /* cursor to window below */
+  case 'j':
+  case K_DOWN:
+  case Ctrl_J:
+    windowMovementCallback(ONE_DOWN, Prenum1);
+    break;
+
+    /* cursor to window above */
+  case 'k':
+  case K_UP:
+  case Ctrl_K:
+    windowMovementCallback(ONE_UP, Prenum1);
+    break;
+
+    /* cursor to left window */
+  case 'h':
+  case K_LEFT:
+  case Ctrl_H:
+  case K_BS:
+    windowMovementCallback(ONE_LEFT, Prenum1);
+    break;
+
+    /* cursor to right window */
+  case 'l':
+  case K_RIGHT:
+  case Ctrl_L:
+    windowMovementCallback(ONE_RIGHT, Prenum1);
+    break;
+  default:
+    return;
+  }
   if (NOT_IN_POPUP_WINDOW)
     return;
 
@@ -104,6 +142,7 @@ void do_window(
   case 's':
     CHECK_CMDWIN;
     reset_VIsual_and_resel(); /* stop Visual mode */
+
 #ifdef FEAT_QUICKFIX
     /* When splitting the quickfix window open a new buffer in it,
 		 * don't replicate the quickfix buffer. */

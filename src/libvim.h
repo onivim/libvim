@@ -173,8 +173,10 @@ int vimWindowGetLeftColumn(void);
 
 void vimWindowSetWidth(int width);
 void vimWindowSetHeight(int height);
-
 void vimWindowSetTopLeft(int top, int left);
+
+void vimSetWindowSplitCallback(WindowSplitCallback callback);
+void vimSetWindowMovementCallback(WindowMovementCallback callback);
 
 /***
  * Misc

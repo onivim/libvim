@@ -703,6 +703,13 @@ restart_state:
       else
         context->ca.count0 = context->ca.opcount;
     }
+    else if (c == Ctrl_W && !context->ctrl_w)
+    {
+      context->ctrl_w = TRUE;
+      // After <C-W>, might get another count...
+      context->state = NORMAL_START_COUNT;
+      return HANDLED;
+    }
 
     /*
      * Always remember the count.  It will be set to zero (on the next call,
