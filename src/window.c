@@ -90,7 +90,6 @@ void do_window(
 	if (windowMovementCallback == NULL)
 		return;
 
-printf("past callback check! nchar: %c\n", nchar);
     Prenum1 = Prenum == 0 ? 1 : Prenum;
 
 	switch (nchar) {
