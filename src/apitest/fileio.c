@@ -25,7 +25,6 @@ void test_setup(void)
 {
 
   strcpy(tempFile, vim_tempname('t', FALSE));
- 
 
   printf("\nUsing testfile: %s\n", tempFile);
   vimInput("<esc>");
@@ -39,11 +38,12 @@ void test_setup(void)
 
 void test_teardown(void) {}
 
-MU_TEST(test_write_while_file_open) {
+MU_TEST(test_write_while_file_open)
+{
 
   vimInput("i");
   vimInput("a");
-  
+
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
@@ -59,11 +59,12 @@ MU_TEST(test_write_while_file_open) {
   mu_check(strcmp(buff, "Hello!\n") == 0);
 }
 
-MU_TEST(test_overwrite_file) {
+MU_TEST(test_overwrite_file)
+{
 
   vimInput("i");
   vimInput("a");
-  
+
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
