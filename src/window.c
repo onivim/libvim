@@ -4620,7 +4620,6 @@ win_free(
   }
 #endif /* FEAT_GUI */
 
-
   if (win_valid_any_tab(wp))
     win_remove(wp, tp);
   if (autocmd_busy)
@@ -4642,7 +4641,6 @@ int win_unlisted(win_T *wp)
 {
   return wp == aucmd_win || bt_popup(wp->w_buffer);
 }
-
 
 /*
  * Append window "wp" in the window list after window "after".

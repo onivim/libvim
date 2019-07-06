@@ -1067,8 +1067,7 @@ void main_loop(
 #endif
 
       /* Trigger CursorMoved if the cursor moved. */
-      if (!finish_op && (has_cursormoved()
-                         ) &&
+      if (!finish_op && (has_cursormoved()) &&
           !EQUAL_POS(last_cursormoved, curwin->w_cursor))
       {
         if (has_cursormoved())

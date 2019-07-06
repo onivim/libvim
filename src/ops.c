@@ -1760,7 +1760,6 @@ int op_delete(oparg_T *oap)
       STRMOVE(newp + bd.textcol + bd.startspaces + bd.endspaces, oldp);
       /* replace the line */
       ml_replace(lnum, newp, FALSE);
-
     }
 
     check_cursor_col();
@@ -4297,7 +4296,7 @@ int do_join(long count, int insert_space, int save_undo,
     currsize = (int)STRLEN(curr);
   }
 
-    ml_replace(curwin->w_cursor.lnum, newp, FALSE);
+  ml_replace(curwin->w_cursor.lnum, newp, FALSE);
 
   if (setmark)
   {

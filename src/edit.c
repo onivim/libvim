@@ -1935,8 +1935,7 @@ void ins_redraw(int ready) // not busy with something
   /* Trigger CursorMoved if the cursor moved.  Not when the popup menu is
    * visible, the command might delete it. */
   if (ready &&
-      (has_cursormovedI()
-       ) &&
+      (has_cursormovedI()) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor))
   {
     if (has_cursormovedI())
@@ -4338,7 +4337,6 @@ static void replace_do_bs(int limit_col)
 
     // mark the buffer as changed and prepare for displaying
     changed_bytes(curwin->w_cursor.lnum, curwin->w_cursor.col);
-
   }
   else if (cc == 0)
     (void)del_char_after_col(limit_col);

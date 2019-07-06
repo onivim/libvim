@@ -599,7 +599,6 @@ int update_screen(int type_arg)
     maybe_intro_message();
   did_intro = TRUE;
 
-
 #ifdef FEAT_GUI
   /* Redraw the cursor and update the scrollbars when all screen updating is
      * done. */
@@ -683,7 +682,6 @@ get_wcr_attr(win_T *wp)
     wcr_attr = syn_name2attr(wp->w_p_wcr);
   return wcr_attr;
 }
-
 
 #if defined(FEAT_GUI) || defined(PROTO)
 /*
@@ -1655,8 +1653,7 @@ win_update(win_T *wp)
       }
       else
 #endif
-          if (idx < wp->w_lines_valid && wp->w_lines[idx].wl_valid && wp->w_lines[idx].wl_lnum == lnum && lnum > wp->w_topline && !(dy_flags & (DY_LASTLINE | DY_TRUNCATE))
-              && srow + wp->w_lines[idx].wl_size > wp->w_height
+          if (idx < wp->w_lines_valid && wp->w_lines[idx].wl_valid && wp->w_lines[idx].wl_lnum == lnum && lnum > wp->w_topline && !(dy_flags & (DY_LASTLINE | DY_TRUNCATE)) && srow + wp->w_lines[idx].wl_size > wp->w_height
 #ifdef FEAT_DIFF
               && diff_check_fill(wp, lnum) == 0
 #endif
@@ -1833,7 +1830,7 @@ win_update(win_T *wp)
     // Make sure the rest of the screen is blank
     // put '~'s on rows that aren't part of the file.
     win_draw_end(wp,
-                                        '~',
+                 '~',
                  ' ', FALSE, row, wp->w_height, HLF_EOB);
   }
 
@@ -2457,7 +2454,6 @@ fill_foldcolumn(
 }
 #endif /* FEAT_FOLDING */
 
-
 /*
  * Display line "lnum" of window 'wp' on the screen.
  * Start at row "startrow", stop when "endrow" is reached.
@@ -2532,12 +2528,12 @@ win_line(
                                  // margins and "~" lines.
   int area_attr = 0;             // attributes desired by highlighting
   int search_attr = 0;           // attributes desired by 'hlsearch'
-  int extra_check = 0; // has extra highlighting
-  int multi_attr = 0;  /* attributes desired by multibyte */
-  int mb_l = 1;        /* multi-byte byte length */
-  int mb_c = 0;        /* decoded multi-byte character */
-  int mb_utf8 = FALSE; /* screen char is UTF-8 char */
-  int u8cc[MAX_MCO];   /* composing UTF-8 chars */
+  int extra_check = 0;           // has extra highlighting
+  int multi_attr = 0;            /* attributes desired by multibyte */
+  int mb_l = 1;                  /* multi-byte byte length */
+  int mb_c = 0;                  /* decoded multi-byte character */
+  int mb_utf8 = FALSE;           /* screen char is UTF-8 char */
+  int u8cc[MAX_MCO];             /* composing UTF-8 chars */
 #ifdef FEAT_DIFF
   int filler_lines;          /* nr of filler lines to be drawn */
   int filler_todo;           /* nr of filler lines still to do + 1 */
@@ -2948,7 +2944,6 @@ win_line(
       cur = cur->next;
   }
 #endif
-
 
   off = (unsigned)(current_ScreenLine - ScreenLines);
   col = 0;
@@ -3372,7 +3367,6 @@ win_line(
       }
 #endif
 
-
       /* Decide which of the highlight attributes to use. */
       attr_pri = TRUE;
 #ifdef LINE_ATTR
@@ -3393,7 +3387,7 @@ win_line(
       else
       {
         attr_pri = FALSE;
-          char_attr = 0;
+        char_attr = 0;
       }
     }
     if (char_attr == 0)
@@ -4505,7 +4499,6 @@ win_line(
 
   } /* for every character in the line */
 
-
   vim_free(p_extra_free);
   return row;
 }
@@ -4883,8 +4876,7 @@ void screen_line(
     }
   }
 
-  if (clear_width > 0
-  )
+  if (clear_width > 0)
   {
     // For a window that has a right neighbor, draw the separator char
     // right of the window contents.
@@ -4976,7 +4968,6 @@ void redraw_statuslines(void)
     win_redr_status(wp, FALSE);
   if (redraw_tabline)
     draw_tabline();
-
 }
 
 #if defined(FEAT_WILDMENU) || defined(PROTO)
@@ -8593,7 +8584,6 @@ void showruler(int always)
   /* Redraw the tab pages line if needed. */
   if (redraw_tabline)
     draw_tabline();
-
 }
 
 #if defined(FEAT_LINEBREAK) || defined(PROTO)

@@ -2689,7 +2689,6 @@ ml_append_int(
   may_invoke_listeners(buf, lnum + 1, lnum + 1, 1);
 #endif
 
-
   space_needed = len + INDEX_SIZE; // space needed for text + index
 
   mfp = buf->b_ml.ml_mfp;
@@ -3202,7 +3201,7 @@ int ml_replace_len(
   if (copy)
   {
     // copy the line to allocated memory
-      line = vim_strnsave(line, len - 1);
+    line = vim_strnsave(line, len - 1);
     if (line == NULL)
       return FAIL;
   }
@@ -3212,9 +3211,7 @@ int ml_replace_len(
     // another line is buffered, flush it
     ml_flush_line(curbuf);
     curbuf->b_ml.ml_flags &= ~ML_LINE_DIRTY;
-
   }
-
 
   if (curbuf->b_ml.ml_flags & ML_LINE_DIRTY) // same line allocated
     vim_free(curbuf->b_ml.ml_line_ptr);      // free it
@@ -3226,7 +3223,6 @@ int ml_replace_len(
 
   return OK;
 }
-
 
 /*
  * Delete line "lnum" in the current buffer.
@@ -3309,7 +3305,6 @@ ml_delete_int(buf_T *buf, linenr_T lnum, int message)
     line_size = dp->db_txt_end - line_start;
   else
     line_size = ((dp->db_index[idx - 1]) & DB_INDEX_MASK) - line_start;
-
 
   /*
  * special case: If there is only one line in the data block it becomes empty.
@@ -5303,7 +5298,7 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         idx++;
       }
     }
-      len = text_end - ((dp->db_index[idx]) & DB_INDEX_MASK);
+    len = text_end - ((dp->db_index[idx]) & DB_INDEX_MASK);
     size += len;
     if (offset != 0 && size >= offset)
     {
