@@ -26,6 +26,7 @@ void *state_insert_literal_initialize(int *ret)
   insertLiteral_T *context = (insertLiteral_T *)alloc(sizeof(insertLiteral_T));
   context->hex = FALSE;
   context->octal = FALSE;
+  context->unicode = FALSE;
 
   ++no_mapping;
 
