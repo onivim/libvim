@@ -2421,10 +2421,10 @@ struct tabpage_S
   win_T *tp_prevwin;    // previous window in this Tab page
   win_T *tp_firstwin;   // first window in this Tab page
   win_T *tp_lastwin;    // last window in this Tab page
-  long tp_old_Rows;    // Rows when Tab page was left
-  long tp_old_Columns; // Columns when Tab page was left
-  long tp_ch_used;     // value of 'cmdheight' when frame size
-                       // was set
+  long tp_old_Rows;     // Rows when Tab page was left
+  long tp_old_Columns;  // Columns when Tab page was left
+  long tp_ch_used;      // value of 'cmdheight' when frame size
+                        // was set
 #ifdef FEAT_GUI
   int tp_prev_which_scrollbars[3];
   // previous value of which_scrollbars
