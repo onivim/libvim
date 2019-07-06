@@ -37,7 +37,6 @@ void *state_insert_literal_initialize(int *ret)
   return context;
 }
 
-
 executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
   insertLiteral_T *context = (insertLiteral_T *)ctx;
