@@ -44,7 +44,6 @@ void test_teardown(void) {}
 
 MU_TEST(test_write_while_file_open)
 {
-
   vimInput("i");
   vimInput("a");
 
@@ -77,9 +76,10 @@ MU_TEST(test_overwrite_file)
   fprintf(fp, "Hello!\n");
   fclose(fp);
 
-  /*vimExecute("w!");
+  vimExecute("w!");
 
   // Verify file did not get overwrite
+  /*
   char buff[255];
   fp = fopen(tempFile, "r");
   fgets(buff, 255, fp);
