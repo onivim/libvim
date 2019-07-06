@@ -169,9 +169,11 @@ char_u *vimSearchGetPattern();
 int vimWindowGetWidth(void);
 int vimWindowGetHeight(void);
 int vimWindowGetTopLine(void);
+int vimWindowGetLeftColumn(void);
 
 void vimWindowSetWidth(int width);
 void vimWindowSetHeight(int height);
+void vimWindowSetTopLeft(int top, int left);
 
 void vimSetWindowSplitCallback(WindowSplitCallback callback);
 void vimSetWindowMovementCallback(WindowMovementCallback callback);

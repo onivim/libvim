@@ -138,6 +138,7 @@ void vimInput(char_u *input)
   }
 
   update_curswant();
+  curs_columns(TRUE);
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }
@@ -275,6 +276,14 @@ int vimOptionGetInsertSpaces(void) { return curbuf->b_p_et; }
 int vimWindowGetWidth(void) { return curwin->w_width; }
 int vimWindowGetHeight(void) { return curwin->w_height; }
 int vimWindowGetTopLine(void) { return curwin->w_topline; }
+int vimWindowGetLeftColumn(void) { return curwin->w_leftcol; }
+
+void vimWindowSetTopLeft(int top, int left)
+{
+  curwin->w_topline = top;
+  curwin->w_leftcol = left;
+  curs_columns(TRUE);
+}
 
 void vimWindowSetWidth(int width)
 {
