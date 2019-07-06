@@ -81,7 +81,7 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
     }
     else
     {
-      
+
       printf("state_insert_literal_execute - else block 2\n");
       printf(" - VIM_ISDIGIT(context->nc): %d\n", VIM_ISDIGIT(context->nc));
       if (!VIM_ISDIGIT(context->nc))
