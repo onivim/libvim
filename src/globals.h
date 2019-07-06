@@ -443,10 +443,6 @@ EXTERN win_T *curwin; /* currently active window */
 EXTERN win_T *aucmd_win;                 /* window used in aucmd_prepbuf() */
 EXTERN int aucmd_win_used INIT(= FALSE); /* aucmd_win is being used */
 
-#ifdef FEAT_TEXT_PROP
-EXTERN win_T *first_popupwin; // first global popup window
-#endif
-
 /*
  * The window layout is kept in a tree of frames.  topframe points to the top
  * of the tree.
@@ -1277,7 +1273,3 @@ EXTERN int ctrl_break_was_pressed INIT(= FALSE);
 EXTERN HINSTANCE g_hinst INIT(= NULL);
 #endif
 
-#ifdef FEAT_TEXT_PROP
-EXTERN int text_prop_frozen INIT(= 0);
-EXTERN int popup_visible INIT(= FALSE);
-#endif
