@@ -73,11 +73,11 @@ MU_TEST(test_overwrite_file)
 
 
   mu_check(1 == 1);
-  /*FILE *fp = fopen(tempFile, "w");
+  FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
 
-  vimExecute("w!");
+  /*vimExecute("w!");
 
   // Verify file did not get overwrite
   char buff[255];
