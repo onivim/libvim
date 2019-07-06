@@ -20,7 +20,7 @@ typedef struct
   int *ret;
 } insertLiteral_T;
 
-insertLiteral_T *state_insert_literal_initialize(int *ret)
+void *state_insert_literal_initialize(int *ret)
 {
 
   insertLiteral_T *context = (insertLiteral_T *)alloc(sizeof(insertLiteral_T));
@@ -37,8 +37,9 @@ insertLiteral_T *state_insert_literal_initialize(int *ret)
   return context;
 }
 
-executionStatus_T state_insert_literal_execute(insertLiteral_T *context, int nc)
+executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
+  insertLiteral_T *context = (insertLiteral_T *)ctx;
   context->nc = nc;
 
   if (context->nc == 'x' || context->nc == 'X')
@@ -74,7 +75,7 @@ executionStatus_T state_insert_literal_execute(insertLiteral_T *context, int nc)
     {
       if (!VIM_ISDIGIT(context->nc))
       {
-        return COMPLETED;
+        return COMPLETED_UNHANDLED;
       }
       context->cc = context->cc * 10 + context->nc - '0';
     }
@@ -107,22 +108,25 @@ executionStatus_T state_insert_literal_execute(insertLiteral_T *context, int nc)
   return HANDLED;
 }
 
-void state_insert_literal_cleanup(insertLiteral_T *context)
+void state_insert_literal_cleanup(void *ctx)
 {
+  insertLiteral_T *context = (insertLiteral_T *)ctx;
 
   if (context->i == 0) /* no number entered */
   {
     if (context->nc == K_ZERO) /* NUL is stored as NL */
     {
-context->cc = '\n';
-context->nc = 0;
-    } else {
-    context->cc = context->nc;
-    context->nc = 0;
+      context->cc = '\n';
+      context->nc = 0;
+    }
+    else
+    {
+      context->cc = context->nc;
+      context->nc = 0;
     }
   }
 
-   *(context->ret) = context->cc;
+  *(context->ret) = context->cc;
 
   --no_mapping;
   vim_free(context);

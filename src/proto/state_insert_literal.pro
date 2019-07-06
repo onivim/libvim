@@ -1,18 +1,9 @@
-/* state_machine.c */
+/* state_insert_literal.c */
 
-void sm_push(int mode, void *context, state_execute executeFn,
-             state_cleanup cleanupFn);
+void *state_insert_literal_initialize(int *ret);
 
-void sm_push_insert(int cmdchar, int startln, long count);
-void sm_push_normal();
-void sm_push_change(oparg_T *oap);
-void sm_push_cmdline(int cmdchar, long count, int indent);
+executionStatus_T state_insert_literal_execute(void *ctx, int c);
 
-void sm_execute_normal(char_u *keys);
-void sm_execute(char_u *key);
-
-int sm_get_current_mode(void);
-
-sm_T *sm_get_current(void);
+void state_insert_literal_cleanup(void *ctx);
 
 /* vim: set ft=c : */

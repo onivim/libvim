@@ -41,6 +41,11 @@ void sm_push_insert(int cmdchar, int startln, long count)
           state_edit_execute, state_edit_cleanup);
 }
 
+void sm_push_insert_literal(int *ret)
+{
+  sm_push(INSERT, state_insert_literal_initialize(ret), state_insert_literal_execute, state_insert_literal_cleanup);
+}
+
 void sm_push_cmdline(int cmdchar, long count, int indent)
 {
   sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent),

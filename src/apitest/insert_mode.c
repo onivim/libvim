@@ -128,19 +128,30 @@ MU_TEST(insert_mode_ctrlv)
   // Character literal mode
   vimInput("<c-v>");
 
-  // While a character literal is pending, a `^` is shown temporarily
-  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  mu_check(strcmp(line, "^") == 0);
-
   vimInput("1");
   vimInput("2");
   vimInput("6");
 
-  line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
   printf("LINE: %s\n", line);
   mu_check(strcmp(line, "~") == 0);
-  
+}
+
+MU_TEST(insert_mode_ctrlv_no_digit)
+{
+  vimInput("O");
+
+  // Character literal mode
+  vimInput("<c-v>");
+
+  // Jump out of character literal mode by entering a non-digit character
+  vimInput("a");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "a") == 0);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -155,6 +166,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_end);
   MU_RUN_TEST(insert_changed_ticks);
   MU_RUN_TEST(insert_mode_ctrlv);
+  MU_RUN_TEST(insert_mode_ctrlv_no_digit);
 }
 
 int main(int argc, char **argv)
