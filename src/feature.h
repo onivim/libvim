@@ -872,6 +872,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_GUI_X11
 #undef ALWAYS_USE_GUI
 
+#undef FEAT_TEXT_PROP
 /*
  * The Netbeans feature
  */
