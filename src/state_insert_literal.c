@@ -51,7 +51,7 @@ executionStatus_T state_insert_literal_execute(insertLiteral_T *context, int nc)
   }
   else if (context->nc == 'u' || context->nc == 'U')
   {
-    context->unicode = TRUE
+    context->unicode = TRUE;
   }
   else
   {
@@ -59,7 +59,7 @@ executionStatus_T state_insert_literal_execute(insertLiteral_T *context, int nc)
     {
       if (!vim_isxdigit(context->nc))
         return COMPLETED_UNHANDLED;
-      context->cc = context->cc * 16 + hex2nr(context_ > nc);
+      context->cc = context->cc * 16 + hex2nr(context->nc);
     }
     else if (context->octal)
     {
