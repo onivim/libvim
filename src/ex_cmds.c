@@ -3093,9 +3093,12 @@ int do_write(exarg_T *eap)
   buf_T *alt_buf = NULL;
   int name_was_missing;
 
+  printf("do_write - 1\n");
+
   if (not_writing()) /* check 'write' option */
     return FAIL;
 
+  printf("do_write - 10\n");
   ffname = eap->arg;
 #ifdef FEAT_BROWSE
   if (cmdmod.browse)
@@ -3129,6 +3132,7 @@ int do_write(exarg_T *eap)
     other = otherfile(ffname);
   }
 
+  printf("do_write - 20\n");
   /*
      * If we have a new file, put its name in the list of alternate file names.
      */
@@ -3159,6 +3163,7 @@ int do_write(exarg_T *eap)
                     check_fname() == FAIL || check_readonly(&eap->forceit, curbuf)))
     goto theend;
 
+  printf("do_write - 30\n");
   if (!other)
   {
     ffname = curbuf->b_ffname;
@@ -3175,6 +3180,7 @@ int do_write(exarg_T *eap)
     }
   }
 
+  printf("do_write - 40\n");
   if (check_overwrite(eap, curbuf, fname, ffname, other) == OK)
   {
     if (eap->cmdidx == CMD_saveas && alt_buf != NULL)
@@ -3256,6 +3262,7 @@ int do_write(exarg_T *eap)
       }
     }
 
+  printf("do_write - 50\n");
     /* Change directories when the 'acd' option is set and the file name
 	 * got changed or set. */
     if (eap->cmdidx == CMD_saveas || name_was_missing)
