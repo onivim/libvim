@@ -23,7 +23,7 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 
 void test_setup(void)
 {
-  char_u *tmp = vim_tempname('t', FALSE));
+  char_u *tmp = vim_tempname('t', FALSE);
   strcpy(tempFile, tmp);
   vim_free(tmp);
 
