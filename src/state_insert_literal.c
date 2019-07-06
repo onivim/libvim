@@ -37,6 +37,7 @@ void *state_insert_literal_initialize(int *ret)
   return context;
 }
 
+
 executionStatus_T state_insert_literal_execute(void *ctx, int nc)
 {
   insertLiteral_T *context = (insertLiteral_T *)ctx;
@@ -58,6 +59,10 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   {
     if (context->hex || context->unicode != 0)
     {
+      /* We return COMPLETED_UNHANDLED here so that the last key press
+       * can be processed by insert mode. The insert mode state machine will
+       * pick it up, insert whatever it needs to from `context->ret`, and
+       * take care of returning HANDLED */
       if (!vim_isxdigit(context->nc))
         return COMPLETED_UNHANDLED;
       context->cc = context->cc * 16 + hex2nr(context->nc);
