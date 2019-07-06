@@ -1761,10 +1761,6 @@ int op_delete(oparg_T *oap)
       /* replace the line */
       ml_replace(lnum, newp, FALSE);
 
-#ifdef FEAT_TEXT_PROP
-      if (curbuf->b_has_textprop && n != 0)
-        adjust_prop_columns(lnum, bd.textcol, -n, 0);
-#endif
     }
 
     check_cursor_col();
@@ -4147,10 +4143,6 @@ int do_join(long count, int insert_space, int save_undo,
       (use_formatoptions == TRUE) && has_format_option(FO_REMOVE_COMS);
   int prev_was_comment;
 #endif
-#ifdef FEAT_TEXT_PROP
-  textprop_T **prop_lines = NULL;
-  int *prop_lengths = NULL;
-#endif
 
   if (save_undo && u_save((linenr_T)(curwin->w_cursor.lnum - 1),
                           (linenr_T)(curwin->w_cursor.lnum + count)) == FAIL)
@@ -4266,20 +4258,6 @@ int do_join(long count, int insert_space, int save_undo,
   cend = newp + sumsize;
   *cend = 0;
 
-#ifdef FEAT_TEXT_PROP
-  // We need to move properties of the lines that are going to be deleted to
-  // the new long one.
-  if (curbuf->b_has_textprop && !text_prop_frozen)
-  {
-    // Allocate an array to copy the text properties of joined lines into.
-    // And another array to store the number of properties in each line.
-    prop_lines = ALLOC_CLEAR_MULT(textprop_T *, count - 1);
-    prop_lengths = ALLOC_CLEAR_MULT(int, count - 1);
-    if (prop_lengths == NULL)
-      VIM_CLEAR(prop_lines);
-  }
-#endif
-
   /*
    * Move affected lines to the new long one.
    * This loops backwards over the joined lines, including the original line.
@@ -4308,12 +4286,6 @@ int do_join(long count, int insert_space, int save_undo,
                     (long)(cend - newp - spaces_removed), spaces_removed);
     if (t == 0)
       break;
-#ifdef FEAT_TEXT_PROP
-    if (prop_lines != NULL)
-      adjust_props_for_join(
-          curwin->w_cursor.lnum + t, prop_lines + t - 1, prop_lengths + t - 1,
-          (long)(cend - newp - spaces_removed), spaces_removed);
-#endif
 
     curr = curr_start = ml_get((linenr_T)(curwin->w_cursor.lnum + t - 1));
 #if defined(FEAT_COMMENTS)
@@ -4325,12 +4297,6 @@ int do_join(long count, int insert_space, int save_undo,
     currsize = (int)STRLEN(curr);
   }
 
-#ifdef FEAT_TEXT_PROP
-  if (prop_lines != NULL)
-    join_prop_lines(curwin->w_cursor.lnum, newp, prop_lines, prop_lengths,
-                    count);
-  else
-#endif
     ml_replace(curwin->w_cursor.lnum, newp, FALSE);
 
   if (setmark)
