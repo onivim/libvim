@@ -26,7 +26,7 @@ void *state_insert_literal_initialize(int *ret)
   insertLiteral_T *context = (insertLiteral_T *)alloc(sizeof(insertLiteral_T));
   context->hex = FALSE;
   context->octal = FALSE;
-  context->unicode = FALSE;
+  context->unicode = 0;
 
   ++no_mapping;
 
@@ -54,7 +54,7 @@ executionStatus_T state_insert_literal_execute(void *ctx, int nc)
   }
   else if (context->nc == 'u' || context->nc == 'U')
   {
-    context->unicode = TRUE;
+    context->unicode = context->nc;
   }
   else
   {
