@@ -1272,4 +1272,3 @@ typedef int HINSTANCE;
 EXTERN int ctrl_break_was_pressed INIT(= FALSE);
 EXTERN HINSTANCE g_hinst INIT(= NULL);
 #endif
-
