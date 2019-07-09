@@ -130,7 +130,7 @@ MU_TEST(test_cmdline_completions_abs)
   vimInput("c");
   vimInput("h");
   vimInput("o");
-  
+
   vimInput("a");
   vimInput("b");
   vimInput("s");
