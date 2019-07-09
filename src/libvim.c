@@ -85,7 +85,6 @@ int vimCommandLineGetPosition(void) { return ccline.cmdpos; }
 void vimCommandLineGetCompletions(char_u ***completions, int *count)
 {
 
-  printf("getting completions...\n");
   *count = 0;
   *completions = NULL;
 
@@ -94,7 +93,6 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   {
     return;
   }
-  printf("calling expand_cmdline\n");
   expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 
