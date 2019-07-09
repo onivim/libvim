@@ -5,5 +5,5 @@ case "${unameOut}" in
     *)      CFLAGS="";;
 esac
 
-./configure ${CFLAGS}
+./configure --disable-acl ${CFLAGS}
 make installlibvim DESTDIR=$cur__install
