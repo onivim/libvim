@@ -60,6 +60,7 @@ typedef enum
 
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
+typedef void (*UnhandledEscapeCallback)(void);
 
 typedef struct
 {
