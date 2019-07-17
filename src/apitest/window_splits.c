@@ -92,19 +92,19 @@ MU_TEST(test_win_movements)
 
   mu_check(lastMovement == CURSOR_RIGHT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("t");
 
   mu_check(lastMovement == CURSOR_TOP_LEFT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("b");
 
   mu_check(lastMovement == CURSOR_BOTTOM_RIGHT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>");
   vimInput("p");
 
@@ -146,80 +146,80 @@ MU_TEST(test_win_move_count_before_and_after)
 MU_TEST(test_move_commands)
 {
   vimInput("<c-w>")
-  vimInput("H")
-  mu_check(lastMovement == MOVE_FULL_LEFT);
-  mu_check(lastMovementCount == 1);
-  
-  vimInput("<c-w>")
-  vimInput("L")
-  
-  mu_check(lastMovement == MOVE_FULL_RIGHT);
+      vimInput("H")
+          mu_check(lastMovement == MOVE_FULL_LEFT);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>")
-  vimInput("K")
-  
-  mu_check(lastMovement == MOVE_FULL_UP);
+      vimInput("L")
+
+          mu_check(lastMovement == MOVE_FULL_RIGHT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>")
-  vimInput("J")
-  
-  mu_check(lastMovement == MOVE_FULL_DOWN);
+      vimInput("K")
+
+          mu_check(lastMovement == MOVE_FULL_UP);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>")
-  vimInput("r")
-  
-  mu_check(lastMovement == MOVE_ROTATE_DOWNWARDS);
+      vimInput("J")
+
+          mu_check(lastMovement == MOVE_FULL_DOWN);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>")
-  vimInput("R")
-  
-  mu_check(lastMovement == MOVE_ROTATE_UPWARDS);
+      vimInput("r")
+
+          mu_check(lastMovement == MOVE_ROTATE_DOWNWARDS);
+  mu_check(lastMovementCount == 1);
+
+  vimInput("<c-w>")
+      vimInput("R")
+
+          mu_check(lastMovement == MOVE_ROTATE_UPWARDS);
   mu_check(lastMovementCount == 1);
 }
 
 MU_TEST(test_size_commands)
 {
   vimInput("<c-w>")
-  vimInput("=")
-  mu_check(lastMovement == SIZE_EQUAL_HEIGHT);
+      vimInput("=")
+          mu_check(lastMovement == SIZE_EQUAL_HEIGHT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("<c-w>")
-  vimInput("+")
-  
-  mu_check(lastMovement == SIZE_INCREASE_HEIGHT);
+      vimInput("+")
+
+          mu_check(lastMovement == SIZE_INCREASE_HEIGHT);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("5")
-  vimInput("<c-w>")
-  vimInput("+")
-  
-  mu_check(lastMovement == SIZE_INCREASE_HEIGHT);
+      vimInput("<c-w>")
+          vimInput("+")
+
+              mu_check(lastMovement == SIZE_INCREASE_HEIGHT);
   mu_check(lastMovementCount == 5);
-  
+
   vimInput("1")
-  vimInput("2")
-  vimInput("<c-w>")
-  vimInput("-")
-  
-  mu_check(lastMovement == SIZE_DECREASE_HEIGHT);
+      vimInput("2")
+          vimInput("<c-w>")
+              vimInput("-")
+
+                  mu_check(lastMovement == SIZE_DECREASE_HEIGHT);
   mu_check(lastMovementCount == 2);
-  
+
   vimInput("<c-w>")
-  vimInput("<")
-  
-  mu_check(lastMovement == SIZE_DECREASE_WIDTH);
+      vimInput("<")
+
+          mu_check(lastMovement == SIZE_DECREASE_WIDTH);
   mu_check(lastMovementCount == 1);
-  
+
   vimInput("2")
-  vimInput("<c-w>")
-  vimInput(">")
-  
-  mu_check(lastMovement == SIZE_INCREASE_WIDTH);
+      vimInput("<c-w>")
+          vimInput(">")
+
+              mu_check(lastMovement == SIZE_INCREASE_WIDTH);
   mu_check(lastMovementCount == 2);
 }
 
