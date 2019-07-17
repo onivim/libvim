@@ -142,6 +142,10 @@ MU_TEST(test_reset_modified_after_undo)
   vimInput("<esc>");
   vimInput("u");
   mu_check(vimBufferGetModified(curbuf) == FALSE);
+
+  vimInput("<c-r>");
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
+  mu_check(vimBufferGetModified(curbuf) == TRUE);
 }
 
 MU_TEST_SUITE(test_suite)
