@@ -125,10 +125,7 @@ MU_TEST(test_modify_file_externally)
   // for Vim to realize that th ebfufer is modified
   sleep(3);
 
-  printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
-
   mu_check(writeFailureCount == 0);
-  printf("TEMPFILE path: %s\n", tempFile);
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
@@ -140,9 +137,10 @@ MU_TEST(test_modify_file_externally)
   mu_check(lastWriteFailureReason == FILE_CHANGED);
 }
 
-MU_TEST(test_check_if_changed_updates_buffer)
+// Verify that the vimBufferCheckIfChanged call updates the buffer,
+// if there are no unsaved changes.
+MU_TEST(test_checkifchanged_updates_buffer)
 {
-
   mu_check(vimBufferCheckIfChanged(curbuf) == 0);
   vimInput("i");
   vimInput("a");
@@ -156,7 +154,6 @@ MU_TEST(test_check_if_changed_updates_buffer)
   printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
 
   mu_check(writeFailureCount == 0);
-  printf("TEMPFILE path: %s\n", tempFile);
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
@@ -172,6 +169,41 @@ MU_TEST(test_check_if_changed_updates_buffer)
   mu_check(strcmp(line, "Hello!") == 0);
 }
 
+// Verify that the vimBufferCheckIfChanged call updates the buffer,
+// if there are no unsaved changes.
+MU_TEST(test_checkifchanged_with_unsaved_changes)
+{
+  mu_check(vimBufferCheckIfChanged(curbuf) == 0);
+  vimInput("i");
+  vimInput("a");
+  vimInput("<esc>");
+  vimExecute("w");
+
+  vimInput("i");
+  vimInput("b");
+
+  // HACK: This sleep is required to get different 'mtimes'
+  // for Vim to realize that th ebfufer is modified
+  sleep(3);
+
+  printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
+
+  mu_check(writeFailureCount == 0);
+  FILE *fp = fopen(tempFile, "w");
+  fprintf(fp, "Hello!\n");
+  fclose(fp);
+  
+  int v = vimBufferCheckIfChanged(curbuf);
+  /* Should return 1 because the buffer was changed */
+  /* Should we get a buffer update? */
+  mu_check(v == 1);
+  
+  /* We should not have picked up changes, because we have modifications */
+  char_u *line = vimBufferGetLine(curbuf, 1);
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "ba") == 0);
+}
+
 /* Test autoread - get latest buffer update */
 
 MU_TEST_SUITE(test_suite)
@@ -180,7 +212,8 @@ MU_TEST_SUITE(test_suite)
 
   /*MU_RUN_TEST(test_write_while_file_open); */
   /*MU_RUN_TEST(test_overwrite_file);*/
-  MU_RUN_TEST(test_checkifchanged);
+  MU_RUN_TEST(test_checkifchanged_updates_buffer);
+  MU_RUN_TEST(test_checkifchanged_with_unsaved_changes);
   MU_RUN_TEST(test_modify_file_externally);
 }
 

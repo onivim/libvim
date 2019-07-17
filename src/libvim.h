@@ -27,7 +27,7 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
  * vimBufferCheckIfChanged
  *
  * Check if the contents of a buffer have been changed on the filesystem, outside of libvim.
- * Returns 1 if buffer was changed
+ * Returns 1 if buffer was changed (and changes the buffer contents)
  * Returns 2 if a message was displayed
  * Returns 0 otherwise
  */
