@@ -46,16 +46,24 @@ typedef enum
 
 typedef enum
 {
-  ONE_LEFT,
-  ONE_RIGHT,
-  ONE_UP,
-  ONE_DOWN,
-  FULL_LEFT,
-  FULL_RIGHT,
-  FULL_UP,
-  FULL_DOWN,
-  TOP_LEFT,
-  BOTTOM_RIGHT
+  CURSOR_LEFT, // <C-w>h
+  CURSOR_RIGHT, // <C-w>l
+  CURSOR_UP, // <C-w>k
+  CURSOR_DOWN, // <C-w>j
+  MOVE_FULL_LEFT, // <C-w>H
+  MOVE_FULL_RIGHT, // <C-w>L
+  MOVE_FULL_UP, // <C-w>K
+  MOVE_FULL_DOWN, // <C-w>J
+  CURSOR_TOP_LEFT, // <C-w>t
+  CURSOR_BOTTOM_RIGHT, // <C-w>b
+  CURSOR_PREVIOUS, // <C-w>p
+  MOVE_ROTATE_DOWNWARDS, // <C-w>r
+  MOVE_ROTATE_UPWARDS, // <C-w>R
+  SIZE_EQUAL_HEIGHT, // <C-w> =
+  SIZE_INCREASE_HEIGHT, // <C-w> +
+  SIZE_DECREASE_HEIGHT, // <C-w> -
+  SIZE_INCREASE_WIDTH, // <C-w> >
+  SIZE_DECREASE_WIDTH, // <C-w> <
 } windowMovement_T;
 
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
