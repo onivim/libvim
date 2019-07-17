@@ -61,10 +61,21 @@ MU_TEST(test_vsplit_ctrl_w)
   vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   vimInput("<c-w>");
-  vimInput("<c-v>");
-  
-  mu_check(strcmp(lastFilename, "collateral/testfile.txt") == 0);
+  vimInput("v");
+
   mu_check(lastSplitType == VERTICAL_SPLIT);
+  mu_check(strstr(lastFilename, "testfile.txt") != NULL);
+}
+
+MU_TEST(test_hsplit_ctrl_w)
+{
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
+
+  vimInput("<c-w>");
+  vimInput("s");
+
+  mu_check(lastSplitType == HORIZONTAL_SPLIT);
+  mu_check(strstr(lastFilename, "testfile.txt") != NULL);
 }
 
 MU_TEST(test_tabnew)
@@ -141,8 +152,9 @@ MU_TEST_SUITE(test_suite)
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_vsplit);
-  MU_RUN_TEST(test_vsplit_ctrl_w);
   MU_RUN_TEST(test_hsplit);
+  MU_RUN_TEST(test_vsplit_ctrl_w);
+  MU_RUN_TEST(test_hsplit_ctrl_w);
   MU_RUN_TEST(test_tabnew);
   MU_RUN_TEST(test_win_movements);
   MU_RUN_TEST(test_win_move_count_before);

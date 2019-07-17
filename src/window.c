@@ -86,11 +86,29 @@ void do_window(
 #endif
   char_u cbuf[40];
 
-  if (windowMovementCallback == NULL)
-    return;
-
   Prenum1 = Prenum == 0 ? 1 : Prenum;
 
+  /* Split shortcuts */
+  switch (nchar)
+  {
+  case 's':
+    if (windowSplitCallback != NULL)
+    {
+      windowSplitCallback(HORIZONTAL_SPLIT, curbuf->b_ffname);
+    }
+    return;
+  case 'v':
+    if (windowSplitCallback != NULL)
+    {
+      windowSplitCallback(VERTICAL_SPLIT, curbuf->b_ffname);
+    }
+    return;
+  default:
+    break;
+  }
+
+  if (windowMovementCallback == NULL)
+    return;
   switch (nchar)
   {
     /* cursor to window below */
