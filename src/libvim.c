@@ -31,7 +31,7 @@ int vimBufferGetId(buf_T *buf) { return buf->b_fnum; }
 
 long vimBufferGetLastChangedTick(buf_T *buf) { return CHANGEDTICK(buf); }
 
-int vimBufferGetModified(buf_T *buf) { return buf->b_changed; }
+int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 {
