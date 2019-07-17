@@ -46,24 +46,19 @@ typedef enum
 
 typedef enum
 {
-  CURSOR_LEFT,           // <C-w>h
-  CURSOR_RIGHT,          // <C-w>l
-  CURSOR_UP,             // <C-w>k
-  CURSOR_DOWN,           // <C-w>j
-  MOVE_FULL_LEFT,        // <C-w>H
-  MOVE_FULL_RIGHT,       // <C-w>L
-  MOVE_FULL_UP,          // <C-w>K
-  MOVE_FULL_DOWN,        // <C-w>J
-  CURSOR_TOP_LEFT,       // <C-w>t
-  CURSOR_BOTTOM_RIGHT,   // <C-w>b
-  CURSOR_PREVIOUS,       // <C-w>p
-  MOVE_ROTATE_DOWNWARDS, // <C-w>r
-  MOVE_ROTATE_UPWARDS,   // <C-w>R
-  SIZE_EQUAL_HEIGHT,     // <C-w> =
-  SIZE_INCREASE_HEIGHT,  // <C-w> +
-  SIZE_DECREASE_HEIGHT,  // <C-w> -
-  SIZE_INCREASE_WIDTH,   // <C-w> >
-  SIZE_DECREASE_WIDTH,   // <C-w> <
+  WIN_CURSOR_LEFT,           // <C-w>h
+  WIN_CURSOR_RIGHT,          // <C-w>l
+  WIN_CURSOR_UP,             // <C-w>k
+  WIN_CURSOR_DOWN,           // <C-w>j
+  WIN_MOVE_FULL_LEFT,        // <C-w>H
+  WIN_MOVE_FULL_RIGHT,       // <C-w>L
+  WIN_MOVE_FULL_UP,          // <C-w>K
+  WIN_MOVE_FULL_DOWN,        // <C-w>J
+  WIN_CURSOR_TOP_LEFT,       // <C-w>t
+  WIN_CURSOR_BOTTOM_RIGHT,   // <C-w>b
+  WIN_CURSOR_PREVIOUS,       // <C-w>p
+  WIN_MOVE_ROTATE_DOWNWARDS, // <C-w>r
+  WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);

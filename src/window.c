@@ -97,14 +97,14 @@ void do_window(
   case 'j':
   case K_DOWN:
   case Ctrl_J:
-    windowMovementCallback(ONE_DOWN, Prenum1);
+    windowMovementCallback(WIN_CURSOR_DOWN, Prenum1);
     break;
 
     /* cursor to window above */
   case 'k':
   case K_UP:
   case Ctrl_K:
-    windowMovementCallback(ONE_UP, Prenum1);
+    windowMovementCallback(WIN_CURSOR_UP, Prenum1);
     break;
 
     /* cursor to left window */
@@ -112,15 +112,53 @@ void do_window(
   case K_LEFT:
   case Ctrl_H:
   case K_BS:
-    windowMovementCallback(ONE_LEFT, Prenum1);
+    windowMovementCallback(WIN_CURSOR_LEFT, Prenum1);
     break;
 
     /* cursor to right window */
   case 'l':
   case K_RIGHT:
   case Ctrl_L:
-    windowMovementCallback(ONE_RIGHT, Prenum1);
+    windowMovementCallback(WIN_CURSOR_RIGHT, Prenum1);
     break;
+
+  case 'L':
+    windowMovementCallback(WIN_MOVE_FULL_RIGHT, Prenum1);
+    break;
+  case 'H':
+    windowMovementCallback(WIN_MOVE_FULL_LEFT, Prenum1);
+    break;
+  case 'K':
+    windowMovementCallback(WIN_MOVE_FULL_UP, Prenum1);
+    break;
+
+  case 'J':
+    windowMovementCallback(WIN_MOVE_FULL_DOWN, Prenum1);
+    break;
+  
+  case 't':
+  case Ctrl_T:
+    windowMovementCallback(WIN_CURSOR_TOP_LEFT, Prenum1);
+    break;
+  
+  case 'b':
+  case Ctrl_B:
+    windowMovementCallback(WIN_CURSOR_BOTTOM_RIGHT, Prenum1);
+    break;
+  
+  case 'p':
+  case Ctrl_P:
+    windowMovementCallback(WIN_CURSOR_PREVIOUS, Prenum1);
+    break;
+  
+  case 'r':
+  case Ctrl_R:
+    windowMovementCallback(WIN_MOVE_ROTATE_DOWNWARDS, Prenum1);
+    break;
+  case 'R':
+    windowMovementCallback(WIN_MOVE_ROTATE_UPWARDS, Prenum1);
+    break;
+
   default:
     return;
   }
