@@ -1091,9 +1091,6 @@ void free_all_mem(void)
 #ifdef FEAT_CMDHIST
   init_history();
 #endif
-#ifdef FEAT_TEXT_PROP
-  clear_global_prop_types();
-#endif
 
 #ifdef FEAT_QUICKFIX
   {

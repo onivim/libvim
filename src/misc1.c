@@ -424,17 +424,6 @@ int set_indent(
         // at the start of the indent (replacing spaces with TAB)
         saved_cursor.col = (colnr_T)(s - newline);
     }
-#ifdef FEAT_TEXT_PROP
-    {
-      int added = ind_len - (colnr_T)(p - oldline);
-
-      // When increasing indent this behaves like spaces were inserted at
-      // the old indent, when decreasing indent it behaves like spaces
-      // were deleted at the new indent.
-      adjust_prop_columns(curwin->w_cursor.lnum,
-                          (colnr_T)(added > 0 ? (p - oldline) : ind_len), added, 0);
-    }
-#endif
     retval = TRUE;
   }
   else

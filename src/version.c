@@ -463,11 +463,7 @@ static char *(features[]) =
 #else
         "-textobjects",
 #endif
-#ifdef FEAT_TEXT_PROP
-        "+textprop",
-#else
         "-textprop",
-#endif
 #if !defined(UNIX)
 /* unix always includes termcap support */
 #ifdef HAVE_TGETENT

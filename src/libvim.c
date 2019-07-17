@@ -31,7 +31,7 @@ int vimBufferGetId(buf_T *buf) { return buf->b_fnum; }
 
 long vimBufferGetLastChangedTick(buf_T *buf) { return CHANGEDTICK(buf); }
 
-int vimBufferGetModified(buf_T *buf) { return buf->b_changed; }
+int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 {
@@ -85,7 +85,6 @@ int vimCommandLineGetPosition(void) { return ccline.cmdpos; }
 void vimCommandLineGetCompletions(char_u ***completions, int *count)
 {
 
-  printf("getting completions...\n");
   *count = 0;
   *completions = NULL;
 
@@ -94,7 +93,6 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   {
     return;
   }
-  printf("calling expand_cmdline\n");
   expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 

@@ -394,13 +394,6 @@
 #endif
 
 /*
- * +textprop		Text properties and popup windows
- */
-#if defined(FEAT_EVAL) && defined(FEAT_SYN_HL)
-#define FEAT_TEXT_PROP
-#endif
-
-/*
  * +builtin_terms	Choose one out of the following four:
  *
  * NO_BUILTIN_TCAPS	Do not include any builtin termcap entries (used only
@@ -872,6 +865,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_GUI_X11
 #undef ALWAYS_USE_GUI
 
+#undef FEAT_TEXT_PROP
 /*
  * The Netbeans feature
  */

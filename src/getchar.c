@@ -1695,10 +1695,6 @@ int vgetc(void)
     ui_remove_balloon();
   }
 #endif
-#ifdef FEAT_TEXT_PROP
-  if (popup_do_filter(c))
-    c = K_IGNORE;
-#endif
 
   return c;
 }

@@ -46,16 +46,19 @@ typedef enum
 
 typedef enum
 {
-  ONE_LEFT,
-  ONE_RIGHT,
-  ONE_UP,
-  ONE_DOWN,
-  FULL_LEFT,
-  FULL_RIGHT,
-  FULL_UP,
-  FULL_DOWN,
-  TOP_LEFT,
-  BOTTOM_RIGHT
+  WIN_CURSOR_LEFT,           // <C-w>h
+  WIN_CURSOR_RIGHT,          // <C-w>l
+  WIN_CURSOR_UP,             // <C-w>k
+  WIN_CURSOR_DOWN,           // <C-w>j
+  WIN_MOVE_FULL_LEFT,        // <C-w>H
+  WIN_MOVE_FULL_RIGHT,       // <C-w>L
+  WIN_MOVE_FULL_UP,          // <C-w>K
+  WIN_MOVE_FULL_DOWN,        // <C-w>J
+  WIN_CURSOR_TOP_LEFT,       // <C-w>t
+  WIN_CURSOR_BOTTOM_RIGHT,   // <C-w>b
+  WIN_CURSOR_PREVIOUS,       // <C-w>p
+  WIN_MOVE_ROTATE_DOWNWARDS, // <C-w>r
+  WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
@@ -1993,17 +1996,6 @@ typedef struct
 //  # define CRYPT_NOT_INPLACE 1
 #endif
 
-#ifdef FEAT_TEXT_PROP
-typedef enum
-{
-  POPPOS_BOTLEFT,
-  POPPOS_TOPLEFT,
-  POPPOS_BOTRIGHT,
-  POPPOS_TOPRIGHT,
-  POPPOS_CENTER
-} poppos_T;
-#endif
-
 /*
  * These are items normally related to a buffer.  But when using ":ownsyntax"
  * a window may have its own instance.
@@ -2336,10 +2328,6 @@ struct file_buffer
   listener_T *b_listener;
   list_T *b_recorded_changes;
 #endif
-#ifdef FEAT_TEXT_PROP
-  int b_has_textprop;     // TRUE when text props were added
-  hashtab_T *b_proptypes; // text property types local to buffer
-#endif
 
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
   char_u *b_p_bexpr;      /* 'balloonexpr' local value */
@@ -2466,13 +2454,10 @@ struct tabpage_S
   win_T *tp_prevwin;    // previous window in this Tab page
   win_T *tp_firstwin;   // first window in this Tab page
   win_T *tp_lastwin;    // last window in this Tab page
-#ifdef FEAT_TEXT_PROP
-  win_T *tp_first_popupwin; // first popup window in this Tab page
-#endif
-  long tp_old_Rows;    // Rows when Tab page was left
-  long tp_old_Columns; // Columns when Tab page was left
-  long tp_ch_used;     // value of 'cmdheight' when frame size
-                       // was set
+  long tp_old_Rows;     // Rows when Tab page was left
+  long tp_old_Columns;  // Columns when Tab page was left
+  long tp_ch_used;      // value of 'cmdheight' when frame size
+                        // was set
 #ifdef FEAT_GUI
   int tp_prev_which_scrollbars[3];
   // previous value of which_scrollbars
@@ -2708,35 +2693,6 @@ struct window_S
   int w_width;              /* Width of window, excluding separation. */
   int w_vsep_width;         /* Number of separator columns (0 or 1). */
   pos_save_T w_save_cursor; /* backup of cursor pos and topline */
-#ifdef FEAT_TEXT_PROP
-  int w_popup_flags; // POPF_ values
-  poppos_T w_popup_pos;
-  int w_popup_fixed; // do not shift popup to fit on screen
-  int w_zindex;
-  int w_minheight;                      // "minheight" for popup window
-  int w_minwidth;                       // "minwidth" for popup window
-  int w_maxheight;                      // "maxheight" for popup window
-  int w_maxwidth;                       // "maxwidth" for popup window
-  int w_wantline;                       // "line" for popup window
-  int w_wantcol;                        // "col" for popup window
-  int w_popup_padding[4];               // popup padding top/right/bot/left
-  int w_popup_border[4];                // popup border top/right/bot/left
-  char_u *w_border_highlight[4];        // popup border highlight
-  int w_border_char[8];                 // popup border characters
-  varnumber_T w_popup_last_changedtick; // b:changedtick when position was
-                                        // computed
-  callback_T w_close_cb;                // popup close callback
-  callback_T w_filter_cb;               // popup filter callback
-
-  win_T *w_popup_curwin;  // close popup if curwin differs
-  linenr_T w_popup_lnum;  // close popup if cursor not on this line
-  colnr_T w_popup_mincol; // close popup if cursor before this col
-  colnr_T w_popup_maxcol; // close popup if cursor after this col
-
-#if defined(FEAT_TIMERS)
-  timer_T *w_popup_timer; // timer for closing popup window
-#endif
-#endif
 
   /*
      * === start of cached values ====

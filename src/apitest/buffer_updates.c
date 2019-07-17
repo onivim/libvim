@@ -19,6 +19,9 @@ void onBufferUpdate(bufferUpdate_T update)
 
 void test_setup(void)
 {
+  vimInput("<esc>");
+  vimInput("<esc>");
+
   vimExecute("e!");
 
   vimInput("g");
@@ -108,6 +111,43 @@ MU_TEST(test_insert)
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
+MU_TEST(test_modified)
+{
+  vimInput("i");
+  vimInput("a");
+
+  mu_check(vimBufferGetModified(curbuf) == TRUE);
+}
+
+MU_TEST(test_reset_modified_after_reload)
+{
+  vimInput("i");
+  vimInput("a");
+
+  vimExecute("e!");
+
+  mu_check(vimBufferGetModified(curbuf) == FALSE);
+}
+
+MU_TEST(test_reset_modified_after_undo)
+{
+  vimExecute("e!");
+  mu_check(vimBufferGetModified(curbuf) == FALSE);
+
+  vimInput("O");
+  vimInput("a");
+  printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
+
+  vimInput("<esc>");
+  vimInput("u");
+  mu_check(vimBufferGetModified(curbuf) == FALSE);
+
+  vimInput("<c-r>");
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
+  mu_check(vimBufferGetModified(curbuf) == TRUE);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -118,6 +158,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_delete_line);
   MU_RUN_TEST(test_delete_multiple_lines);
   MU_RUN_TEST(test_insert);
+  MU_RUN_TEST(test_modified);
+  MU_RUN_TEST(test_reset_modified_after_reload);
+  MU_RUN_TEST(test_reset_modified_after_undo);
 }
 
 int main(int argc, char **argv)

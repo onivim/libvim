@@ -763,16 +763,6 @@ static struct fst
         {"nr2char", 1, 2, f_nr2char},
         {"or", 2, 2, f_or},
         {"pathshorten", 1, 1, f_pathshorten},
-#ifdef FEAT_TEXT_PROP
-        {"popup_atcursor", 2, 2, f_popup_atcursor},
-        {"popup_close", 1, 2, f_popup_close},
-        {"popup_create", 2, 2, f_popup_create},
-        {"popup_getoptions", 1, 1, f_popup_getoptions},
-        {"popup_getpos", 1, 1, f_popup_getpos},
-        {"popup_hide", 1, 1, f_popup_hide},
-        {"popup_move", 2, 2, f_popup_move},
-        {"popup_show", 1, 1, f_popup_show},
-#endif
 #ifdef FEAT_FLOAT
         {"pow", 2, 2, f_pow},
 #endif
@@ -782,17 +772,6 @@ static struct fst
         {"prompt_setcallback", 2, 2, f_prompt_setcallback},
         {"prompt_setinterrupt", 2, 2, f_prompt_setinterrupt},
         {"prompt_setprompt", 2, 2, f_prompt_setprompt},
-#endif
-#ifdef FEAT_TEXT_PROP
-        {"prop_add", 3, 3, f_prop_add},
-        {"prop_clear", 1, 3, f_prop_clear},
-        {"prop_list", 1, 2, f_prop_list},
-        {"prop_remove", 1, 3, f_prop_remove},
-        {"prop_type_add", 2, 2, f_prop_type_add},
-        {"prop_type_change", 2, 2, f_prop_type_change},
-        {"prop_type_delete", 1, 2, f_prop_type_delete},
-        {"prop_type_get", 1, 2, f_prop_type_get},
-        {"prop_type_list", 0, 1, f_prop_type_list},
 #endif
         {"pumvisible", 0, 0, f_pumvisible},
 #ifdef FEAT_PYTHON3
@@ -6185,9 +6164,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TEXTOBJ
     "textobjects",
-#endif
-#ifdef FEAT_TEXT_PROP
-    "textprop",
 #endif
 #ifdef HAVE_TGETENT
     "tgetent",

@@ -763,9 +763,6 @@ void buf_freeall(buf_T *buf, int flags)
     u_blockfree(buf); /* free the memory allocated for undo */
     u_clearall(buf);  /* reset all undo information */
   }
-#ifdef FEAT_TEXT_PROP
-  clear_buf_prop_types(buf);
-#endif
   buf->b_flags &= ~BF_READERR; /* a read error is no longer relevant */
 }
 
@@ -4275,10 +4272,6 @@ buf_spname(buf_T *buf)
 #ifdef FEAT_JOB_CHANNEL
     if (bt_prompt(buf))
       return (char_u *)_("[Prompt]");
-#endif
-#ifdef FEAT_TEXT_PROP
-    if (bt_popup(buf))
-      return (char_u *)_("[Popup]");
 #endif
     return (char_u *)_("[Scratch]");
   }

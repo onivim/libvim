@@ -4959,10 +4959,6 @@ void do_sub(exarg_T *eap)
       int do_again;       /* do it again after joining lines */
       int skip_match = FALSE;
       linenr_T sub_firstlnum; /* nr of first sub line */
-#ifdef FEAT_TEXT_PROP
-      int apc_flags = APC_SAVE_FOR_UNDO | APC_SUBSTITUTE;
-#endif
-
       /*
 	     * The new text is build up step by step, to avoid too much
 	     * copying.  There are these pieces:
@@ -5356,17 +5352,6 @@ void do_sub(exarg_T *eap)
         if (nmatch == 1)
         {
           p1 = sub_firstline;
-#ifdef FEAT_TEXT_PROP
-          if (curbuf->b_has_textprop)
-          {
-            // When text properties are changed, need to save for
-            // undo first, unless done already.
-            if (adjust_prop_columns(lnum, regmatch.startpos[0].col,
-                                    sublen - 1 - (regmatch.endpos[0].col - regmatch.startpos[0].col),
-                                    apc_flags))
-              apc_flags &= ~APC_SAVE_FOR_UNDO;
-          }
-#endif
         }
         else
         {
@@ -5467,17 +5452,6 @@ void do_sub(exarg_T *eap)
           if (p1[0] == '\\' && p1[1] != NUL) /* remove backslash */
           {
             STRMOVE(p1, p1 + 1);
-#ifdef FEAT_TEXT_PROP
-            if (curbuf->b_has_textprop)
-            {
-              // When text properties are changed, need to save
-              // for undo first, unless done already.
-              if (adjust_prop_columns(lnum,
-                                      (colnr_T)(p1 - new_start), -1,
-                                      apc_flags))
-                apc_flags &= ~APC_SAVE_FOR_UNDO;
-            }
-#endif
           }
           else if (*p1 == CAR)
           {
@@ -5496,9 +5470,6 @@ void do_sub(exarg_T *eap)
                   first_line = lnum;
                 last_line = lnum + 1;
               }
-#ifdef FEAT_TEXT_PROP
-              adjust_props_for_split(lnum + 1, lnum, plen, 1);
-#endif
               // all line numbers increase
               ++sub_firstlnum;
               ++lnum;

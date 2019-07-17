@@ -86,25 +86,43 @@ void do_window(
 #endif
   char_u cbuf[40];
 
-  if (windowMovementCallback == NULL)
-    return;
-
   Prenum1 = Prenum == 0 ? 1 : Prenum;
 
+  /* Split shortcuts */
+  switch (nchar)
+  {
+  case 's':
+    if (windowSplitCallback != NULL)
+    {
+      windowSplitCallback(HORIZONTAL_SPLIT, curbuf->b_ffname);
+    }
+    return;
+  case 'v':
+    if (windowSplitCallback != NULL)
+    {
+      windowSplitCallback(VERTICAL_SPLIT, curbuf->b_ffname);
+    }
+    return;
+  default:
+    break;
+  }
+
+  if (windowMovementCallback == NULL)
+    return;
   switch (nchar)
   {
     /* cursor to window below */
   case 'j':
   case K_DOWN:
   case Ctrl_J:
-    windowMovementCallback(ONE_DOWN, Prenum1);
+    windowMovementCallback(WIN_CURSOR_DOWN, Prenum1);
     break;
 
     /* cursor to window above */
   case 'k':
   case K_UP:
   case Ctrl_K:
-    windowMovementCallback(ONE_UP, Prenum1);
+    windowMovementCallback(WIN_CURSOR_UP, Prenum1);
     break;
 
     /* cursor to left window */
@@ -112,15 +130,53 @@ void do_window(
   case K_LEFT:
   case Ctrl_H:
   case K_BS:
-    windowMovementCallback(ONE_LEFT, Prenum1);
+    windowMovementCallback(WIN_CURSOR_LEFT, Prenum1);
     break;
 
     /* cursor to right window */
   case 'l':
   case K_RIGHT:
   case Ctrl_L:
-    windowMovementCallback(ONE_RIGHT, Prenum1);
+    windowMovementCallback(WIN_CURSOR_RIGHT, Prenum1);
     break;
+
+  case 'L':
+    windowMovementCallback(WIN_MOVE_FULL_RIGHT, Prenum1);
+    break;
+  case 'H':
+    windowMovementCallback(WIN_MOVE_FULL_LEFT, Prenum1);
+    break;
+  case 'K':
+    windowMovementCallback(WIN_MOVE_FULL_UP, Prenum1);
+    break;
+
+  case 'J':
+    windowMovementCallback(WIN_MOVE_FULL_DOWN, Prenum1);
+    break;
+
+  case 't':
+  case Ctrl_T:
+    windowMovementCallback(WIN_CURSOR_TOP_LEFT, Prenum1);
+    break;
+
+  case 'b':
+  case Ctrl_B:
+    windowMovementCallback(WIN_CURSOR_BOTTOM_RIGHT, Prenum1);
+    break;
+
+  case 'p':
+  case Ctrl_P:
+    windowMovementCallback(WIN_CURSOR_PREVIOUS, Prenum1);
+    break;
+
+  case 'r':
+  case Ctrl_R:
+    windowMovementCallback(WIN_MOVE_ROTATE_DOWNWARDS, Prenum1);
+    break;
+  case 'R':
+    windowMovementCallback(WIN_MOVE_ROTATE_UPWARDS, Prenum1);
+    break;
+
   default:
     return;
   }
@@ -1365,16 +1421,6 @@ win_init_some(win_T *newp, win_T *oldp)
 static int
 win_valid_popup(win_T *win UNUSED)
 {
-#ifdef FEAT_TEXT_PROP
-  win_T *wp;
-
-  for (wp = first_popupwin; wp != NULL; wp = wp->w_next)
-    if (wp == win)
-      return TRUE;
-  for (wp = curtab->tp_first_popupwin; wp != NULL; wp = wp->w_next)
-    if (wp == win)
-      return TRUE;
-#endif
   return FALSE;
 }
 
@@ -1410,11 +1456,6 @@ int win_valid_any_tab(win_T *win)
       if (wp == win)
         return TRUE;
     }
-#ifdef FEAT_TEXT_PROP
-    for (wp = tp->tp_first_popupwin; wp != NULL; wp = wp->w_next)
-      if (wp == win)
-        return TRUE;
-#endif
   }
   return win_valid_popup(win);
 }
@@ -2612,9 +2653,6 @@ void win_free_all(void)
     (void)win_free_mem(aucmd_win, &dummy, NULL);
     aucmd_win = NULL;
   }
-#ifdef FEAT_TEXT_PROP
-  close_all_popups();
-#endif
 
   while (firstwin != NULL)
     (void)win_free_mem(firstwin, &dummy, NULL);
@@ -3598,10 +3636,6 @@ void free_tabpage(tabpage_T *tp)
 
 #ifdef FEAT_DIFF
   diff_clear(tp);
-#endif
-#ifdef FEAT_TEXT_PROP
-  while (tp->tp_first_popupwin != NULL)
-    popup_close_tabpage(tp, tp->tp_first_popupwin->w_id);
 #endif
   for (idx = 0; idx < SNAP_COUNT; ++idx)
     clear_snapshot(tp, idx);
@@ -4681,13 +4715,6 @@ win_free(
   }
 #endif /* FEAT_GUI */
 
-#ifdef FEAT_TEXT_PROP
-  free_callback(&wp->w_close_cb);
-  free_callback(&wp->w_filter_cb);
-  for (i = 0; i < 4; ++i)
-    VIM_CLEAR(wp->w_border_highlight[i]);
-#endif
-
   if (win_valid_any_tab(wp))
     win_remove(wp, tp);
   if (autocmd_busy)
@@ -4709,23 +4736,6 @@ int win_unlisted(win_T *wp)
 {
   return wp == aucmd_win || bt_popup(wp->w_buffer);
 }
-
-#if defined(FEAT_TEXT_PROP) || defined(PROTO)
-/*
- * Free a popup window.  This does not take the window out of the window list
- * and assumes there is only one toplevel frame, no split.
- */
-void win_free_popup(win_T *win)
-{
-  win_close_buffer(win, TRUE, FALSE);
-#if defined(FEAT_TIMERS)
-  if (win->w_popup_timer != NULL)
-    stop_timer(win->w_popup_timer);
-#endif
-  vim_free(win->w_frame);
-  win_free(win, NULL);
-}
-#endif
 
 /*
  * Append window "wp" in the window list after window "after".
@@ -6309,12 +6319,6 @@ void restore_win_noblock(
     curwin = save_curwin;
     curbuf = curwin->w_buffer;
   }
-#ifdef FEAT_TEXT_PROP
-  else if (bt_popup(curwin->w_buffer))
-    // original window was closed and now we're in a popup window: Go
-    // to the first valid window.
-    win_goto(firstwin);
-#endif
 }
 
 /*
@@ -6808,16 +6812,6 @@ win_id2wp(int id)
   FOR_ALL_TAB_WINDOWS(tp, wp)
   if (wp->w_id == id)
     return wp;
-#ifdef FEAT_TEXT_PROP
-  // popup windows are in separate lists
-  FOR_ALL_TABPAGES(tp)
-  for (wp = tp->tp_first_popupwin; wp != NULL; wp = wp->w_next)
-    if (wp->w_id == id)
-      return wp;
-  for (wp = first_popupwin; wp != NULL; wp = wp->w_next)
-    if (wp->w_id == id)
-      return wp;
-#endif
 
   return NULL;
 }

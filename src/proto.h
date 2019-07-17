@@ -163,6 +163,7 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #ifdef FEAT_SIGNS
 #include "sign.pro"
 #endif
+#include "state_insert_literal.pro"
 #include "state_machine.pro"
 #include "syntax.pro"
 #include "tag.pro"
@@ -172,10 +173,6 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #endif
 #if defined(HAVE_TGETENT) && (defined(VMS))
 #include "termlib.pro"
-#endif
-#ifdef FEAT_TEXT_PROP
-#include "popupwin.pro"
-#include "textprop.pro"
 #endif
 #include "ui.pro"
 #include "undo.pro"
