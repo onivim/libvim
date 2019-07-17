@@ -51,6 +51,11 @@ void vimSetAutoCommandCallback(AutoCommandCallback f)
   autoCommandCallback = f;
 }
 
+void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
+{
+  fileWriteFailureCallback = f;
+}
+
 void vimSetMessageCallback(MessageCallback f)
 {
   messageCallback = f;

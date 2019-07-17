@@ -3001,6 +3001,8 @@ int buf_write(
 #endif
   unsigned int bkc = get_bkc_value(buf);
 
+printf("buf_write - 1\n");
+
   if (fname == NULL || *fname == NUL) /* safety check */
     return FAIL;
   if (buf->b_ml.ml_mfp == NULL)
@@ -3072,6 +3074,8 @@ int buf_write(
   fname = sfname;
 #endif
 
+
+  printf("buf_write - 10\n");
   if (buf->b_ffname != NULL && fnamecmp(ffname, buf->b_ffname) == 0)
     overwriting = TRUE;
   else
@@ -3180,6 +3184,8 @@ int buf_write(
                                sfname, sfname, FALSE, curbuf, eap);
       }
     }
+  
+  printf("buf_write - 20\n");
 
     /* restore curwin/curbuf and a few other things */
     aucmd_restbuf(&aco);
@@ -3239,6 +3245,8 @@ int buf_write(
       return FAIL;
     }
 
+  printf("buf_write - 30\n");
+
     /*
 	 * The autocommands may have changed the number of lines in the file.
 	 * When writing the whole file, adjust the end.
@@ -3278,6 +3286,7 @@ int buf_write(
       fname = buf->b_sfname;
   }
 
+  printf("buf_write - 40\n");
   if (shortmess(SHM_OVER) && !exiting)
     msg_scroll = FALSE; /* overwrite previous file message */
   else
@@ -3374,10 +3383,14 @@ int buf_write(
       errmsg = (char_u *)_("is a directory");
       goto fail;
     }
-    if (overwriting)
+    if (overwriting) {
+      printf("Checking stats!\n");
       (void)mch_stat((char *)fname, &st_old);
+    }
   }
 #endif /* !UNIX */
+  
+  printf("buf_write - 50. Device: %d Newfile: %d overwriting: %d\n", device, newfile, overwriting);
 
   if (!device && !newfile)
   {
@@ -3413,6 +3426,7 @@ int buf_write(
     }
   }
 
+  printf("buf_write - 60\n");
 #ifdef HAVE_ACL
   /*
      * For systems that support ACL: get the ACL from the original file.
@@ -5068,17 +5082,15 @@ msg_add_eol(void)
 static int
 check_mtime(buf_T *buf, stat_T *st)
 {
+  printf("check_mtime - 1. buf->b_mtime_read: %ld st->st_mtime: %ld\n", buf->b_mtime_read, (long)st->st_mtime);
   if (buf->b_mtime_read != 0 && time_differs((long)st->st_mtime, buf->b_mtime_read))
   {
-    msg_scroll = TRUE; /* don't overwrite messages here */
-    msg_silent = 0;    /* must give this prompt */
-    /* don't use emsg() here, don't want to flush the buffers */
-    msg_attr(_("WARNING: The file has been changed since reading it!!!"),
-             HL_ATTR(HLF_E));
-    if (ask_yesno((char_u *)_("Do you really want to write to it"),
-                  TRUE) == 'n')
-      return FAIL;
-    msg_scroll = FALSE; /* always overwrite the file message now */
+
+    if (fileWriteFailureCallback != NULL) {
+      fileWriteFailureCallback(FILE_CHANGED, buf);
+    }
+    
+    return FAIL;
   }
   return OK;
 }

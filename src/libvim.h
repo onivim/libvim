@@ -69,6 +69,11 @@ void vimCursorSetPosition(pos_T pos);
 colnr_T vimCursorGetDesiredColumn(void);
 
 /***
+ * File I/O
+ ***/
+void vimSetFileWriteFailureCallback(FileWriteFailureCallback fileWriteFailureCallback);
+
+/***
  * User Input
  ***/
 void vimInput(char_u *input);
