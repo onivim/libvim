@@ -146,38 +146,38 @@ MU_TEST(test_win_move_count_before_and_after)
 MU_TEST(test_move_commands)
 {
   vimInput("<c-w>");
-      vimInput("H");
-          mu_check(lastMovement == WIN_MOVE_FULL_LEFT);
+  vimInput("H");
+  mu_check(lastMovement == WIN_MOVE_FULL_LEFT);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>");
-      vimInput("L");
+  vimInput("L");
 
-          mu_check(lastMovement == WIN_MOVE_FULL_RIGHT);
+  mu_check(lastMovement == WIN_MOVE_FULL_RIGHT);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>");
-      vimInput("K");
+  vimInput("K");
 
-          mu_check(lastMovement == WIN_MOVE_FULL_UP);
+  mu_check(lastMovement == WIN_MOVE_FULL_UP);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>");
-      vimInput("J");
+  vimInput("J");
 
-          mu_check(lastMovement == WIN_MOVE_FULL_DOWN);
+  mu_check(lastMovement == WIN_MOVE_FULL_DOWN);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>");
-      vimInput("r");
+  vimInput("r");
 
-          mu_check(lastMovement == WIN_MOVE_ROTATE_DOWNWARDS);
+  mu_check(lastMovement == WIN_MOVE_ROTATE_DOWNWARDS);
   mu_check(lastMovementCount == 1);
 
   vimInput("<c-w>");
-      vimInput("R");
+  vimInput("R");
 
-          mu_check(lastMovement == WIN_MOVE_ROTATE_UPWARDS);
+  mu_check(lastMovement == WIN_MOVE_ROTATE_UPWARDS);
   mu_check(lastMovementCount == 1);
 }
 

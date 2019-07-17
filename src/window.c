@@ -135,22 +135,22 @@ void do_window(
   case 'J':
     windowMovementCallback(WIN_MOVE_FULL_DOWN, Prenum1);
     break;
-  
+
   case 't':
   case Ctrl_T:
     windowMovementCallback(WIN_CURSOR_TOP_LEFT, Prenum1);
     break;
-  
+
   case 'b':
   case Ctrl_B:
     windowMovementCallback(WIN_CURSOR_BOTTOM_RIGHT, Prenum1);
     break;
-  
+
   case 'p':
   case Ctrl_P:
     windowMovementCallback(WIN_CURSOR_PREVIOUS, Prenum1);
     break;
-  
+
   case 'r':
   case Ctrl_R:
     windowMovementCallback(WIN_MOVE_ROTATE_DOWNWARDS, Prenum1);
