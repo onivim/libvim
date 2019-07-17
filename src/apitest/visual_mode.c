@@ -87,6 +87,20 @@ MU_TEST(test_ctrl_Q)
   mu_check(vimVisualIsActive() == 1);
 }
 
+MU_TEST(test_insert_block_mode)
+{
+  vimInput("<c-v>");
+  vimInput("j");
+  vimInput("j");
+  vimInput("j");
+
+  vimInput("I");
+
+  vimInput("a");
+  vimInput("b");
+  vimInput("c");
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -95,6 +109,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_characterwise_range);
   MU_RUN_TEST(test_ctrl_q);
   MU_RUN_TEST(test_ctrl_Q);
+  MU_RUN_TEST(test_insert_block_mode);
 }
 
 int main(int argc, char **argv)
