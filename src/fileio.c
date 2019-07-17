@@ -6461,6 +6461,7 @@ int buf_check_timestamp(
     buf_T *buf,
     int focus UNUSED) /* called for GUI focus event */
 {
+  printf("---- buf_check_timestamp\n");
   stat_T st;
   int stat_res;
   int retval = 0;
@@ -6624,6 +6625,7 @@ int buf_check_timestamp(
 
   if (mesg != NULL)
   {
+    printf ("mesg != NULL\n");
     path = home_replace_save(buf, buf->b_fname);
     if (path != NULL)
     {
@@ -6636,23 +6638,9 @@ int buf_check_timestamp(
 	     * mesg2 has been appended. */
       set_vim_var_string(VV_WARNINGMSG, (char_u *)tbuf, -1);
 #endif
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-      if (can_reload)
+      if (State > NORMAL_BUSY || (State & CMDLINE) || already_warned)
       {
-        if (*mesg2 != NUL)
-        {
-          STRCAT(tbuf, "\n");
-          STRCAT(tbuf, mesg2);
-        }
-        if (do_dialog(VIM_WARNING, (char_u *)_("Warning"),
-                      (char_u *)tbuf,
-                      (char_u *)_("&OK\n&Load File"), 1, NULL, TRUE) == 2)
-          reload = TRUE;
-      }
-      else
-#endif
-          if (State > NORMAL_BUSY || (State & CMDLINE) || already_warned)
-      {
+        printf("Already warned?\n");
         if (*mesg2 != NUL)
         {
           STRCAT(tbuf, "; ");
@@ -6663,6 +6651,7 @@ int buf_check_timestamp(
       }
       else
       {
+        printf("NOT Already warned?\n");
         if (!autocmd_busy)
         {
           msg_start();
@@ -6671,17 +6660,6 @@ int buf_check_timestamp(
             msg_puts_attr(mesg2, HL_ATTR(HLF_W) + MSG_HIST);
           msg_clr_eos();
           (void)msg_end();
-          if (emsg_silent == 0)
-          {
-#ifdef FEAT_GUI
-            if (!focus)
-#endif
-              /* give the user some time to think about it */
-              ui_delay(1000L, TRUE);
-
-            /* don't redraw and erase the message */
-            redraw_cmdline = FALSE;
-          }
         }
         already_warned = TRUE;
       }

@@ -504,7 +504,7 @@ static struct vimoption options[] =
         {"autoclosingpairs", "acp", P_BOOL | P_VI_DEF, (char_u *)&p_acp, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"autoindent", "ai", P_BOOL | P_VI_DEF, (char_u *)&p_ai, PV_AI, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"autoprint", "ap", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
-        {"autoread", "ar", P_BOOL | P_VI_DEF, (char_u *)&p_ar, PV_AR, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"autoread", "ar", P_BOOL | P_VI_DEF, (char_u *)&p_ar, PV_AR, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"autowrite", "aw", P_BOOL | P_VI_DEF, (char_u *)&p_aw, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"autowriteall", "awa", P_BOOL | P_VI_DEF, (char_u *)&p_awa, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"background", "bg", P_STRING | P_VI_DEF | P_RCLR, (char_u *)&p_bg, PV_NONE, {

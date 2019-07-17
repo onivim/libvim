@@ -140,12 +140,47 @@ MU_TEST(test_modify_file_externally)
   mu_check(lastWriteFailureReason == FILE_CHANGED);
 }
 
+MU_TEST(test_check_if_changed_updates_buffer)
+{
+
+  mu_check(vimBufferCheckIfChanged(curbuf) == 0);
+  vimInput("i");
+  vimInput("a");
+  vimInput("<esc>");
+  vimExecute("w");
+
+  // HACK: This sleep is required to get different 'mtimes'
+  // for Vim to realize that th ebfufer is modified
+  sleep(3);
+
+  printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
+
+  mu_check(writeFailureCount == 0);
+  printf("TEMPFILE path: %s\n", tempFile);
+  FILE *fp = fopen(tempFile, "w");
+  fprintf(fp, "Hello!\n");
+  fclose(fp);
+  
+  int v = vimBufferCheckIfChanged(curbuf);
+  /* Should return 1 because the buffer was changed */
+  /* Should we get a buffer update? */
+  mu_check(v == 1);
+  
+  /* With auto-read, we should've picked up the change */
+  char_u *line = vimBufferGetLine(curbuf, 1);
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "Hello!") == 0);
+}
+
+/* Test autoread - get latest buffer update */
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   /*MU_RUN_TEST(test_write_while_file_open); */
   /*MU_RUN_TEST(test_overwrite_file);*/
+  MU_RUN_TEST(test_checkifchanged);
   MU_RUN_TEST(test_modify_file_externally);
 }
 

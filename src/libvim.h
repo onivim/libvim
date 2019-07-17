@@ -23,6 +23,15 @@ void vimInit(int argc, char **argv);
  */
 
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
+/*
+ * vimBufferCheckIfChanged
+ *
+ * Check if the contents of a buffer have been changed on the filesystem, outside of libvim.
+ * Returns 1 if buffer was changed
+ * Returns 2 if a message was displayed
+ * Returns 0 otherwise
+ */
+int vimBufferCheckIfChanged(buf_T *buf);
 buf_T *vimBufferGetById(int id);
 buf_T *vimBufferGetCurrent(void);
 void vimBufferSetCurrent(buf_T *buf);

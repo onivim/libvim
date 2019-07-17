@@ -18,6 +18,11 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
   return buffer;
 }
 
+int vimBufferCheckIfChanged(buf_T *buf)
+{
+  return buf_check_timestamp(buf, 0);
+}
+
 buf_T *vimBufferGetCurrent(void) { return curbuf; }
 
 buf_T *vimBufferGetById(int id) { return buflist_findnr(id); }
