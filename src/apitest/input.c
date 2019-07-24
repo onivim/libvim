@@ -54,7 +54,8 @@ MU_TEST(test_arrow_keys_normal)
   mu_check(vimCursorGetColumn() == 0);
 }
 
-MU_TEST(test_control_bracket) {
+MU_TEST(test_control_bracket)
+{
   vimInput("i");
 
   mu_check((vimGetMode() & INSERT) == INSERT);
