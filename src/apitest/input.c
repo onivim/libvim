@@ -54,6 +54,16 @@ MU_TEST(test_arrow_keys_normal)
   mu_check(vimCursorGetColumn() == 0);
 }
 
+MU_TEST(test_control_bracket)
+{
+  vimInput("i");
+
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  vimInput("<c-[>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -61,6 +71,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_arrow_keys_normal);
   MU_RUN_TEST(test_cmd_key_insert);
   MU_RUN_TEST(test_cmd_key_binding);
+  MU_RUN_TEST(test_control_bracket);
 }
 
 int main(int argc, char **argv)
