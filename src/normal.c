@@ -7182,8 +7182,10 @@ static void nv_esc(cmdarg_T *cap)
     curwin->w_set_curswant = TRUE;
     redraw_curbuf_later(INVERTED);
   }
-  else if (no_reason) {
-    if (unhandledEscapeCallback != NULL) {
+  else if (no_reason)
+  {
+    if (unhandledEscapeCallback != NULL)
+    {
       unhandledEscapeCallback();
     }
   }
