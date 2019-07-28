@@ -76,7 +76,7 @@ void vimSetQuitCallback(QuitCallback f)
   quitCallback = f;
 }
 
-void vimSetUnhandledEscapeCallback(UnhandledEscapeCallback callback) 
+void vimSetUnhandledEscapeCallback(UnhandledEscapeCallback callback)
 {
   unhandledEscapeCallback = callback;
 }

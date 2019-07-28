@@ -3,7 +3,8 @@
 
 static int unhandledEscapeCount = 0;
 
-void onUnhandledEscape(void) {
+void onUnhandledEscape(void)
+{
   unhandledEscapeCount++;
 }
 
@@ -88,7 +89,7 @@ MU_TEST_SUITE(test_suite)
 int main(int argc, char **argv)
 {
   vimInit(argc, argv);
-  
+
   vimSetUnhandledEscapeCallback(&onUnhandledEscape);
 
   win_setwidth(5);
