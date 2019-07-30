@@ -63,7 +63,6 @@ MU_TEST(test_arrow_keys_normal)
   mu_check(vimCursorGetColumn() == 0);
 }
 
-<<<<<<< HEAD
 MU_TEST(test_unhandled_escape)
 {
   // Should get unhandled escape...
