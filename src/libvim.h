@@ -86,7 +86,6 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  **/
 
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
-void vimSetQuitCallback(QuitCallback callback);
 
 /*
  * vimSetQuitCallback
@@ -99,6 +98,17 @@ void vimSetQuitCallback(QuitCallback callback);
  * - `force`: a boolean if the command was forced (ie, if `q!` was used)
  */
 void vimSetQuitCallback(QuitCallback callback);
+
+/*
+ * vimSetUnhandledEscapeCallback
+ *
+ * Called when <esc> is pressed in normal mode, but there is no
+ * pending operator or action.
+ *
+ * This is intended for UI's to pick up and handle (for example,
+ * to clear messages or alerts).
+ */
+void vimSetUnhandledEscapeCallback(UnhandledEscapeCallback callback);
 
 /***
  * Options

@@ -76,6 +76,11 @@ void vimSetQuitCallback(QuitCallback f)
   quitCallback = f;
 }
 
+void vimSetUnhandledEscapeCallback(UnhandledEscapeCallback callback)
+{
+  unhandledEscapeCallback = callback;
+}
+
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
 char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }

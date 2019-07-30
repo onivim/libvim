@@ -1,6 +1,13 @@
 #include "libvim.h"
 #include "minunit.h"
 
+static int unhandledEscapeCount = 0;
+
+void onUnhandledEscape(void)
+{
+  unhandledEscapeCount++;
+}
+
 void test_setup(void)
 {
   vimInput("<esc>");
@@ -10,6 +17,8 @@ void test_setup(void)
   vimInput("g");
   vimInput("g");
   vimInput("0");
+
+  unhandledEscapeCount = 0;
 }
 
 void test_teardown(void) {}
@@ -54,6 +63,19 @@ MU_TEST(test_arrow_keys_normal)
   mu_check(vimCursorGetColumn() == 0);
 }
 
+MU_TEST(test_unhandled_escape)
+{
+  // Should get unhandled escape...
+  vimInput("<esc>");
+  mu_check(unhandledEscapeCount == 1);
+
+  // ...but not if escape was handled
+  vimInput("i");
+  vimInput("<esc>");
+  // Should still be 1 - no additional calls made.
+  mu_check(unhandledEscapeCount == 1);
+}
+
 MU_TEST(test_control_bracket)
 {
   vimInput("i");
@@ -71,12 +93,15 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_arrow_keys_normal);
   MU_RUN_TEST(test_cmd_key_insert);
   MU_RUN_TEST(test_cmd_key_binding);
+  MU_RUN_TEST(test_unhandled_escape);
   MU_RUN_TEST(test_control_bracket);
 }
 
 int main(int argc, char **argv)
 {
   vimInit(argc, argv);
+
+  vimSetUnhandledEscapeCallback(&onUnhandledEscape);
 
   win_setwidth(5);
   win_setheight(100);

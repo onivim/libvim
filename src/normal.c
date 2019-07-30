@@ -7183,7 +7183,12 @@ static void nv_esc(cmdarg_T *cap)
     redraw_curbuf_later(INVERTED);
   }
   else if (no_reason)
-    vim_beep(BO_ESC);
+  {
+    if (unhandledEscapeCallback != NULL)
+    {
+      unhandledEscapeCallback();
+    }
+  }
   clearop(cap->oap);
 
   /* A CTRL-C is often used at the start of a menu.  When 'insertmode' is

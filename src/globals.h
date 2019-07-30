@@ -52,6 +52,7 @@ EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
 EXTERN WindowMovementCallback windowMovementCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN UnhandledEscapeCallback unhandledEscapeCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine
