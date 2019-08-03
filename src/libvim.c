@@ -76,7 +76,7 @@ void vimSetQuitCallback(QuitCallback f)
   quitCallback = f;
 }
 
-void vimSetUnhandledEscapeCallback(UnhandledEscapeCallback callback)
+void vimSetUnhandledEscapeCallback(VoidCallback callback)
 {
   unhandledEscapeCallback = callback;
 }
@@ -257,7 +257,7 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
 char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
-void vimSetStopSearchHighlightCallback(StopSearchHighlightCallback callback)
+void vimSetStopSearchHighlightCallback(VoidCallback callback)
 {
   stopSearchHighlightCallback = callback;
 }
@@ -318,6 +318,14 @@ void vimWindowSetHeight(int height)
 }
 
 int vimGetMode(void) { return get_real_state(); }
+
+void vimSetDisplayIntroCallback(VoidCallback callback) {
+  setDisplayIntroCallback = callback;
+}
+
+void vimSetDisplayVersionCallback(VoidCallback callback) {
+  setDisplayVersionCallback = callback;
+}
 
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
