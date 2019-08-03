@@ -2805,8 +2805,6 @@ int op_yank(oparg_T *oap, int deleting, int mess)
     oap->regname = 0;
 #endif
 
-  printf("DELETING - regname: %c|%d\n", oap->regname, oap->regname);
-
   if (!deleting) /* op_delete() already set y_current */
     get_yank_register(oap->regname, TRUE);
 
