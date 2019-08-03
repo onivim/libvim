@@ -257,6 +257,10 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
 char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
+void vimSetStopSearchHighlightCallback(StopSearchHighlightcallback callback) {
+  stopSearchHighlightCallback = callback;
+}
+
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
 void vimOptionSetTabSize(int tabSize)
