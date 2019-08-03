@@ -319,12 +319,14 @@ void vimWindowSetHeight(int height)
 
 int vimGetMode(void) { return get_real_state(); }
 
-void vimSetDisplayIntroCallback(VoidCallback callback) {
-  setDisplayIntroCallback = callback;
+void vimSetDisplayIntroCallback(VoidCallback callback)
+{
+  displayIntroCallback = callback;
 }
 
-void vimSetDisplayVersionCallback(VoidCallback callback) {
-  setDisplayVersionCallback = callback;
+void vimSetDisplayVersionCallback(VoidCallback callback)
+{
+  displayVersionCallback = callback;
 }
 
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)

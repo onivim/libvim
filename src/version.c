@@ -3513,7 +3513,8 @@ int has_patch(int n)
 
 void ex_version(exarg_T *eap)
 {
-  if (displayVersionCallback != NULL) {
+  if (displayVersionCallback != NULL)
+  {
     displayVersionCallback();
   }
 }
@@ -4118,7 +4119,8 @@ do_intro_line(
  */
 void ex_intro(exarg_T *eap UNUSED)
 {
-  if (displayIntroCallback != NULL) {
+  if (displayIntroCallback != NULL)
+  {
     displayIntroCallback();
   }
 }
