@@ -10373,6 +10373,10 @@ void set_no_hlsearch(int flag)
 static void
 ex_nohlsearch(exarg_T *eap UNUSED)
 {
+  if (stopSearchHighlightCallback != NULL)
+  {
+    stopSearchHighlightCallback();
+  }
   set_no_hlsearch(TRUE);
   redraw_all_later(SOME_VALID);
 }

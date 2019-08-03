@@ -1,6 +1,13 @@
 #include "libvim.h"
 #include "minunit.h"
 
+static int stopSearchHighlightCount = 0;
+
+void onStopSearchHighlight(void)
+{
+  stopSearchHighlightCount++;
+}
+
 void test_setup(void)
 {
   vimInput("<esc>");
@@ -10,6 +17,7 @@ void test_setup(void)
   vimInput("g");
   vimInput("g");
   vimInput("0");
+  stopSearchHighlightCount = 0;
 }
 
 void test_teardown(void) {}
@@ -52,12 +60,20 @@ MU_TEST(test_get_highlights)
   mu_check(num == 3);
 }
 
+MU_TEST(test_nohlsearch)
+{
+  mu_check(stopSearchHighlightCount == 0);
+  vimExecute("nohlsearch");
+  mu_check(stopSearchHighlightCount == 1);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_no_highlights_initially);
   MU_RUN_TEST(test_get_highlights);
+  MU_RUN_TEST(test_nohlsearch);
 }
 
 int main(int argc, char **argv)
@@ -66,6 +82,8 @@ int main(int argc, char **argv)
 
   win_setwidth(5);
   win_setheight(100);
+
+  vimSetStopSearchHighlightCallback(&onStopSearchHighlight);
 
   vimBufferOpen("collateral/testfile.txt", 1, 0);
 

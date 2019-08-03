@@ -172,6 +172,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
  */
 char_u *vimSearchGetPattern();
 
+void vimSetStopSearchHighlightCallback(StopSearchHighlightCallback callback);
+
 /***
  * Window
  */
