@@ -61,7 +61,7 @@ typedef enum
   WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
-type struct
+typedef struct
 {
   int op_char;
   int extra_op_char;
