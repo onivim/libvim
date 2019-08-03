@@ -75,7 +75,6 @@ MU_TEST(test_yank_line)
   mu_check(lastOpChar == 'y');
   mu_check(lastYankType == MLINE);
   mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
-  // TODO
 };
 
 MU_TEST(test_delete_line)
@@ -88,7 +87,6 @@ MU_TEST(test_delete_line)
   mu_check(lastYankLineCount == 1);
   mu_check(lastYankType == MLINE);
   mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
-  // TODO
 };
 
 MU_TEST(test_delete_two_lines)
@@ -102,7 +100,6 @@ MU_TEST(test_delete_two_lines)
   mu_check(lastOpChar == 'd');
   mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
   mu_check(strcmp(lastYankLines[1], "This is the second line of a test file") == 0);
-  // TODO
 };
 
 MU_TEST(test_delete_char)
@@ -115,7 +112,6 @@ MU_TEST(test_delete_char)
   mu_check(lastYankType == MCHAR);
   mu_check(lastOpChar == 'd');
   mu_check(strcmp(lastYankLines[0], "T") == 0);
-  // TODO
 };
 
 MU_TEST_SUITE(test_suite)
