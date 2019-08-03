@@ -5927,6 +5927,7 @@ static void nv_pcmark(cmdarg_T *cap)
  */
 static void nv_regname(cmdarg_T *cap)
 {
+  printf("nv_regname!\n");
   if (checkclearop(cap->oap))
     return;
 #ifdef FEAT_EVAL

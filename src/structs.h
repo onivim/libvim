@@ -66,18 +66,18 @@ typedef struct
   int op_char;
   int extra_op_char;
   int regname;
-  int blockType; // MLINE, MCHAR, MBLOCk
+  int blockType; // MLINE, MCHAR, MBLOCK
   pos_T start;
   pos_T end;
   int numLines;
-  char **lines;
+  char_u **lines;
 } yankInfo_T;
 
 typedef void (*StopSearchHighlightCallback)(void);
 typedef void (*UnhandledEscapeCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
-typedef void (*YankCallback)(yankInfo_T* yankInfo);
+typedef void (*YankCallback)(yankInfo_T *yankInfo);
 
 typedef struct
 {
