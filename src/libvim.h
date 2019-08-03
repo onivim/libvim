@@ -196,4 +196,6 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
 
 int vimGetMode(void);
 
+void vimSetYankCallback(YankCallback callback);
+
 /* vim: set ft=c : */
