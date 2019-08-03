@@ -257,7 +257,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
 char_u *vimSearchGetPattern(void) { return get_search_pat(); }
 
-void vimSetStopSearchHighlightCallback(StopSearchHighlightcallback callback) {
+void vimSetStopSearchHighlightCallback(StopSearchHighlightCallback callback)
+{
   stopSearchHighlightCallback = callback;
 }
 

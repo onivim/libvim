@@ -61,7 +61,7 @@ typedef enum
   WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
-typedef void (*StopSearchHighlightcallback)(void);
+typedef void (*StopSearchHighlightCallback)(void);
 typedef void (*UnhandledEscapeCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
