@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
   win_setwidth(5);
   win_setheight(100);
-  
+
   vimSetStopSearchHighlightCallback(&onStopSearchHighlight);
 
   vimBufferOpen("collateral/testfile.txt", 1, 0);
