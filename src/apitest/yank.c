@@ -12,7 +12,6 @@ static int lastOpChar = -1;
 
 void disposeLastYankInfo(void)
 {
-  printf("start dispose\n");
   if (lastYankLines != NULL)
   {
 
@@ -25,12 +24,10 @@ void disposeLastYankInfo(void)
     lastYankLineCount = -1;
     lastYankLines = NULL;
   }
-  printf("end dispose\n");
 }
 
 void onYank(yankInfo_T *yankInfo)
 {
-  printf("on yank!");
   disposeLastYankInfo();
 
   lastYankLineCount = yankInfo->numLines;
@@ -40,22 +37,14 @@ void onYank(yankInfo_T *yankInfo)
   lastYankType = yankInfo->blockType;
   lastOpChar = yankInfo->op_char;
 
-  printf("line count: %d\n", yankInfo->numLines);
-  printf("start - lnum: %ld col: %d\n", lastStart.lnum, lastStart.col);
-  printf("end - lnum: %ld col: %d\n", lastEnd.lnum, lastEnd.col);
-  printf("regname: %c|%d\n", yankInfo->regname, yankInfo->regname);
-  printf("opchar: %c|%d\n", yankInfo->op_char, yankInfo->op_char);
-
   for (int i = 0; i < lastYankLineCount; i++)
   {
     int len = strlen(yankInfo->lines[i]);
     char_u *sz = alloc(sizeof(char_u) * (len + 1));
     strcpy(sz, yankInfo->lines[i]);
     lastYankLines[i] = sz;
-    printf("Copying to: %s\n", sz);
   };
   yankCount++;
-  printf("finished onyank\n");
 };
 
 void test_setup(void)
