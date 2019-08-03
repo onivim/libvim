@@ -1715,8 +1715,16 @@ int op_delete(oparg_T *oap)
     }
 
 #if defined(FEAT_EVAL)
-    if (did_yank && has_textyankpost())
-      yank_do_autocmd(oap, y_current);
+    if (did_yank) {
+
+      if (yankCallback != NULL) {
+        // Call yankCallback
+      }
+
+      if (has_textyankpost()) {
+        yank_do_autocmd(oap, y_current);
+      }
+    }
 #endif
   }
 
