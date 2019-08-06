@@ -7629,9 +7629,7 @@ static void nv_put_opt(cmdarg_T *cap, int fix_indent)
       regname = cap->oap->regname;
       adjust_clip_reg(&regname);
       if (regname == 0 || regname == '"' || VIM_ISDIGIT(regname) ||
-          regname == '-'
-          || (clip_unnamed && (regname == '*' || regname == '+'))
-      )
+          regname == '-' || (clip_unnamed && (regname == '*' || regname == '+')))
       {
         /* The delete is going to overwrite the register we want to
          * put, save it first. */

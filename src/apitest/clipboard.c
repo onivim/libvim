@@ -40,10 +40,11 @@ MU_TEST(test_clipboard_not_enabled_star)
   mu_check(strcmp(lines[0], "This is the first line of a test file") == 0);
 }
 
-int simpleClipboardTest(int regname, int *numlines, char_u *** lines) {
+int simpleClipboardTest(int regname, int *numlines, char_u ***lines)
+{
   printf("simpleClipboardTest called\n");
   *numlines = 1;
-  *lines = ALLOC_ONE(char_u*);
+  *lines = ALLOC_ONE(char_u *);
   (*lines)[0] = "Hello, World";
   return TRUE;
 };
@@ -51,7 +52,7 @@ int simpleClipboardTest(int regname, int *numlines, char_u *** lines) {
 MU_TEST(test_paste_from_clipboard)
 {
   vimSetClipboardGetCallback(&simpleClipboardTest);
-  
+
   printf("\n: INPUT: slashn");
   vimInput("\"");
   printf("\n: INPUT: *\n");
@@ -60,7 +61,7 @@ MU_TEST(test_paste_from_clipboard)
   printf("\n: INPUT: y1\n");
   vimInput("P");
 
-  char_u* line = vimBufferGetLine(curbuf, 0);
+  char_u *line = vimBufferGetLine(curbuf, 0);
 
   printf("LINE: |%s|\n", line);
   mu_check(strcmp(line, "Hello, World") == 0);

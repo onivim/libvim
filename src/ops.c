@@ -785,16 +785,17 @@ int get_yank_register(int regname, int writing)
   {
     i = STAR_REGISTER;
     /* update star register */
-        if (!writing) {
-          y_current = &y_regs[STAR_REGISTER];
-          free_yank_all(); /* free star register */
-          
-          y_current->y_type = MCHAR; /* used to be MLINE, why? */
-          y_current->y_size = 2;
-          y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
-          y_current->y_array[0] = "Hello, World";
-          y_current->y_array[1] = "";
-        }
+    if (!writing)
+    {
+      y_current = &y_regs[STAR_REGISTER];
+      free_yank_all(); /* free star register */
+
+      y_current->y_type = MCHAR; /* used to be MLINE, why? */
+      y_current->y_size = 2;
+      y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
+      y_current->y_array[0] = "Hello, World";
+      y_current->y_array[1] = "";
+    }
     ret = TRUE;
   }
   else if (regname == '+')
