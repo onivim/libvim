@@ -99,8 +99,7 @@ MU_TEST(test_yank_register)
   mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
 };
 
-/* TODO: Unblock clipboard test */
-/*MU_TEST(test_clipboard_registers)
+MU_TEST(test_clipboard_registers)
 {
 
   vimInput("\"");
@@ -119,7 +118,7 @@ MU_TEST(test_yank_register)
 
   mu_check(yankCount == 2);
   mu_check(lastRegname == '*');
-};*/
+};
 
 MU_TEST(test_delete_line)
 {
@@ -167,7 +166,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_delete_two_lines);
   MU_RUN_TEST(test_yank_line);
   MU_RUN_TEST(test_yank_register);
-  /*MU_RUN_TEST(test_clipboard_registers);*/
+  MU_RUN_TEST(test_clipboard_registers);
 }
 
 int main(int argc, char **argv)
