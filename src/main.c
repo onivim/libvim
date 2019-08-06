@@ -598,25 +598,6 @@ int vim_main2(void)
   }
 #endif
 
-#if defined(FEAT_GUI_PHOTON) && defined(FEAT_CLIPBOARD)
-  qnx_clip_init();
-#endif
-
-#if defined(MACOS_X) && defined(FEAT_CLIPBOARD)
-  clip_init(TRUE);
-#endif
-
-#ifdef FEAT_XCLIPBOARD
-  /* Start using the X clipboard, unless the GUI was started. */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-  {
-    setup_term_clip();
-    TIME_MSG("setup clipboard");
-  }
-#endif
-
 #ifdef FEAT_CLIENTSERVER
   /* Prepare for being a Vim server. */
   prepare_server(&params);

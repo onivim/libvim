@@ -393,27 +393,6 @@ EXTERN int diff_need_scrollbind INIT(= FALSE);
  * ('lines' and 'rows') must not be changed. */
 EXTERN int updating_screen INIT(= FALSE);
 
-#ifdef FEAT_CLIPBOARD
-EXTERN VimClipboard clip_star; /* PRIMARY selection in X11 */
-#ifdef FEAT_X11
-EXTERN VimClipboard clip_plus; /* CLIPBOARD selection in X11 */
-#else
-#define clip_plus clip_star /* there is only one clipboard */
-#define ONE_CLIPBOARD
-#endif
-
-#define CLIP_UNNAMED 1
-#define CLIP_UNNAMED_PLUS 2
-EXTERN int clip_unnamed INIT(= 0); /* above two values or'ed */
-
-EXTERN int clip_autoselect_star INIT(= FALSE);
-EXTERN int clip_autoselect_plus INIT(= FALSE);
-EXTERN int clip_autoselectml INIT(= FALSE);
-EXTERN int clip_html INIT(= FALSE);
-EXTERN regprog_T *clip_exclude_prog INIT(= NULL);
-EXTERN int clip_unnamed_saved INIT(= 0);
-#endif
-
 /*
  * All regular windows are linked in a list. "firstwin" points to the first
  * entry, "lastwin" to the last entry (can be the same as firstwin) and

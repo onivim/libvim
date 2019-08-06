@@ -2166,14 +2166,13 @@ do_one_cmd(
       /* Do not allow register = for user commands */
       && (!IS_USER_CMDIDX(ea.cmdidx) || *ea.arg != '=') && !((ea.argt & COUNT) && VIM_ISDIGIT(*ea.arg)))
   {
-#ifndef FEAT_CLIPBOARD
+    /* TODO - LIBVIM:CLIPBOARD - should we disable this check?*/
     /* check these explicitly for a more specific error message */
     if (*ea.arg == '*' || *ea.arg == '+')
     {
       errormsg = _(e_invalidreg);
       goto doend;
     }
-#endif
     if (valid_yank_reg(*ea.arg, (ea.cmdidx != CMD_put && !IS_USER_CMDIDX(ea.cmdidx))))
     {
       ea.regname = *ea.arg++;

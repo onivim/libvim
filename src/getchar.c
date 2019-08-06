@@ -4891,22 +4891,12 @@ static struct initmap cinitmappings[] =
         {(char_u *)"\316u <C-End>", INSERT + CMDLINE},
 
 /* paste, copy and cut */
-#ifdef FEAT_CLIPBOARD
-        {(char_u *)"\316\324 \"*P", NORMAL},      /* SHIFT-Insert is "*P */
-        {(char_u *)"\316\324 \"-d\"*P", VIS_SEL}, /* SHIFT-Insert is "-d"*P */
-        {(char_u *)"\316\324 \022\017*", INSERT}, /* SHIFT-Insert is ^R^O* */
-        {(char_u *)"\316\325 \"*y", VIS_SEL},     /* CTRL-Insert is "*y */
-        {(char_u *)"\316\327 \"*d", VIS_SEL},     /* SHIFT-Del is "*d */
-        {(char_u *)"\316\330 \"*d", VIS_SEL},     /* CTRL-Del is "*d */
-        {(char_u *)"\030 \"*d", VIS_SEL},         /* CTRL-X is "*d */
-#else
         {(char_u *)"\316\324 P", NORMAL},          /* SHIFT-Insert is P */
         {(char_u *)"\316\324 \"-dP", VIS_SEL},     /* SHIFT-Insert is "-dP */
         {(char_u *)"\316\324 \022\017\"", INSERT}, /* SHIFT-Insert is ^R^O" */
         {(char_u *)"\316\325 y", VIS_SEL},         /* CTRL-Insert is y */
         {(char_u *)"\316\327 d", VIS_SEL},         /* SHIFT-Del is d */
         {(char_u *)"\316\330 d", VIS_SEL},         /* CTRL-Del is d */
-#endif
 };
 #endif
 
