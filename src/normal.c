@@ -30,7 +30,7 @@ static int restart_VIsual_select = 0;
  * This keeps track of whether or not there was a persisted
  * register from the previous operation.
  */
-static int keep_reg = 0; 
+static int keep_reg = 0;
 
 #ifdef FEAT_EVAL
 static void set_vcount_ca(cmdarg_T *cap, int *set_prevcount);
@@ -525,10 +525,11 @@ void start_normal_mode(normalCmd_T *context)
     oap->prev_opcount = 0;
     oap->prev_count0 = 0;
   }
-  
+
   /* Consume register if there is one persisted from previous operation */
-  if (keep_reg != 0) {
-    context->oap->regname = keep_reg; 
+  if (keep_reg != 0)
+  {
+    context->oap->regname = keep_reg;
     keep_reg = 0;
   }
 
@@ -613,7 +614,6 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
   }
 
   oparg_T *oap = context->oap;
-
 
 restart_state:
   switch (context->state)
@@ -868,7 +868,8 @@ restart_state:
     {
       finish_op = FALSE;
       /* If the register wasn't cleared, it needs to persist to next op */
-      if (context->oap->regname != 0) {
+      if (context->oap->regname != 0)
+      {
         keep_reg = context->oap->regname;
       }
       return COMPLETED;
