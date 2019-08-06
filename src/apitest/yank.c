@@ -4,6 +4,7 @@
 
 static int yankCount = 0;
 static int lastYankLineCount = -1;
+static int lastRegname = 0;
 static char **lastYankLines = NULL;
 static pos_T lastStart;
 static pos_T lastEnd;
@@ -21,9 +22,12 @@ void disposeLastYankInfo(void)
     }
 
     vim_free(lastYankLines);
-    lastYankLineCount = -1;
-    lastYankLines = NULL;
   }
+
+  lastYankLineCount = -1;
+  lastYankLines = NULL;
+  lastRegname = 0;
+  lastOpChar = 0;
 }
 
 void onYank(yankInfo_T *yankInfo)
@@ -36,6 +40,7 @@ void onYank(yankInfo_T *yankInfo)
   lastEnd = yankInfo->end;
   lastYankType = yankInfo->blockType;
   lastOpChar = yankInfo->op_char;
+  lastRegname = yankInfo->regname;
 
   for (int i = 0; i < lastYankLineCount; i++)
   {
@@ -74,8 +79,47 @@ MU_TEST(test_yank_line)
   mu_check(lastYankLineCount == 1);
   mu_check(lastOpChar == 'y');
   mu_check(lastYankType == MLINE);
+  mu_check(lastRegname == 0);
   mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
 };
+
+MU_TEST(test_yank_register)
+{
+
+  vimInput("\"");
+  vimInput("c");
+  vimInput("y");
+  vimInput("y");
+
+  mu_check(yankCount == 1);
+  mu_check(lastYankLineCount == 1);
+  mu_check(lastOpChar == 'y');
+  mu_check(lastYankType == MLINE);
+  mu_check(lastRegname == 'c');
+  mu_check(strcmp(lastYankLines[0], "This is the first line of a test file") == 0);
+};
+
+/* TODO: Unblock clipboard test */
+/*MU_TEST(test_clipboard_registers)
+{
+
+  vimInput("\"");
+  vimInput("+");
+  vimInput("y");
+  vimInput("y");
+
+  printf("LASTREGNAME: %c|%d\n", lastRegname, lastRegname);
+  mu_check(yankCount == 1);
+  mu_check(lastRegname == '+');
+
+  vimInput("\"");
+  vimInput("*");
+  vimInput("y");
+  vimInput("y");
+
+  mu_check(yankCount == 2);
+  mu_check(lastRegname == '*');
+};*/
 
 MU_TEST(test_delete_line)
 {
@@ -122,6 +166,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_delete_line);
   MU_RUN_TEST(test_delete_two_lines);
   MU_RUN_TEST(test_yank_line);
+  MU_RUN_TEST(test_yank_register);
+  /*MU_RUN_TEST(test_clipboard_registers);*/
 }
 
 int main(int argc, char **argv)
