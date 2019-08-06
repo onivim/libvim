@@ -7627,15 +7627,10 @@ static void nv_put_opt(cmdarg_T *cap, int fix_indent)
        */
       was_visual = TRUE;
       regname = cap->oap->regname;
-#ifdef FEAT_CLIPBOARD
       adjust_clip_reg(&regname);
-#endif
       if (regname == 0 || regname == '"' || VIM_ISDIGIT(regname) ||
           regname == '-'
-#ifdef FEAT_CLIPBOARD
           || (clip_unnamed && (regname == '*' || regname == '+'))
-#endif
-
       )
       {
         /* The delete is going to overwrite the register we want to

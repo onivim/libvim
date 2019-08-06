@@ -759,7 +759,7 @@ void get_yank_register_value(int regname, int *num_lines, char_u ***lines)
  */
 int get_yank_register(int regname, int writing)
 {
-  printf("get_yank_register: %c|%d\n", regname);
+  printf("get_yank_register: %c|%d\n", regname, regname);
   int i;
   int ret = FALSE;
 
@@ -1375,6 +1375,7 @@ int cmdline_paste_reg(
 
 int clipboard_is_available(void)
 {
+  printf("clipboard_is_available called");
   return TRUE;
 }
 

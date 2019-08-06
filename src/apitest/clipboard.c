@@ -19,10 +19,14 @@ void test_teardown(void) {}
  */
 MU_TEST(test_clipboard_not_enabled_star)
 {
+  printf("\n: INPUT: slashn");
   vimInput("\"");
+  printf("\n: INPUT: *\n");
   vimInput("*");
 
+  printf("\n: INPUT: y1\n");
   vimInput("y");
+  printf("\n: INPUT: y2\n");
   vimInput("y");
 
   int numLines;
