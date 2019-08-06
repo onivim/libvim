@@ -855,6 +855,11 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
 
+/* We externalize clipboard integration, so the `libvim`
+ * consumer can decide how `*` and `+` behave.
+ */
+#undef FEAT_CLIPBOARD
+
 /* GUI features */
 #undef FEAT_CON_DIALOG
 #undef FEAT_GUI
