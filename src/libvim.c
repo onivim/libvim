@@ -338,6 +338,11 @@ void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
   get_yank_register_value(reg_name, num_lines, lines);
 }
 
+void vimSetYankCallback(YankCallback callback)
+{
+  yankCallback = callback;
+}
+
 void vimInit(int argc, char **argv)
 {
   mparm_T params;

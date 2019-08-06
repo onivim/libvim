@@ -1623,8 +1623,30 @@ int op_delete(oparg_T *oap)
     }
 
 #if defined(FEAT_EVAL)
-    if (did_yank && has_textyankpost())
-      yank_do_autocmd(oap, y_current);
+    if (did_yank)
+    {
+
+      if (yankCallback != NULL)
+      {
+        // Call yankCallback
+        yankInfo_T *yankInfo = (yankInfo_T *)alloc(sizeof(yankInfo_T));
+        yankInfo->numLines = y_current->y_size;
+        yankInfo->lines = y_current->y_array;
+        yankInfo->start = oap->start;
+        yankInfo->end = oap->end;
+        yankInfo->blockType = y_current->y_type;
+        yankInfo->regname = oap->regname;
+        yankInfo->op_char = get_op_char(oap->op_type);
+        yankInfo->extra_op_char = get_extra_op_char(oap->op_type);
+        yankCallback(yankInfo);
+        vim_free(yankInfo);
+      }
+
+      if (has_textyankpost())
+      {
+        yank_do_autocmd(oap, y_current);
+      }
+    }
 #endif
   }
 
@@ -2902,8 +2924,28 @@ int op_yank(oparg_T *oap, int deleting, int mess)
   }
 
 #if defined(FEAT_EVAL)
-  if (!deleting && has_textyankpost())
-    yank_do_autocmd(oap, y_current);
+  if (!deleting)
+  {
+    if (yankCallback != NULL)
+    {
+      // Call yankCallback
+      yankInfo_T *yankInfo = (yankInfo_T *)alloc(sizeof(yankInfo_T));
+      yankInfo->numLines = y_current->y_size;
+      yankInfo->lines = y_current->y_array;
+      yankInfo->start = oap->start;
+      yankInfo->end = oap->end;
+      yankInfo->blockType = y_current->y_type;
+      yankInfo->regname = oap->regname;
+      yankInfo->op_char = get_op_char(oap->op_type);
+      yankInfo->extra_op_char = get_extra_op_char(oap->op_type);
+      yankCallback(yankInfo);
+      vim_free(yankInfo);
+    }
+    if (has_textyankpost())
+    {
+      yank_do_autocmd(oap, y_current);
+    }
+  }
 #endif
 
   return OK;

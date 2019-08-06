@@ -61,10 +61,23 @@ typedef enum
   WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
+typedef struct
+{
+  int op_char;
+  int extra_op_char;
+  int regname;
+  int blockType; // MLINE, MCHAR, MBLOCK
+  pos_T start;
+  pos_T end;
+  int numLines;
+  char_u **lines;
+} yankInfo_T;
+
 typedef int (*ClipboardGetCallback)(int regname, int num_lines, char*** lines);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
+typedef void (*YankCallback)(yankInfo_T *yankInfo);
 
 typedef struct
 {
