@@ -73,8 +73,7 @@ typedef struct
   char_u **lines;
 } yankInfo_T;
 
-typedef void (*StopSearchHighlightCallback)(void);
-typedef void (*UnhandledEscapeCallback)(void);
+typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);

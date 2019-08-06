@@ -3513,13 +3513,9 @@ int has_patch(int n)
 
 void ex_version(exarg_T *eap)
 {
-  /*
-     * Ignore a ":version 9.99" command.
-     */
-  if (*eap->arg == NUL)
+  if (displayVersionCallback != NULL)
   {
-    msg_putchar('\n');
-    list_version();
+    displayVersionCallback();
   }
 }
 
@@ -4123,7 +4119,8 @@ do_intro_line(
  */
 void ex_intro(exarg_T *eap UNUSED)
 {
-  screenclear();
-  intro_message(TRUE);
-  wait_return(TRUE);
+  if (displayIntroCallback != NULL)
+  {
+    displayIntroCallback();
+  }
 }
