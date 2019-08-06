@@ -317,6 +317,10 @@ void vimWindowSetHeight(int height)
   win_new_height(curwin, height);
 }
 
+void vimSetClipboardGetCallback(ClipboardGetCallback callback) {
+  clipboardGetCallback = callback;
+}
+
 int vimGetMode(void) { return get_real_state(); }
 
 void vimSetDisplayIntroCallback(VoidCallback callback)

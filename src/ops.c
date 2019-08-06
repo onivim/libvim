@@ -759,6 +759,7 @@ void get_yank_register_value(int regname, int *num_lines, char_u ***lines)
  */
 int get_yank_register(int regname, int writing)
 {
+  printf("get_yank_register: %c|%d\n", regname);
   int i;
   int ret = FALSE;
 

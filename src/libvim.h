@@ -194,6 +194,8 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
  * Misc
  ***/
 
+void vimSetClipboardGetCallback(ClipboardGetCallback callback);
+
 int vimGetMode(void);
 
 /* Callbacks for when the `:intro` and `:version` commands are used
