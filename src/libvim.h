@@ -196,6 +196,8 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
 
 int vimGetMode(void);
 
+void vimSetYankCallback(YankCallback callback);
+
 /* Callbacks for when the `:intro` and `:version` commands are used
   
   The Vim license has some specific requirements when implementing these methods:
