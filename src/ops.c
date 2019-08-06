@@ -784,6 +784,17 @@ int get_yank_register(int regname, int writing)
   else if (regname == '*')
   {
     i = STAR_REGISTER;
+    /* update star register */
+        if (!writing) {
+          y_current = &y_regs[STAR_REGISTER];
+          free_yank_all(); /* free star register */
+          
+          y_current->y_type = MCHAR; /* used to be MLINE, why? */
+          y_current->y_size = 2;
+          y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
+          y_current->y_array[0] = "Hello, World";
+          y_current->y_array[1] = "";
+        }
     ret = TRUE;
   }
   else if (regname == '+')
@@ -796,6 +807,8 @@ int get_yank_register(int regname, int writing)
   y_current = &(y_regs[i]);
   if (writing) /* remember the register we write into for do_put() */
     y_previous = y_current;
+
+  printf("get_yank_register - done\n");
   return ret;
 }
 
