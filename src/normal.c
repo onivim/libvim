@@ -24,6 +24,14 @@ static int VIsual_mode_orig = NUL;       /* saved Visual mode */
 
 static int restart_VIsual_select = 0;
 
+/* LIBVIM: Because each operator is an independendent instance of `oap`,
+ * we need to persist the register for operators like `"`.
+ *
+ * This keeps track of whether or not there was a persisted
+ * register from the previous operation.
+ */
+static int keep_reg = 0;
+
 #ifdef FEAT_EVAL
 static void set_vcount_ca(cmdarg_T *cap, int *set_prevcount);
 #endif
@@ -518,6 +526,13 @@ void start_normal_mode(normalCmd_T *context)
     oap->prev_count0 = 0;
   }
 
+  /* Consume register if there is one persisted from previous operation */
+  if (keep_reg != 0)
+  {
+    context->oap->regname = keep_reg;
+    keep_reg = 0;
+  }
+
   context->mapped_len = typebuf_maplen();
 
   State = NORMAL_BUSY;
@@ -777,7 +792,6 @@ restart_state:
     break;
 
   case NORMAL_EXECUTE_COMMAND:;
-
     int previous_finish_op = finish_op;
     /*
      * Execute the command!
@@ -853,6 +867,11 @@ restart_state:
     if (finish_op || oap->op_type == OP_NOP)
     {
       finish_op = FALSE;
+      /* If the register wasn't cleared, it needs to persist to next op */
+      if (context->oap->regname != 0)
+      {
+        keep_reg = context->oap->regname;
+      }
       return COMPLETED;
     }
     else
