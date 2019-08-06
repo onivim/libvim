@@ -393,6 +393,11 @@ EXTERN int diff_need_scrollbind INIT(= FALSE);
  * ('lines' and 'rows') must not be changed. */
 EXTERN int updating_screen INIT(= FALSE);
 
+#define CLIP_UNNAMED 1
+#define CLIP_UNNAMED_PLUS 2
+EXTERN int clip_unnamed INIT(=0); /* above two values or'ed */
+EXTERN int clip_unnamed_saved INIT(=0); /* above two values or'ed */
+
 /*
  * All regular windows are linked in a list. "firstwin" points to the first
  * entry, "lastwin" to the last entry (can be the same as firstwin) and
