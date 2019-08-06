@@ -727,9 +727,7 @@ int valid_yank_reg(int regname,
 #endif
                               ,
                               regname) != NULL) ||
-      regname == '#' || regname == '"' || regname == '-' || regname == '_'
-      || regname == '*' || regname == '+'
-  )
+      regname == '#' || regname == '"' || regname == '-' || regname == '_' || regname == '*' || regname == '+')
     return TRUE;
   return FALSE;
 }
@@ -782,11 +780,13 @@ int get_yank_register(int regname, int writing)
   }
   else if (regname == '-')
     i = DELETION_REGISTER;
-  else if (regname == '*') {
+  else if (regname == '*')
+  {
     i = STAR_REGISTER;
     ret = TRUE;
   }
-  else if (regname == '+') {
+  else if (regname == '+')
+  {
     i = PLUS_REGISTER;
     ret = TRUE;
   }
@@ -1372,7 +1372,8 @@ int cmdline_paste_reg(
   return OK;
 }
 
-int clipboard_is_available(void) {
+int clipboard_is_available(void)
+{
   return TRUE;
 }
 
@@ -1388,13 +1389,14 @@ void adjust_clip_reg(int *rp)
   {
     if (clip_unnamed != 0)
       *rp = ((clip_unnamed & CLIP_UNNAMED_PLUS)) ? '+'
-                                                                        : '*';
+                                                 : '*';
     else
       *rp = ((clip_unnamed_saved & CLIP_UNNAMED_PLUS))
                 ? '+'
                 : '*';
   }
-  if (!clipboard_is_available()) {
+  if (!clipboard_is_available())
+  {
     if (*rp == '*')
       *rp = 0;
     if (*rp == '+')
@@ -1588,7 +1590,7 @@ int op_delete(oparg_T *oap)
 
     /* Yank into small delete register when no named register specified
      * and the delete is within one line. */
-    if (( oap->regname == 0) &&
+    if ((oap->regname == 0) &&
         oap->motion_type != MLINE && oap->line_count == 1)
     {
       oap->regname = '-';

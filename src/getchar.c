@@ -4890,7 +4890,7 @@ static struct initmap cinitmappings[] =
         {(char_u *)"\316u <C-End>", NORMAL + VIS_SEL},
         {(char_u *)"\316u <C-End>", INSERT + CMDLINE},
 
-/* paste, copy and cut */
+        /* paste, copy and cut */
         {(char_u *)"\316\324 P", NORMAL},          /* SHIFT-Insert is P */
         {(char_u *)"\316\324 \"-dP", VIS_SEL},     /* SHIFT-Insert is "-dP */
         {(char_u *)"\316\324 \022\017\"", INSERT}, /* SHIFT-Insert is ^R^O" */
