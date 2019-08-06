@@ -112,6 +112,9 @@ void vimCursorSetPosition(pos_T pos)
   curwin->w_cursor.col = pos.col;
   /* TODO: coladd? */
   check_cursor();
+
+  // We also need to adjust the topline, potentially, if the cursor moved off-screen
+  update_topline();
 }
 
 void vimInput(char_u *input)
