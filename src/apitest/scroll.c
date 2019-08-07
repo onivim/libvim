@@ -203,7 +203,7 @@ MU_TEST(test_ctrl_d)
   vimInput("g");
   vimInput("g");
   printf("topline: %d\n", 1);
-  
+
   vimInput("<c-d>");
 
   printf("topline: %d\n", vimWindowGetTopLine());
