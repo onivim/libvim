@@ -2294,6 +2294,8 @@ void halfpage(int flag, linenr_T Prenum)
     curwin->w_p_scr = (Prenum > curwin->w_height) ? curwin->w_height : Prenum;
   n = (curwin->w_p_scr <= curwin->w_height) ? curwin->w_p_scr : curwin->w_height;
 
+  printf("N is: %d\n", n);
+
   update_topline();
   validate_botline();
   room = curwin->w_empty_rows;

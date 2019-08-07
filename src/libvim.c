@@ -304,10 +304,10 @@ void vimWindowSetWidth(int width)
   if (width > Columns)
   {
     Columns = width;
+    screenalloc(FALSE);
   }
 
   win_new_width(curwin, width);
-  changed_window_setting();
 }
 
 void vimWindowSetHeight(int height)
@@ -315,10 +315,10 @@ void vimWindowSetHeight(int height)
   if (height > Rows)
   {
     Rows = height;
+    screenalloc(FALSE);
   }
 
   win_new_height(curwin, height);
-  changed_window_setting();
 }
 
 int vimGetMode(void) { return get_real_state(); }
