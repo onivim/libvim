@@ -318,6 +318,8 @@ void vimWindowSetHeight(int height)
   }
 
   win_new_height(curwin, height);
+  // Set scroll value so that <c-d>/<c-u> work as expected
+  win_comp_scroll(curwin);
 }
 
 int vimGetMode(void) { return get_real_state(); }

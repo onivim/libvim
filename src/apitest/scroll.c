@@ -197,6 +197,43 @@ MU_TEST(test_no_scroll_after_setting_left)
   mu_check(vimWindowGetLeftColumn() == 3);
 }
 
+MU_TEST(test_ctrl_d)
+{
+  vimWindowSetHeight(50);
+  vimInput("g");
+  vimInput("g");
+  printf("topline: %d\n", 1);
+  
+  vimInput("<c-d>");
+
+  printf("topline: %d\n", vimWindowGetTopLine());
+  mu_check(vimWindowGetTopLine() == 26);
+
+  vimWindowSetHeight(12);
+
+  vimInput("<c-u>");
+  mu_check(vimWindowGetTopLine() == 20);
+}
+
+/*MU_TEST(test_ctrl_f)
+{
+  vimWindowSetHeight(50);
+  vimInput("g");
+  vimInput("g");
+  printf("topline: %d\n", 1);
+  
+  vimInput("<c-f>");
+
+  printf("topline: %d\n", vimWindowGetTopLine());
+  mu_check(vimWindowGetTopLine() == 49);
+
+  vimWindowSetHeight(6);
+  
+  vimInput("<c-f>");
+  printf("topline: %d\n", vimWindowGetTopLine());
+  mu_check(vimWindowGetTopLine() == 54);
+}*/
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -209,6 +246,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_no_scroll_after_setting_topline);
   MU_RUN_TEST(test_scroll_left_at_boundary);
   MU_RUN_TEST(test_no_scroll_after_setting_left);
+  MU_RUN_TEST(test_ctrl_d);
+  /*MU_RUN_TEST(test_ctrl_f);*/
 }
 
 int main(int argc, char **argv)
