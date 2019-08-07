@@ -112,9 +112,8 @@ void vimCursorSetPosition(pos_T pos)
   curwin->w_cursor.col = pos.col;
   /* TODO: coladd? */
   check_cursor();
-
   // We also need to adjust the topline, potentially, if the cursor moved off-screen
-  update_topline();
+  curs_columns(TRUE);
 }
 
 void vimInput(char_u *input)
@@ -295,9 +294,9 @@ int vimWindowGetLeftColumn(void) { return curwin->w_leftcol; }
 
 void vimWindowSetTopLeft(int top, int left)
 {
-  curwin->w_topline = top;
+  set_topline(curwin, top);
   curwin->w_leftcol = left;
-  curs_columns(TRUE);
+  validate_botline();
 }
 
 void vimWindowSetWidth(int width)
@@ -308,6 +307,7 @@ void vimWindowSetWidth(int width)
   }
 
   win_new_width(curwin, width);
+  changed_window_setting();
 }
 
 void vimWindowSetHeight(int height)
@@ -318,6 +318,7 @@ void vimWindowSetHeight(int height)
   }
 
   win_new_height(curwin, height);
+  changed_window_setting();
 }
 
 int vimGetMode(void) { return get_real_state(); }
