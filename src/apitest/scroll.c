@@ -216,7 +216,7 @@ MU_TEST(test_ctrl_d)
   mu_check(vimWindowGetTopLine() == 20);
 }
 
-/*MU_TEST(test_ctrl_f)
+MU_TEST(test_ctrl_f)
 {
   vimWindowSetHeight(50);
   vimInput("g");
@@ -228,12 +228,25 @@ MU_TEST(test_ctrl_d)
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 49);
 
-  vimWindowSetHeight(6);
+  // When setting the height, the view may not be centered,
+  // so the next <c-f> will be a partial scroll
+  vimWindowSetHeight(20);
   
   vimInput("<c-f>");
+  // Partial scroll after resize
   printf("topline: %d\n", vimWindowGetTopLine());
-  mu_check(vimWindowGetTopLine() == 54);
-}*/
+  mu_check(vimWindowGetTopLine() == 58);
+  
+  // Full scroll
+  vimInput("<c-f>");
+  printf("topline: %d\n", vimWindowGetTopLine());
+  mu_check(vimWindowGetTopLine() == 76);
+  
+  // Full scroll
+  vimInput("<c-f>");
+  printf("topline: %d\n", vimWindowGetTopLine());
+  mu_check(vimWindowGetTopLine() == 94);
+}
 
 MU_TEST_SUITE(test_suite)
 {
@@ -248,7 +261,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_scroll_left_at_boundary);
   MU_RUN_TEST(test_no_scroll_after_setting_left);
   MU_RUN_TEST(test_ctrl_d);
-  /*MU_RUN_TEST(test_ctrl_f);*/
+  MU_RUN_TEST(test_ctrl_f);
 }
 
 int main(int argc, char **argv)
