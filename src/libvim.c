@@ -112,6 +112,8 @@ void vimCursorSetPosition(pos_T pos)
   curwin->w_cursor.col = pos.col;
   /* TODO: coladd? */
   check_cursor();
+  // We also need to adjust the topline, potentially, if the cursor moved off-screen
+  curs_columns(TRUE);
 }
 
 void vimInput(char_u *input)
@@ -292,9 +294,9 @@ int vimWindowGetLeftColumn(void) { return curwin->w_leftcol; }
 
 void vimWindowSetTopLeft(int top, int left)
 {
-  curwin->w_topline = top;
+  set_topline(curwin, top);
   curwin->w_leftcol = left;
-  curs_columns(TRUE);
+  validate_botline();
 }
 
 void vimWindowSetWidth(int width)
@@ -302,6 +304,7 @@ void vimWindowSetWidth(int width)
   if (width > Columns)
   {
     Columns = width;
+    screenalloc(FALSE);
   }
 
   win_new_width(curwin, width);
@@ -312,9 +315,12 @@ void vimWindowSetHeight(int height)
   if (height > Rows)
   {
     Rows = height;
+    screenalloc(FALSE);
   }
 
   win_new_height(curwin, height);
+  // Set scroll value so that <c-d>/<c-u> work as expected
+  win_comp_scroll(curwin);
 }
 
 void vimSetClipboardGetCallback(ClipboardGetCallback callback)
