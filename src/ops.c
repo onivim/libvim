@@ -2719,7 +2719,6 @@ int op_yank(oparg_T *oap, int deleting, int mess)
   char_u *p;
   char_u *pnew;
   struct block_def bd;
-  /*int did_star = FALSE;*/
 
   /* check for read-only register */
   if (oap->regname != 0 && !valid_yank_reg(oap->regname, TRUE))
