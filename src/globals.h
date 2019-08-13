@@ -1185,9 +1185,7 @@ EXTERN char e_nobufnr[] INIT(= N_("E86: Buffer %ld does not exist"));
 
 EXTERN char e_invalpat[] INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[] INIT(= N_("E139: File is loaded in another buffer"));
-#ifndef FEAT_CLIPBOARD
 EXTERN char e_invalidreg[] INIT(= N_("E850: Invalid register name"));
-#endif
 EXTERN char e_dirnotf[] INIT(= N_("E919: Directory not found in '%s': \"%s\""));
 EXTERN char e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behavior"));
 
