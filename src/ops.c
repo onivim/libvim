@@ -807,7 +807,7 @@ int get_yank_register(int regname, int writing)
 
       y_current->y_type = MLINE;
       y_current->y_size = num_lines;
-      y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
+      y_current->y_array = lines;
 
 #ifdef FEAT_VIMINFO
       y_current->y_time_set = vim_time();
