@@ -11,7 +11,7 @@ void test_setup(void)
   vimInput("g");
   vimInput("0");
 
-  vimSetClipboardGetCallback(NULL);
+  //vimSetClipboardGetCallback(NULL);
 }
 
 void test_teardown(void) {}
@@ -19,16 +19,12 @@ void test_teardown(void) {}
 /* When clipboard is not enabled, the '*' register
  * should just behave like a normal register
  */
-MU_TEST(test_clipboard_not_enabled_star)
+/*MU_TEST(test_clipboard_not_enabled_star)
 {
-  printf("\n: INPUT: slashn");
   vimInput("\"");
-  printf("\n: INPUT: *\n");
   vimInput("*");
 
-  printf("\n: INPUT: y1\n");
   vimInput("y");
-  printf("\n: INPUT: y2\n");
   vimInput("y");
 
   int numLines;
@@ -38,41 +34,94 @@ MU_TEST(test_clipboard_not_enabled_star)
   mu_check(numLines == 1);
   printf("LINE: %s\n", lines[0]);
   mu_check(strcmp(lines[0], "This is the first line of a test file") == 0);
-}
+}*/
+
+// Alloc + copy
+char_u *acopy(char_u * str) {
+  char_u *sz = malloc(sizeof(char_u) * (strlen(str) + 1));
+  strcpy(sz, str);
+  sz[strlen(str)] = 0;
+  return sz;
+};
 
 int simpleClipboardTest(int regname, int *numlines, char_u ***lines)
 {
   printf("simpleClipboardTest called\n");
   *numlines = 1;
   *lines = ALLOC_ONE(char_u *);
-  (*lines)[0] = "Hello, World";
+  (*lines)[0] = acopy("Hello, World");
   return TRUE;
 };
 
-MU_TEST(test_paste_from_clipboard)
+int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines)
+{
+  printf("multipleLineClipboardTest called\n");
+  *numlines = 3;
+  *lines = ALLOC_MULT(char_u *, 3);
+  (*lines)[0] = acopy("Hello2");
+  (*lines)[1] = acopy("World");
+  (*lines)[2] = acopy("Again");
+  printf("multipleLineClipboardTest done\n");
+  return TRUE;
+};
+
+/*MU_TEST(test_paste_from_clipboard)
 {
   vimSetClipboardGetCallback(&simpleClipboardTest);
 
-  printf("\n: INPUT: slashn");
   vimInput("\"");
-  printf("\n: INPUT: *\n");
   vimInput("*");
 
-  printf("\n: INPUT: y1\n");
   vimInput("P");
 
   char_u *line = vimBufferGetLine(curbuf, 0);
 
   printf("LINE: |%s|\n", line);
   mu_check(strcmp(line, "Hello, World") == 0);
+}*/
+
+MU_TEST(test_paste_multiple_lines_from_clipboard)
+{
+  //vimSetClipboardGetCallback(&multipleLineClipboardTest);
+
+  char_u *line0before = vimBufferGetLine(curbuf, 0);
+  printf("LINE0 BEFORE: |%s|\n", line0before);
+  char_u *line1before = vimBufferGetLine(curbuf, 1);
+  printf("LINE1 BEFORE: |%s|\n", line1before);
+
+/*  vimInput("\"");
+  vimInput("+");
+  
+  line0before = vimBufferGetLine(curbuf, 0);
+  printf("LINE0 BEFORE: |%s|\n", line0before);
+  line1before = vimBufferGetLine(curbuf, 1);
+  printf("LINE1 BEFORE: |%s|\n", line1before);
+  
+  printf("before P\n");
+  vimInput("p");
+  printf("after P\n");
+
+  char_u *line0 = vimBufferGetLine(curbuf, 0);
+  printf("LINE0: |%s|\n", line0);
+  char_u *line1 = vimBufferGetLine(curbuf, 1);
+  printf("LINE1: |%s|\n", line1);
+  char_u *line2 = vimBufferGetLine(curbuf, 2);
+  printf("LINE2: |%s|\n", line2);
+  char_u *line3 = vimBufferGetLine(curbuf, 3);
+  printf("LINE3: |%s|\n", line3);
+
+  mu_check(strcmp(line0, "Hello2") == 0);
+  mu_check(strcmp(line1, "World") == 0);
+  mu_check(strcmp(line2, "Again") == 0);*/
 }
 
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  MU_RUN_TEST(test_clipboard_not_enabled_star);
-  MU_RUN_TEST(test_paste_from_clipboard);
+//  MU_RUN_TEST(test_clipboard_not_enabled_star);
+  //MU_RUN_TEST(test_paste_from_clipboard);
+  MU_RUN_TEST(test_paste_multiple_lines_from_clipboard);
 }
 
 int main(int argc, char **argv)

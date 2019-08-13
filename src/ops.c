@@ -769,6 +769,7 @@ int get_yank_register(int regname, int writing)
     y_current = y_previous;
     return ret;
   }
+
   i = regname;
   if (VIM_ISDIGIT(i))
     i -= '0';
@@ -781,26 +782,41 @@ int get_yank_register(int regname, int writing)
   }
   else if (regname == '-')
     i = DELETION_REGISTER;
-  else if (regname == '*')
+  else if (regname == '*' || regname == '+')
   {
-    i = STAR_REGISTER;
+    if (regname == '*')
+      i = STAR_REGISTER;
+    else 
+      i = PLUS_REGISTER;
+      
+    y_current = &y_regs[i];
     /* update star register */
-    if (!writing)
+    if (!writing && clipboardGetCallback != NULL)
     {
-      y_current = &y_regs[STAR_REGISTER];
-      free_yank_all(); /* free star register */
 
-      y_current->y_type = MCHAR; /* used to be MLINE, why? */
-      y_current->y_size = 2;
-      y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
-      y_current->y_array[0] = "Hello, World";
-      y_current->y_array[1] = "";
+      int num_lines;
+      char_u **lines;
+        printf("ops.c - calling callback\n");
+      if (clipboardGetCallback(regname, &num_lines, &lines)) {
+        printf("ops.c - freeing\n");
+        free_yank_all(); /* free register */
+        printf("ops.c - freed\n");
+
+        y_current->y_type = MLINE;
+        y_current->y_size = num_lines;
+        y_current->y_array = ALLOC_MULT(char_u *, y_current->y_size);
+        
+#ifdef FEAT_VIMINFO
+        y_current->y_time_set = vim_time();
+#endif
+
+        for (int i = 0; i < num_lines; i++) {
+        printf("ops.c - copying line %d | %s\n", i, lines[i]);
+          y_current->y_array[i] = lines[i];
+        }
+      }
+
     }
-    ret = TRUE;
-  }
-  else if (regname == '+')
-  {
-    i = PLUS_REGISTER;
     ret = TRUE;
   }
   else /* not 0-9, a-z, A-Z or '-': use register 0 */
@@ -1390,7 +1406,7 @@ int cmdline_paste_reg(
 int clipboard_is_available(void)
 {
   printf("clipboard_is_available called");
-  return TRUE;
+  return FALSE;
 }
 
 /*
@@ -2675,9 +2691,12 @@ static void free_yank(long n)
   {
     long i;
 
+    printf("free_yank: %ld\n", n);
     for (i = n; --i >= 0;)
     {
+      printf("free item...\n");
       vim_free(y_current->y_array[i]);
+      printf("free item...DONE\n");
     }
     VIM_CLEAR(y_current->y_array);
   }
@@ -3118,16 +3137,24 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
   {
     get_yank_register(regname, FALSE);
 
+
     y_type = y_current->y_type;
     y_width = y_current->y_width;
     y_size = y_current->y_size;
     y_array = y_current->y_array;
+
+    
+    printf("OPS - HERE at get_yank_register - size: %ld\n", y_current->y_size);
+    for (int i = 0; i < y_size; i++) {
+      printf("Line %d: %s", i, y_current->y_array[i]);
+    }
   }
 
   if (y_type == MLINE)
   {
     if (flags & PUT_LINE_SPLIT)
     {
+      printf("- PUT_LINE_SPLIT\n");
       char_u *p;
 
       /* "p" or "P" in Visual mode: split the lines to put the text in
@@ -3156,6 +3183,7 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
     }
     if (flags & PUT_LINE_FORWARD)
     {
+      printf("- PUT_LINE_FORWARD\n");
       /* Must be "p" for a Visual block, put lines below the block. */
       curwin->w_cursor = curbuf->b_visual.vi_end;
       dir = FORWARD;
@@ -3184,6 +3212,7 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
   }
   else if (y_type == MLINE)
   {
+    printf ("MLINE 2\n");
     lnum = curwin->w_cursor.lnum;
 #ifdef FEAT_FOLDING
     /* Correct line number for closed fold.  Don't move the cursor yet,
@@ -3513,9 +3542,11 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
        */
       for (cnt = 1; cnt <= count; ++cnt)
       {
+        printf("cnt? %ld count? %ld", cnt, count);
         i = 0;
         if (y_type == MCHAR)
         {
+          printf("\n, BEFORE MCHAR?\n");
           /*
            * Split the current line in two at the insert position.
            * First insert y_array[size - 1] in front of second line.
@@ -3530,6 +3561,7 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
           STRCPY(newp, y_array[y_size - 1]);
           STRCAT(newp, ptr);
           /* insert second line */
+          printf("\nappending elsehwere??\n");
           ml_append(lnum, newp, (colnr_T)0, FALSE);
           vim_free(newp);
 
@@ -3546,14 +3578,22 @@ void do_put(int regname, int dir, /* BACKWARD for 'P', FORWARD for 'p' */
           curwin->w_cursor.lnum = lnum;
           i = 1;
         }
+          char *pSz = ml_get(0);
+          printf("before stuff: Line %d is: %s\n", 0, pSz);
 
         for (; i < y_size; ++i)
         {
+          printf ("\n INSERTING LINE: %ld - |%s|", i, y_array[i]);
           if ((y_type != MCHAR || i < y_size - 1) &&
               ml_append(lnum, y_array[i], (colnr_T)0, FALSE) == FAIL)
             goto error;
+           printf (" --line was: %s\n", y_array[i]);
           lnum++;
           ++nr_lines;
+          char *pSz = ml_get(i);
+          printf("Line %ld is: %s\n", i, pSz);
+          pSz = ml_get(i + 1);
+          printf("Line %ld is: %s\n", i+1, pSz);
           if (flags & PUT_FIXINDENT)
           {
             old_pos = curwin->w_cursor;

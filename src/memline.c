@@ -2657,6 +2657,7 @@ ml_append_int(
     int newfile,      // flag, see above
     int mark)         // mark the new line
 {
+  printf("ml_append_int - lnum: %ld line_arg: |%s|\n", lnum, line_arg);
   char_u *line = line_arg;
   colnr_T len = len_arg;
   int i;
