@@ -93,9 +93,6 @@ static void clip_update(void);
 static void xterm_update(void);
 #endif
 
-#if defined(FEAT_XCLIPBOARD)
-Window x11_window = 0;
-#endif
 Display *x11_display = NULL;
 #endif
 
@@ -2421,7 +2418,6 @@ exit_scroll(void)
 void mch_exit(int r)
 {
   exiting = TRUE;
-
 
 #ifdef FEAT_GUI
   if (!gui.in_use)

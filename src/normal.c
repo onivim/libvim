@@ -831,7 +831,7 @@ restart_state:
         /* Adjust the register according to 'clipboard', so that when
          * "unnamed" is present it becomes '*' or '+' instead of '"'. */
         adjust_clip_reg(&regname);
-        
+
         set_reg_var(regname);
       }
 #endif
@@ -1425,7 +1425,7 @@ getcount:
       /* Adjust the register according to 'clipboard', so that when
        * "unnamed" is present it becomes '*' or '+' instead of '"'. */
       adjust_clip_reg(&regname);
-      
+
       set_reg_var(regname);
     }
 #endif

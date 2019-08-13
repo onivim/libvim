@@ -7639,8 +7639,7 @@ int screen_ins_lines(
      * - the line count is more than 'ttyscroll'
      * - redrawing for a callback and there is a modeless selection
      */
-  if (!screen_valid(TRUE) || line_count <= 0 || line_count > p_ttyscroll
-  )
+  if (!screen_valid(TRUE) || line_count <= 0 || line_count > p_ttyscroll)
     return FAIL;
 
   /*
@@ -7842,8 +7841,7 @@ int screen_del_lines(
      * - the line count is more than 'ttyscroll'
      * - redrawing for a callback and there is a modeless selection
      */
-  if (!screen_valid(TRUE) || line_count <= 0 || (!force && line_count > p_ttyscroll)
-  )
+  if (!screen_valid(TRUE) || line_count <= 0 || (!force && line_count > p_ttyscroll))
     return FAIL;
 
   /*

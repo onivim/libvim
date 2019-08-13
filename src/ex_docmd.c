@@ -7874,8 +7874,7 @@ ex_redir(exarg_T *eap)
       /* redirect to a register a-z (resp. A-Z for appending) */
       close_redir();
       ++arg;
-      if (ASCII_ISALPHA(*arg)
-          || *arg == '"')
+      if (ASCII_ISALPHA(*arg) || *arg == '"')
       {
         redir_reg = *arg++;
         if (*arg == '>' && arg[1] == '>') /* append */

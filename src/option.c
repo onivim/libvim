@@ -676,11 +676,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"clipboard", "cb", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP,
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)"", (char_u *)0L}
-         SCTX_INIT},
+        {"clipboard", "cb", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"cmdheight", "ch", P_NUM | P_VI_DEF | P_RALL, (char_u *)&p_ch, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
         {"cmdwinheight", "cwh", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)7L, (char_u *)0L} SCTX_INIT},
         {"colorcolumn", "cc", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP | P_RWIN, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
