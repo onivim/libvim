@@ -1726,7 +1726,6 @@ PRO_AUTO = \
 	term.pro \
 	terminal.pro \
 	termlib.pro \
-	ui.pro \
 	undo.pro \
 	usercmd.pro \
 	userfunc.pro \
