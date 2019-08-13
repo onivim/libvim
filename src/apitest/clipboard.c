@@ -37,7 +37,8 @@ MU_TEST(test_clipboard_not_enabled_star)
 }
 
 // Alloc + copy
-char_u *acopy(char_u * str) {
+char_u *acopy(char_u *str)
+{
   char_u *sz = malloc(sizeof(char_u) * (strlen(str) + 1));
   strcpy(sz, str);
   sz[strlen(str)] = 0;
@@ -65,6 +66,11 @@ int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines)
   return TRUE;
 };
 
+int falseClipboardTest(int regname, int *numlines, char_u ***lines)
+{
+  return FALSE;
+}
+
 MU_TEST(test_paste_from_clipboard)
 {
   vimSetClipboardGetCallback(&simpleClipboardTest);
@@ -86,7 +92,7 @@ MU_TEST(test_paste_multiple_lines_from_clipboard)
 
   vimInput("\"");
   vimInput("+");
-  
+
   vimInput("P");
 
   char_u *line1 = vimBufferGetLine(curbuf, 1);
@@ -101,6 +107,28 @@ MU_TEST(test_paste_multiple_lines_from_clipboard)
   mu_check(strcmp(line3, "Again") == 0);
 }
 
+/* When clipboard returns false, everything
+ * should just behave like a normal register
+ */
+MU_TEST(test_clipboard_returns_false)
+{
+  vimSetClipboardGetCallback(&falseClipboardTest);
+
+  vimInput("\"");
+  vimInput("b");
+
+  vimInput("y");
+  vimInput("y");
+
+  int numLines;
+  char_u **lines;
+  vimRegisterGet('b', &numLines, &lines);
+
+  mu_check(numLines == 1);
+  printf("LINE: %s\n", lines[0]);
+  mu_check(strcmp(lines[0], "This is the first line of a test file") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -108,6 +136,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_clipboard_not_enabled_star);
   MU_RUN_TEST(test_paste_from_clipboard);
   MU_RUN_TEST(test_paste_multiple_lines_from_clipboard);
+  MU_RUN_TEST(test_clipboard_returns_false);
 }
 
 int main(int argc, char **argv)
