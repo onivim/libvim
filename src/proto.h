@@ -174,6 +174,7 @@ void qsort(void *base, size_t elm_count, size_t elm_size, int (*cmp)(const void 
 #if defined(HAVE_TGETENT) && (defined(VMS))
 #include "termlib.pro"
 #endif
+#include "ui.pro"
 #include "undo.pro"
 #include "usercmd.pro"
 #include "userfunc.pro"
@@ -224,5 +225,12 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 
 #ifdef MACOS_CONVERT
 #include "os_mac_conv.pro"
+#endif
+#if defined(MACOS_X_DARWIN) && defined(FEAT_CLIPBOARD) && !defined(FEAT_GUI)
+/* functions in os_macosx.m */
+void clip_mch_lose_selection(VimClipboard *cbd);
+int clip_mch_own_selection(VimClipboard *cbd);
+void clip_mch_request_selection(VimClipboard *cbd);
+void clip_mch_set_selection(VimClipboard *cbd);
 #endif
 #endif /* !PROTO && !NOPROTO */

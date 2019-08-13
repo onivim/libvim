@@ -4263,10 +4263,6 @@ cmdline_paste(
   if (got_int)
     return FAIL;
 
-#ifdef FEAT_CLIPBOARD
-  regname = may_get_selection(regname);
-#endif
-
   // Need to  set "textlock" to avoid nasty things like going to another
   // buffer when evaluating an expression.
   ++textlock;

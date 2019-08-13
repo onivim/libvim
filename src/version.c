@@ -122,11 +122,7 @@ static char *(features[]) =
 #endif
         "-cindent",
         "-clientserver",
-#ifdef FEAT_CLIPBOARD
-        "+clipboard",
-#else
         "-clipboard",
-#endif
 #ifdef FEAT_CMDL_COMPL
         "+cmdline_compl",
 #else

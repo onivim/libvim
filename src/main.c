@@ -769,19 +769,6 @@ int vim_main2(void)
   apply_autocmds(EVENT_VIMENTER, NULL, NULL, FALSE, curbuf);
   TIME_MSG("VimEnter autocommands");
 
-#if defined(FEAT_EVAL) && defined(FEAT_CLIPBOARD)
-  /* Adjust default register name for "unnamed" in 'clipboard'. Can only be
-     * done after the clipboard is available and all initial commands that may
-     * modify the 'clipboard' setting have run; i.e. just before entering the
-     * main loop. */
-  {
-    int default_regname = 0;
-
-    adjust_clip_reg(&default_regname);
-    set_reg_var(default_regname);
-  }
-#endif
-
 #if defined(FEAT_DIFF)
   /* When a startup script or session file setup for diff'ing and
      * scrollbind, sync the scrollbind now. */
@@ -882,11 +869,6 @@ void common_init(mparm_T *paramp)
   /* Prepare for possibly starting GUI sometime */
   gui_prepare(&paramp->argc, paramp->argv);
   TIME_MSG("GUI prepared");
-#endif
-
-#ifdef FEAT_CLIPBOARD
-  clip_init(FALSE); /* Initialise clipboard stuff */
-  TIME_MSG("clipboard setup");
 #endif
 
   /*
