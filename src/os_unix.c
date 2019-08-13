@@ -1084,71 +1084,6 @@ static RETSIGTYPE
 }
 #endif
 
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-#ifdef USE_SYSTEM
-static void *clip_star_save = NULL;
-static void *clip_plus_save = NULL;
-#endif
-
-/*
- * Called when Vim is going to sleep or execute a shell command.
- * We can't respond to requests for the X selections.  Lose them, otherwise
- * other applications will hang.  But first copy the text to cut buffer 0.
- */
-static void
-loose_clipboard(void)
-{
-  if (clip_star.owned || clip_plus.owned)
-  {
-    x11_export_final_selection();
-    if (clip_star.owned)
-      clip_lose_selection(&clip_star);
-    if (clip_plus.owned)
-      clip_lose_selection(&clip_plus);
-    if (x11_display != NULL)
-      XFlush(x11_display);
-  }
-}
-
-#ifdef USE_SYSTEM
-/*
- * Save clipboard text to restore later.
- */
-static void
-save_clipboard(void)
-{
-  if (clip_star.owned)
-    clip_star_save = get_register('*', TRUE);
-  if (clip_plus.owned)
-    clip_plus_save = get_register('+', TRUE);
-}
-
-/*
- * Restore clipboard text if no one own the X selection.
- */
-static void
-restore_clipboard(void)
-{
-  if (clip_star_save != NULL)
-  {
-    if (!clip_gen_owner_exists(&clip_star))
-      put_register('*', clip_star_save);
-    else
-      free_register(clip_star_save);
-    clip_star_save = NULL;
-  }
-  if (clip_plus_save != NULL)
-  {
-    if (!clip_gen_owner_exists(&clip_plus))
-      put_register('+', clip_plus_save);
-    else
-      free_register(clip_plus_save);
-    clip_plus_save = NULL;
-  }
-}
-#endif
-#endif
-
 /*
  * If the machine has job control, use it to suspend the program,
  * otherwise fake it by starting a new shell.
@@ -1160,9 +1095,6 @@ void mch_suspend(void)
   in_mch_suspend = TRUE;
   settmode(TMODE_COOK);
 
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-  loose_clipboard();
-#endif
 #if defined(SIGCONT)
   sigcont_received = FALSE;
 #endif
@@ -2429,12 +2361,6 @@ void mch_early_init(void)
 #if defined(EXITFREE) || defined(PROTO)
 void mch_free_mem(void)
 {
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-  if (clip_star.owned)
-    clip_lose_selection(&clip_star);
-  if (clip_plus.owned)
-    clip_lose_selection(&clip_plus);
-#endif
 #if defined(FEAT_X11) && defined(FEAT_XCLIPBOARD)
   if (xterm_Shell != (Widget)0)
     XtDestroyWidget(xterm_Shell);
@@ -2496,9 +2422,6 @@ void mch_exit(int r)
 {
   exiting = TRUE;
 
-#if defined(FEAT_X11) && defined(FEAT_CLIPBOARD)
-  x11_export_final_selection();
-#endif
 
 #ifdef FEAT_GUI
   if (!gui.in_use)
@@ -3252,11 +3175,6 @@ mch_call_shell_system(
   if (options & SHELL_COOKED)
     settmode(TMODE_COOK); /* set to normal mode */
 
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-  save_clipboard();
-  loose_clipboard();
-#endif
-
   if (cmd == NULL)
     x = system((char *)p_sh);
   else
@@ -3308,9 +3226,6 @@ mch_call_shell_system(
 
   if (tmode == TMODE_RAW)
     settmode(TMODE_RAW); /* set to raw mode */
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-  restore_clipboard();
-#endif
   return x;
 }
 

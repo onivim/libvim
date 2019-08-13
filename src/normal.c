@@ -830,9 +830,8 @@ restart_state:
 
         /* Adjust the register according to 'clipboard', so that when
          * "unnamed" is present it becomes '*' or '+' instead of '"'. */
-#ifdef FEAT_CLIPBOARD
         adjust_clip_reg(&regname);
-#endif
+        
         set_reg_var(regname);
       }
 #endif
@@ -1425,9 +1424,8 @@ getcount:
 
       /* Adjust the register according to 'clipboard', so that when
        * "unnamed" is present it becomes '*' or '+' instead of '"'. */
-#ifdef FEAT_CLIPBOARD
       adjust_clip_reg(&regname);
-#endif
+      
       set_reg_var(regname);
     }
 #endif
@@ -1597,18 +1595,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
   static int redo_VIsual_arg;             /* extra argument */
   int include_line_break = FALSE;
 
-#if defined(FEAT_CLIPBOARD)
-  /*
-   * Yank the visual area into the GUI selection register before we operate
-   * on it and lose it forever.
-   * Don't do it if a specific register was specified, so that ""x"*P works.
-   * This could call do_pending_operator() recursively, but that's OK
-   * because gui_yank will be TRUE for the nested call.
-   */
-  if ((clip_star.available || clip_plus.available) && oap->op_type != OP_NOP &&
-      !gui_yank && VIsual_active && !redo_VIsual_busy && oap->regname == 0)
-    clip_auto_select();
-#endif
   old_cursor = curwin->w_cursor;
 
   /*
@@ -2438,17 +2424,6 @@ void check_visual_highlight(void)
  */
 void end_visual_mode(void)
 {
-#ifdef FEAT_CLIPBOARD
-  /*
-   * If we are using the clipboard, then remember what was selected in case
-   * we need to paste it somewhere while we still own the selection.
-   * Only do this when the clipboard is already owned.  Don't want to grab
-   * the selection when hitting ESC.
-   */
-  if (clip_star.available && clip_star.owned)
-    clip_auto_select();
-#endif
-
   VIsual_active = FALSE;
   /* Save the current VIsual area for '< and '> marks, and "gv" */
   curbuf->b_visual.vi_mode = VIsual_mode;
@@ -6114,11 +6089,6 @@ static void n_start_visual_mode(int c)
 
   if (p_smd && msg_silent == 0)
     redraw_cmdline = TRUE; /* show visual mode later */
-#ifdef FEAT_CLIPBOARD
-  /* Make sure the clipboard gets updated.  Needed because start and
-   * end may still be the same, and the selection needs to be owned */
-  clip_star.vmode = NUL;
-#endif
 
   /* Only need to redraw this line, unless still need to redraw an old
    * Visual area (when 'lazyredraw' is set). */
@@ -6267,11 +6237,6 @@ static void nv_g_cmd(cmdarg_T *cap)
         VIsual_select = TRUE;
       else
         may_start_select('c');
-#ifdef FEAT_CLIPBOARD
-      /* Make sure the clipboard gets updated.  Needed because start and
-       * end are still the same, and the selection needs to be owned */
-      clip_star.vmode = NUL;
-#endif
       redraw_curbuf_later(INVERTED);
       showmode();
     }
