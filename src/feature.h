@@ -714,14 +714,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /* #define USE_SYSTEM */
 
 /*
- * +X11			Unix only.  Include code for xterm title saving and X
- *			clipboard.  Only works if HAVE_X11 is also defined.
- */
-#if (defined(FEAT_NORMAL))
-#define WANT_X11
-#endif
-
-/*
  * XSMP - X11 Session Management Protocol
  * It may be preferred to disable this if the GUI supports it (e.g.,
  * GNOME/KDE) and implement save-yourself etc. through that, but it may also

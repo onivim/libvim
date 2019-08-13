@@ -135,11 +135,6 @@ Error : configure did not run properly.Check auto / config.log.
  */
 #include "feature.h"
 
-/* +x11 is only enabled when it's both available and wanted. */
-#if defined(HAVE_X11) && defined(WANT_X11)
-#define FEAT_X11
-#endif
-
 #ifdef NO_X11_INCLUDES
 /* In os_mac_conv.c and os_macosx.m NO_X11_INCLUDES is defined to avoid
      * X11 headers.  Disable all X11 related things to avoid conflicts. */
