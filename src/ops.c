@@ -759,7 +759,6 @@ void get_yank_register_value(int regname, int *num_lines, char_u ***lines)
  */
 int get_yank_register(int regname, int writing)
 {
-  printf("get_yank_register: %c|%d\n", regname, regname);
   int i;
   int ret = FALSE;
 
@@ -796,11 +795,8 @@ int get_yank_register(int regname, int writing)
 
       int num_lines;
       char_u **lines;
-        printf("ops.c - calling callback\n");
       if (clipboardGetCallback(regname, &num_lines, &lines)) {
-        printf("ops.c - freeing\n");
         free_yank_all(); /* free register */
-        printf("ops.c - freed\n");
 
         y_current->y_type = MLINE;
         y_current->y_size = num_lines;
@@ -811,7 +807,6 @@ int get_yank_register(int regname, int writing)
 #endif
 
         for (int i = 0; i < num_lines; i++) {
-        printf("ops.c - copying line %d | %s\n", i, lines[i]);
           y_current->y_array[i] = lines[i];
         }
       }
@@ -825,7 +820,6 @@ int get_yank_register(int regname, int writing)
   if (writing) /* remember the register we write into for do_put() */
     y_previous = y_current;
 
-  printf("get_yank_register - done\n");
   return ret;
 }
 
@@ -1405,8 +1399,9 @@ int cmdline_paste_reg(
 
 int clipboard_is_available(void)
 {
-  printf("clipboard_is_available called");
-  return FALSE;
+  int v = clipboardGetCallback != NULL;
+  printf("clipboard_is_available: %d\n", v);
+  return v;
 }
 
 /*
