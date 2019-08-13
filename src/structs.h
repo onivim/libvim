@@ -73,6 +73,7 @@ typedef struct
   char_u **lines;
 } yankInfo_T;
 
+typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);

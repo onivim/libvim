@@ -375,7 +375,7 @@ int update_screen(int type_arg)
   int type = type_arg;
   win_T *wp;
   static int did_intro = FALSE;
-#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_CLIPBOARD)
+#if defined(FEAT_SEARCH_EXTRA)
   int did_one;
 #endif
 #ifdef FEAT_GUI
@@ -526,7 +526,7 @@ int update_screen(int type_arg)
      * Go from top to bottom through the windows, redrawing the ones that need
      * it.
      */
-#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_CLIPBOARD)
+#if defined(FEAT_SEARCH_EXTRA)
   did_one = FALSE;
 #endif
 #ifdef FEAT_SEARCH_EXTRA
@@ -537,19 +537,12 @@ int update_screen(int type_arg)
     if (wp->w_redr_type != 0)
     {
       cursor_off();
-#if defined(FEAT_SEARCH_EXTRA) || defined(FEAT_CLIPBOARD)
+#if defined(FEAT_SEARCH_EXTRA)
       if (!did_one)
       {
         did_one = TRUE;
 #ifdef FEAT_SEARCH_EXTRA
         start_search_hl();
-#endif
-#ifdef FEAT_CLIPBOARD
-        /* When Visual area changed, may have to update selection. */
-        if (clip_star.available && clip_isautosel_star())
-          clip_update_selection(&clip_star);
-        if (clip_plus.available && clip_isautosel_plus())
-          clip_update_selection(&clip_plus);
 #endif
 #ifdef FEAT_GUI
         /* Remove the cursor before starting to do anything, because
@@ -695,14 +688,6 @@ void updateWindow(win_T *wp)
     return;
 
   update_prepare();
-
-#ifdef FEAT_CLIPBOARD
-  /* When Visual area changed, may have to update selection. */
-  if (clip_star.available && clip_isautosel_star())
-    clip_update_selection(&clip_star);
-  if (clip_plus.available && clip_isautosel_plus())
-    clip_update_selection(&clip_plus);
-#endif
 
   win_update(wp);
 
@@ -2705,10 +2690,6 @@ win_line(
       {
         area_highlighting = TRUE;
         vi_attr = HL_ATTR(HLF_V);
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-        if ((clip_star.available && !clip_star.owned && clip_isautosel_star()) || (clip_plus.available && !clip_plus.owned && clip_isautosel_plus()))
-          vi_attr = HL_ATTR(HLF_VNC);
-#endif
       }
     }
 
@@ -4590,10 +4571,6 @@ void screen_line(
     row = Rows - 1;
   if (endcol > Columns)
     endcol = Columns;
-
-#ifdef FEAT_CLIPBOARD
-  clip_may_clear_selection(row, row);
-#endif
 
   off_from = (unsigned)(current_ScreenLine - ScreenLines);
   off_to = LineOffset[row] + coloff;
@@ -6483,10 +6460,6 @@ redraw_block(int row, int end, win_T *wp)
   int col;
   int width;
 
-#ifdef FEAT_CLIPBOARD
-  clip_may_clear_selection(row, end - 1);
-#endif
-
   if (wp == NULL)
   {
     col = 0;
@@ -7009,11 +6982,6 @@ screenclear2(void)
 #endif
     screen_attr = -1;      /* force setting the Normal colors */
   screen_stop_highlight(); /* don't want highlighting here */
-
-#ifdef FEAT_CLIPBOARD
-  /* disable selection without redrawing it */
-  clip_scroll_selection(9999);
-#endif
 
   /* blank out ScreenLines */
   for (i = 0; i < Rows; ++i)
@@ -7671,11 +7639,7 @@ int screen_ins_lines(
      * - the line count is more than 'ttyscroll'
      * - redrawing for a callback and there is a modeless selection
      */
-  if (!screen_valid(TRUE) || line_count <= 0 || line_count > p_ttyscroll
-#ifdef FEAT_CLIPBOARD
-      || (clip_star.state != SELECT_CLEARED && redrawing_for_callback > 0)
-#endif
-  )
+  if (!screen_valid(TRUE) || line_count <= 0 || line_count > p_ttyscroll)
     return FAIL;
 
   /*
@@ -7738,15 +7702,6 @@ int screen_ins_lines(
      */
   if (*T_DB)
     screen_del_lines(off, end - line_count, line_count, end, FALSE, 0, wp);
-
-#ifdef FEAT_CLIPBOARD
-  /* Remove a modeless selection when inserting lines halfway the screen
-     * or not the full width of the screen. */
-  if (off + row > 0 || (wp != NULL && wp->w_width != Columns))
-    clip_clear_selection(&clip_star);
-  else
-    clip_scroll_selection(-line_count);
-#endif
 
 #ifdef FEAT_GUI
   /* Don't update the GUI cursor here, ScreenLines[] is invalid until the
@@ -7886,11 +7841,7 @@ int screen_del_lines(
      * - the line count is more than 'ttyscroll'
      * - redrawing for a callback and there is a modeless selection
      */
-  if (!screen_valid(TRUE) || line_count <= 0 || (!force && line_count > p_ttyscroll)
-#ifdef FEAT_CLIPBOARD
-      || (clip_star.state != SELECT_CLEARED && redrawing_for_callback > 0)
-#endif
-  )
+  if (!screen_valid(TRUE) || line_count <= 0 || (!force && line_count > p_ttyscroll))
     return FAIL;
 
   /*
@@ -7949,15 +7900,6 @@ int screen_del_lines(
     type = USE_T_CDL;
   else
     return FAIL;
-
-#ifdef FEAT_CLIPBOARD
-  /* Remove a modeless selection when deleting lines halfway the screen or
-     * not the full width of the screen. */
-  if (off + row > 0 || (wp != NULL && wp->w_width != Columns))
-    clip_clear_selection(&clip_star);
-  else
-    clip_scroll_selection(line_count);
-#endif
 
 #ifdef FEAT_GUI
   /* Don't update the GUI cursor here, ScreenLines[] is invalid until the

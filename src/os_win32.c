@@ -1958,10 +1958,6 @@ mch_init_g(void)
   if (!executable_exists("findstr.exe", NULL, TRUE))
     set_option_value((char_u *)"grepprg", 0, (char_u *)"grep -n", 0);
 
-#ifdef FEAT_CLIPBOARD
-  win_clip_init();
-#endif
-
   vtp_flag_init();
 }
 
@@ -2324,10 +2320,6 @@ mch_init_c(void)
 #endif
 
   g_fWindInitCalled = TRUE;
-
-#ifdef FEAT_CLIPBOARD
-  win_clip_init();
-#endif
 
   vtp_flag_init();
   vtp_init();

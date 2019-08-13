@@ -381,9 +381,6 @@ EXTERN int p_deco;    /* 'delcombine' */
 #ifdef FEAT_EVAL
 EXTERN char_u *p_ccv; /* 'charconvert' */
 #endif
-#ifdef FEAT_CLIPBOARD
-EXTERN char_u *p_cb; /* 'clipboard' */
-#endif
 EXTERN long p_ch; /* 'cmdheight' */
 #if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
 EXTERN int p_confirm; /* 'confirm' */

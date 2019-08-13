@@ -1077,9 +1077,6 @@ void free_all_mem(void)
 
   /* Free some global vars. */
   vim_free(username);
-#ifdef FEAT_CLIPBOARD
-  vim_regfree(clip_exclude_prog);
-#endif
   vim_free(last_cmdline);
 #ifdef FEAT_CMDHIST
   vim_free(new_last_cmdline);

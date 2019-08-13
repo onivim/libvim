@@ -135,17 +135,6 @@ Error : configure did not run properly.Check auto / config.log.
  */
 #include "feature.h"
 
-#if defined(MACOS_X_DARWIN)
-#if defined(FEAT_SMALL) && !defined(FEAT_CLIPBOARD)
-#define FEAT_CLIPBOARD
-#endif
-#endif
-
-/* +x11 is only enabled when it's both available and wanted. */
-#if defined(HAVE_X11) && defined(WANT_X11)
-#define FEAT_X11
-#endif
-
 #ifdef NO_X11_INCLUDES
 /* In os_mac_conv.c and os_macosx.m NO_X11_INCLUDES is defined to avoid
      * X11 headers.  Disable all X11 related things to avoid conflicts. */
@@ -1858,65 +1847,7 @@ typedef int sock_T;
 #define VAR_TYPE_CHANNEL 9
 #define VAR_TYPE_BLOB 10
 
-#ifdef FEAT_CLIPBOARD
-
-/* VIM_ATOM_NAME is the older Vim-specific selection type for X11.  Still
- * supported for when a mix of Vim versions is used. VIMENC_ATOM_NAME includes
- * the encoding to support Vims using different 'encoding' values. */
-#define VIM_ATOM_NAME "_VIM_TEXT"
-#define VIMENC_ATOM_NAME "_VIMENC_TEXT"
-
-/* Selection states for modeless selection */
-#define SELECT_CLEARED 0
-#define SELECT_IN_PROGRESS 1
-#define SELECT_DONE 2
-
-#define SELECT_MODE_CHAR 0
-#define SELECT_MODE_WORD 1
-#define SELECT_MODE_LINE 2
-
-#ifdef FEAT_GUI_MSWIN
-#ifdef FEAT_OLE
-#define WM_OLE (WM_APP + 0)
-#endif
-#endif
-
-/* Info about selected text */
-typedef struct VimClipboard
-{
-  int available; /* Is clipboard available? */
-  int owned;     /* Flag: do we own the selection? */
-  pos_T start;   /* Start of selected area */
-  pos_T end;     /* End of selected area */
-  int vmode;     /* Visual mode character */
-
-  /* Fields for selection that doesn't use Visual mode */
-  short_u origin_row;
-  short_u origin_start_col;
-  short_u origin_end_col;
-  short_u word_start_col;
-  short_u word_end_col;
-
-  pos_T prev;    /* Previous position */
-  short_u state; /* Current selection state */
-  short_u mode;  /* Select by char, word, or line. */
-
-#if defined(FEAT_GUI_X11) || defined(FEAT_XCLIPBOARD)
-  Atom sel_atom; /* PRIMARY/CLIPBOARD selection ID */
-#endif
-
-#ifdef FEAT_GUI_GTK
-  GdkAtom gtk_sel_atom; /* PRIMARY/CLIPBOARD selection ID */
-#endif
-
-#if defined(MSWIN) || defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
-  int_u format;     /* Vim's own special clipboard format */
-  int_u format_raw; /* Vim's raw text clipboard format */
-#endif
-} VimClipboard;
-#else
 typedef int VimClipboard; /* This is required for the prototypes. */
-#endif
 
 /* Use 64-bit stat structure if available. */
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300)) || defined(__MINGW32__)

@@ -1596,18 +1596,6 @@ getcmdline_int(
       redrawcmd();
       goto cmdline_changed;
 
-#ifdef FEAT_CLIPBOARD
-    case Ctrl_Y:
-      /* Copy the modeless selection, if there is one. */
-      if (clip_star.state != SELECT_CLEARED)
-      {
-        if (clip_star.state == SELECT_DONE)
-          clip_copy_modeless_selection(TRUE);
-        goto cmdline_not_changed;
-      }
-      break;
-#endif
-
     case ESC: /* get here if p_wc != ESC or when ESC typed twice */
     case Ctrl_C:
       /* In exmode it doesn't make sense to return.  Except when
@@ -3042,18 +3030,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
     redrawcmd();
     goto cmdline_changed;
 
-#ifdef FEAT_CLIPBOARD
-  case Ctrl_Y:
-    /* Copy the modeless selection, if there is one. */
-    if (clip_star.state != SELECT_CLEARED)
-    {
-      if (clip_star.state == SELECT_DONE)
-        clip_copy_modeless_selection(TRUE);
-      goto cmdline_not_changed;
-    }
-    break;
-#endif
-
   case ESC: /* get here if p_wc != ESC or when ESC typed twice */
   case Ctrl_C:
     /* In exmode it doesn't make sense to return.  Except when
@@ -4286,10 +4262,6 @@ cmdline_paste(
   line_breakcheck();
   if (got_int)
     return FAIL;
-
-#ifdef FEAT_CLIPBOARD
-  regname = may_get_selection(regname);
-#endif
 
   // Need to  set "textlock" to avoid nasty things like going to another
   // buffer when evaluating an expression.

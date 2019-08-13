@@ -323,6 +323,11 @@ void vimWindowSetHeight(int height)
   win_comp_scroll(curwin);
 }
 
+void vimSetClipboardGetCallback(ClipboardGetCallback callback)
+{
+  clipboardGetCallback = callback;
+}
+
 int vimGetMode(void) { return get_real_state(); }
 
 void vimSetDisplayIntroCallback(VoidCallback callback)
