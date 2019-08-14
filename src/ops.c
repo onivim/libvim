@@ -759,6 +759,7 @@ void get_yank_register_value(int regname, int *num_lines, char_u ***lines)
  */
 int get_yank_register(int regname, int writing)
 {
+  printf("get_yank_register - regname: %d | writing: %d\n", regname, writing);
   int i;
   int ret = FALSE;
 
@@ -768,12 +769,14 @@ int get_yank_register(int regname, int writing)
   char_u **lines;
   int useExternalClipboard = 0;
 
+
   if (clipboardGetCallback != NULL && !writing)
   {
+    printf("-- get_yank_register: calling clipboardGetCallback...\n");
     useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines);
   }
 
-  if (useExternalClipboard && regname == 0)
+  if (useExternalClipboard == TRUE && regname == 0)
   {
     regname = '*';
   }
@@ -781,6 +784,14 @@ int get_yank_register(int regname, int writing)
   if ((regname == 0 || regname == '"') && !writing && y_previous != NULL)
   {
     y_current = y_previous;
+
+    if (useExternalClipboard) {
+      for (int i = 0; i < num_lines; i++) {
+        vim_free(lines[i]);
+      }
+      vim_free(lines);
+    }
+
     return ret;
   }
 
@@ -808,6 +819,7 @@ int get_yank_register(int regname, int writing)
     /* update star register */
     if (!writing && useExternalClipboard)
     {
+      printf("-- get_yank_register: freeing!\n");
       free_yank_all(); /* free register */
       y_current->y_type = MLINE;
       y_current->y_size = num_lines;
@@ -831,6 +843,8 @@ int get_yank_register(int regname, int writing)
 
   if (writing) /* remember the register we write into for do_put() */
     y_previous = y_current;
+  
+  printf("-- get_yank_register: returning\n");
 
   return ret;
 }
