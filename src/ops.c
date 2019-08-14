@@ -763,20 +763,22 @@ int get_yank_register(int regname, int writing)
   int ret = FALSE;
 
   y_append = FALSE;
-  
+
   int num_lines;
   char_u **lines;
   int useExternalClipboard = 0;
 
-  if (clipboardGetCallback != NULL) {
+  if (clipboardGetCallback != NULL)
+  {
     useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines);
   }
-  
+
   if ((regname == 0 || regname == '"') && !writing && y_previous != NULL)
   {
     y_current = y_previous;
 
-    if (useExternalClipboard) {
+    if (useExternalClipboard)
+    {
       free_yank_all(); /* free register */
       y_current->y_type = MLINE;
       y_current->y_size = num_lines;
@@ -824,19 +826,19 @@ int get_yank_register(int regname, int writing)
 
   if (!writing && useExternalClipboard)
   {
-      free_yank_all(); /* free register */
-      y_current->y_type = MLINE;
-      y_current->y_size = num_lines;
-      y_current->y_array = lines;
+    free_yank_all(); /* free register */
+    y_current->y_type = MLINE;
+    y_current->y_size = num_lines;
+    y_current->y_array = lines;
 
 #ifdef FEAT_VIMINFO
-      y_current->y_time_set = vim_time();
+    y_current->y_time_set = vim_time();
 #endif
 
-      for (int i = 0; i < num_lines; i++)
-      {
-        y_current->y_array[i] = lines[i];
-      }
+    for (int i = 0; i < num_lines; i++)
+    {
+      y_current->y_array[i] = lines[i];
+    }
   }
 
   if (writing) /* remember the register we write into for do_put() */
