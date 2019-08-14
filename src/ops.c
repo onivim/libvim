@@ -776,20 +776,25 @@ int get_yank_register(int regname, int writing)
     useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines);
   }
 
-  if (useExternalClipboard == TRUE && regname == 0)
-  {
-    regname = '*';
-  }
-
   if ((regname == 0 || regname == '"') && !writing && y_previous != NULL)
   {
     y_current = y_previous;
 
     if (useExternalClipboard) {
-      for (int i = 0; i < num_lines; i++) {
-        vim_free(lines[i]);
+      printf("-- get_yank_register: freeing!\n");
+      free_yank_all(); /* free register */
+      y_current->y_type = MLINE;
+      y_current->y_size = num_lines;
+      y_current->y_array = lines;
+
+  #ifdef FEAT_VIMINFO
+      y_current->y_time_set = vim_time();
+  #endif
+
+      for (int i = 0; i < num_lines; i++)
+      {
+        y_current->y_array[i] = lines[i];
       }
-      vim_free(lines);
     }
 
     return ret;
