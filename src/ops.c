@@ -773,7 +773,8 @@ int get_yank_register(int regname, int writing)
     useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines);
   }
 
-  if (useExternalClipboard && regname == 0) {
+  if (useExternalClipboard && regname == 0)
+  {
     regname = '*';
   }
 
