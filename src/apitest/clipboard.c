@@ -107,6 +107,31 @@ MU_TEST(test_paste_multiple_lines_from_clipboard)
   mu_check(strcmp(line3, "Again") == 0);
 }
 
+MU_TEST(test_paste_overrides_default_register)
+{
+  // If there is a callback set, and it returns lines,
+  // it should overwrite the register.
+  vimSetClipboardGetCallback(&multipleLineClipboardTest);
+
+  vimInput("y");
+  vimInput("y");
+
+  // The 'P' should pull from the clipboard callback,
+  // overriding what was yanked.
+  vimInput("P");
+
+  char_u *line1 = vimBufferGetLine(curbuf, 1);
+  printf("LINE1: |%s|\n", line1);
+  char_u *line2 = vimBufferGetLine(curbuf, 2);
+  printf("LINE2: |%s|\n", line2);
+  char_u *line3 = vimBufferGetLine(curbuf, 3);
+  printf("LINE3: |%s|\n", line3);
+
+  mu_check(strcmp(line1, "Hello2") == 0);
+  mu_check(strcmp(line2, "World") == 0);
+  mu_check(strcmp(line3, "Again") == 0);
+}
+
 /* When clipboard returns false, everything
  * should just behave like a normal register
  */
@@ -129,6 +154,23 @@ MU_TEST(test_clipboard_returns_false)
   mu_check(strcmp(lines[0], "This is the first line of a test file") == 0);
 }
 
+MU_TEST(test_clipboard_returns_false_doesnt_override_default)
+{
+  vimSetClipboardGetCallback(&falseClipboardTest);
+
+  vimInput("y");
+  vimInput("y");
+
+  vimInput("P");
+
+  char_u *line1 = vimBufferGetLine(curbuf, 1);
+  printf("LINE1: |%s|\n", line1);
+  char_u *line2 = vimBufferGetLine(curbuf, 2);
+  printf("LINE2: |%s|\n", line2);
+
+  mu_check(strcmp(line1, "This is the first line of a test file") == 0);
+  mu_check(strcmp(line2, "This is the first line of a test file") == 0);
+}
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -137,6 +179,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_paste_from_clipboard);
   MU_RUN_TEST(test_paste_multiple_lines_from_clipboard);
   MU_RUN_TEST(test_clipboard_returns_false);
+  MU_RUN_TEST(test_paste_overrides_default_register);
+  MU_RUN_TEST(test_clipboard_returns_false_doesnt_override_default);
 }
 
 int main(int argc, char **argv)
