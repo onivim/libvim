@@ -362,6 +362,9 @@ void vimInit(int argc, char **argv)
   mch_early_init();
   common_init(&params);
 
+  // Don't load viminfofile, for now.
+  p_viminfofile = "NONE";
+
   // Set to 'nocompatible' so we get the expected Vim undo / redo behavior,
   // rather than Vi's behavior.
   // See :help cpoptions and :help compatible for details
