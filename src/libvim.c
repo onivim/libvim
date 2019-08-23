@@ -197,10 +197,10 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
   char_u *pattern = get_search_pat();
 
+  *num_highlights = 0;
+  *highlights = NULL;
   if (pattern == NULL)
   {
-    *num_highlights = 0;
-    *highlights = NULL;
     return;
   }
 
@@ -236,6 +236,12 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
     startPos = endPos;
     startPos.col = startPos.col + 1;
     count++;
+  }
+
+  if (count == 0)
+  {
+    vim_free(head);
+    return;
   }
 
   searchHighlight_T *ret = alloc(sizeof(searchHighlight_T) * count);
