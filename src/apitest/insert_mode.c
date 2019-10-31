@@ -81,6 +81,7 @@ MU_TEST(insert_next_line)
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
   printf("LINE: %s\n", line);
+  printf("CURSOR POS: %d\n", vimCursorGetColumn());
 
   mu_check(strcmp(line, "abc") == 0);
 }
@@ -174,7 +175,6 @@ MU_TEST_SUITE(test_suite)
 
   /* MU_RUN_TEST(insert_count); */
   MU_RUN_TEST(insert_prev_line);
-  MU_RUN_TEST(insert_next_line);
   MU_RUN_TEST(insert_beginning);
   MU_RUN_TEST(insert_cr);
   MU_RUN_TEST(insert_end);
@@ -182,6 +182,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_ctrlv);
   MU_RUN_TEST(insert_mode_ctrlv_no_digit);
   MU_RUN_TEST(insert_mode_ctrlv_newline);
+  MU_RUN_TEST(insert_next_line);
 }
 
 int main(int argc, char **argv)

@@ -1347,6 +1347,7 @@ int open_line(
     int flags,
     int second_line_indent)
 {
+  printf("open_line - 1\n");
   char_u *saved_line;       // copy of the original line
   char_u *next_line = NULL; // copy of the next line
   char_u *p_extra = NULL;   // what goes to next line
@@ -1919,6 +1920,8 @@ int open_line(
             *p = NUL;
           }
 
+
+          printf("open_line - 10 - recompute!\n");
           // Recompute the indent, it may have changed.
           if (curbuf->b_p_ai
 #ifdef FEAT_SMARTINDENT
@@ -1928,9 +1931,11 @@ int open_line(
 #ifdef FEAT_VARTABS
             newindent = get_indent_str_vtab(leader, curbuf->b_p_ts,
                                             curbuf->b_p_vts_array, FALSE);
+            printf("open_line - newIndent - 20\n");
 #else
             newindent = get_indent_str(leader,
                                        (int)curbuf->b_p_ts, FALSE);
+            printf("open_line - newIndent - 21\n");
 #endif
 
           // Add the indent offset
@@ -2108,6 +2113,9 @@ int open_line(
     did_append = FALSE;
   }
 
+  printf("open_line - newindent 30\n");
+  newindent = 5;
+
   if (newindent
 #ifdef FEAT_SMARTINDENT
       || did_si
@@ -2125,6 +2133,8 @@ int open_line(
       newindent += sw;
     }
 #endif
+    newindent = 5;
+    printf("!!! Setting newindent to 5\n");
     // Copy the indent
     if (curbuf->b_p_ci)
     {
@@ -2223,6 +2233,7 @@ int open_line(
 
   retval = OK; // success!
 theend:
+  printf("!!! THE END\n");
   curbuf->b_p_pi = saved_pi;
   vim_free(saved_line);
   vim_free(next_line);
