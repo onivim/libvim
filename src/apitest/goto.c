@@ -6,12 +6,13 @@ static int lastLnum = 0;
 static int lastCol = 0;
 static gotoTarget_T lastTarget = DEFINITION;
 
-void onGoto(gotoRequest_T gotoRequest)
+int onGoto(gotoRequest_T gotoRequest)
 {
   lastLnum = gotoRequest.location.lnum;
   lastCol = gotoRequest.location.col;
   lastTarget = gotoRequest.target;
   gotoCount++;
+  return 1;
 }
 
 void test_setup(void)

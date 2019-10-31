@@ -92,7 +92,7 @@ typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
-typedef void (*GotoCallback)(gotoRequest_T gotoInfo);
+typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 
 typedef struct
 {
