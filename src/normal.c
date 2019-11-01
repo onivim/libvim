@@ -7211,12 +7211,15 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
-    v_visop(cap);
+    end_visual_mode();
+    clearop(cap->oap);
+    // TODO: Entry point for multiple cursors
+    //v_visop(cap);
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
-  else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
-           (cap->oap->op_type != OP_NOP || VIsual_active))
+  if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
+      (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
     nv_object(cap);
