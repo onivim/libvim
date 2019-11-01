@@ -847,9 +847,7 @@ restart_state:
      */
     if (finish_op || VIsual_active)
     {
-      printf("do_pending_operator - start\n");
       do_pending_operator(&context->ca, context->old_col, FALSE);
-      printf("do_pending_operator - end\n");
     }
 
     /*
@@ -2166,7 +2164,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
 
     case OP_INSERT:
     case OP_APPEND:
-      printf("Got to OP_INSERT/OP_APPEND?\n");
       VIsual_reselect = FALSE; /* don't reselect now */
       if (empty_region_error)
       {
@@ -2183,16 +2180,13 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
 #ifdef FEAT_LINEBREAK
         /* Restore linebreak, so that when the user edits it looks as
          * before. */
-        printf("OP_INSERT/OP_APPEND - 1\n");
         if (curwin->w_p_lbr != lbr_saved)
         {
           curwin->w_p_lbr = lbr_saved;
           get_op_vcol(oap, redo_VIsual_mode, FALSE);
         }
 #endif
-        printf("OP_INSERT/OP_APPEND - 2\n");
         op_insert(oap, cap->count1);
-        printf("OP_INSERT/OP_APPEND - 3\n");
 #ifdef FEAT_LINEBREAK
         /* Reset linebreak, so that formatting works correctly. */
         curwin->w_p_lbr = FALSE;
@@ -5745,9 +5739,7 @@ static void v_visop(cmdarg_T *cap)
       curwin->w_curswant = MAXCOL;
   }
   cap->cmdchar = *(vim_strchr(trans, cap->cmdchar) + 1);
-  printf("- v:visop:nv_operator start\n");
   nv_operator(cap);
-  printf("- v_visop:nv_operator end\n");
 }
 
 /*
@@ -7211,13 +7203,14 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
-    printf("-- Start v_visop\n");
-    v_visop(cap);
-    printf("-- End v_visop\n");
+    end_visual_mode();
+    clearop(cap->oap);
+    // TODO: Entry point for multiple cursors
+    //v_visop(cap);
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
-  else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
+  if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
            (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
