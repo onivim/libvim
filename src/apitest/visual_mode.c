@@ -95,7 +95,7 @@ MU_TEST(test_insert_block_mode)
   vimInput("j");
 
   vimInput("I");
-  
+
   mu_check((vimGetMode() & INSERT) == INSERT);
 
   vimInput("a");

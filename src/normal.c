@@ -7211,7 +7211,7 @@ static void nv_edit(cmdarg_T *cap)
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
   if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
-           (cap->oap->op_type != OP_NOP || VIsual_active))
+      (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
     nv_object(cap);
