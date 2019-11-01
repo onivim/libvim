@@ -47,11 +47,17 @@ EXTERN char_u *LineWraps INIT(= NULL); /* line wraps to next line */
 /* libvim API callbacks */
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
+EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
+EXTERN VoidCallback displayIntroCallback INIT(= NULL);
+EXTERN VoidCallback displayVersionCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
+EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN VoidCallback stopSearchHighlightCallback INIT(= NULL);
+EXTERN VoidCallback unhandledEscapeCallback INIT(= NULL);
 EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
 EXTERN WindowMovementCallback windowMovementCallback INIT(= NULL);
-EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN YankCallback yankCallback INIT(= NULL);
 
 /*
  * Globals for managing the state machine
@@ -389,26 +395,10 @@ EXTERN int diff_need_scrollbind INIT(= FALSE);
  * ('lines' and 'rows') must not be changed. */
 EXTERN int updating_screen INIT(= FALSE);
 
-#ifdef FEAT_CLIPBOARD
-EXTERN VimClipboard clip_star; /* PRIMARY selection in X11 */
-#ifdef FEAT_X11
-EXTERN VimClipboard clip_plus; /* CLIPBOARD selection in X11 */
-#else
-#define clip_plus clip_star /* there is only one clipboard */
-#define ONE_CLIPBOARD
-#endif
-
 #define CLIP_UNNAMED 1
 #define CLIP_UNNAMED_PLUS 2
-EXTERN int clip_unnamed INIT(= 0); /* above two values or'ed */
-
-EXTERN int clip_autoselect_star INIT(= FALSE);
-EXTERN int clip_autoselect_plus INIT(= FALSE);
-EXTERN int clip_autoselectml INIT(= FALSE);
-EXTERN int clip_html INIT(= FALSE);
-EXTERN regprog_T *clip_exclude_prog INIT(= NULL);
-EXTERN int clip_unnamed_saved INIT(= 0);
-#endif
+EXTERN int clip_unnamed INIT(= 0);       /* above two values or'ed */
+EXTERN int clip_unnamed_saved INIT(= 0); /* above two values or'ed */
 
 /*
  * All regular windows are linked in a list. "firstwin" points to the first
@@ -1195,9 +1185,7 @@ EXTERN char e_nobufnr[] INIT(= N_("E86: Buffer %ld does not exist"));
 
 EXTERN char e_invalpat[] INIT(= N_("E682: Invalid search pattern or delimiter"));
 EXTERN char e_bufloaded[] INIT(= N_("E139: File is loaded in another buffer"));
-#ifndef FEAT_CLIPBOARD
 EXTERN char e_invalidreg[] INIT(= N_("E850: Invalid register name"));
-#endif
 EXTERN char e_dirnotf[] INIT(= N_("E919: Directory not found in '%s': \"%s\""));
 EXTERN char e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behavior"));
 

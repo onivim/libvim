@@ -5975,9 +5975,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_JOB_CHANNEL
     "channel",
 #endif
-#ifdef FEAT_CLIPBOARD
-    "clipboard",
-#endif
 #ifdef FEAT_CMDL_COMPL
     "cmdline_compl",
 #endif
@@ -6173,9 +6170,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_TOOLBAR
     "toolbar",
-#endif
-#if defined(FEAT_CLIPBOARD) && defined(FEAT_X11)
-    "unnamedplus",
 #endif
     "user-commands", /* was accidentally included in 5.4 */
     "user_commands",

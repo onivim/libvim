@@ -2166,14 +2166,13 @@ do_one_cmd(
       /* Do not allow register = for user commands */
       && (!IS_USER_CMDIDX(ea.cmdidx) || *ea.arg != '=') && !((ea.argt & COUNT) && VIM_ISDIGIT(*ea.arg)))
   {
-#ifndef FEAT_CLIPBOARD
+    /* TODO - LIBVIM:CLIPBOARD - should we disable this check?*/
     /* check these explicitly for a more specific error message */
     if (*ea.arg == '*' || *ea.arg == '+')
     {
       errormsg = _(e_invalidreg);
       goto doend;
     }
-#endif
     if (valid_yank_reg(*ea.arg, (ea.cmdidx != CMD_put && !IS_USER_CMDIDX(ea.cmdidx))))
     {
       ea.regname = *ea.arg++;
@@ -7875,11 +7874,7 @@ ex_redir(exarg_T *eap)
       /* redirect to a register a-z (resp. A-Z for appending) */
       close_redir();
       ++arg;
-      if (ASCII_ISALPHA(*arg)
-#ifdef FEAT_CLIPBOARD
-          || *arg == '*' || *arg == '+'
-#endif
-          || *arg == '"')
+      if (ASCII_ISALPHA(*arg) || *arg == '"')
       {
         redir_reg = *arg++;
         if (*arg == '>' && arg[1] == '>') /* append */
@@ -10373,6 +10368,10 @@ void set_no_hlsearch(int flag)
 static void
 ex_nohlsearch(exarg_T *eap UNUSED)
 {
+  if (stopSearchHighlightCallback != NULL)
+  {
+    stopSearchHighlightCallback();
+  }
   set_no_hlsearch(TRUE);
   redraw_all_later(SOME_VALID);
 }
@@ -10479,10 +10478,6 @@ ex_folddo(exarg_T *eap)
 {
   linenr_T lnum;
 
-#ifdef FEAT_CLIPBOARD
-  start_global_changes();
-#endif
-
   /* First set the marks for all lines closed/open. */
   for (lnum = eap->line1; lnum <= eap->line2; ++lnum)
     if (hasFolding(lnum, NULL, NULL) == (eap->cmdidx == CMD_folddoclosed))
@@ -10491,9 +10486,6 @@ ex_folddo(exarg_T *eap)
   /* Execute the command on the marked lines. */
   global_exe(eap->arg);
   ml_clearmarked(); /* clear rest of the marks */
-#ifdef FEAT_CLIPBOARD
-  end_global_changes();
-#endif
 }
 #endif
 

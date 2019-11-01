@@ -24,6 +24,14 @@ static int VIsual_mode_orig = NUL;       /* saved Visual mode */
 
 static int restart_VIsual_select = 0;
 
+/* LIBVIM: Because each operator is an independendent instance of `oap`,
+ * we need to persist the register for operators like `"`.
+ *
+ * This keeps track of whether or not there was a persisted
+ * register from the previous operation.
+ */
+static int keep_reg = 0;
+
 #ifdef FEAT_EVAL
 static void set_vcount_ca(cmdarg_T *cap, int *set_prevcount);
 #endif
@@ -518,6 +526,13 @@ void start_normal_mode(normalCmd_T *context)
     oap->prev_count0 = 0;
   }
 
+  /* Consume register if there is one persisted from previous operation */
+  if (keep_reg != 0)
+  {
+    context->oap->regname = keep_reg;
+    keep_reg = 0;
+  }
+
   context->mapped_len = typebuf_maplen();
 
   State = NORMAL_BUSY;
@@ -777,7 +792,6 @@ restart_state:
     break;
 
   case NORMAL_EXECUTE_COMMAND:;
-
     int previous_finish_op = finish_op;
     /*
      * Execute the command!
@@ -816,9 +830,8 @@ restart_state:
 
         /* Adjust the register according to 'clipboard', so that when
          * "unnamed" is present it becomes '*' or '+' instead of '"'. */
-#ifdef FEAT_CLIPBOARD
         adjust_clip_reg(&regname);
-#endif
+
         set_reg_var(regname);
       }
 #endif
@@ -855,6 +868,11 @@ restart_state:
     if (finish_op || oap->op_type == OP_NOP)
     {
       finish_op = FALSE;
+      /* If the register wasn't cleared, it needs to persist to next op */
+      if (context->oap->regname != 0)
+      {
+        keep_reg = context->oap->regname;
+      }
       return COMPLETED;
     }
     else
@@ -1408,9 +1426,8 @@ getcount:
 
       /* Adjust the register according to 'clipboard', so that when
        * "unnamed" is present it becomes '*' or '+' instead of '"'. */
-#ifdef FEAT_CLIPBOARD
       adjust_clip_reg(&regname);
-#endif
+
       set_reg_var(regname);
     }
 #endif
@@ -1580,18 +1597,6 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
   static int redo_VIsual_arg;             /* extra argument */
   int include_line_break = FALSE;
 
-#if defined(FEAT_CLIPBOARD)
-  /*
-   * Yank the visual area into the GUI selection register before we operate
-   * on it and lose it forever.
-   * Don't do it if a specific register was specified, so that ""x"*P works.
-   * This could call do_pending_operator() recursively, but that's OK
-   * because gui_yank will be TRUE for the nested call.
-   */
-  if ((clip_star.available || clip_plus.available) && oap->op_type != OP_NOP &&
-      !gui_yank && VIsual_active && !redo_VIsual_busy && oap->regname == 0)
-    clip_auto_select();
-#endif
   old_cursor = curwin->w_cursor;
 
   /*
@@ -2425,17 +2430,6 @@ void check_visual_highlight(void)
  */
 void end_visual_mode(void)
 {
-#ifdef FEAT_CLIPBOARD
-  /*
-   * If we are using the clipboard, then remember what was selected in case
-   * we need to paste it somewhere while we still own the selection.
-   * Only do this when the clipboard is already owned.  Don't want to grab
-   * the selection when hitting ESC.
-   */
-  if (clip_star.available && clip_star.owned)
-    clip_auto_select();
-#endif
-
   VIsual_active = FALSE;
   /* Save the current VIsual area for '< and '> marks, and "gv" */
   curbuf->b_visual.vi_mode = VIsual_mode;
@@ -6103,11 +6097,6 @@ static void n_start_visual_mode(int c)
 
   if (p_smd && msg_silent == 0)
     redraw_cmdline = TRUE; /* show visual mode later */
-#ifdef FEAT_CLIPBOARD
-  /* Make sure the clipboard gets updated.  Needed because start and
-   * end may still be the same, and the selection needs to be owned */
-  clip_star.vmode = NUL;
-#endif
 
   /* Only need to redraw this line, unless still need to redraw an old
    * Visual area (when 'lazyredraw' is set). */
@@ -6256,11 +6245,6 @@ static void nv_g_cmd(cmdarg_T *cap)
         VIsual_select = TRUE;
       else
         may_start_select('c');
-#ifdef FEAT_CLIPBOARD
-      /* Make sure the clipboard gets updated.  Needed because start and
-       * end are still the same, and the selection needs to be owned */
-      clip_star.vmode = NUL;
-#endif
       redraw_curbuf_later(INVERTED);
       showmode();
     }
@@ -7191,7 +7175,12 @@ static void nv_esc(cmdarg_T *cap)
     redraw_curbuf_later(INVERTED);
   }
   else if (no_reason)
-    vim_beep(BO_ESC);
+  {
+    if (unhandledEscapeCallback != NULL)
+    {
+      unhandledEscapeCallback();
+    }
+  }
   clearop(cap->oap);
 
   /* A CTRL-C is often used at the start of a menu.  When 'insertmode' is
@@ -7613,16 +7602,9 @@ static void nv_put_opt(cmdarg_T *cap, int fix_indent)
        */
       was_visual = TRUE;
       regname = cap->oap->regname;
-#ifdef FEAT_CLIPBOARD
       adjust_clip_reg(&regname);
-#endif
       if (regname == 0 || regname == '"' || VIM_ISDIGIT(regname) ||
-          regname == '-'
-#ifdef FEAT_CLIPBOARD
-          || (clip_unnamed && (regname == '*' || regname == '+'))
-#endif
-
-      )
+          regname == '-' || (clip_unnamed && (regname == '*' || regname == '+')))
       {
         /* The delete is going to overwrite the register we want to
          * put, save it first. */

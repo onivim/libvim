@@ -76,6 +76,11 @@ void vimSetQuitCallback(QuitCallback f)
   quitCallback = f;
 }
 
+void vimSetUnhandledEscapeCallback(VoidCallback callback)
+{
+  unhandledEscapeCallback = callback;
+}
+
 char_u vimCommandLineGetType(void) { return ccline.cmdfirstc; }
 
 char_u *vimCommandLineGetText(void) { return ccline.cmdbuff; }
@@ -107,6 +112,8 @@ void vimCursorSetPosition(pos_T pos)
   curwin->w_cursor.col = pos.col;
   /* TODO: coladd? */
   check_cursor();
+  // We also need to adjust the topline, potentially, if the cursor moved off-screen
+  curs_columns(TRUE);
 }
 
 void vimInput(char_u *input)
@@ -190,10 +197,10 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
   char_u *pattern = get_search_pat();
 
+  *num_highlights = 0;
+  *highlights = NULL;
   if (pattern == NULL)
   {
-    *num_highlights = 0;
-    *highlights = NULL;
     return;
   }
 
@@ -231,6 +238,12 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
     count++;
   }
 
+  if (count == 0)
+  {
+    vim_free(head);
+    return;
+  }
+
   searchHighlight_T *ret = alloc(sizeof(searchHighlight_T) * count);
 
   cur = head->next;
@@ -251,6 +264,11 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 }
 
 char_u *vimSearchGetPattern(void) { return get_search_pat(); }
+
+void vimSetStopSearchHighlightCallback(VoidCallback callback)
+{
+  stopSearchHighlightCallback = callback;
+}
 
 void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
 
@@ -282,9 +300,9 @@ int vimWindowGetLeftColumn(void) { return curwin->w_leftcol; }
 
 void vimWindowSetTopLeft(int top, int left)
 {
-  curwin->w_topline = top;
+  set_topline(curwin, top);
   curwin->w_leftcol = left;
-  curs_columns(TRUE);
+  validate_botline();
 }
 
 void vimWindowSetWidth(int width)
@@ -292,6 +310,7 @@ void vimWindowSetWidth(int width)
   if (width > Columns)
   {
     Columns = width;
+    screenalloc(FALSE);
   }
 
   win_new_width(curwin, width);
@@ -302,16 +321,39 @@ void vimWindowSetHeight(int height)
   if (height > Rows)
   {
     Rows = height;
+    screenalloc(FALSE);
   }
 
   win_new_height(curwin, height);
+  // Set scroll value so that <c-d>/<c-u> work as expected
+  win_comp_scroll(curwin);
+}
+
+void vimSetClipboardGetCallback(ClipboardGetCallback callback)
+{
+  clipboardGetCallback = callback;
 }
 
 int vimGetMode(void) { return get_real_state(); }
 
+void vimSetDisplayIntroCallback(VoidCallback callback)
+{
+  displayIntroCallback = callback;
+}
+
+void vimSetDisplayVersionCallback(VoidCallback callback)
+{
+  displayVersionCallback = callback;
+}
+
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
   get_yank_register_value(reg_name, num_lines, lines);
+}
+
+void vimSetYankCallback(YankCallback callback)
+{
+  yankCallback = callback;
 }
 
 void vimInit(int argc, char **argv)
@@ -325,6 +367,9 @@ void vimInit(int argc, char **argv)
 
   mch_early_init();
   common_init(&params);
+
+  // Don't load viminfofile, for now.
+  p_viminfofile = "NONE";
 
   // Set to 'nocompatible' so we get the expected Vim undo / redo behavior,
   // rather than Vi's behavior.

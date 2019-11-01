@@ -60,15 +60,6 @@ void ui_cursor_shape(void);
 int check_col(int col);
 int check_row(int row);
 void open_app_context(void);
-void x11_setup_atoms(Display *dpy);
-void x11_setup_selection(Widget w);
-void clip_x11_request_selection(Widget myShell, Display *dpy,
-                                VimClipboard *cbd);
-void clip_x11_lose_selection(Widget myShell, VimClipboard *cbd);
-int clip_x11_own_selection(Widget myShell, VimClipboard *cbd);
-void clip_x11_set_selection(VimClipboard *cbd);
-int clip_x11_owner_exists(VimClipboard *cbd);
-void yank_cut_buffer0(Display *dpy, VimClipboard *cbd);
 int jump_to_mouse(int flags, int *inclusive, int which_button);
 int mouse_comp_pos(win_T *win, int *rowp, int *colp, linenr_T *lnump);
 win_T *mouse_find_win(int *rowp, int *colp);
