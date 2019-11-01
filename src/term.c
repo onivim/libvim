@@ -2706,63 +2706,17 @@ void set_shellsize(int width, int height, int mustset)
  */
 void settmode(int tmode)
 {
-#ifdef FEAT_GUI
-  /* don't set the term where gvim was started to any mode */
-  if (gui.in_use)
-    return;
-#endif
-
-  if (full_screen)
-  {
-    /*
-	 * When returning after calling a shell we want to really set the
-	 * terminal to raw mode, even though we think it already is, because
-	 * the shell program may have reset the terminal mode.
-	 * When we think the terminal is normal, don't try to set it to
-	 * normal again, because that causes problems (logout!) on some
-	 * machines.
-	 */
-    if (tmode != TMODE_COOK || cur_tmode != TMODE_COOK)
-    {
-      if (termcap_active)
-      {
-        if (tmode != TMODE_RAW)
-          out_str(T_BD); // disable bracketed paste mode
-        else
-          out_str(T_BE); // enable bracketed paste mode (should
-                         // be before mch_settmode().
-      }
-      mch_settmode(tmode); // machine specific function
-      cur_tmode = tmode;
-    }
-  }
+  // libvim - NOOP
 }
 
 void starttermcap(void)
 {
-  if (full_screen && !termcap_active)
-  {
-    out_str(T_TI); /* start termcap mode */
-    out_str(T_KS); /* start "keypad transmit" mode */
-    out_str(T_BE); /* enable bracketed paste mode */
-    termcap_active = TRUE;
-    screen_start(); /* don't know where cursor is now */
-  }
+  // libvim - NOOP
 }
 
 void stoptermcap(void)
 {
-  screen_stop_highlight();
-  reset_cterm_colors();
-  if (termcap_active)
-  {
-    out_str(T_BD); /* disable bracketed paste mode */
-    out_str(T_KE); /* stop "keypad transmit" mode */
-    termcap_active = FALSE;
-    cursor_on();    /* just in case it is still off */
-    out_str(T_TE);  /* stop termcap mode */
-    screen_start(); /* don't know where cursor is now */
-  }
+  // libvim - NOOP
 }
 
 /*
