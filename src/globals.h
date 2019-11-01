@@ -49,6 +49,7 @@ EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
+EXTERN GotoCallback gotoCallback INIT(= NULL);
 EXTERN VoidCallback displayIntroCallback INIT(= NULL);
 EXTERN VoidCallback displayVersionCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
