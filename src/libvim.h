@@ -128,6 +128,13 @@ int vimOptionGetTabSize(void);
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines);
 
 /***
+ * Undo
+ ***/
+
+int vimUndoSaveCursor(void);
+int vimUndoSaveRegion(linenr_T start_lnum, linenr_T end_lnum);
+
+/***
  * Visual Mode
  ***/
 
