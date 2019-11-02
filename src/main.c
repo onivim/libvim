@@ -598,25 +598,6 @@ int vim_main2(void)
   }
 #endif
 
-#if defined(FEAT_GUI_PHOTON) && defined(FEAT_CLIPBOARD)
-  qnx_clip_init();
-#endif
-
-#if defined(MACOS_X) && defined(FEAT_CLIPBOARD)
-  clip_init(TRUE);
-#endif
-
-#ifdef FEAT_XCLIPBOARD
-  /* Start using the X clipboard, unless the GUI was started. */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-  {
-    setup_term_clip();
-    TIME_MSG("setup clipboard");
-  }
-#endif
-
 #ifdef FEAT_CLIENTSERVER
   /* Prepare for being a Vim server. */
   prepare_server(&params);
@@ -788,19 +769,6 @@ int vim_main2(void)
   apply_autocmds(EVENT_VIMENTER, NULL, NULL, FALSE, curbuf);
   TIME_MSG("VimEnter autocommands");
 
-#if defined(FEAT_EVAL) && defined(FEAT_CLIPBOARD)
-  /* Adjust default register name for "unnamed" in 'clipboard'. Can only be
-     * done after the clipboard is available and all initial commands that may
-     * modify the 'clipboard' setting have run; i.e. just before entering the
-     * main loop. */
-  {
-    int default_regname = 0;
-
-    adjust_clip_reg(&default_regname);
-    set_reg_var(default_regname);
-  }
-#endif
-
 #if defined(FEAT_DIFF)
   /* When a startup script or session file setup for diff'ing and
      * scrollbind, sync the scrollbind now. */
@@ -901,11 +869,6 @@ void common_init(mparm_T *paramp)
   /* Prepare for possibly starting GUI sometime */
   gui_prepare(&paramp->argc, paramp->argv);
   TIME_MSG("GUI prepared");
-#endif
-
-#ifdef FEAT_CLIPBOARD
-  clip_init(FALSE); /* Initialise clipboard stuff */
-  TIME_MSG("clipboard setup");
 #endif
 
   /*

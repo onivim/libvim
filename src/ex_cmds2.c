@@ -1781,10 +1781,6 @@ void ex_listdo(exarg_T *eap)
   }
 #endif
 
-#ifdef FEAT_CLIPBOARD
-  start_global_changes();
-#endif
-
   if (eap->cmdidx == CMD_windo || eap->cmdidx == CMD_tabdo || buf_hide(curbuf) || !check_changed(curbuf, CCGD_AW | (eap->forceit ? CCGD_FORCEIT : 0) | CCGD_EXCMD))
   {
     i = 0;
@@ -1959,10 +1955,6 @@ void ex_listdo(exarg_T *eap)
     }
     listcmd_busy = FALSE;
   }
-
-#ifdef FEAT_CLIPBOARD
-  end_global_changes();
-#endif
 }
 
 /*

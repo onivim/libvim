@@ -5854,13 +5854,7 @@ void ex_global(exarg_T *eap)
     }
     else
     {
-#ifdef FEAT_CLIPBOARD
-      start_global_changes();
-#endif
       global_exe(cmd);
-#ifdef FEAT_CLIPBOARD
-      end_global_changes();
-#endif
     }
 
     ml_clearmarked(); /* clear rest of the marks */

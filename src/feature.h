@@ -714,14 +714,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /* #define USE_SYSTEM */
 
 /*
- * +X11			Unix only.  Include code for xterm title saving and X
- *			clipboard.  Only works if HAVE_X11 is also defined.
- */
-#if (defined(FEAT_NORMAL))
-#define WANT_X11
-#endif
-
-/*
  * XSMP - X11 Session Management Protocol
  * It may be preferred to disable this if the GUI supports it (e.g.,
  * GNOME/KDE) and implement save-yourself etc. through that, but it may also
@@ -735,23 +727,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #endif
 #if defined(USE_XSMP_INTERACT) && !defined(USE_XSMP)
 #undef USE_XSMP_INTERACT
-#endif
-
-/*
- * +clipboard		Clipboard support.  Always used for the GUI.
- * +xterm_clipboard	Unix only: Include code for handling the clipboard
- *			in an xterm like in the GUI.
- */
-
-#ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
-#define FEAT_CLIPBOARD
-#endif
-
-#if defined(FEAT_NORMAL) && (defined(UNIX) || defined(VMS)) && defined(WANT_X11) && defined(HAVE_X11)
-#define FEAT_XCLIPBOARD
-#ifndef FEAT_CLIPBOARD
-#define FEAT_CLIPBOARD
-#endif
 #endif
 
 /*
@@ -854,6 +829,11 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_LISP
 #undef HAVE_INPUT_METHOD
 #undef IME_WITHOUT_XIM
+
+/* We externalize clipboard integration, so the `libvim`
+ * consumer can decide how `*` and `+` behave.
+ */
+#undef FEAT_CLIPBOARD
 
 /* GUI features */
 #undef FEAT_CON_DIALOG

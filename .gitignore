@@ -95,3 +95,5 @@ src/cscope.out
 
 src/apitest/*.txt
 !src/apitest/collateral
+
+*.dSYM

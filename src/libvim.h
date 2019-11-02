@@ -99,8 +99,8 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  * Misc
  **/
 
+void vimSetGotoCallback(GotoCallback gotoCallback);
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
-void vimSetQuitCallback(QuitCallback callback);
 
 /*
  * vimSetQuitCallback
@@ -113,6 +113,17 @@ void vimSetQuitCallback(QuitCallback callback);
  * - `force`: a boolean if the command was forced (ie, if `q!` was used)
  */
 void vimSetQuitCallback(QuitCallback callback);
+
+/*
+ * vimSetUnhandledEscapeCallback
+ *
+ * Called when <esc> is pressed in normal mode, but there is no
+ * pending operator or action.
+ *
+ * This is intended for UI's to pick up and handle (for example,
+ * to clear messages or alerts).
+ */
+void vimSetUnhandledEscapeCallback(VoidCallback callback);
 
 /***
  * Options
@@ -176,6 +187,8 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
  */
 char_u *vimSearchGetPattern();
 
+void vimSetStopSearchHighlightCallback(VoidCallback callback);
+
 /***
  * Window
  */
@@ -196,6 +209,23 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
  * Misc
  ***/
 
+void vimSetClipboardGetCallback(ClipboardGetCallback callback);
+
 int vimGetMode(void);
+
+void vimSetYankCallback(YankCallback callback);
+
+/* Callbacks for when the `:intro` and `:version` commands are used
+  
+  The Vim license has some specific requirements when implementing these methods:
+    
+    3) A message must be added, at least in the output of the ":version"
+       command and in the intro screen, such that the user of the modified Vim
+       is able to see that it was modified.  When distributing as mentioned
+       under 2)e) adding the message is only required for as far as this does
+       not conflict with the license used for the changes.
+*/
+void vimSetDisplayIntroCallback(VoidCallback callback);
+void vimSetDisplayVersionCallback(VoidCallback callback);
 
 /* vim: set ft=c : */
