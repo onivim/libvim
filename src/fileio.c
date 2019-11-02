@@ -3001,8 +3001,6 @@ int buf_write(
 #endif
   unsigned int bkc = get_bkc_value(buf);
 
-printf("buf_write - 1\n");
-
   if (fname == NULL || *fname == NUL) /* safety check */
     return FAIL;
   if (buf->b_ml.ml_mfp == NULL)
@@ -3074,8 +3072,6 @@ printf("buf_write - 1\n");
   fname = sfname;
 #endif
 
-
-  printf("buf_write - 10\n");
   if (buf->b_ffname != NULL && fnamecmp(ffname, buf->b_ffname) == 0)
     overwriting = TRUE;
   else
@@ -3185,8 +3181,6 @@ printf("buf_write - 1\n");
       }
     }
   
-  printf("buf_write - 20\n");
-
     /* restore curwin/curbuf and a few other things */
     aucmd_restbuf(&aco);
 
@@ -3245,8 +3239,6 @@ printf("buf_write - 1\n");
       return FAIL;
     }
 
-  printf("buf_write - 30\n");
-
     /*
 	 * The autocommands may have changed the number of lines in the file.
 	 * When writing the whole file, adjust the end.
@@ -3286,7 +3278,6 @@ printf("buf_write - 1\n");
       fname = buf->b_sfname;
   }
 
-  printf("buf_write - 40\n");
   if (shortmess(SHM_OVER) && !exiting)
     msg_scroll = FALSE; /* overwrite previous file message */
   else
@@ -3384,14 +3375,11 @@ printf("buf_write - 1\n");
       goto fail;
     }
     if (overwriting) {
-      printf("Checking stats!\n");
       (void)mch_stat((char *)fname, &st_old);
     }
   }
 #endif /* !UNIX */
   
-  printf("buf_write - 50. Device: %d Newfile: %d overwriting: %d\n", device, newfile, overwriting);
-
   if (!device && !newfile)
   {
     /*
@@ -3426,7 +3414,6 @@ printf("buf_write - 1\n");
     }
   }
 
-  printf("buf_write - 60\n");
 #ifdef HAVE_ACL
   /*
      * For systems that support ACL: get the ACL from the original file.
@@ -5082,7 +5069,6 @@ msg_add_eol(void)
 static int
 check_mtime(buf_T *buf, stat_T *st)
 {
-  printf("check_mtime - 1. buf->b_mtime_read: %ld st->st_mtime: %ld\n", buf->b_mtime_read, (long)st->st_mtime);
   if (buf->b_mtime_read != 0 && time_differs((long)st->st_mtime, buf->b_mtime_read))
   {
 
@@ -6461,7 +6447,6 @@ int buf_check_timestamp(
     buf_T *buf,
     int focus UNUSED) /* called for GUI focus event */
 {
-  printf("---- buf_check_timestamp\n");
   stat_T st;
   int stat_res;
   int retval = 0;
@@ -6625,7 +6610,6 @@ int buf_check_timestamp(
 
   if (mesg != NULL)
   {
-    printf ("mesg != NULL\n");
     path = home_replace_save(buf, buf->b_fname);
     if (path != NULL)
     {
@@ -6640,7 +6624,6 @@ int buf_check_timestamp(
 #endif
       if (State > NORMAL_BUSY || (State & CMDLINE) || already_warned)
       {
-        printf("Already warned?\n");
         if (*mesg2 != NUL)
         {
           STRCAT(tbuf, "; ");
@@ -6651,7 +6634,6 @@ int buf_check_timestamp(
       }
       else
       {
-        printf("NOT Already warned?\n");
         if (!autocmd_busy)
         {
           msg_start();
