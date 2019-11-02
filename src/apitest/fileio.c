@@ -35,14 +35,10 @@ void onWriteFailure(writeFailureReason_T reason, buf_T *buf) {
 void test_setup(void)
 {
   writeFailureCount = 0;
-  printf("SETUP - 1\n");
   char_u *tmp = vim_tempname('t', FALSE);
-  printf("SETUP - 2\n");
   strcpy(tempFile, tmp);
-  printf("SETUP - 3\n");
   vim_free(tmp);
 
-  printf("\nUsing testfile: %s\n", tempFile);
   vimInput("<esc>");
   vimInput("<esc>");
   vimBufferOpen(tempFile, 1, 0);
@@ -53,7 +49,7 @@ void test_setup(void)
 }
 
 void test_teardown(void) {}
-/*
+
 MU_TEST(test_write_while_file_open)
 {
   vimInput("i");
@@ -98,7 +94,7 @@ MU_TEST(test_overwrite_file)
 
   printf("BUF: |%s|\n", buff);
   mu_check((strcmp(buff, "a\r\n") == 0) || (strcmp(buff, "a\n") == 0));
-}*/
+}
 
 void printFile(char_u *fileName) {
   
@@ -151,8 +147,6 @@ MU_TEST(test_checkifchanged_updates_buffer)
   // for Vim to realize that th ebfufer is modified
   sleep(3);
 
-  printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
-
   mu_check(writeFailureCount == 0);
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
@@ -165,7 +159,6 @@ MU_TEST(test_checkifchanged_updates_buffer)
   
   /* With auto-read, we should've picked up the change */
   char_u *line = vimBufferGetLine(curbuf, 1);
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "Hello!") == 0);
 }
 
@@ -186,8 +179,6 @@ MU_TEST(test_checkifchanged_with_unsaved_changes)
   // for Vim to realize that th ebfufer is modified
   sleep(3);
 
-  printf("buffer name: %s\n", vimBufferGetFilename(curbuf));
-
   mu_check(writeFailureCount == 0);
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
@@ -200,7 +191,6 @@ MU_TEST(test_checkifchanged_with_unsaved_changes)
   
   /* We should not have picked up changes, because we have modifications */
   char_u *line = vimBufferGetLine(curbuf, 1);
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "ba") == 0);
 }
 
@@ -210,8 +200,8 @@ MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  /*MU_RUN_TEST(test_write_while_file_open); */
-  /*MU_RUN_TEST(test_overwrite_file);*/
+  MU_RUN_TEST(test_write_while_file_open);
+  MU_RUN_TEST(test_overwrite_file);
   MU_RUN_TEST(test_checkifchanged_updates_buffer);
   MU_RUN_TEST(test_checkifchanged_with_unsaved_changes);
   MU_RUN_TEST(test_modify_file_externally);
