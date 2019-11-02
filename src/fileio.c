@@ -3180,7 +3180,7 @@ int buf_write(
                                sfname, sfname, FALSE, curbuf, eap);
       }
     }
-  
+
     /* restore curwin/curbuf and a few other things */
     aucmd_restbuf(&aco);
 
@@ -3374,12 +3374,13 @@ int buf_write(
       errmsg = (char_u *)_("is a directory");
       goto fail;
     }
-    if (overwriting) {
+    if (overwriting)
+    {
       (void)mch_stat((char *)fname, &st_old);
     }
   }
 #endif /* !UNIX */
-  
+
   if (!device && !newfile)
   {
     /*
@@ -5072,10 +5073,11 @@ check_mtime(buf_T *buf, stat_T *st)
   if (buf->b_mtime_read != 0 && time_differs((long)st->st_mtime, buf->b_mtime_read))
   {
 
-    if (fileWriteFailureCallback != NULL) {
+    if (fileWriteFailureCallback != NULL)
+    {
       fileWriteFailureCallback(FILE_CHANGED, buf);
     }
-    
+
     return FAIL;
   }
   return OK;

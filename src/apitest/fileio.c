@@ -25,7 +25,8 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
   lastPriority = priority;
 };
 
-void onWriteFailure(writeFailureReason_T reason, buf_T *buf) {
+void onWriteFailure(writeFailureReason_T reason, buf_T *buf)
+{
   printf("onWriteFailure - reason: %d\n", reason);
 
   lastWriteFailureReason = reason;
@@ -78,7 +79,6 @@ MU_TEST(test_overwrite_file)
   vimInput("i");
   vimInput("a");
 
-
   mu_check(1 == 1);
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
@@ -96,13 +96,16 @@ MU_TEST(test_overwrite_file)
   mu_check((strcmp(buff, "a\r\n") == 0) || (strcmp(buff, "a\n") == 0));
 }
 
-void printFile(char_u *fileName) {
-  
+void printFile(char_u *fileName)
+{
+
   FILE *fp = fopen(fileName, "r");
   char c;
-  while (1) {
+  while (1)
+  {
     c = fgetc(fp);
-    if (feof(fp)) {
+    if (feof(fp))
+    {
       break;
     }
     printf("%c", c);
@@ -125,10 +128,10 @@ MU_TEST(test_modify_file_externally)
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
-  
+
   vimExecute("u");
   vimExecute("w");
-  
+
   mu_check(writeFailureCount == 1);
   mu_check(lastWriteFailureReason == FILE_CHANGED);
 }
@@ -151,12 +154,12 @@ MU_TEST(test_checkifchanged_updates_buffer)
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
-  
+
   int v = vimBufferCheckIfChanged(curbuf);
   /* Should return 1 because the buffer was changed */
   /* Should we get a buffer update? */
   mu_check(v == 1);
-  
+
   /* With auto-read, we should've picked up the change */
   char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "Hello!") == 0);
@@ -183,12 +186,12 @@ MU_TEST(test_checkifchanged_with_unsaved_changes)
   FILE *fp = fopen(tempFile, "w");
   fprintf(fp, "Hello!\n");
   fclose(fp);
-  
+
   int v = vimBufferCheckIfChanged(curbuf);
   /* Should return 1 because the buffer was changed */
   /* Should we get a buffer update? */
   mu_check(v == 1);
-  
+
   /* We should not have picked up changes, because we have modifications */
   char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "ba") == 0);

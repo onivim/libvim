@@ -2433,8 +2433,8 @@ typedef struct
 
 typedef enum
 {
- // The file has been changed since reading
- FILE_CHANGED, 
+  // The file has been changed since reading
+  FILE_CHANGED,
 } writeFailureReason_T;
 
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
