@@ -48,6 +48,7 @@ EXTERN char_u *LineWraps INIT(= NULL); /* line wraps to next line */
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
+EXTERN FileWriteFailureCallback fileWriteFailureCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
 EXTERN GotoCallback gotoCallback INIT(= NULL);
 EXTERN VoidCallback displayIntroCallback INIT(= NULL);

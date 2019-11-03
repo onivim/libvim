@@ -2431,7 +2431,14 @@ typedef struct
   long xtra;      // number of extra lines (negative when deleting)
 } bufferUpdate_T;
 
+typedef enum
+{
+  // The file has been changed since reading
+  FILE_CHANGED,
+} writeFailureReason_T;
+
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
+typedef void (*FileWriteFailureCallback)(writeFailureReason_T failureReason, buf_T *buf);
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
