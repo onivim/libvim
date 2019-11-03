@@ -2135,9 +2135,22 @@ int open_line(
 #endif
     newindent = 5;
     printf("!!! Setting newindent to 5\n");
+    if (indentCallback != NULL) {
+      int ts = (int)curbuf->b_p_ts;
+      int oldIndent = get_indent_str(saved_line, (int)curbuf->b_p_ts, FALSE);
+      newindent = indentCallback(
+        ts,
+        oldIndent,
+        saved_line,
+        next_line
+      );
+      printf("!!!Setting newindent AGAIN\n");
+    }
+
     // Copy the indent
     if (curbuf->b_p_ci)
     {
+      printf("Copying indent\n");
       (void)copy_indent(newindent, saved_line);
 
       // Set the 'preserveindent' option so that any further screwing
@@ -2145,8 +2158,10 @@ int open_line(
       // it.  It gets restored at the function end.
       curbuf->b_p_pi = TRUE;
     }
-    else
+    else {
       (void)set_indent(newindent, SIN_INSERT);
+      printf("Setting indent: %d\n", newindent);
+    }
     less_cols -= curwin->w_cursor.col;
 
     ai_col = curwin->w_cursor.col;

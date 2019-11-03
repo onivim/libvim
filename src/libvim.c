@@ -53,7 +53,7 @@ void vimSetAutoCommandCallback(AutoCommandCallback f)
 
 void vimSetIndentationCallback(IndentationCallback f)
 {
-  indentationCallback = f;
+  indentCallback = f;
 }
 
 void vimSetMessageCallback(MessageCallback f)
