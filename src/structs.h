@@ -88,6 +88,7 @@ typedef struct
 } gotoRequest_T;
 
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
+typedef int (*CursorAddCallback)(pos_T cursor);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);

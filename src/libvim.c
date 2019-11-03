@@ -126,6 +126,11 @@ void vimCursorSetPosition(pos_T pos)
   curs_columns(TRUE);
 }
 
+void vimSetCursorAddCallback(CursorAddCallback callback)
+{
+  cursorAddCallback = callback;
+}
+
 void vimInput(char_u *input)
 {
   char_u *ptr = NULL;
