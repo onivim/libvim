@@ -156,12 +156,12 @@ int vimSelectIsActive(void) { return VIsual_select; }
 
 int vimUndoSaveCursor(void)
 {
-  u_save_cursor();
+  return u_save_cursor();
 }
 
 int vimUndoSaveRegion(linenr_T start_lnum, linenr_T end_lnum)
 {
-  u_save(start_lnum, end_lnum);
+  return u_save(start_lnum, end_lnum);
 }
 
 int vimVisualGetType(void) { return VIsual_mode; }
