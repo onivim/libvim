@@ -69,6 +69,12 @@ void vimCursorSetPosition(pos_T pos);
 colnr_T vimCursorGetDesiredColumn(void);
 
 /***
+* Indentation
+***/
+
+void vimSetIndentationCallback(IndentationCallback callback);
+
+/***
  * User Input
  ***/
 void vimInput(char_u *input);

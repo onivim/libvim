@@ -51,6 +51,7 @@ EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
 EXTERN VoidCallback displayIntroCallback INIT(= NULL);
 EXTERN VoidCallback displayVersionCallback INIT(= NULL);
+EXTERN IndentCallback indentCallback INIT(=NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
 EXTERN VoidCallback stopSearchHighlightCallback INIT(= NULL);
