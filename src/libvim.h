@@ -68,7 +68,7 @@ colnr_T vimCursorGetColumn(void);
 linenr_T vimCursorGetLine(void);
 pos_T vimCursorGetPosition(void);
 void vimCursorSetPosition(pos_T pos);
-void vimCursorSetCursorAddCallback(CursorAddCallback cursorAddCallback);
+void vimSetCursorAddCallback(CursorAddCallback cursorAddCallback);
 
 /***
  * vimCursorGetDesiredColumn

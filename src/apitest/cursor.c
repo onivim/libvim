@@ -1,6 +1,8 @@
 #include "libvim.h"
 #include "minunit.h"
 
+static int onCursorAddCount = 0;
+
 void test_setup(void)
 {
   vimExecute("e!");
@@ -8,6 +10,13 @@ void test_setup(void)
   vimInput("g");
   vimInput("g");
   vimInput("0");
+
+  onCursorAddCount = 0;
+}
+
+void onCursorAdd(pos_T cursor) {
+  printf("Adding cursor at line: %ld col: %d\n", cursor.lnum, cursor.col);
+  onCursorAddCount++;
 }
 
 void test_teardown(void) {}
@@ -73,6 +82,16 @@ MU_TEST(test_set_cursor_invalid_column)
   mu_check(vimCursorGetColumn() == 5);
 }
 
+MU_TEST(test_add_cursors_visual)
+{
+  vimInput("<c-v>");
+  vimInput("j");
+  vimInput("j");
+  vimInput("I");
+
+  mu_check(onCursorAddCount == 2);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -82,6 +101,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_set_cursor_invalid_column);
   MU_RUN_TEST(test_set_cursor_offscreen_updates_topline);
   MU_RUN_TEST(test_set_cursor_doesnt_move_topline);
+
+  MU_RUN_TEST(test_add_cursors_visual);
 }
 
 int main(int argc, char **argv)
@@ -92,6 +113,7 @@ int main(int argc, char **argv)
   win_setheight(40);
 
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimSetCursorAddCallback(&onCursorAdd);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();
