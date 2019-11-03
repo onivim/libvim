@@ -14,7 +14,8 @@ void test_setup(void)
   onCursorAddCount = 0;
 }
 
-void onCursorAdd(pos_T cursor) {
+void onCursorAdd(pos_T cursor)
+{
   printf("Adding cursor at line: %ld col: %d\n", cursor.lnum, cursor.col);
   onCursorAddCount++;
 }
