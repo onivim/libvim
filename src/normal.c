@@ -7211,10 +7211,25 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
+  curbuf->b_visual.vi_mode = VIsual_mode;
+  curbuf->b_visual.vi_start = VIsual;
+  curbuf->b_visual.vi_end = curwin->w_cursor;
+  curbuf->b_visual.vi_start = VIsual;
+  curbuf->b_visual.vi_end = curwin->w_cursor;
+
+    for (int i = VIsual.lnum; i < curwin->w_cursor.lnum; i++) {
+      int lnum = i;
+      int col = VIsual_mode == Ctrl_V ? VIsual.col : 0;
+      if (cursorAddCallback != NULL) {
+        pos_T cursor;
+        cursor.lnum = lnum;
+	  cursor.col = col;
+	  cursorAddCallback(cursor);
+      }
+    }
+
     end_visual_mode();
     clearop(cap->oap);
-    // TODO: Entry point for multiple cursors
-    //v_visop(cap);
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
