@@ -5907,7 +5907,7 @@ void shorten_fnames(int force)
   redraw_tabline = TRUE;
 }
 
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MAC) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Shorten all filenames in "fnames[count]" by current directory.
  */

@@ -505,9 +505,6 @@ EXTERN int p_lpl; /* 'loadplugins' */
 #if defined(DYNAMIC_LUA)
 EXTERN char_u *p_luadll; /* 'luadll' */
 #endif
-#ifdef FEAT_GUI_MAC
-EXTERN int p_macatsui; /* 'macatsui' */
-#endif
 EXTERN int p_magic;    /* 'magic' */
 EXTERN char_u *p_menc; /* 'makeencoding' */
 #ifdef FEAT_QUICKFIX
@@ -720,7 +717,7 @@ EXTERN int p_ttimeout; /* 'ttimeout' */
 EXTERN long p_ttm;     /* 'ttimeoutlen' */
 EXTERN int p_tbi;      /* 'ttybuiltin' */
 EXTERN int p_tf;       /* 'ttyfast' */
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_TOOLBAR)
 EXTERN char_u *p_toolbar; /* 'toolbar' */
 EXTERN unsigned toolbar_flags;
 #ifdef IN_OPTION_C
@@ -768,7 +765,7 @@ EXTERN int p_warn; /* 'warn' */
 EXTERN char_u *p_wop; /* 'wildoptions' */
 #endif
 EXTERN long p_window; /* 'window' */
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_PHOTON)
+#if defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_PHOTON)
 #define FEAT_WAK
 EXTERN char_u *p_wak; /* 'winaltkeys' */
 #endif

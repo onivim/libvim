@@ -1781,7 +1781,7 @@ void msg_sb_eol(void)
 int msg_use_printf(void)
 {
   return (!msg_check_screen()
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
           || (!gui.in_use && !termcap_active)
 #else

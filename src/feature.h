@@ -803,7 +803,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /*
  * +filterpipe
  */
-#if (defined(UNIX) && !defined(USE_SYSTEM)) || (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
+#if defined(UNIX) && !defined(USE_SYSTEM)
 #define FEAT_FILTERPIPE
 #endif
 
@@ -838,8 +838,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /* GUI features */
 #undef FEAT_CON_DIALOG
 #undef FEAT_GUI_DIALOG
-#undef FEAT_GUI_MSWIN
-#undef FEAT_GUI_MAC
 #undef ALWAYS_USE_GUI
 
 #undef FEAT_TEXT_PROP

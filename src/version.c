@@ -173,13 +173,6 @@ static char *(features[]) =
 #else
         "-digraphs",
 #endif
-#ifdef FEAT_GUI_MSWIN
-#ifdef FEAT_DIRECTX
-        "+directx",
-#else
-        "-directx",
-#endif
-#endif
 #ifdef EBCDIC
         "+ebcdic",
 #else
@@ -343,13 +336,6 @@ static char *(features[]) =
         "+num64",
 #else
         "-num64",
-#endif
-#ifdef FEAT_GUI_MSWIN
-#ifdef FEAT_OLE
-        "+ole",
-#else
-        "-ole",
-#endif
 #endif
 #ifdef FEAT_EVAL
         "+packages",
@@ -3641,32 +3627,6 @@ void list_version(void)
      */
   init_longVersion();
   msg(longVersion);
-#ifdef MSWIN
-#ifdef FEAT_GUI_MSWIN
-#ifdef VIMDLL
-#ifdef _WIN64
-  msg_puts(_("\nMS-Windows 64-bit GUI/console version"));
-#else
-  msg_puts(_("\nMS-Windows 32-bit GUI/console version"));
-#endif
-#else
-#ifdef _WIN64
-  msg_puts(_("\nMS-Windows 64-bit GUI version"));
-#else
-  msg_puts(_("\nMS-Windows 32-bit GUI version"));
-#endif
-#endif
-#ifdef FEAT_OLE
-  msg_puts(_(" with OLE support"));
-#endif
-#else
-#ifdef _WIN64
-  msg_puts(_("\nMS-Windows 64-bit console version"));
-#else
-  msg_puts(_("\nMS-Windows 32-bit console version"));
-#endif
-#endif
-#endif
 #if defined(MACOS_X)
 #if defined(MACOS_X_DARWIN)
   msg_puts(_("\nmacOS version"));

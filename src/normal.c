@@ -3961,7 +3961,7 @@ static void nv_clear(cmdarg_T *cap)
     ui_get_shellsize();
 #endif
     redraw_later(CLEAR);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
     if (!gui.in_use)
 #endif

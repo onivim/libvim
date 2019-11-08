@@ -89,10 +89,9 @@ Error : configure did not run properly.Check auto / config.log.
 /* Unless made through the Makefile enforce GUI on Mac */
 #if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
 #define UNIX
-#define FEAT_GUI_MAC
 #endif
 
-#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
+#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_PHOTON)
 #define FEAT_GUI_ENABLED /* also defined with NO_X11_INCLUDES */
 #endif
 
@@ -1870,7 +1869,7 @@ typedef enum
 
 #include "proto.h" /* function prototypes */
 
-#if defined(FEAT_EVAL) && (!defined(FEAT_GUI_MSWIN) || !(defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) && !(defined(FEAT_GUI_MAC) && defined(MACOS_CONVERT))
+#if defined(FEAT_EVAL)
 /* Whether IME is supported by im_get_status() defined in mbyte.c.
  * For Win32 GUI it's in gui_w32.c when FEAT_MBYTE_IME or GLOBAL_IME is defined.
  * for Mac it is in gui_mac.c for the GUI or in os_mac_conv.c when
@@ -1878,7 +1877,7 @@ typedef enum
 #define IME_WITHOUT_XIM
 #endif
 
-#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM) || (defined(FEAT_GUI_MSWIN) && (defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) || defined(FEAT_GUI_MAC)
+#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM)
 /* im_set_active() is available */
 #define HAVE_INPUT_METHOD
 #endif

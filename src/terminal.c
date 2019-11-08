@@ -3133,7 +3133,7 @@ init_default_colors(term_T *term)
   }
   else
   {
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
     int tmp;
 #endif
 
@@ -3141,7 +3141,7 @@ init_default_colors(term_T *term)
     if (cterm_normal_fg_color > 0)
     {
       cterm_color2vterm(cterm_normal_fg_color - 1, fg);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
       if (!gui.in_use)
 #endif
@@ -3156,7 +3156,7 @@ init_default_colors(term_T *term)
     if (cterm_normal_bg_color > 0)
     {
       cterm_color2vterm(cterm_normal_bg_color - 1, bg);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
       if (!gui.in_use)
 #endif

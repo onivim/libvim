@@ -4728,7 +4728,6 @@ enc_alias_search(char_u *name)
 #include <langinfo.h>
 #endif
 
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 /*
  * Get the canonicalized encoding from the specified locale string "locale"
  * or from the environment variables LC_ALL, LC_CTYPE and LANG.
@@ -4785,7 +4784,6 @@ enc_locale_env(char *locale)
 
   return enc_canonize((char_u *)buf);
 }
-#endif
 
 /*
  * Get the canonicalized encoding of the current locale.

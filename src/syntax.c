@@ -1210,7 +1210,7 @@ void free_highlight(void)
  */
 void restore_cterm_colors(void)
 {
-#if defined(MSWIN) && !defined(FEAT_GUI_MSWIN)
+#if defined(MSWIN)
   /* Since t_me has been set, this probably means that the user
      * wants to use this as default colors.  Need to reset default
      * background/foreground colors. */

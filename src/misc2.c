@@ -3013,10 +3013,6 @@ int call_shell(char_u *cmd, int opt)
   }
   else
   {
-#ifdef FEAT_GUI_MSWIN
-    /* Don't hide the pointer while executing a shell command. */
-    gui_mch_mousehide(FALSE);
-#endif
     /* The external command may update a tags file, clear cached tags. */
     tag_freematch();
 
@@ -3118,7 +3114,7 @@ int same_directory(char_u *f1, char_u *f2)
   return (t1 - ffname == t2 - f2 && pathcmp((char *)ffname, (char *)f2, (int)(t1 - ffname)) == 0);
 }
 
-#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) || defined(FEAT_GUI_MAC) || defined(PROTO)
+#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) || defined(PROTO)
 /*
  * Change to a file's directory.
  * Caller must call shorten_fnames()!

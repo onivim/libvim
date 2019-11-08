@@ -65,17 +65,11 @@
 #if defined(__DATE__) && defined(__TIME__)
 #define HAVE_DATE_TIME
 #endif
-#ifndef FEAT_GUI_MSWIN    /* GUI works different */
 #define BREAKCHECK_SKIP 1 /* call mch_breakcheck() each time, it's fast */
-#endif
 
 #define HAVE_TOTAL_MEM
 
 #define HAVE_PUTENV /* at least Bcc 5.2 and MSC have it */
-
-#if defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)
-#define NO_CONSOLE /* don't included console-only code */
-#endif
 
 /* toupper() is not really broken, but it's very slow.	Probably because of
  * using Unicode characters on Windows NT */

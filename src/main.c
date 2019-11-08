@@ -19,7 +19,7 @@
 #include <limits.h>
 #endif
 
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #include "iscygpty.h"
 #endif
 
@@ -157,8 +157,6 @@ main2
 #ifdef VIMDLL
   // Check if the current executable file is for the GUI subsystem.
   gui.starting = mch_is_gui_executable();
-#elif defined(FEAT_GUI_MSWIN)
-  gui.starting = TRUE;
 #endif
 
 #ifdef FEAT_CLIENTSERVER
@@ -263,32 +261,6 @@ main2
 #if defined(ALWAYS_USE_GUI) || defined(VIMDLL)
   if (gui.starting)
     params.want_full_screen = FALSE;
-#endif
-
-#if defined(FEAT_GUI_MAC) && defined(MACOS_X_DARWIN)
-  /* When the GUI is started from Finder, need to display messages in a
-     * message box.  isatty(2) returns TRUE anyway, thus we need to check the
-     * name to know we're not started from a terminal. */
-  if (gui.starting && (!isatty(2) || strcmp("/dev/console", ttyname(2)) == 0))
-  {
-    params.want_full_screen = FALSE;
-
-    /* Avoid always using "/" as the current directory.  Note that when
-	 * started from Finder the arglist will be filled later in
-	 * HandleODocAE() and "fname" will be NULL. */
-    if (getcwd((char *)NameBuff, MAXPATHL) != NULL && STRCMP(NameBuff, "/") == 0)
-    {
-      if (params.fname != NULL)
-        (void)vim_chdirfile(params.fname, "drop");
-      else
-      {
-        expand_env((char_u *)"$HOME", NameBuff, MAXPATHL);
-        vim_chdir(NameBuff);
-      }
-      if (start_dir != NULL)
-        mch_dirname(start_dir, MAXPATHL);
-    }
-  }
 #endif
 
   /*
@@ -718,7 +690,7 @@ int vim_main2(void)
   }
 #endif
 
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
   if (!gui.in_use)
 #endif
@@ -1345,34 +1317,6 @@ early_arg_scan(mparm_T *parmp UNUSED)
       parmp->serverArg = TRUE;
     }
 #endif
-
-#if defined(FEAT_GUI_MSWIN)
-#ifdef FEAT_GUI_MSWIN
-    else if (STRICMP(argv[i], "--windowid") == 0)
-#else
-    else if (STRICMP(argv[i], "--socketid") == 0)
-#endif
-    {
-      long_u id;
-      int count;
-
-      if (i == argc - 1)
-        mainerr_arg_missing((char_u *)argv[i]);
-      if (STRNICMP(argv[i + 1], "0x", 2) == 0)
-        count = sscanf(&(argv[i + 1][2]), SCANF_HEX_LONG_U, &id);
-      else
-        count = sscanf(argv[i + 1], SCANF_DECIMAL_LONG_U, &id);
-      if (count != 1)
-        mainerr(ME_INVALID_ARG, (char_u *)argv[i]);
-      else
-#ifdef FEAT_GUI_MSWIN
-        win_socket_id = id;
-#else
-        gtk_socket_id = id;
-#endif
-      i++;
-    }
-#endif
     else if (strncmp(argv[i], "-nb", (size_t)3) == 0)
     {
       mch_errmsg(_("'-nb' cannot be used: not enabled at compile time\n"));
@@ -1417,19 +1361,6 @@ parse_command_name(mparm_T *parmp)
   char_u *initstr;
 
   initstr = gettail((char_u *)parmp->argv[0]);
-
-#ifdef FEAT_GUI_MAC
-  /* An issue has been seen when launching Vim in such a way that
-     * $PWD/$ARGV[0] or $ARGV[0] is not the absolute path to the
-     * executable or a symbolic link of it. Until this issue is resolved
-     * we prohibit the GUI from being used.
-     */
-  if (STRCMP(initstr, parmp->argv[0]) == 0)
-    disallow_gui = TRUE;
-
-    /* TODO: On MacOS X default to gui if argv[0] ends in:
-     *       /Vim.app/Contents/MacOS/Vim */
-#endif
 
 #ifdef FEAT_EVAL
   set_vim_var_string(VV_PROGNAME, initstr, -1);
@@ -1632,17 +1563,6 @@ command_line_scan(mparm_T *parmp)
           }
         }
 #endif
-#ifdef FEAT_GUI_MSWIN
-        else if (STRNICMP(argv[0] + argv_idx, "windowid", 8) == 0)
-        {
-          /* already processed -- snatch the following arg */
-          if (argc > 1)
-          {
-            --argc;
-            ++argv;
-          }
-        }
-#endif
         else
         {
           if (argv[0][argv_idx])
@@ -1699,10 +1619,6 @@ command_line_scan(mparm_T *parmp)
 
       case '?': /* "-?" give help message (for MS-Windows) */
       case 'h': /* "-h" give help message */
-#ifdef FEAT_GUI_GNOME
-        /* Tell usage() to exit for "gvim". */
-        gui.starting = FALSE;
-#endif
         usage();
         break;
 
@@ -1889,9 +1805,6 @@ command_line_scan(mparm_T *parmp)
       case 'u': /* "-u {vimrc}" vim inits file */
       case 'U': /* "-U {gvimrc}" gvim inits file */
       case 'W': /* "-W {scriptout}" overwrite */
-#ifdef FEAT_GUI_MSWIN
-      case 'P': /* "-P {parent title}" MDI parent */
-#endif
         want_argument = TRUE;
         break;
 
@@ -2044,12 +1957,6 @@ command_line_scan(mparm_T *parmp)
             mch_exit(2);
           }
           break;
-
-#ifdef FEAT_GUI_MSWIN
-        case 'P': /* "-P {parent title}" MDI parent */
-          gui_mch_set_parent(argv[0]);
-          break;
-#endif
         }
       }
     }
@@ -2200,7 +2107,7 @@ check_tty(mparm_T *parmp)
       exit(1);
     }
 #endif
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
     if (
 #ifdef VIMDLL
         !gui.starting &&
@@ -2851,10 +2758,6 @@ mainerr(
 #ifdef VIMDLL
   gui.in_use = mch_is_gui_executable();
 #endif
-#ifdef FEAT_GUI_MSWIN
-  gui.starting = FALSE; // Needed to show as error.
-#endif
-
   init_longVersion();
   mch_errmsg(longVersion);
   mch_errmsg("\n");
@@ -3003,27 +2906,7 @@ usage(void)
   main_msg(_("--clean\t\t'nocompatible', Vim defaults, no plugins, no viminfo"));
   main_msg(_("-h  or  --help\tPrint Help (this message) and exit"));
   main_msg(_("--version\t\tPrint version information and exit"));
-
-#ifdef FEAT_GUI_MSWIN
-#ifdef VIMDLL
-  if (gui.starting)
-#endif
-  {
-    main_msg(_("-P <parent title>\tOpen Vim inside parent application"));
-    main_msg(_("--windowid <HWND>\tOpen Vim inside another win32 widget"));
-  }
-#endif
-
-#ifdef FEAT_GUI_GNOME
-  /* Gnome gives extra messages for --help if we continue, but not for -h. */
-  if (gui.starting)
-  {
-    mch_msg("\n");
-    gui.dofork = FALSE;
-  }
-  else
-#endif
-    mch_exit(0);
+  mch_exit(0);
 }
 
 /*
@@ -3407,14 +3290,6 @@ cmdsrv_main(
         break;
       }
 
-#ifdef FEAT_GUI_MSWIN
-      /* Guess that when the server name starts with "g" it's a GUI
-	     * server, which we can bring to the foreground here.
-	     * Foreground() in the server doesn't work very well. */
-      if (argtype != ARGTYPE_SEND && TOUPPER_ASC(*sname) == 'G')
-        SetForegroundWindow(srv);
-#endif
-
       /*
 	     * For --remote-wait: Wait until the server did edit each
 	     * file.  Also detect that the server no longer runs.
@@ -3425,25 +3300,10 @@ cmdsrv_main(
         int j;
         char_u *done = alloc(numFiles);
         char_u *p;
-#ifdef FEAT_GUI_MSWIN
-        NOTIFYICONDATA ni;
-        int count = 0;
-        extern HWND message_window;
-#endif
 
         if (numFiles > 0 && argv[i + 1][0] == '+')
           /* Skip "+cmd" argument, don't wait for it to be edited. */
           --numFiles;
-
-#ifdef FEAT_GUI_MSWIN
-        ni.cbSize = sizeof(ni);
-        ni.hWnd = message_window;
-        ni.uID = 0;
-        ni.uFlags = NIF_ICON | NIF_TIP;
-        ni.hIcon = LoadIcon((HINSTANCE)GetModuleHandle(0), "IDR_VIM");
-        sprintf(ni.szTip, _("%d of %d edited"), count, numFiles);
-        Shell_NotifyIcon(NIM_ADD, &ni);
-#endif
 
         /* Wait for all files to unload in remote */
         vim_memset(done, 0, numFiles);
@@ -3460,18 +3320,9 @@ cmdsrv_main(
           j = atoi((char *)p);
           if (j >= 0 && j < numFiles)
           {
-#ifdef FEAT_GUI_MSWIN
-            ++count;
-            sprintf(ni.szTip, _("%d of %d edited"),
-                    count, numFiles);
-            Shell_NotifyIcon(NIM_MODIFY, &ni);
-#endif
             done[j] = 1;
           }
         }
-#ifdef FEAT_GUI_MSWIN
-        Shell_NotifyIcon(NIM_DELETE, &ni);
-#endif
       }
     }
     else if (STRICMP(argv[i], "--remote-expr") == 0)

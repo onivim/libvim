@@ -116,9 +116,7 @@ typedef void VOID;
 FILE *fdDump = NULL;
 #endif
 
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 extern char g_szOrigTitle[];
-#endif
 
 static HWND s_hwnd = 0; /* console window handle, set by GetConsoleHwnd() */
 
@@ -167,7 +165,7 @@ void SaveInst(HINSTANCE hInst)
 }
 #endif
 
-#if defined(FEAT_GUI_MSWIN) || defined(PROTO)
+#if defined(PROTO)
 /*
  * GUI version of mch_exit().
  * Shut down and exit with status `r'
@@ -204,8 +202,7 @@ void mch_exit_g(int r)
 
   exit(r);
 }
-
-#endif /* FEAT_GUI_MSWIN */
+#endif
 
 /*
  * Init the tables for toupper() and tolower().
@@ -228,17 +225,9 @@ void mch_early_init(void)
  */
 int mch_input_isatty(void)
 {
-#ifdef FEAT_GUI_MSWIN
-#ifdef VIMDLL
-  if (gui.in_use)
-#endif
-    return TRUE; /* GUI always has a tty */
-#endif
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
   if (isatty(read_cmd_fd))
     return TRUE;
   return FALSE;
-#endif
 }
 
 /*
@@ -447,7 +436,7 @@ int vim_stat(const char *name, stat_T *stp)
   return n;
 }
 
-#if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) || defined(PROTO)
+#ifdef PROTO
 void mch_settmode(int tmode UNUSED)
 {
   /* nothing to do */
@@ -471,7 +460,6 @@ void mch_new_shellsize(void)
 {
   /* never used */
 }
-
 #endif
 
 /*
@@ -556,28 +544,6 @@ int mch_chdir(char *path)
   vim_free(p);
   return n;
 }
-
-#if defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)
-/*
- * return non-zero if a character is available
- */
-int mch_char_avail(void)
-{
-  /* never used */
-  return TRUE;
-}
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Check for any pending input or messages.
- */
-int mch_check_messages(void)
-{
-  /* TODO: check for messages */
-  return TRUE;
-}
-#endif
-#endif
 
 /*
  * set screen mode, always fails.
@@ -1354,20 +1320,6 @@ int get_logfont(
 
   if (wcscmp(wname, L"*") == 0)
   {
-#if defined(FEAT_GUI_MSWIN)
-    CHOOSEFONTW cf;
-    /* if name is "*", bring up std font dialog: */
-    vim_memset(&cf, 0, sizeof(cf));
-    cf.lStructSize = sizeof(cf);
-    cf.hwndOwner = s_hwnd;
-    cf.Flags = CF_SCREENFONTS | CF_FIXEDPITCHONLY | CF_INITTOLOGFONTSTRUCT;
-    if (lastlf != NULL)
-      *lf = *lastlf;
-    cf.lpLogFont = lf;
-    cf.nFontType = 0; //REGULAR_FONTTYPE;
-    if (ChooseFontW(&cf))
-      ret = OK;
-#endif
     goto theend;
   }
 

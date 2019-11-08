@@ -1514,9 +1514,7 @@ void do_shell(
     int flags) /* may be SHELL_DOOUT when output is redirected */
 {
   buf_T *buf;
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
   int save_nwr;
-#endif
 #ifdef MSWIN
   int winstart = FALSE;
   int keep_termcap = FALSE;
@@ -1600,7 +1598,6 @@ void do_shell(
 	 * Otherwise there is probably text on the screen that the user wants
 	 * to read before redrawing, so call wait_return().
 	 */
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 #ifdef VIMDLL
     if (!gui.in_use)
 #endif
@@ -1628,7 +1625,6 @@ void do_shell(
         no_wait_return = save_nwr;
       }
     }
-#endif /* FEAT_GUI_MSWIN */
 
 #ifdef MSWIN
     if (!keep_termcap) // if keep_termcap is TRUE didn't stop termcap

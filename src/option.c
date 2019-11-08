@@ -444,23 +444,13 @@ static struct vimoption options[] =
          PV_NONE,
 #endif
          {
-#if defined(MSWIN) && !defined(FEAT_GUI_MSWIN)
+#if defined(MSWIN)
              (char_u *)128L,
 #else
              (char_u *)224L,
 #endif
              (char_u *)0L} SCTX_INIT},
-        {"antialias", "anti", P_BOOL | P_VI_DEF | P_VIM | P_RCLR,
-#if defined(FEAT_GUI_MAC)
-         (char_u *)&p_antialias,
-         PV_NONE,
-         {(char_u *)FALSE, (char_u *)FALSE}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)FALSE, (char_u *)FALSE}
-#endif
-         SCTX_INIT},
+        {"antialias", "anti", P_BOOL | P_VI_DEF | P_VIM | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"arabic", "arab", P_BOOL | P_VI_DEF | P_VIM | P_CURSWANT,
 #ifdef FEAT_ARABIC
          (char_u *)VAR_WIN,
@@ -1316,13 +1306,7 @@ static struct vimoption options[] =
                                                                                                            (char_u *)24L,
 #endif
                                                                                                            (char_u *)0L} SCTX_INIT},
-        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE,
-#ifdef FEAT_GUI_MSWIN
-         {(char_u *)1L, (char_u *)0L}
-#else
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"lisp", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"lispwords", "lw", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"list", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)VAR_WIN, PV_LIST, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1339,17 +1323,7 @@ static struct vimoption options[] =
          {(char_u *)"", (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"macatsui", NULL, P_BOOL | P_VI_DEF | P_RCLR,
-#ifdef FEAT_GUI_MAC
-         (char_u *)&p_macatsui,
-         PV_NONE,
-         {(char_u *)TRUE, (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)"", (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"macatsui", NULL, P_BOOL | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"magic", NULL, P_BOOL | P_VI_DEF, (char_u *)&p_magic, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"makeef", "mef", P_STRING | P_EXPAND | P_VI_DEF | P_SECURE,
 #ifdef FEAT_QUICKFIX
@@ -2005,7 +1979,7 @@ static struct vimoption options[] =
         {"titleold", NULL, P_STRING | P_VI_DEF | P_GETTEXT | P_SECURE | P_NO_MKRC, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"titlestring", NULL, P_STRING | P_VI_DEF | P_MLE, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"toolbar", "tb", P_STRING | P_ONECOMMA | P_VI_DEF | P_NODUP,
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_TOOLBAR)
          (char_u *)&p_toolbar,
          PV_NONE,
          {(char_u *)"icons,tooltips", (char_u *)0L}
@@ -4328,7 +4302,7 @@ didset_options(void)
   (void)opt_strings_flags(p_dy, p_dy_values, &dy_flags, TRUE);
   (void)opt_strings_flags(p_tc, p_tc_values, &tc_flags, FALSE);
   (void)opt_strings_flags(p_ve, p_ve_values, &ve_flags, TRUE);
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_TOOLBAR)
   (void)opt_strings_flags(p_toolbar, p_toolbar_values, &toolbar_flags, TRUE);
 #endif
 #ifdef FEAT_LINEBREAK
@@ -5496,7 +5470,7 @@ did_set_string_option(
     {
       out_str(T_ME);
       redraw_later(CLEAR);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
       /* Since t_me has been set, this probably means that the user
 	     * wants to use this as default colors.  Need to reset default
 	     * background/foreground colors. */
@@ -5646,7 +5620,7 @@ did_set_string_option(
   }
 #endif
 
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_TOOLBAR)
   /* 'toolbar' */
   else if (varp == &p_toolbar)
   {

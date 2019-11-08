@@ -3893,7 +3893,7 @@ gui_get_rgb_color_cmn(int r, int g, int b)
 }
 #endif
 
-#if (defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))) || defined(FEAT_TERMINAL) || defined(PROTO)
+#if defined(MSWIN) || defined(FEAT_TERMINAL) || defined(PROTO)
 static int cube_value[] = {
     0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF};
 
