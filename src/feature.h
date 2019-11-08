@@ -489,7 +489,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * +xfontset		X fontset support.  For outputting wide characters.
  */
 #ifndef FEAT_XFONTSET
-#if defined(HAVE_X11) && !defined(FEAT_GUI_GTK)
+#if defined(HAVE_X11)
 #define FEAT_XFONTSET
 #else
 /* #  define FEAT_XFONTSET */
@@ -838,10 +838,8 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /* GUI features */
 #undef FEAT_CON_DIALOG
 #undef FEAT_GUI_DIALOG
-#undef FEAT_GUI_GTK
 #undef FEAT_GUI_MSWIN
 #undef FEAT_GUI_MAC
-#undef FEAT_GUI_X11
 #undef ALWAYS_USE_GUI
 
 #undef FEAT_TEXT_PROP

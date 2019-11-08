@@ -3777,7 +3777,7 @@ getexmodeline(
   return (char_u *)line_ga.ga_data;
 }
 
-#if (defined(FEAT_XIM) && (defined(FEAT_GUI_GTK))) || defined(PROTO)
+#ifdef PROTO
 /*
  * Return the virtual column number at the current cursor position.
  * This is used by the IM code to obtain the start of the preedit string.
@@ -4401,10 +4401,6 @@ cursorcmd(void)
   }
 
   windgoto(msg_row, msg_col);
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  if (p_imst == IM_ON_THE_SPOT)
-    redrawcmd_preedit();
-#endif
 }
 
 void gotocmdline(int clr)

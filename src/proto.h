@@ -20,14 +20,12 @@
  * Machine-dependent routines.
  */
 /* avoid errors in function prototypes */
-#if !defined(FEAT_X11) && !defined(FEAT_GUI_GTK)
+#if !defined(FEAT_X11)
 #define Display int
 #define Widget int
 #endif
-#ifndef FEAT_GUI_GTK
 #define GdkEvent int
 #define GdkEventKey int
-#endif
 #ifndef FEAT_X11
 #define XImage int
 #endif

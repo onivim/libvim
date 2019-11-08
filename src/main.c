@@ -189,25 +189,6 @@ main2
      */
 #ifdef ALWAYS_USE_GUI
   gui.starting = TRUE;
-#else
-#if defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK)
-  /*
-     * Check if the GUI can be started.  Reset gui.starting if not.
-     * Don't know about other systems, stay on the safe side and don't check.
-     */
-  if (gui.starting)
-  {
-    if (gui_init_check() == FAIL)
-    {
-      gui.starting = FALSE;
-
-      /* When running "evim" or "gvim -y" we need the menus, exit if we
-	     * don't have them. */
-      if (params.evim_mode)
-        mch_exit(1);
-    }
-  }
-#endif
 #endif
 
   if (GARGCOUNT > 0)
@@ -279,12 +260,8 @@ main2
      * For GTK we can't be sure, but when started from the desktop it doesn't
      * make sense to try using a terminal.
      */
-#if defined(ALWAYS_USE_GUI) || defined(FEAT_GUI_X11) || defined(FEAT_GUI_GTK) || defined(VIMDLL)
-  if (gui.starting
-#ifdef FEAT_GUI_GTK
-      && !isatty(2)
-#endif
-  )
+#if defined(ALWAYS_USE_GUI) || defined(VIMDLL)
+  if (gui.starting)
     params.want_full_screen = FALSE;
 #endif
 
@@ -1291,10 +1268,6 @@ init_locale(void)
 {
   setlocale(LC_ALL, "");
 
-#ifdef FEAT_GUI_GTK
-  /* Tell Gtk not to change our locale settings. */
-  gtk_disable_setlocale();
-#endif
 #if defined(FEAT_FLOAT) && defined(LC_NUMERIC)
   /* Make sure strtod() uses a decimal point, not a comma. */
   setlocale(LC_NUMERIC, "C");
@@ -1351,11 +1324,7 @@ early_arg_scan(mparm_T *parmp UNUSED)
     if (STRCMP(argv[i], "--") == 0)
       break;
 #ifdef FEAT_XCLIPBOARD
-    else if (STRICMP(argv[i], "-display") == 0
-#if defined(FEAT_GUI_GTK)
-             || STRICMP(argv[i], "--display") == 0
-#endif
-    )
+    else if (STRICMP(argv[i], "-display") == 0)
     {
       if (i == argc - 1)
         mainerr_arg_missing((char_u *)argv[i]);
@@ -1377,7 +1346,7 @@ early_arg_scan(mparm_T *parmp UNUSED)
     }
 #endif
 
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_GUI_MSWIN)
 #ifdef FEAT_GUI_MSWIN
     else if (STRICMP(argv[i], "--windowid") == 0)
 #else
@@ -1403,10 +1372,6 @@ early_arg_scan(mparm_T *parmp UNUSED)
 #endif
       i++;
     }
-#endif
-#ifdef FEAT_GUI_GTK
-    else if (STRICMP(argv[i], "--echo-wid") == 0)
-      echo_wid_arg = TRUE;
 #endif
     else if (strncmp(argv[i], "-nb", (size_t)3) == 0)
     {
@@ -1667,12 +1632,8 @@ command_line_scan(mparm_T *parmp)
           }
         }
 #endif
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN)
-#ifdef FEAT_GUI_GTK
-        else if (STRNICMP(argv[0] + argv_idx, "socketid", 8) == 0)
-#else
+#ifdef FEAT_GUI_MSWIN
         else if (STRNICMP(argv[0] + argv_idx, "windowid", 8) == 0)
-#endif
         {
           /* already processed -- snatch the following arg */
           if (argc > 1)
@@ -1680,12 +1641,6 @@ command_line_scan(mparm_T *parmp)
             --argc;
             ++argv;
           }
-        }
-#endif
-#ifdef FEAT_GUI_GTK
-        else if (STRNICMP(argv[0] + argv_idx, "echo-wid", 8) == 0)
-        {
-          /* already processed, skip */
         }
 #endif
         else
@@ -3026,9 +2981,6 @@ usage(void)
   main_msg(_("-x\t\t\tEdit encrypted files"));
 #endif
 #if (defined(UNIX) || defined(VMS)) && defined(FEAT_X11)
-#if defined(FEAT_GUI_X11) && !defined(FEAT_GUI_GTK)
-  main_msg(_("-display <display>\tConnect vim to this particular X-server"));
-#endif
   main_msg(_("-X\t\t\tDo not connect to X server"));
 #endif
 #ifdef FEAT_CLIENTSERVER
@@ -3052,45 +3004,6 @@ usage(void)
   main_msg(_("-h  or  --help\tPrint Help (this message) and exit"));
   main_msg(_("--version\t\tPrint version information and exit"));
 
-#ifdef FEAT_GUI_X11
-#ifdef FEAT_GUI_MOTIF
-  mch_msg(_("\nArguments recognised by gvim (Motif version):\n"));
-#else
-#ifdef FEAT_GUI_ATHENA
-#ifdef FEAT_GUI_NEXTAW
-  mch_msg(_("\nArguments recognised by gvim (neXtaw version):\n"));
-#else
-  mch_msg(_("\nArguments recognised by gvim (Athena version):\n"));
-#endif
-#endif
-#endif
-  main_msg(_("-display <display>\tRun vim on <display>"));
-  main_msg(_("-iconic\t\tStart vim iconified"));
-  main_msg(_("-background <color>\tUse <color> for the background (also: -bg)"));
-  main_msg(_("-foreground <color>\tUse <color> for normal text (also: -fg)"));
-  main_msg(_("-font <font>\t\tUse <font> for normal text (also: -fn)"));
-  main_msg(_("-boldfont <font>\tUse <font> for bold text"));
-  main_msg(_("-italicfont <font>\tUse <font> for italic text"));
-  main_msg(_("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
-  main_msg(_("-borderwidth <width>\tUse a border width of <width> (also: -bw)"));
-  main_msg(_("-scrollbarwidth <width>  Use a scrollbar width of <width> (also: -sw)"));
-#ifdef FEAT_GUI_ATHENA
-  main_msg(_("-menuheight <height>\tUse a menu bar height of <height> (also: -mh)"));
-#endif
-  main_msg(_("-reverse\t\tUse reverse video (also: -rv)"));
-  main_msg(_("+reverse\t\tDon't use reverse video (also: +rv)"));
-  main_msg(_("-xrm <resource>\tSet the specified resource"));
-#endif /* FEAT_GUI_X11 */
-#ifdef FEAT_GUI_GTK
-  mch_msg(_("\nArguments recognised by gvim (GTK+ version):\n"));
-  main_msg(_("-font <font>\t\tUse <font> for normal text (also: -fn)"));
-  main_msg(_("-geometry <geom>\tUse <geom> for initial geometry (also: -geom)"));
-  main_msg(_("-reverse\t\tUse reverse video (also: -rv)"));
-  main_msg(_("-display <display>\tRun vim on <display> (also: --display)"));
-  main_msg(_("--role <role>\tSet a unique role to identify the main window"));
-  main_msg(_("--socketid <xid>\tOpen Vim inside another GTK widget"));
-  main_msg(_("--echo-wid\t\tMake gvim echo the Window ID on stdout"));
-#endif
 #ifdef FEAT_GUI_MSWIN
 #ifdef VIMDLL
   if (gui.starting)

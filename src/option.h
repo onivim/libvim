@@ -452,9 +452,6 @@ EXTERN int p_fs; /* 'fsync' */
 #endif
 EXTERN int p_gd;     /* 'gdefault' */
 EXTERN int p_prompt; /* 'prompt' */
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
-EXTERN long p_ghr; /* 'guiheadroom' */
-#endif
 #if defined(FEAT_GUI_TABLINE)
 EXTERN char_u *p_gtl; /* 'guitablabel' */
 EXTERN char_u *p_gtt; /* 'guitabtooltip' */
@@ -480,12 +477,6 @@ EXTERN int p_icon;           /* 'icon' */
 EXTERN char_u *p_iconstring; /* 'iconstring' */
 #endif
 EXTERN int p_ic; /* 'ignorecase' */
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-EXTERN char_u *p_imak; /* 'imactivatekey' */
-#define IM_ON_THE_SPOT 0L
-#define IM_OVER_THE_SPOT 1L
-EXTERN long p_imst; /* 'imstyle' */
-#endif
 #if defined(FEAT_EVAL)
 EXTERN char_u *p_imaf; /* 'imactivatefunc' */
 EXTERN char_u *p_imsf; /* 'imstatusfunc' */
@@ -740,19 +731,6 @@ static char *(p_toolbar_values[]) = {"text", "icons", "tooltips", "horiz", NULL}
 #define TOOLBAR_TOOLTIPS 0x04
 #define TOOLBAR_HORIZ 0x08
 #endif
-#if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
-EXTERN char_u *p_tbis; /* 'toolbariconsize' */
-EXTERN unsigned tbis_flags;
-#ifdef IN_OPTION_C
-static char *(p_tbis_values[]) = {"tiny", "small", "medium", "large", "huge", "giant", NULL};
-#endif
-#define TBIS_TINY 0x01
-#define TBIS_SMALL 0x02
-#define TBIS_MEDIUM 0x04
-#define TBIS_LARGE 0x08
-#define TBIS_HUGE 0x10
-#define TBIS_GIANT 0x20
-#endif
 EXTERN long p_ttyscroll; /* 'ttyscroll' */
 EXTERN char_u *p_udir;   /* 'undodir' */
 EXTERN long p_ul;        /* 'undolevels' */
@@ -790,7 +768,7 @@ EXTERN int p_warn; /* 'warn' */
 EXTERN char_u *p_wop; /* 'wildoptions' */
 #endif
 EXTERN long p_window; /* 'window' */
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_PHOTON)
+#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_PHOTON)
 #define FEAT_WAK
 EXTERN char_u *p_wak; /* 'winaltkeys' */
 #endif

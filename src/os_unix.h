@@ -190,10 +190,6 @@
 #include <ttdef.h>
 #include <unixio.h>
 #include <unixlib.h>
-
-#ifdef FEAT_GUI_GTK
-#include "gui_gtk_vms.h"
-#endif
 #endif
 
 #endif /* PROTO */

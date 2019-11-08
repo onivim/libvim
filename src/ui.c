@@ -628,7 +628,7 @@ int vim_free_in_input_buf(void)
 }
 #endif
 
-#if defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(PROTO)
 int vim_used_in_input_buf(void)
 {
   return inbufcount;

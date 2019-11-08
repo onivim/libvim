@@ -1182,9 +1182,6 @@ void free_all_mem(void)
 #if defined(USE_XSMP)
   xsmp_close();
 #endif
-#ifdef FEAT_GUI_GTK
-  gui_mch_free_all();
-#endif
   clear_hl_tables();
 
   vim_free(IObuff);
@@ -3121,7 +3118,7 @@ int same_directory(char_u *f1, char_u *f2)
   return (t1 - ffname == t2 - f2 && pathcmp((char *)ffname, (char *)f2, (int)(t1 - ffname)) == 0);
 }
 
-#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(FEAT_SESSION) || defined(FEAT_AUTOCHDIR) || defined(MSWIN) || defined(FEAT_GUI_MAC) || defined(PROTO)
 /*
  * Change to a file's directory.
  * Caller must call shorten_fnames()!

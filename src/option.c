@@ -1063,15 +1063,7 @@ static struct vimoption options[] =
         {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guifontset", "gfs", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guifontwide", "gfw", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
-        {"guiheadroom", "ghr", P_NUM | P_VI_DEF,
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
-         (char_u *)&p_ghr,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)50L, (char_u *)0L} SCTX_INIT},
+        {"guiheadroom", "ghr", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)50L, (char_u *)0L} SCTX_INIT},
         {"guioptions", "go", P_STRING | P_VI_DEF | P_RALL | P_FLAGLIST, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guipty", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"guitablabel", "gtl", P_STRING | P_VI_DEF | P_RWIN | P_MLE, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
@@ -1126,15 +1118,7 @@ static struct vimoption options[] =
          {(char_u *)NULL, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"imactivatekey", "imak", P_STRING | P_VI_DEF,
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-         (char_u *)&p_imak,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)"", (char_u *)0L} SCTX_INIT},
+        {"imactivatekey", "imak", P_STRING | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"imcmdline", "imc", P_BOOL | P_VI_DEF, (char_u *)&p_imcmdline, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"imdisable", "imd", P_BOOL | P_VI_DEF, (char_u *)&p_imdisable, PV_NONE,
 #ifdef __sgi
@@ -1156,17 +1140,7 @@ static struct vimoption options[] =
          {(char_u *)NULL, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"imstyle", "imst", P_NUM | P_VI_DEF | P_SECURE,
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-         (char_u *)&p_imst,
-         PV_NONE,
-         {(char_u *)IM_OVER_THE_SPOT, (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"imstyle", "imst", P_NUM | P_VI_DEF | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"include", "inc", P_STRING | P_ALLOCED | P_VI_DEF,
 #ifdef FEAT_FIND_ID
          (char_u *)&p_inc,
@@ -2041,17 +2015,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"toolbariconsize", "tbis", P_STRING | P_VI_DEF,
-#if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
-         (char_u *)&p_tbis,
-         PV_NONE,
-         {(char_u *)"small", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"toolbariconsize", "tbis", P_STRING | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"ttimeout", NULL, P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_ttimeout, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"ttimeoutlen", "ttm", P_NUM | P_VI_DEF, (char_u *)&p_ttm, PV_NONE, {(char_u *)-1L, (char_u *)0L} SCTX_INIT},
         {"ttybuiltin", "tbi", P_BOOL | P_VI_DEF, (char_u *)&p_tbi, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
@@ -4367,9 +4331,6 @@ didset_options(void)
 #if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
   (void)opt_strings_flags(p_toolbar, p_toolbar_values, &toolbar_flags, TRUE);
 #endif
-#if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
-  (void)opt_strings_flags(p_tbis, p_tbis_values, &tbis_flags, FALSE);
-#endif
 #ifdef FEAT_LINEBREAK
   briopt_check(curwin);
 #endif
@@ -5189,14 +5150,6 @@ did_set_string_option(
   }
 #endif
 
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  else if (varp == &p_imak)
-  {
-    if (!im_xim_isvalid_imactivate())
-      errmsg = e_invarg;
-  }
-#endif
-
 #ifdef FEAT_KEYMAP
   else if (varp == &curbuf->b_p_keymap)
   {
@@ -5699,20 +5652,6 @@ did_set_string_option(
   {
     if (opt_strings_flags(p_toolbar, p_toolbar_values,
                           &toolbar_flags, TRUE) != OK)
-      errmsg = e_invarg;
-    else
-    {
-      gui_mch_show_toolbar((toolbar_flags &
-                            (TOOLBAR_TEXT | TOOLBAR_ICONS)) != 0);
-    }
-  }
-#endif
-
-#if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
-  /* 'toolbariconsize': GTK+ 2 only */
-  else if (varp == &p_tbis)
-  {
-    if (opt_strings_flags(p_tbis, p_tbis_values, &tbis_flags, FALSE) != OK)
       errmsg = e_invarg;
     else
     {
@@ -6941,15 +6880,6 @@ set_num_option(
     status_redraw_curbuf();
 #endif
   }
-
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  /* 'imstyle' */
-  else if (pp == &p_imst)
-  {
-    if (p_imst != IM_ON_THE_SPOT && p_imst != IM_OVER_THE_SPOT)
-      errmsg = e_invarg;
-  }
-#endif
 
   else if (pp == &p_window)
   {

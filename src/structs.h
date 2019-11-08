@@ -1701,13 +1701,6 @@ typedef struct
   int ch_poll_idx; /* used by channel_poll_setup() */
 #endif
 
-#ifdef FEAT_GUI_X11
-  XtInputId ch_inputHandler; /* Cookie for input */
-#endif
-#ifdef FEAT_GUI_GTK
-  gint ch_inputHandler; /* Cookie for input */
-#endif
-
   ch_mode_T ch_mode;
   job_io_T ch_io;
   int ch_timeout; /* request timeout in msec */

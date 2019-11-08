@@ -494,15 +494,8 @@ void do_highlight(
 #ifdef FEAT_TERMINAL
   int is_terminal_group = FALSE; /* "Terminal" group */
 #endif
-#ifdef FEAT_GUI_X11
-  int is_menu_group = FALSE;      /* "Menu" group */
-  int is_scrollbar_group = FALSE; /* "Scrollbar" group */
-  int is_tooltip_group = FALSE;   /* "Tooltip" group */
-  int do_colors = FALSE;          /* need to update colors? */
-#else
 #define is_menu_group 0
 #define is_tooltip_group 0
-#endif
 
   /*
      * If no argument, list current highlighting.
@@ -675,14 +668,6 @@ void do_highlight(
 #ifdef FEAT_TERMINAL
   else if (STRCMP(HL_TABLE()[idx].sg_name_u, "TERMINAL") == 0)
     is_terminal_group = TRUE;
-#endif
-#ifdef FEAT_GUI_X11
-  else if (STRCMP(HL_TABLE()[idx].sg_name_u, "MENU") == 0)
-    is_menu_group = TRUE;
-  else if (STRCMP(HL_TABLE()[idx].sg_name_u, "SCROLLBAR") == 0)
-    is_scrollbar_group = TRUE;
-  else if (STRCMP(HL_TABLE()[idx].sg_name_u, "TOOLTIP") == 0)
-    is_tooltip_group = TRUE;
 #endif
 
   /* Clear the highlighting for ":hi clear {group}" and ":hi clear". */
@@ -1177,20 +1162,6 @@ void do_highlight(
     else if (is_terminal_group)
       set_terminal_default_colors(
           HL_TABLE()[idx].sg_cterm_fg, HL_TABLE()[idx].sg_cterm_bg);
-#endif
-#ifdef FEAT_GUI_X11
-    else if (is_scrollbar_group)
-    {
-      if (gui.in_use && do_colors)
-        gui_new_scrollbar_colors();
-    }
-#ifdef FEAT_BEVAL_GUI
-    else if (is_tooltip_group)
-    {
-      if (gui.in_use && do_colors)
-        gui_mch_new_tooltip_colors();
-    }
-#endif
 #endif
     else
       set_hl_attr(idx);
@@ -2588,11 +2559,9 @@ void free_highlight_fonts(void)
 #ifdef FEAT_XFONTSET
   gui_mch_free_fontset(gui.fontset);
 #endif
-#ifndef FEAT_GUI_GTK
   gui_mch_free_font(gui.bold_font);
   gui_mch_free_font(gui.ital_font);
   gui_mch_free_font(gui.boldital_font);
-#endif
 }
 #endif
 
