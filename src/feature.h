@@ -837,7 +837,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 
 /* GUI features */
 #undef FEAT_CON_DIALOG
-#undef FEAT_GUI
 #undef FEAT_GUI_DIALOG
 #undef FEAT_GUI_GTK
 #undef FEAT_GUI_MSWIN

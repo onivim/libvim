@@ -3020,9 +3020,6 @@ int call_shell(char_u *cmd, int opt)
     /* Don't hide the pointer while executing a shell command. */
     gui_mch_mousehide(FALSE);
 #endif
-#ifdef FEAT_GUI
-    ++hold_gui_events;
-#endif
     /* The external command may update a tags file, clear cached tags. */
     tag_freematch();
 
@@ -3056,9 +3053,6 @@ int call_shell(char_u *cmd, int opt)
       if (ecmd != cmd)
         vim_free(ecmd);
     }
-#ifdef FEAT_GUI
-    --hold_gui_events;
-#endif
     /*
 	 * Check the window size, in case it changed while executing the
 	 * external command.
@@ -3853,7 +3847,7 @@ long elapsed(DWORD start_tick)
 #endif
 #endif
 
-#if defined(FEAT_JOB_CHANNEL) || (defined(UNIX) && (!defined(USE_SYSTEM) || (defined(FEAT_GUI) && defined(FEAT_TERMINAL)))) || defined(PROTO)
+#if defined(FEAT_JOB_CHANNEL) || (defined(UNIX) && !defined(USE_SYSTEM)) || defined(PROTO)
 /*
  * Parse "cmd" and put the white-separated parts in "argv".
  * "argv" is an allocated array with "argc" entries and room for 4 more.

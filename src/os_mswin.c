@@ -120,11 +120,7 @@ FILE *fdDump = NULL;
 extern char g_szOrigTitle[];
 #endif
 
-#ifdef FEAT_GUI
-extern HWND s_hwnd;
-#else
 static HWND s_hwnd = 0; /* console window handle, set by GetConsoleHwnd() */
-#endif
 
 #ifdef FEAT_JOB_CHANNEL
 int WSInitialized = FALSE; /* WinSock is initialized */
@@ -789,8 +785,6 @@ void __cdecl Trace(
 
 #endif //_DEBUG
 
-#if !defined(FEAT_GUI) || defined(VIMDLL) || defined(PROTO)
-
 /*
  * Showing the printer dialog is tricky since we have no GUI
  * window to parent it. The following routines are needed to
@@ -829,7 +823,6 @@ void mch_set_winpos(int x, int y)
   SetWindowPos(s_hwnd, NULL, x, y, 0, 0,
                SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
 }
-#endif
 
 #if defined(FEAT_SHORTCUT) || defined(PROTO)
 #ifndef PROTO
@@ -1075,7 +1068,7 @@ mch_resolve_path(char_u *fname, int reparse_point)
 }
 #endif
 
-#if (defined(FEAT_EVAL) && (!defined(FEAT_GUI) || defined(VIMDLL))) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Bring ourselves to the foreground.  Does work if the OS doesn't allow it.
  */
@@ -1087,7 +1080,7 @@ void win32_set_foreground(void)
 }
 #endif
 
-#if defined(FEAT_GUI) || (defined(FEAT_PRINTER) && !defined(FEAT_POSTSCRIPT)) || defined(PROTO)
+#if (defined(FEAT_PRINTER) && !defined(FEAT_POSTSCRIPT)) || defined(PROTO)
 
 struct charset_pair
 {
@@ -1508,7 +1501,7 @@ theend:
   return ret;
 }
 
-#endif /* defined(FEAT_GUI) || defined(FEAT_PRINTER) */
+#endif /* defined(FEAT_PRINTER) */
 
 #if defined(FEAT_JOB_CHANNEL) || defined(PROTO)
 /*

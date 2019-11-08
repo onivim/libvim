@@ -1565,11 +1565,7 @@ void do_ucmd(exarg_T *eap)
       {
         for (ksp = p; *ksp != NUL && *ksp != K_SPECIAL; ++ksp)
           ;
-        if (*ksp == K_SPECIAL && (start == NULL || ksp < start || end == NULL) && ((ksp[1] == KS_SPECIAL && ksp[2] == KE_FILLER)
-#ifdef FEAT_GUI
-                                                                                   || (ksp[1] == KS_EXTRA && ksp[2] == (int)KE_CSI)
-#endif
-                                                                                       ))
+        if (*ksp == K_SPECIAL && (start == NULL || ksp < start || end == NULL) && ((ksp[1] == KS_SPECIAL && ksp[2] == KE_FILLER)))
         {
           // K_SPECIAL has been put in the buffer as K_SPECIAL
           // KS_SPECIAL KE_FILLER, like for mappings, but

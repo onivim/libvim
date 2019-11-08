@@ -94,17 +94,9 @@ Error : configure did not run properly.Check auto / config.log.
 
 #if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
 #define FEAT_GUI_ENABLED /* also defined with NO_X11_INCLUDES */
-#if !defined(FEAT_GUI) && !defined(NO_X11_INCLUDES)
-#define FEAT_GUI
-#endif
 #endif
 
-/* Check support for rendering options */
-#ifdef FEAT_GUI
-#if defined(FEAT_DIRECTX)
-#define FEAT_RENDER_OPTIONS
-#endif
-#endif
+#undef FEAT_RENDER_OPTIONS
 
 /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
 #if _MSC_VER >= 1400
@@ -1571,13 +1563,6 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OUT_STR(s) out_str((char_u *)(s))
 #define OUT_STR_NF(s) out_str_nf((char_u *)(s))
 
-#ifdef FEAT_GUI
-#define GUI_FUNCTION(f) gui_##f
-#define GUI_FUNCTION2(f, pixel) ((pixel) != INVALCOLOR  \
-                                     ? gui_##f((pixel)) \
-                                     : INVALCOLOR)
-#define USE_24BIT gui.in_use
-#endif
 #define IS_CTERM (t_colors > 1)
 #ifdef GUI_FUNCTION
 #define GUI_MCH_GET_RGB GUI_FUNCTION(mch_get_rgb)
@@ -1639,7 +1624,7 @@ typedef void *vim_acl_T; // dummy to pass an ACL to a function
 void *vim_memset(void *, int, size_t);
 #endif
 
-#if defined(UNIX) || defined(FEAT_GUI) || defined(VMS)
+#if defined(UNIX) || defined(VMS)
 #define USE_INPUT_BUF
 #endif
 
@@ -2022,25 +2007,7 @@ typedef enum
 #define SIGN_BYTE 1 /* byte value used where sign is displayed; \ \ \
                        attribute value is sign type */
 
-#if defined(FEAT_GUI) && defined(FEAT_XCLIPBOARD)
-#ifdef FEAT_GUI_GTK
-/* Avoid using a global variable for the X display.  It's ugly
-    * and is likely to cause trouble in multihead environments. */
-#define X_DISPLAY ((gui.in_use) ? gui_mch_get_display() : xterm_dpy)
-#else
-#define X_DISPLAY (gui.in_use ? gui.dpy : xterm_dpy)
-#endif
-#else
-#ifdef FEAT_GUI
-#ifdef FEAT_GUI_GTK
-#define X_DISPLAY ((gui.in_use) ? gui_mch_get_display() : (Display *)NULL)
-#else
-#define X_DISPLAY gui.dpy
-#endif
-#else
 #define X_DISPLAY xterm_dpy
-#endif
-#endif
 
 #if defined(FEAT_BROWSE) && defined(GTK_CHECK_VERSION)
 #if GTK_CHECK_VERSION(2, 4, 0)

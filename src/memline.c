@@ -4545,14 +4545,6 @@ findswapname(
           if (choice == 0)
 #endif
           {
-#ifdef FEAT_GUI
-            // If we are supposed to start the GUI but it wasn't
-            // completely started yet, start it now.  This makes
-            // the messages displayed in the Vim window when
-            // loading a session from the .gvimrc file.
-            if (gui.starting && !gui.in_use)
-              gui_start(NULL);
-#endif
             // Show info about the existing swap file.
             attention_message(buf, fname);
 

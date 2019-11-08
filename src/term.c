@@ -76,9 +76,6 @@ struct builtin_term
 
 static void parse_builtin_tcap(char_u *s);
 static void gather_termleader(void);
-#if defined(FEAT_GUI)
-static int get_bytes_from_buf(char_u *, char_u *, int);
-#endif
 static void del_termcode_idx(int idx);
 static int term_is_builtin(char_u *name);
 static int term_7to8bit(char_u *p);
@@ -123,59 +120,6 @@ static int detected_8bit = FALSE; /* detected 8-bit terminal */
 
 static struct builtin_term builtin_termcaps[] =
     {
-
-#if defined(FEAT_GUI)
-        /*
- * GUI pseudo term-cap.
- */
-        {(int)KS_NAME, "gui"},
-        {(int)KS_CE, IF_EB("\033|$", ESC_STR "|$")},
-        {(int)KS_AL, IF_EB("\033|i", ESC_STR "|i")},
-#ifdef TERMINFO
-        {(int)KS_CAL, IF_EB("\033|%p1%dI", ESC_STR "|%p1%dI")},
-#else
-        {(int)KS_CAL, IF_EB("\033|%dI", ESC_STR "|%dI")},
-#endif
-        {(int)KS_DL, IF_EB("\033|d", ESC_STR "|d")},
-#ifdef TERMINFO
-        {(int)KS_CDL, IF_EB("\033|%p1%dD", ESC_STR "|%p1%dD")},
-        {(int)KS_CS, IF_EB("\033|%p1%d;%p2%dR", ESC_STR "|%p1%d;%p2%dR")},
-        {(int)KS_CSV, IF_EB("\033|%p1%d;%p2%dV", ESC_STR "|%p1%d;%p2%dV")},
-#else
-        {(int)KS_CDL, IF_EB("\033|%dD", ESC_STR "|%dD")},
-        {(int)KS_CS, IF_EB("\033|%d;%dR", ESC_STR "|%d;%dR")},
-        {(int)KS_CSV, IF_EB("\033|%d;%dV", ESC_STR "|%d;%dV")},
-#endif
-        {(int)KS_CL, IF_EB("\033|C", ESC_STR "|C")},
-        /* attributes switched on with 'h', off with * 'H' */
-        {(int)KS_ME, IF_EB("\033|31H", ESC_STR "|31H")}, /* HL_ALL */
-        {(int)KS_MR, IF_EB("\033|1h", ESC_STR "|1h")},   /* HL_INVERSE */
-        {(int)KS_MD, IF_EB("\033|2h", ESC_STR "|2h")},   /* HL_BOLD */
-        {(int)KS_SE, IF_EB("\033|16H", ESC_STR "|16H")}, /* HL_STANDOUT */
-        {(int)KS_SO, IF_EB("\033|16h", ESC_STR "|16h")}, /* HL_STANDOUT */
-        {(int)KS_UE, IF_EB("\033|8H", ESC_STR "|8H")},   /* HL_UNDERLINE */
-        {(int)KS_US, IF_EB("\033|8h", ESC_STR "|8h")},   /* HL_UNDERLINE */
-        {(int)KS_UCE, IF_EB("\033|8C", ESC_STR "|8C")},  /* HL_UNDERCURL */
-        {(int)KS_UCS, IF_EB("\033|8c", ESC_STR "|8c")},  /* HL_UNDERCURL */
-        {(int)KS_STE, IF_EB("\033|4C", ESC_STR "|4C")},  /* HL_STRIKETHROUGH */
-        {(int)KS_STS, IF_EB("\033|4c", ESC_STR "|4c")},  /* HL_STRIKETHROUGH */
-        {(int)KS_CZR, IF_EB("\033|4H", ESC_STR "|4H")},  /* HL_ITALIC */
-        {(int)KS_CZH, IF_EB("\033|4h", ESC_STR "|4h")},  /* HL_ITALIC */
-        {(int)KS_VB, IF_EB("\033|f", ESC_STR "|f")},
-        {(int)KS_MS, "y"},
-        {(int)KS_UT, "y"},
-        {(int)KS_XN, "y"},
-        {(int)KS_LE, "\b"},   /* cursor-left = BS */
-        {(int)KS_ND, "\014"}, /* cursor-right = CTRL-L */
-#ifdef TERMINFO
-        {(int)KS_CM, IF_EB("\033|%p1%d;%p2%dM", ESC_STR "|%p1%d;%p2%dM")},
-#else
-        {(int)KS_CM, IF_EB("\033|%d;%dM", ESC_STR "|%d;%dM")},
-#endif
-/* there are no key sequences here, the GUI sequences are recognized
-	 * in check_termcode() */
-#endif
-
 #ifndef NO_BUILTIN_TCAPS
 
 #if defined(ALL_BUILTIN_TCAPS)
@@ -1575,7 +1519,8 @@ int set_termname(char_u *term)
   struct builtin_term *termp;
 #ifdef HAVE_TGETENT
   int builtin_first = p_tbi;
-  int try
+  int
+  try
     ;
   int termcap_cleared = FALSE;
 #endif
@@ -1689,19 +1634,6 @@ int set_termname(char_u *term)
       }
 #endif
       parse_builtin_tcap(term);
-#ifdef FEAT_GUI
-      if (term_is_gui(term))
-      {
-        gui_init();
-        /* If starting the GUI failed, don't do any of the other
-		 * things for this terminal */
-        if (!gui.in_use)
-          return FAIL;
-#ifdef HAVE_TGETENT
-        break; /* don't try using external termcap */
-#endif
-      }
-#endif /* FEAT_GUI */
     }
 #ifdef HAVE_TGETENT
   }
@@ -1719,19 +1651,16 @@ int set_termname(char_u *term)
     T_CCS = empty_option;
 
 #ifdef UNIX
-/*
+  /*
  * Any "stty" settings override the default for t_kb from the termcap.
  * This is in os_unix.c, because it depends a lot on the version of unix that
  * is being used.
  * Don't do this when the GUI is active, it uses "t_kb" and "t_kD" directly.
  */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-    get_stty();
+  get_stty();
 #endif
 
-/*
+  /*
  * If the termcap has no entry for 'bs' and/or 'del' and the ioctl() also
  * didn't work, use the default CTRL-H
  * The default for t_kD is DEL, unless t_kb is DEL.
@@ -1739,9 +1668,6 @@ int set_termname(char_u *term)
  * bytes.  Don't do this when the GUI is active, it uses "t_kb" and "t_kD"
  * directly.
  */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
   {
     bs_p = find_termcode((char_u *)"kb");
     del_p = find_termcode((char_u *)"kD");
@@ -1935,15 +1861,6 @@ int add_termcap_entry(char_u *name, int force)
   char *error_msg = NULL;
 #endif
 
-/*
- * If the GUI is running or will start in a moment, we only support the keys
- * that the GUI can produce.
- */
-#ifdef FEAT_GUI
-  if (gui.in_use || gui.starting)
-    return gui_mch_haskey(name);
-#endif
-
   if (!force && find_termcode(name) != NULL) /* it's already there */
     return OK;
 
@@ -2064,7 +1981,7 @@ term_7to8bit(char_u *p)
   return 0;
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 int term_is_gui(char_u *name)
 {
   return (STRCMP(name, "builtin_gui") == 0 || STRCMP(name, "gui") == 0);
@@ -2434,92 +2351,6 @@ void ttest(int pairs)
   }
 }
 
-#if (defined(FEAT_GUI) && (defined(FEAT_MENU) || !defined(USE_ON_FLY_SCROLL))) || defined(PROTO)
-/*
- * Represent the given long_u as individual bytes, with the most significant
- * byte first, and store them in dst.
- */
-void add_long_to_buf(long_u val, char_u *dst)
-{
-  int i;
-  int shift;
-
-  for (i = 1; i <= (int)sizeof(long_u); i++)
-  {
-    shift = 8 * (sizeof(long_u) - i);
-    dst[i - 1] = (char_u)((val >> shift) & 0xff);
-  }
-}
-
-/*
- * Interpret the next string of bytes in buf as a long integer, with the most
- * significant byte first.  Note that it is assumed that buf has been through
- * inchar(), so that NUL and K_SPECIAL will be represented as three bytes each.
- * Puts result in val, and returns the number of bytes read from buf
- * (between sizeof(long_u) and 2 * sizeof(long_u)), or -1 if not enough bytes
- * were present.
- */
-static int
-get_long_from_buf(char_u *buf, long_u *val)
-{
-  int len;
-  char_u bytes[sizeof(long_u)];
-  int i;
-  int shift;
-
-  *val = 0;
-  len = get_bytes_from_buf(buf, bytes, (int)sizeof(long_u));
-  if (len != -1)
-  {
-    for (i = 0; i < (int)sizeof(long_u); i++)
-    {
-      shift = 8 * (sizeof(long_u) - 1 - i);
-      *val += (long_u)bytes[i] << shift;
-    }
-  }
-  return len;
-}
-#endif
-
-#if defined(FEAT_GUI)
-/*
- * Read the next num_bytes bytes from buf, and store them in bytes.  Assume
- * that buf has been through inchar().	Returns the actual number of bytes used
- * from buf (between num_bytes and num_bytes*2), or -1 if not enough bytes were
- * available.
- */
-static int
-get_bytes_from_buf(char_u *buf, char_u *bytes, int num_bytes)
-{
-  int len = 0;
-  int i;
-  char_u c;
-
-  for (i = 0; i < num_bytes; i++)
-  {
-    if ((c = buf[len++]) == NUL)
-      return -1;
-    if (c == K_SPECIAL)
-    {
-      if (buf[len] == NUL || buf[len + 1] == NUL) /* cannot happen? */
-        return -1;
-      if (buf[len++] == (int)KS_ZERO)
-        c = NUL;
-      /* else it should be KS_SPECIAL; when followed by KE_FILLER c is
-	     * K_SPECIAL, or followed by KE_CSI and c must be CSI. */
-      if (buf[len++] == (int)KE_CSI)
-        c = CSI;
-    }
-    else if (c == CSI && buf[len] == KS_EXTRA && buf[len + 1] == (int)KE_CSI)
-      /* CSI is stored as CSI KS_SPECIAL KE_CSI to avoid confusion with
-	     * the start of a special key, see add_to_input_buf_csi(). */
-      len += 2;
-    bytes[i] = c;
-  }
-  return len;
-}
-#endif
-
 /*
  * Check if the new shell size is valid, correct it if it's too small or way
  * too big.
@@ -2587,13 +2418,7 @@ void shell_resized_check(void)
   int old_Rows = Rows;
   int old_Columns = Columns;
 
-  if (!exiting
-#ifdef FEAT_GUI
-      /* Do not get the size when executing a shell command during
-	     * startup. */
-      && !gui.starting
-#endif
-  )
+  if (!exiting)
   {
     (void)ui_get_shellsize();
     check_shellsize();
@@ -2856,7 +2681,7 @@ void add_termcode(char_u *name, char_u *string, int flags)
     return;
   }
 
-#if defined(MSWIN) && !defined(FEAT_GUI)
+#if defined(MSWIN)
   s = vim_strnsave(string, (int)STRLEN(string) + 1);
 #else
 #ifdef VIMDLL
@@ -2876,7 +2701,7 @@ void add_termcode(char_u *name, char_u *string, int flags)
     s[0] = term_7to8bit(string);
   }
 
-#if defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
   if (!gui.in_use)
 #endif
@@ -3168,121 +2993,102 @@ int check_termcode(
     key_name[1] = NUL; /* no key name found yet */
     modifiers = 0;     /* no modifiers yet */
 
-#ifdef FEAT_GUI
-    if (gui.in_use)
+    for (idx = 0; idx < tc_len; ++idx)
     {
       /*
-	     * GUI special key codes are all of the form [CSI xx].
-	     */
-      if (*tp == CSI) /* Special key from GUI */
-      {
-        if (len < 3)
-          return -1; /* Shouldn't happen */
-        slen = 3;
-        key_name[0] = tp[1];
-        key_name[1] = tp[2];
-      }
-    }
-    else
-#endif /* FEAT_GUI */
-    {
-      for (idx = 0; idx < tc_len; ++idx)
-      {
-        /*
 		 * Ignore the entry if we are not at the start of
 		 * typebuf.tb_buf[]
 		 * and there are not enough characters to make a match.
 		 * But only when the 'K' flag is in 'cpoptions'.
 		 */
-        slen = termcodes[idx].len;
-        modifiers_start = NULL;
-        if (cpo_koffset && offset && len < slen)
-          continue;
-        if (STRNCMP(termcodes[idx].code, tp,
-                    (size_t)(slen > len ? len : slen)) == 0)
-        {
-          if (len < slen) /* got a partial sequence */
-            return -1;    /* need to get more chars */
+      slen = termcodes[idx].len;
+      modifiers_start = NULL;
+      if (cpo_koffset && offset && len < slen)
+        continue;
+      if (STRNCMP(termcodes[idx].code, tp,
+                  (size_t)(slen > len ? len : slen)) == 0)
+      {
+        if (len < slen) /* got a partial sequence */
+          return -1;    /* need to get more chars */
 
-          /*
+        /*
 		     * When found a keypad key, check if there is another key
 		     * that matches and use that one.  This makes <Home> to be
 		     * found instead of <kHome> when they produce the same
 		     * key code.
 		     */
-          if (termcodes[idx].name[0] == 'K' && VIM_ISDIGIT(termcodes[idx].name[1]))
-          {
-            for (j = idx + 1; j < tc_len; ++j)
-              if (termcodes[j].len == slen &&
-                  STRNCMP(termcodes[idx].code,
-                          termcodes[j].code, slen) == 0)
-              {
-                idx = j;
-                break;
-              }
-          }
-
-          key_name[0] = termcodes[idx].name[0];
-          key_name[1] = termcodes[idx].name[1];
-          break;
+        if (termcodes[idx].name[0] == 'K' && VIM_ISDIGIT(termcodes[idx].name[1]))
+        {
+          for (j = idx + 1; j < tc_len; ++j)
+            if (termcodes[j].len == slen &&
+                STRNCMP(termcodes[idx].code,
+                        termcodes[j].code, slen) == 0)
+            {
+              idx = j;
+              break;
+            }
         }
 
-        /*
+        key_name[0] = termcodes[idx].name[0];
+        key_name[1] = termcodes[idx].name[1];
+        break;
+      }
+
+      /*
 		 * Check for code with modifier, like xterm uses:
 		 * <Esc>[123;*X  (modslen == slen - 3)
 		 * Also <Esc>O*X and <M-O>*X (modslen == slen - 2).
 		 * When there is a modifier the * matches a number.
 		 * When there is no modifier the ;* or * is omitted.
 		 */
-        if (termcodes[idx].modlen > 0)
+      if (termcodes[idx].modlen > 0)
+      {
+        modslen = termcodes[idx].modlen;
+        if (cpo_koffset && offset && len < modslen)
+          continue;
+        if (STRNCMP(termcodes[idx].code, tp,
+                    (size_t)(modslen > len ? len : modslen)) == 0)
         {
-          modslen = termcodes[idx].modlen;
-          if (cpo_koffset && offset && len < modslen)
-            continue;
-          if (STRNCMP(termcodes[idx].code, tp,
-                      (size_t)(modslen > len ? len : modslen)) == 0)
+          int n;
+
+          if (len <= modslen) /* got a partial sequence */
+            return -1;        /* need to get more chars */
+
+          if (tp[modslen] == termcodes[idx].code[slen - 1])
+            slen = modslen + 1; /* no modifiers */
+          else if (tp[modslen] != ';' && modslen == slen - 3)
+            continue; /* no match */
+          else
           {
-            int n;
-
-            if (len <= modslen) /* got a partial sequence */
-              return -1;        /* need to get more chars */
-
-            if (tp[modslen] == termcodes[idx].code[slen - 1])
-              slen = modslen + 1; /* no modifiers */
-            else if (tp[modslen] != ';' && modslen == slen - 3)
+            // Skip over the digits, the final char must
+            // follow. URXVT can use a negative value, thus
+            // also accept '-'.
+            for (j = slen - 2; j < len && (isdigit(tp[j]) || tp[j] == '-' || tp[j] == ';'); ++j)
+              ;
+            ++j;
+            if (len < j) /* got a partial sequence */
+              return -1; /* need to get more chars */
+            if (tp[j - 1] != termcodes[idx].code[slen - 1])
               continue; /* no match */
-            else
-            {
-              // Skip over the digits, the final char must
-              // follow. URXVT can use a negative value, thus
-              // also accept '-'.
-              for (j = slen - 2; j < len && (isdigit(tp[j]) || tp[j] == '-' || tp[j] == ';'); ++j)
-                ;
-              ++j;
-              if (len < j) /* got a partial sequence */
-                return -1; /* need to get more chars */
-              if (tp[j - 1] != termcodes[idx].code[slen - 1])
-                continue; /* no match */
 
-              modifiers_start = tp + slen - 2;
+            modifiers_start = tp + slen - 2;
 
-              /* Match!  Convert modifier bits. */
-              n = atoi((char *)modifiers_start) - 1;
-              if (n & 1)
-                modifiers |= MOD_MASK_SHIFT;
-              if (n & 2)
-                modifiers |= MOD_MASK_ALT;
-              if (n & 4)
-                modifiers |= MOD_MASK_CTRL;
-              if (n & 8)
-                modifiers |= MOD_MASK_META;
+            /* Match!  Convert modifier bits. */
+            n = atoi((char *)modifiers_start) - 1;
+            if (n & 1)
+              modifiers |= MOD_MASK_SHIFT;
+            if (n & 2)
+              modifiers |= MOD_MASK_ALT;
+            if (n & 4)
+              modifiers |= MOD_MASK_CTRL;
+            if (n & 8)
+              modifiers |= MOD_MASK_META;
 
-              slen = j;
-            }
-            key_name[0] = termcodes[idx].name[0];
-            key_name[1] = termcodes[idx].name[1];
-            break;
+            slen = j;
           }
+          key_name[0] = termcodes[idx].name[0];
+          key_name[1] = termcodes[idx].name[1];
+          break;
         }
       }
     }
@@ -3290,94 +3096,7 @@ int check_termcode(
     if (key_name[0] == NUL)
       continue; /* No match at this position, try next one */
 
-      /* We only get here when we have a complete termcode match */
-
-#ifdef FEAT_GUI
-      /*
-	 * If using the GUI, then we get menu and scrollbar events.
-	 *
-	 * A menu event is encoded as K_SPECIAL, KS_MENU, KE_FILLER followed by
-	 * four bytes which are to be taken as a pointer to the vimmenu_T
-	 * structure.
-	 *
-	 * A tab line event is encoded as K_SPECIAL KS_TABLINE nr, where "nr"
-	 * is one byte with the tab index.
-	 *
-	 * A scrollbar event is K_SPECIAL, KS_VER_SCROLLBAR, KE_FILLER followed
-	 * by one byte representing the scrollbar number, and then four bytes
-	 * representing a long_u which is the new value of the scrollbar.
-	 *
-	 * A horizontal scrollbar event is K_SPECIAL, KS_HOR_SCROLLBAR,
-	 * KE_FILLER followed by four bytes representing a long_u which is the
-	 * new value of the scrollbar.
-	 */
-#ifdef FEAT_MENU
-    else if (key_name[0] == (int)KS_MENU)
-    {
-      long_u val;
-
-      num_bytes = get_long_from_buf(tp + slen, &val);
-      if (num_bytes == -1)
-        return -1;
-      current_menu = (vimmenu_T *)val;
-      slen += num_bytes;
-
-      /* The menu may have been deleted right after it was used, check
-	     * for that. */
-      if (check_menu_pointer(root_menu, current_menu) == FAIL)
-      {
-        key_name[0] = KS_EXTRA;
-        key_name[1] = (int)KE_IGNORE;
-      }
-    }
-#endif
-    else if (key_name[0] == (int)KS_VER_SCROLLBAR)
-    {
-      long_u val;
-
-      /* Get the last scrollbar event in the queue of the same type */
-      j = 0;
-      for (i = 0; tp[j] == CSI && tp[j + 1] == KS_VER_SCROLLBAR && tp[j + 2] != NUL; ++i)
-      {
-        j += 3;
-        num_bytes = get_bytes_from_buf(tp + j, bytes, 1);
-        if (num_bytes == -1)
-          break;
-        if (i == 0)
-          current_scrollbar = (int)bytes[0];
-        else if (current_scrollbar != (int)bytes[0])
-          break;
-        j += num_bytes;
-        num_bytes = get_long_from_buf(tp + j, &val);
-        if (num_bytes == -1)
-          break;
-        scrollbar_value = val;
-        j += num_bytes;
-        slen = j;
-      }
-      if (i == 0) /* not enough characters to make one */
-        return -1;
-    }
-    else if (key_name[0] == (int)KS_HOR_SCROLLBAR)
-    {
-      long_u val;
-
-      /* Get the last horiz. scrollbar event in the queue */
-      j = 0;
-      for (i = 0; tp[j] == CSI && tp[j + 1] == KS_HOR_SCROLLBAR && tp[j + 2] != NUL; ++i)
-      {
-        j += 3;
-        num_bytes = get_long_from_buf(tp + j, &val);
-        if (num_bytes == -1)
-          break;
-        scrollbar_value = val;
-        j += num_bytes;
-        slen = j;
-      }
-      if (i == 0) /* not enough characters to make one */
-        return -1;
-    }
-#endif /* FEAT_GUI */
+    /* We only get here when we have a complete termcode match */
 
     /*
 	 * Change <xHome> to <Home>, <xUp> to <Up>, etc.
@@ -3668,14 +3387,6 @@ replace_termcodes(
         result[dlen++] = KS_SPECIAL;
         result[dlen++] = KE_FILLER;
       }
-#ifdef FEAT_GUI
-      else if (*src == CSI)
-      {
-        result[dlen++] = K_SPECIAL;
-        result[dlen++] = KS_EXTRA;
-        result[dlen++] = (int)KE_CSI;
-      }
-#endif
       else
         result[dlen++] = *src;
       ++src;
@@ -3720,10 +3431,6 @@ gather_termleader(void)
   int i;
   int len = 0;
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    termleader[len++] = CSI; /* the GUI codes are not in termcodes[] */
-#endif
   termleader[len] = NUL;
 
   for (i = 0; i < tc_len; ++i)
@@ -3947,7 +3654,7 @@ translate_mapping(char_u *str)
 }
 #endif
 
-#if (defined(MSWIN) && (!defined(FEAT_GUI) || defined(VIMDLL))) || defined(PROTO)
+#if defined(MSWIN) || defined(PROTO)
 static char ksme_str[20];
 static char ksmr_str[20];
 static char ksmd_str[20];
@@ -3987,7 +3694,7 @@ void swap_tcap(void)
 
 #endif
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 static int
 hex_digit(int c)
 {
@@ -4018,7 +3725,7 @@ gui_get_color_cmn(char_u *name)
   /* On MS-Windows an RGB macro is available and it produces 0x00bbggrr color
      * values as used by the MS-Windows GDI api.  It should be used only for
      * MS-Windows GDI builds. */
-#if defined(RGB) && defined(MSWIN) && !defined(FEAT_GUI)
+#if defined(RGB) && defined(MSWIN)
 #undef RGB
 #endif
 #ifndef RGB

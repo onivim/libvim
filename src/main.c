@@ -514,26 +514,6 @@ int vim_main2(void)
   if (params.no_swap_file)
     p_uc = 0;
 
-#ifdef FEAT_GUI
-  if (gui.starting)
-  {
-#if defined(UNIX) || defined(VMS)
-    /* When something caused a message from a vimrc script, need to output
-	 * an extra newline before the shell prompt. */
-    if (did_emsg || msg_didout)
-      putchar('\n');
-#endif
-
-    gui_start(NULL); /* will set full_screen to TRUE */
-    TIME_MSG("starting GUI");
-
-    /* When running "evim" or "gvim -y" we need the menus, exit if we
-	 * don't have them. */
-    if (!gui.in_use && params.evim_mode)
-      mch_exit(1);
-  }
-#endif
-
 #ifdef FEAT_VIMINFO
   /*
      * Read in registers, history etc, but not marks, from the viminfo file.
@@ -582,21 +562,6 @@ int vim_main2(void)
   no_wait_return = FALSE;
   if (!exmode_active)
     msg_scroll = FALSE;
-
-#ifdef FEAT_GUI
-  /*
-     * This seems to be required to make callbacks to be called now, instead
-     * of after things have been put on the screen, which then may be deleted
-     * when getting a resize callback.
-     * For the Mac this handles putting files dropped on the Vim icon to
-     * global_alist.
-     */
-  if (gui.in_use)
-  {
-    gui_wait_for_chars(50L, typebuf.tb_change_cnt);
-    TIME_MSG("GUI delay");
-  }
-#endif
 
 #ifdef FEAT_CLIENTSERVER
   /* Prepare for being a Vim server. */
@@ -651,11 +616,7 @@ int vim_main2(void)
   /*
      * Don't clear the screen when starting in Ex mode, unless using the GUI.
      */
-  if (exmode_active
-#ifdef FEAT_GUI
-      && !gui.in_use
-#endif
-  )
+  if (exmode_active)
     must_redraw = CLEAR;
   else
   {
@@ -787,17 +748,6 @@ int vim_main2(void)
     mch_set_winsize_now(); /* Allow winsize changes from now on */
 #endif
 
-#if defined(FEAT_GUI)
-  /* When tab pages were created, may need to update the tab pages line and
-     * scrollbars.  This is skipped while creating them. */
-  if (first_tabpage->tp_next != NULL)
-  {
-    gui_init_which_components(NULL);
-    gui_update_scrollbars(TRUE);
-  }
-  need_mouse_correct = TRUE;
-#endif
-
   /* If ":startinsert" command used, stuff a dummy command to be able to
      * call normal_cmd(), which will then start Insert mode. */
   if (restart_edit != 0)
@@ -852,10 +802,6 @@ void common_init(mparm_T *paramp)
   TIME_MSG("locale set");
 #endif
 
-#ifdef FEAT_GUI
-  gui.dofork = TRUE; /* default is to use fork() */
-#endif
-
   /*
      * Do a first scan of the arguments in "argv[]":
      *   -display or --display
@@ -864,12 +810,6 @@ void common_init(mparm_T *paramp)
      *   --windowid
      */
   early_arg_scan(paramp);
-
-#if defined(FEAT_GUI)
-  /* Prepare for possibly starting GUI sometime */
-  gui_prepare(&paramp->argc, paramp->argv);
-  TIME_MSG("GUI prepared");
-#endif
 
   /*
      * Check if we have an interactive window.
@@ -1019,10 +959,6 @@ void main_loop(
       skip_redraw = FALSE;
     else if (do_redraw || stuff_empty())
     {
-#ifdef FEAT_GUI
-      // If ui_breakcheck() was used a resize may have been postponed.
-      gui_may_resize_shell();
-#endif
 #ifdef HAVE_DROP_FILE
       // If files were dropped while text was locked or the curbuf was
       // locked, this would be a good time to handle the drop.
@@ -1147,10 +1083,6 @@ void main_loop(
       }
 #endif
     }
-#ifdef FEAT_GUI
-    if (need_mouse_correct)
-      gui_mouse_correct();
-#endif
 
     /*
 	 * Update w_curswant if w_set_curswant has been set.
@@ -1201,7 +1133,7 @@ void main_loop(
   }
 }
 
-#if defined(USE_XSMP) || defined(FEAT_GUI) || defined(PROTO)
+#if defined(USE_XSMP) || defined(PROTO)
 /*
  * Exit, but leave behind swap files for modified buffers.
  */
@@ -1237,19 +1169,12 @@ void getout(int exitval)
   if (exmode_active)
     exitval += ex_exitval;
 
-    /* Position the cursor on the last screen line, below all the text */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-    windgoto((int)Rows - 1, 0);
+  /* Position the cursor on the last screen line, below all the text */
+  windgoto((int)Rows - 1, 0);
 
 #if defined(FEAT_EVAL)
   /* Optionally print hashtable efficiency. */
   hash_debug_results();
-#endif
-
-#ifdef FEAT_GUI
-  msg_didany = FALSE;
 #endif
 
   if (v_dying <= 1)
@@ -1315,11 +1240,7 @@ void getout(int exitval)
   profile_dump();
 #endif
 
-  if (did_emsg
-#ifdef FEAT_GUI
-      || (gui.in_use && msg_didany && p_verbose > 0)
-#endif
-  )
+  if (did_emsg)
   {
     /* give the user a chance to read the (error) message */
     no_wait_return = FALSE;
@@ -1327,10 +1248,7 @@ void getout(int exitval)
   }
 
   /* Position the cursor again, the autocommands may have moved it */
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-    windgoto((int)Rows - 1, 0);
+  windgoto((int)Rows - 1, 0);
 
 #ifdef FEAT_JOB_CHANNEL
   job_stop_on_exit();
@@ -1456,11 +1374,6 @@ early_arg_scan(mparm_T *parmp UNUSED)
     else if (STRNICMP(argv[i], "--remote", 8) == 0)
     {
       parmp->serverArg = TRUE;
-#ifdef FEAT_GUI
-      if (strstr(argv[i], "-wait") != 0)
-        /* don't fork() when starting the GUI to edit files ourself */
-        gui.dofork = FALSE;
-#endif
     }
 #endif
 
@@ -1567,9 +1480,6 @@ parse_command_name(mparm_T *parmp)
   /* Use evim mode for "evim" and "egvim", not for "editor". */
   if (TOLOWER_ASC(initstr[0]) == 'e' && (TOLOWER_ASC(initstr[1]) == 'v' || TOLOWER_ASC(initstr[1]) == 'g'))
   {
-#ifdef FEAT_GUI
-    gui.starting = TRUE;
-#endif
     parmp->evim_mode = TRUE;
     ++initstr;
   }
@@ -1578,9 +1488,6 @@ parse_command_name(mparm_T *parmp)
   if (TOLOWER_ASC(initstr[0]) == 'g')
   {
     main_start_gui();
-#ifdef FEAT_GUI
-    ++initstr;
-#endif
 #ifdef GUI_MAY_SPAWN
     gui.dospawn = FALSE; // No need to spawn a new process.
 #endif
@@ -1718,9 +1625,6 @@ command_line_scan(mparm_T *parmp)
         else if (STRNICMP(argv[0] + argv_idx, "clean", 5) == 0)
         {
           parmp->use_vimrc = (char_u *)"DEFAULTS";
-#ifdef FEAT_GUI
-          use_gvimrc = (char_u *)"NONE";
-#endif
           parmp->clean = TRUE;
           set_option_value((char_u *)"vif", 0L, (char_u *)"NONE", 0);
         }
@@ -1732,9 +1636,7 @@ command_line_scan(mparm_T *parmp)
         }
         else if (STRNICMP(argv[0] + argv_idx, "nofork", 6) == 0)
         {
-#ifdef FEAT_GUI
-          gui.dofork = FALSE; /* don't fork() when starting GUI */
-#endif
+          /* noop - libvim */
         }
         else if (STRNICMP(argv[0] + argv_idx, "noplugin", 8) == 0)
           p_lpl = FALSE;
@@ -1828,9 +1730,7 @@ command_line_scan(mparm_T *parmp)
 
       case 'f': /* "-f"  GUI: run in foreground.  Amiga: open
 				window directly, not with newcli */
-#ifdef FEAT_GUI
-        gui.dofork = FALSE; /* don't fork() when starting GUI */
-#endif
+                /* noop - libvim */
         break;
 
       case 'g': /* "-g" start GUI */
@@ -1873,9 +1773,6 @@ command_line_scan(mparm_T *parmp)
         break;
 
       case 'y': /* "-y"  easy mode */
-#ifdef FEAT_GUI
-        gui.starting = TRUE; /* start GUI a bit later */
-#endif
         parmp->evim_mode = TRUE;
         break;
 
@@ -1988,9 +1885,6 @@ command_line_scan(mparm_T *parmp)
 
       case 'v': /* "-v"  Vi-mode (as if called "vi") */
         exmode_active = 0;
-#if defined(FEAT_GUI) && !defined(VIMDLL)
-        gui.starting = FALSE; /* don't start GUI */
-#endif
         break;
 
       case 'w': /* "-w{number}"	set window height */
@@ -2160,12 +2054,8 @@ command_line_scan(mparm_T *parmp)
 		     * HAVE_TERMLIB is supported it overrides the environment
 		     * variable TERM.
 		     */
-#ifdef FEAT_GUI
-          if (term_is_gui((char_u *)argv[0]))
-            gui.starting = TRUE; /* start GUI a bit later */
-          else
-#endif
-            parmp->term = (char_u *)argv[0];
+
+          parmp->term = (char_u *)argv[0];
           break;
 
         case 'u': /* "-u {vimrc}" vim inits file */
@@ -2173,9 +2063,7 @@ command_line_scan(mparm_T *parmp)
           break;
 
         case 'U': /* "-U {gvimrc}" gvim inits file */
-#ifdef FEAT_GUI
-          use_gvimrc = (char_u *)argv[0];
-#endif
+          /* noop - libvim */
           break;
 
         case 'w': /* "-w {nr}" 'window' value */
@@ -2341,12 +2229,7 @@ check_tty(mparm_T *parmp)
     if (!input_isatty)
       silent_mode = TRUE;
   }
-  else if (parmp->want_full_screen && (!stdout_isatty || !input_isatty)
-#ifdef FEAT_GUI
-           /* don't want the delay when started from the desktop */
-           && !gui.starting
-#endif
-           && !parmp->not_a_term)
+  else if (parmp->want_full_screen && (!stdout_isatty || !input_isatty) && !parmp->not_a_term)
   {
 #ifdef NBDEBUG
     /*
@@ -2801,10 +2684,7 @@ source_startup_scripts(mparm_T *parmp)
       do_source((char_u *)VIM_DEFAULTS_FILE, FALSE, DOSO_NONE);
     else if (STRCMP(parmp->use_vimrc, "NONE") == 0 || STRCMP(parmp->use_vimrc, "NORC") == 0)
     {
-#ifdef FEAT_GUI
-      if (use_gvimrc == NULL) /* don't load gvimrc either */
-        use_gvimrc = parmp->use_vimrc;
-#endif
+      /* noop - libvim */
     }
     else
     {
@@ -2928,13 +2808,9 @@ source_startup_scripts(mparm_T *parmp)
 static void
 main_start_gui(void)
 {
-#ifdef FEAT_GUI
-  gui.starting = TRUE; /* start GUI a bit later */
-#else
   mch_errmsg(_(e_nogvim));
   mch_errmsg("\n");
   mch_exit(2);
-#endif
 }
 
 #endif /* NO_VIM_MAIN */
@@ -3101,10 +2977,6 @@ usage(void)
   main_msg(_("-register\t\tRegister this gvim for OLE"));
   main_msg(_("-unregister\t\tUnregister gvim for OLE"));
 #endif
-#ifdef FEAT_GUI
-  main_msg(_("-g\t\t\tRun using GUI (like \"gvim\")"));
-  main_msg(_("-f  or  --nofork\tForeground: Don't fork when starting GUI"));
-#endif
   main_msg(_("-v\t\t\tVi mode (like \"vi\")"));
   main_msg(_("-e\t\t\tEx mode (like \"ex\")"));
   main_msg(_("-E\t\t\tImproved Ex mode"));
@@ -3138,9 +3010,6 @@ usage(void)
   main_msg(_("--not-a-term\t\tSkip warning for input/output not being a terminal"));
   main_msg(_("--ttyfail\t\tExit if input or output is not a terminal"));
   main_msg(_("-u <vimrc>\t\tUse <vimrc> instead of any .vimrc"));
-#ifdef FEAT_GUI
-  main_msg(_("-U <gvimrc>\t\tUse <gvimrc> instead of any .gvimrc"));
-#endif
   main_msg(_("--noplugin\t\tDon't load plugin scripts"));
   main_msg(_("-p[N]\t\tOpen N tab pages (default: one for each file)"));
   main_msg(_("-o[N]\t\tOpen N windows (default: one for each file)"));

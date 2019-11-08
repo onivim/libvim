@@ -290,12 +290,9 @@ EXTERN long p_aleph; /* 'aleph' */
 #ifdef FEAT_AUTOCHDIR
 EXTERN int p_acd; /* 'autochdir' */
 #endif
-EXTERN int p_acp;       /* 'autoclosingpairs' */
-EXTERN char_u *p_ambw;  /* 'ambiwidth' */
-EXTERN char_u *p_emoji; /* 'emoji' */
-#if defined(FEAT_GUI) && defined(MACOS_X)
-EXTERN int *p_antialias; /* 'antialias' */
-#endif
+EXTERN int p_acp;          /* 'autoclosingpairs' */
+EXTERN char_u *p_ambw;     /* 'ambiwidth' */
+EXTERN char_u *p_emoji;    /* 'emoji' */
 EXTERN int p_ar;           /* 'autoread' */
 EXTERN int p_aw;           /* 'autowrite' */
 EXTERN int p_awa;          /* 'autowriteall' */
@@ -455,19 +452,8 @@ EXTERN int p_fs; /* 'fsync' */
 #endif
 EXTERN int p_gd;     /* 'gdefault' */
 EXTERN int p_prompt; /* 'prompt' */
-#ifdef FEAT_GUI
-EXTERN char_u *p_guifont; /* 'guifont' */
-#ifdef FEAT_XFONTSET
-EXTERN char_u *p_guifontset; /* 'guifontset' */
-#endif
-EXTERN char_u *p_guifontwide; /* 'guifontwide' */
-EXTERN int p_guipty;          /* 'guipty' */
-#endif
 #if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
 EXTERN long p_ghr; /* 'guiheadroom' */
-#endif
-#if defined(FEAT_GUI)
-EXTERN char_u *p_go; /* 'guioptions' */
 #endif
 #if defined(FEAT_GUI_TABLINE)
 EXTERN char_u *p_gtl; /* 'guitablabel' */
@@ -519,9 +505,6 @@ EXTERN char_u *p_langmap; /* 'langmap'*/
 EXTERN int p_lnr;         /* 'langnoremap' */
 EXTERN int p_lrm;         /* 'langremap' */
 #endif
-#ifdef FEAT_GUI
-EXTERN long p_linespace; /* 'linespace' */
-#endif
 EXTERN long p_ls;     /* 'laststatus' */
 EXTERN long p_stal;   /* 'showtabline' */
 EXTERN char_u *p_lcs; /* 'listchars' */
@@ -548,17 +531,13 @@ EXTERN long p_mco; /* 'maxcombine' */
 #ifdef FEAT_EVAL
 EXTERN long p_mfd; /* 'maxfuncdepth' */
 #endif
-EXTERN long p_mmd;      /* 'maxmapdepth' */
-EXTERN long p_mm;       /* 'maxmem' */
-EXTERN long p_mmp;      /* 'maxmempattern' */
-EXTERN long p_mmt;      /* 'maxmemtot' */
-EXTERN long p_mle;      /* 'modelineexpr' */
-EXTERN long p_mls;      /* 'modelines' */
-EXTERN char_u *p_mouse; /* 'mouse' */
-#ifdef FEAT_GUI
-EXTERN int p_mousef; /* 'mousefocus' */
-EXTERN int p_mh;     /* 'mousehide' */
-#endif
+EXTERN long p_mmd;       /* 'maxmapdepth' */
+EXTERN long p_mm;        /* 'maxmem' */
+EXTERN long p_mmp;       /* 'maxmempattern' */
+EXTERN long p_mmt;       /* 'maxmemtot' */
+EXTERN long p_mle;       /* 'modelineexpr' */
+EXTERN long p_mls;       /* 'modelines' */
+EXTERN char_u *p_mouse;  /* 'mouse' */
 EXTERN char_u *p_mousem; /* 'mousemodel' */
 EXTERN long p_mouset;    /* 'mousetime' */
 EXTERN int p_more;       /* 'more' */

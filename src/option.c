@@ -508,7 +508,7 @@ static struct vimoption options[] =
         {"autowrite", "aw", P_BOOL | P_VI_DEF, (char_u *)&p_aw, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"autowriteall", "awa", P_BOOL | P_VI_DEF, (char_u *)&p_awa, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"background", "bg", P_STRING | P_VI_DEF | P_RCLR, (char_u *)&p_bg, PV_NONE, {
-#if (defined(MSWIN)) && !defined(FEAT_GUI)
+#if (defined(MSWIN))
                                                                                          (char_u *)"dark",
 #else
                                                                                          (char_u *)"light",
@@ -1060,39 +1060,9 @@ static struct vimoption options[] =
 #endif
          SCTX_INIT},
         {"guicursor", "gcr", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
-        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP,
-#ifdef FEAT_GUI
-         (char_u *)&p_guifont,
-         PV_NONE,
-         {(char_u *)"", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
-        {"guifontset", "gfs", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA,
-#if defined(FEAT_GUI) && defined(FEAT_XFONTSET)
-         (char_u *)&p_guifontset,
-         PV_NONE,
-         {(char_u *)"", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
-        {"guifontwide", "gfw", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP,
-#if defined(FEAT_GUI)
-         (char_u *)&p_guifontwide,
-         PV_NONE,
-         {(char_u *)"", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"guifontset", "gfs", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"guifontwide", "gfw", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guiheadroom", "ghr", P_NUM | P_VI_DEF,
 #if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
          (char_u *)&p_ghr,
@@ -1102,30 +1072,8 @@ static struct vimoption options[] =
          PV_NONE,
 #endif
          {(char_u *)50L, (char_u *)0L} SCTX_INIT},
-        {"guioptions", "go", P_STRING | P_VI_DEF | P_RALL | P_FLAGLIST,
-#if defined(FEAT_GUI)
-         (char_u *)&p_go,
-         PV_NONE,
-#if defined(UNIX) && !defined(FEAT_GUI_MAC)
-         {(char_u *)"aegimrLtT", (char_u *)0L}
-#else
-         {(char_u *)"egmrLtT", (char_u *)0L}
-#endif
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
-        {"guipty", NULL, P_BOOL | P_VI_DEF,
-#if defined(FEAT_GUI)
-         (char_u *)&p_guipty,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
+        {"guioptions", "go", P_STRING | P_VI_DEF | P_RALL | P_FLAGLIST, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"guipty", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"guitablabel", "gtl", P_STRING | P_VI_DEF | P_RWIN | P_MLE, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guitabtooltip", "gtt", P_STRING | P_VI_DEF | P_RWIN, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"hardtabs", "ht", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
@@ -1394,14 +1342,7 @@ static struct vimoption options[] =
                                                                                                            (char_u *)24L,
 #endif
                                                                                                            (char_u *)0L} SCTX_INIT},
-        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR,
-#ifdef FEAT_GUI
-         (char_u *)&p_linespace,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
+        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE,
 #ifdef FEAT_GUI_MSWIN
          {(char_u *)1L, (char_u *)0L}
 #else
@@ -1495,24 +1436,8 @@ static struct vimoption options[] =
                                                                                            (char_u *)"",
 #endif
                                                                                            (char_u *)0L} SCTX_INIT},
-        {"mousefocus", "mousef", P_BOOL | P_VI_DEF,
-#ifdef FEAT_GUI
-         (char_u *)&p_mousef,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
-        {"mousehide", "mh", P_BOOL | P_VI_DEF,
-#ifdef FEAT_GUI
-         (char_u *)&p_mh,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
+        {"mousefocus", "mousef", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"mousehide", "mh", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"mousemodel", "mousem", P_STRING | P_VI_DEF, (char_u *)&p_mousem, PV_NONE, {
 #if defined(MSWIN)
                                                                                         (char_u *)"popup",
@@ -2663,11 +2588,6 @@ void set_init_1(int clean_arg)
   }
 #endif
 
-#ifdef FEAT_GUI
-  if (found_reverse_arg)
-    set_option_value((char_u *)"bg", 0L, (char_u *)"dark", 0);
-#endif
-
   curbuf->b_p_initialized = TRUE;
   curbuf->b_p_ar = -1; /* no local 'autoread' value */
   curbuf->b_p_ul = NO_LOCAL_UNDOLEVEL;
@@ -3038,7 +2958,7 @@ void set_init_2(void)
   set_number_default("window", Rows - 1);
 
   /* For DOS console the default is always black. */
-#if !((defined(MSWIN)) && !defined(FEAT_GUI))
+#if !defined(MSWIN)
   /*
      * If 'background' wasn't set by the user, try guessing the value,
      * depending on the terminal name.  Only need to check for terminals
@@ -3279,30 +3199,6 @@ void set_helplang_default(char_u *lang)
       p_hlg[2] = NUL;
     }
     options[idx].flags |= P_ALLOCED;
-  }
-}
-#endif
-
-#ifdef FEAT_GUI
-static char_u *
-gui_bg_default(void)
-{
-  if (gui_get_lightness(gui.back_pixel) < 127)
-    return (char_u *)"dark";
-  return (char_u *)"light";
-}
-
-/*
- * Option initializations that can only be done after opening the GUI window.
- */
-void init_gui_options(void)
-{
-  /* Set the 'background' option according to the lightness of the
-     * background color, unless the user has set it already. */
-  if (!option_was_set((char_u *)"bg") && STRCMP(p_bg, gui_bg_default()) != 0)
-  {
-    set_option_value((char_u *)"bg", 0L, gui_bg_default(), 0);
-    highlight_changed();
   }
 }
 #endif
@@ -3819,12 +3715,7 @@ int do_set(
               if ((char_u **)varp == &p_bg)
               {
                 /* guess the value of 'background' */
-#ifdef FEAT_GUI
-                if (gui.in_use)
-                  newval = gui_bg_default();
-                else
-#endif
-                  newval = term_bg_default();
+                newval = term_bg_default();
               }
 
               /* expand environment variables and ~ (since the
@@ -4959,10 +4850,6 @@ did_set_string_option(
   int did_chartab = FALSE;
   char_u **gvarp;
   long_u free_oldval = (options[opt_idx].flags & P_ALLOCED);
-#ifdef FEAT_GUI
-  /* set when changing an option that only requires a redraw in the GUI */
-  int redraw_gui_only = FALSE;
-#endif
   int value_changed = FALSE;
 
   /* Get the global option to compare with, otherwise we would have to check
@@ -4992,12 +4879,6 @@ did_set_string_option(
   {
     if (T_NAME[0] == NUL)
       errmsg = N_("E529: Cannot set 'term' to empty string");
-#ifdef FEAT_GUI
-    if (gui.in_use)
-      errmsg = N_("E530: Cannot change term in GUI");
-    else if (term_is_gui(T_NAME))
-      errmsg = N_("E531: Use \":gui\" to start the GUI");
-#endif
     else if (set_termname(T_NAME) == FAIL)
       errmsg = N_("E522: Not found in termcap");
     else
@@ -5696,69 +5577,6 @@ did_set_string_option(
   }
 #endif
 
-#ifdef FEAT_GUI
-  /* 'guifont' */
-  else if (varp == &p_guifont)
-  {
-    if (gui.in_use)
-    {
-      p = p_guifont;
-#if defined(FEAT_GUI_GTK)
-      /*
-	     * Put up a font dialog and let the user select a new value.
-	     * If this is cancelled go back to the old value but don't
-	     * give an error message.
-	     */
-      if (STRCMP(p, "*") == 0)
-      {
-        p = gui_mch_font_dialog(oldval);
-
-        if (new_value_alloced)
-          free_string_option(p_guifont);
-
-        p_guifont = (p != NULL) ? p : vim_strsave(oldval);
-        new_value_alloced = TRUE;
-      }
-#endif
-      if (p != NULL && gui_init_font(p_guifont, FALSE) != OK)
-      {
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
-        if (STRCMP(p_guifont, "*") == 0)
-        {
-          /* Dialog was cancelled: Keep the old value without giving
-		     * an error message. */
-          if (new_value_alloced)
-            free_string_option(p_guifont);
-          p_guifont = vim_strsave(oldval);
-          new_value_alloced = TRUE;
-        }
-        else
-#endif
-          errmsg = N_("E596: Invalid font(s)");
-      }
-    }
-    redraw_gui_only = TRUE;
-  }
-#ifdef FEAT_XFONTSET
-  else if (varp == &p_guifontset)
-  {
-    if (STRCMP(p_guifontset, "*") == 0)
-      errmsg = N_("E597: can't select fontset");
-    else if (gui.in_use && gui_init_font(p_guifontset, TRUE) != OK)
-      errmsg = N_("E598: Invalid fontset");
-    redraw_gui_only = TRUE;
-  }
-#endif
-  else if (varp == &p_guifontwide)
-  {
-    if (STRCMP(p_guifontwide, "*") == 0)
-      errmsg = N_("E533: can't select wide font");
-    else if (gui_get_wide_font() == FAIL)
-      errmsg = N_("E534: Invalid wide font");
-    redraw_gui_only = TRUE;
-  }
-#endif
-
 #ifdef FEAT_LANGMAP
   /* 'langmap' */
   else if (varp == &p_langmap)
@@ -5769,15 +5587,6 @@ did_set_string_option(
   /* 'breakat' */
   else if (varp == &p_breakat)
     fill_breakat_flags();
-#endif
-
-#ifdef FEAT_GUI
-  /* 'guioptions' */
-  else if (varp == &p_go)
-  {
-    gui_init_which_components(oldval);
-    redraw_gui_only = TRUE;
-  }
 #endif
 
   /* 'selection' */
@@ -6206,10 +6015,6 @@ did_set_string_option(
       if (*p_mouse != NUL)
         errmsg = N_("E538: No mouse support");
     }
-#if defined(FEAT_GUI)
-    else if (varp == &p_go) /* 'guioptions' */
-      p = (char_u *)GO_ALL;
-#endif
     if (p != NULL)
     {
       for (s = *varp; *s; ++s)
@@ -6304,11 +6109,7 @@ did_set_string_option(
   if (curwin->w_curswant != MAXCOL && (options[opt_idx].flags & (P_CURSWANT | P_RALL)) != 0)
     curwin->w_set_curswant = TRUE;
 
-#ifdef FEAT_GUI
-  /* check redraw when it's not a GUI option or the GUI is active. */
-  if (!redraw_gui_only || gui.in_use)
-#endif
-    check_redraw(options[opt_idx].flags);
+  check_redraw(options[opt_idx].flags);
 
   return errmsg;
 }
@@ -6517,10 +6318,6 @@ set_bool_option(
   set_option_sctx_idx(opt_idx, opt_flags, current_sctx);
 #endif
 
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
-
   /* May set global value for local option. */
   if ((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0)
     *(int *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = value;
@@ -6581,14 +6378,6 @@ set_bool_option(
     if (curbuf->b_p_ro)
       curbuf->b_did_warn = FALSE;
   }
-
-#ifdef FEAT_GUI
-  else if ((int *)varp == &p_mh)
-  {
-    if (!p_mh)
-      gui_mch_mousehide(FALSE);
-  }
-#endif
 
   /* when 'modifiable' is changed, redraw the window title */
   else if ((int *)varp == &curbuf->b_p_ma)
@@ -6972,9 +6761,6 @@ set_num_option(
   /* Remember where the option was set. */
   set_option_sctx_idx(opt_idx, opt_flags, current_sctx);
 #endif
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
 
   if (curbuf->b_p_sw < 0)
   {
@@ -7080,16 +6866,6 @@ set_num_option(
   {
     shell_new_rows(); /* recompute window positions and heights */
   }
-
-#ifdef FEAT_GUI
-  else if (pp == &p_linespace)
-  {
-    /* Recompute gui.char_height and resize the Vim window to keep the
-	 * same number of lines. */
-    if (gui.in_use && gui_mch_adjust_charheight() == OK)
-      gui_set_shellsize(FALSE, FALSE, RESIZE_VERT);
-  }
-#endif
 
 #ifdef FEAT_FOLDING
   /* 'foldlevel' */
@@ -7206,11 +6982,7 @@ set_num_option(
 
     /* Only compute the new window layout when startup has been
 	 * completed. Otherwise the frame sizes may be wrong. */
-    if (p_ch != old_value && full_screen
-#ifdef FEAT_GUI
-        && !gui.starting
-#endif
-    )
+    if (p_ch != old_value && full_screen)
       command_height();
   }
 
@@ -7316,11 +7088,7 @@ set_num_option(
     /* Changing the screen size is not allowed while updating the screen. */
     if (updating_screen)
       *pp = old_value;
-    else if (full_screen
-#ifdef FEAT_GUI
-             && !gui.starting
-#endif
-    )
+    else if (full_screen)
       set_shellsize((int)Columns, (int)Rows, TRUE);
     else
     {
@@ -8448,12 +8216,6 @@ void clear_termoptions(void)
      * outputting a few things that the terminal doesn't understand, but the
      * screen will be cleared later, so this is OK.
      */
-#if defined(FEAT_XCLIPBOARD) && defined(FEAT_GUI)
-  /* When starting the GUI close the display opened for the clipboard.
-     * After restoring the title, because that will need the display. */
-  if (gui.starting)
-    clear_xterm_clip();
-#endif
   stoptermcap(); /* stop termcap mode */
 
   free_termoptions();

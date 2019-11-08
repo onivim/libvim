@@ -213,7 +213,7 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 
 #endif
 
-#if defined(FEAT_GUI) || defined(FEAT_JOB_CHANNEL)
+#if defined(FEAT_JOB_CHANNEL)
 #if defined(UNIX) || defined(MACOS_X) || defined(VMS)
 #include "pty.pro"
 #endif
@@ -226,7 +226,7 @@ void ch_log(channel_T *ch, const char *fmt, ...)
 #ifdef MACOS_CONVERT
 #include "os_mac_conv.pro"
 #endif
-#if defined(MACOS_X_DARWIN) && defined(FEAT_CLIPBOARD) && !defined(FEAT_GUI)
+#if defined(MACOS_X_DARWIN) && defined(FEAT_CLIPBOARD)
 /* functions in os_macosx.m */
 void clip_mch_lose_selection(VimClipboard *cbd);
 int clip_mch_own_selection(VimClipboard *cbd);

@@ -4141,9 +4141,6 @@ void ex_copen(exarg_T *eap)
     height = QF_WINHEIGHT;
 
   reset_VIsual_and_resel(); // stop Visual mode
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
 
   // Find an existing quickfix window, or open a new one.
   if (cmdmod.tab == 0)

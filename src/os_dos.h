@@ -39,24 +39,6 @@
 #define USR_EXRC_FILE2 "$VIM\\_exrc"
 #endif
 
-#ifdef FEAT_GUI
-#ifndef SYS_GVIMRC_FILE
-#define SYS_GVIMRC_FILE "$VIM\\gvimrc"
-#endif
-#ifndef USR_GVIMRC_FILE
-#define USR_GVIMRC_FILE "$HOME\\_gvimrc"
-#endif
-#ifndef USR_GVIMRC_FILE2
-#define USR_GVIMRC_FILE2 "$HOME\\vimfiles\\gvimrc"
-#endif
-#ifndef USR_GVIMRC_FILE3
-#define USR_GVIMRC_FILE3 "$VIM\\_gvimrc"
-#endif
-#ifndef SYS_MENU_FILE
-#define SYS_MENU_FILE "$VIMRUNTIME\\menu.vim"
-#endif
-#endif
-
 #ifndef SYS_OPTWIN_FILE
 #define SYS_OPTWIN_FILE "$VIMRUNTIME\\optwin.vim"
 #endif
@@ -76,12 +58,6 @@
 
 #ifndef EXRC_FILE
 #define EXRC_FILE "_exrc"
-#endif
-
-#ifdef FEAT_GUI
-#ifndef GVIMRC_FILE
-#define GVIMRC_FILE "_gvimrc"
-#endif
 #endif
 
 #ifndef DFLT_HELPFILE

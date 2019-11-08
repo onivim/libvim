@@ -83,7 +83,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD)
+#if defined(FEAT_XCLIPBOARD)
 #include <X11/Xwindows.h>
 #define WINBYTE wBYTE
 #else
@@ -4455,7 +4455,7 @@ int utf_valid_string(char_u *s, char_u *end)
 }
 #endif
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Special version of mb_tail_off() for use in ScreenLines[].
  */
@@ -4561,21 +4561,13 @@ mb_unescape(char_u **pp)
       buf[m++] = K_SPECIAL;
       n += 2;
     }
-    else if ((str[n] == K_SPECIAL
-#ifdef FEAT_GUI
-              || str[n] == CSI
-#endif
-              ) &&
+    else if ((str[n] == K_SPECIAL) &&
              str[n + 1] == KS_EXTRA && str[n + 2] == (int)KE_CSI)
     {
       buf[m++] = CSI;
       n += 2;
     }
-    else if (str[n] == K_SPECIAL
-#ifdef FEAT_GUI
-             || str[n] == CSI
-#endif
-    )
+    else if (str[n] == K_SPECIAL)
       break; /* a special key can't be a multibyte char */
     else
       buf[m++] = str[n];
@@ -5253,7 +5245,7 @@ int convert_setup_ext(
   return OK;
 }
 
-#if defined(FEAT_GUI) || defined(MSWIN) || defined(PROTO)
+#if defined(MSWIN) || defined(PROTO)
 /*
  * Do conversion on typed input characters in-place.
  * The input and output are not NUL terminated!

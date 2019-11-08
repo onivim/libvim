@@ -5145,9 +5145,6 @@ void find_pattern_in_path(
         }
         else
         {
-#ifdef FEAT_GUI
-          need_mouse_correct = TRUE;
-#endif
 #if defined(FEAT_QUICKFIX)
           /* ":psearch" uses the preview window */
           if (g_do_tagpreview != 0)

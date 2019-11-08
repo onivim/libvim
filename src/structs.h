@@ -694,7 +694,7 @@ typedef struct
 #endif
   int split; /* flags for win_split() */
   int tab;   /* > 0 when ":tab" was used */
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
+#if defined(FEAT_CON_DIALOG)
   int confirm; /* TRUE to invoke yes/no dialog */
 #endif
   int keepalt;                /* TRUE when ":keepalt" was used */
@@ -1050,18 +1050,6 @@ typedef struct attr_entry
       short_u fg_color; /* foreground color number */
       short_u bg_color; /* background color number */
     } cterm;
-#ifdef FEAT_GUI
-    struct
-    {
-      guicolor_T fg_color; /* foreground color handle */
-      guicolor_T bg_color; /* background color handle */
-      guicolor_T sp_color; /* special color handle */
-      GuiFont font;        /* font handle */
-#ifdef FEAT_XFONTSET
-      GuiFontset fontset; /* fontset handle */
-#endif
-    } gui;
-#endif
   } ae_u;
 } attrentry_T;
 
@@ -1918,9 +1906,6 @@ typedef struct
   int jo_term_finish;
   char_u *jo_eof_chars;
   char_u *jo_term_kill;
-#if defined(FEAT_GUI)
-  long_u jo_ansi_colors[16];
-#endif
   int jo_tty_type; // first character of "tty_type"
 #endif
 } jobopt_T;
@@ -2495,13 +2480,8 @@ struct tabpage_S
   long tp_old_Columns;  // Columns when Tab page was left
   long tp_ch_used;      // value of 'cmdheight' when frame size
                         // was set
-#ifdef FEAT_GUI
-  int tp_prev_which_scrollbars[3];
-  // previous value of which_scrollbars
-#endif
-
-  char_u *tp_localdir; // absolute path of local directory or
-                       // NULL
+  char_u *tp_localdir;  // absolute path of local directory or
+                        // NULL
 #ifdef FEAT_DIFF
   diff_T *tp_first_diff;
   buf_T *(tp_diffbuf[DB_COUNT]);
@@ -2899,9 +2879,6 @@ struct window_S
   int w_fraction;
   int w_prev_fraction_row;
 
-#ifdef FEAT_GUI
-  scrollbar_T w_scrollbars[2]; /* vert. Scrollbars for this window */
-#endif
 #ifdef FEAT_LINEBREAK
   linenr_T w_nrwidth_line_count; /* line count when ml_nrwidth_width
 					 * was computed. */

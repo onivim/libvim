@@ -1725,27 +1725,6 @@ getcmdline_int(
       break;
 #endif
 
-#ifdef FEAT_GUI
-    case K_LEFTMOUSE_NM: /* mousefocus click, ignored */
-    case K_LEFTRELEASE_NM:
-      goto cmdline_not_changed;
-
-    case K_VER_SCROLLBAR:
-      if (msg_scrolled == 0)
-      {
-        gui_do_scroll();
-        redrawcmd();
-      }
-      goto cmdline_not_changed;
-
-    case K_HOR_SCROLLBAR:
-      if (msg_scrolled == 0)
-      {
-        gui_do_horiz_scroll(scrollbar_value, FALSE);
-        redrawcmd();
-      }
-      goto cmdline_not_changed;
-#endif
     case K_SELECT: /* end of Select mode mapping - ignore */
       goto cmdline_not_changed;
 

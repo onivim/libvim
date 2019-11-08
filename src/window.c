@@ -205,9 +205,6 @@ void do_window(
     if (bt_quickfix(curbuf))
       goto newwindow;
 #endif
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     (void)win_split((int)Prenum, 0);
     break;
 
@@ -221,9 +218,6 @@ void do_window(
 		 * don't replicate the quickfix buffer. */
     if (bt_quickfix(curbuf))
       goto newwindow;
-#endif
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
 #endif
     (void)win_split((int)Prenum, WSP_VERT);
     break;
@@ -469,58 +463,37 @@ void do_window(
 
     /* make all windows the same height */
   case '=':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_equal(NULL, FALSE, 'b');
     break;
 
     /* increase current window height */
   case '+':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setheight(curwin->w_height + (int)Prenum1);
     break;
 
     /* decrease current window height */
   case '-':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setheight(curwin->w_height - (int)Prenum1);
     break;
 
     /* set current window height */
   case Ctrl__:
   case '_':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setheight(Prenum ? (int)Prenum : 9999);
     break;
 
     /* increase current window width */
   case '>':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setwidth(curwin->w_width + (int)Prenum1);
     break;
 
     /* decrease current window width */
   case '<':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setwidth(curwin->w_width - (int)Prenum1);
     break;
 
     /* set current window width */
   case '|':
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     win_setwidth(Prenum != 0 ? (int)Prenum : 9999);
     break;
 
@@ -565,9 +538,6 @@ void do_window(
     {
       tabpage_T *oldtab = curtab;
       win_T *oldwin = curwin;
-#ifdef FEAT_GUI
-      need_mouse_correct = TRUE;
-#endif
       setpcmark();
       if (win_split(0, 0) == OK)
       {
@@ -1303,12 +1273,6 @@ int win_split_ins(
     i = p_wiw;
     if (size != 0)
       p_wiw = size;
-
-#ifdef FEAT_GUI
-    /* When 'guioptions' includes 'L' or 'R' may have to add scrollbars. */
-    if (gui.in_use)
-      gui_init_which_components(NULL);
-#endif
   }
   else
   {
@@ -1554,10 +1518,6 @@ win_exchange(long Prenum)
     return;
   }
 
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
-
   /*
      * find window to exchange with
      */
@@ -1655,10 +1615,6 @@ win_rotate(int upwards, int count)
     return;
   }
 
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
-
   /* Check if all frames in this row/col have one window. */
   FOR_ALL_FRAMES(frp, curwin->w_frame->fr_parent->fr_child)
   if (frp->fr_win == NULL)
@@ -1749,12 +1705,6 @@ win_totop(int size, int flags)
     if (p_ea)
       win_equal(curwin, TRUE, 'v');
   }
-
-#if defined(FEAT_GUI)
-  /* When 'guioptions' includes 'L' or 'R' may have to remove or add
-     * scrollbars.  Have to update them anyway. */
-  gui_may_update_scrollbars();
-#endif
 }
 
 /*
@@ -2539,12 +2489,6 @@ int win_close(win_T *win, int free_buf)
      * before it was opened. */
   if (help_window)
     restore_snapshot(SNAP_HELP_IDX, close_curwin);
-
-#if defined(FEAT_GUI)
-  /* When 'guioptions' includes 'L' or 'R' may have to remove scrollbars. */
-  if (gui.in_use && !win_hasvertsplit())
-    gui_init_which_components(NULL);
-#endif
 
   redraw_all_later(NOT_VALID);
   return OK;
@@ -3599,10 +3543,6 @@ static tabpage_T *
 alloc_tabpage(void)
 {
   tabpage_T *tp;
-#ifdef FEAT_GUI
-  int i;
-#endif
-
   tp = ALLOC_CLEAR_ONE(tabpage_T);
   if (tp == NULL)
     return NULL;
@@ -3618,10 +3558,6 @@ alloc_tabpage(void)
   init_var_dict(tp->tp_vars, &tp->tp_winvar, VAR_SCOPE);
 #endif
 
-#ifdef FEAT_GUI
-  for (i = 0; i < 3; i++)
-    tp->tp_prev_which_scrollbars[i] = -1;
-#endif
 #ifdef FEAT_DIFF
   tp->tp_diff_invalid = TRUE;
 #endif
@@ -3715,11 +3651,6 @@ int win_new_tabpage(int after)
     newtp->tp_topframe = topframe;
     last_status(FALSE);
 
-#if defined(FEAT_GUI)
-    /* When 'guioptions' includes 'L' or 'R' may have to remove or add
-	 * scrollbars.  Have to update them anyway. */
-    gui_may_update_scrollbars();
-#endif
 #ifdef FEAT_JOB_CHANNEL
     entering_window(curwin);
 #endif
@@ -3912,11 +3843,6 @@ leave_tabpage(
     if (curtab != tp)
       return FAIL;
   }
-#if defined(FEAT_GUI)
-  /* Remove the scrollbars.  They may be added back later. */
-  if (gui.in_use)
-    gui_remove_scrollbars();
-#endif
   tp->tp_curwin = curwin;
   tp->tp_prevwin = prevwin;
   tp->tp_firstwin = firstwin;
@@ -3973,12 +3899,6 @@ enter_tabpage(
     shell_new_rows();
   if (curtab->tp_old_Columns != Columns && starting == 0)
     shell_new_columns(); /* update window widths */
-
-#if defined(FEAT_GUI)
-  /* When 'guioptions' includes 'L' or 'R' may have to remove or add
-     * scrollbars.  Have to update them anyway. */
-  gui_may_update_scrollbars();
-#endif
 
   /* Apply autocommands after updating the display, when 'rows' and
      * 'columns' have been set correctly. */
@@ -4171,9 +4091,6 @@ void win_goto(win_T *wp)
   else if (VIsual_active)
     wp->w_cursor = curwin->w_cursor;
 
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
   win_enter(wp, TRUE);
 }
 
@@ -4604,15 +4521,6 @@ win_alloc(win_T *after UNUSED, int hidden UNUSED)
   new_wp->w_fraction = 0;
   new_wp->w_prev_fraction_row = -1;
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
-  {
-    gui_create_scrollbar(&new_wp->w_scrollbars[SBAR_LEFT],
-                         SBAR_LEFT, new_wp);
-    gui_create_scrollbar(&new_wp->w_scrollbars[SBAR_RIGHT],
-                         SBAR_RIGHT, new_wp);
-  }
-#endif
 #ifdef FEAT_FOLDING
   foldInitWin(new_wp);
 #endif
@@ -4706,14 +4614,6 @@ win_free(
 #ifdef FEAT_QUICKFIX
   qf_free_all(wp);
 #endif
-
-#ifdef FEAT_GUI
-  if (gui.in_use)
-  {
-    gui_mch_destroy_scrollbar(&wp->w_scrollbars[SBAR_LEFT]);
-    gui_mch_destroy_scrollbar(&wp->w_scrollbars[SBAR_RIGHT]);
-  }
-#endif /* FEAT_GUI */
 
   if (win_valid_any_tab(wp))
     win_remove(wp, tp);
@@ -6352,7 +6252,7 @@ void restore_buffer(bufref_T *save_curbuf)
 }
 #endif
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#ifdef PROTO
 /*
  * Return TRUE if there is any vertically split window.
  */

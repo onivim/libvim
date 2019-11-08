@@ -2688,56 +2688,9 @@ do_browse(
 	 * default already, leave initdir empty. */
   }
 
-#ifdef FEAT_GUI
-  if (gui.in_use) /* when this changes, also adjust f_has()! */
-  {
-    if (filter == NULL
-#ifdef FEAT_EVAL
-        && (filter = get_var_value((char_u *)"b:browsefilter")) == NULL && (filter = get_var_value((char_u *)"g:browsefilter")) == NULL
-#endif
-    )
-      filter = BROWSE_FILTER_DEFAULT;
-    if (flags & BROWSE_DIR)
-    {
-#if defined(FEAT_GUI_GTK) || defined(MSWIN)
-      /* For systems that have a directory dialog. */
-      fname = gui_mch_browsedir(title, initdir);
-#else
-      /* Generic solution for selecting a directory: select a file and
-	     * remove the file name. */
-      fname = gui_mch_browse(0, title, dflt, ext, initdir, (char_u *)"");
-#endif
-#if !defined(FEAT_GUI_GTK)
-      /* Win32 adds a dummy file name, others return an arbitrary file
-	     * name.  GTK+ 2 returns only the directory, */
-      if (fname != NULL && *fname != NUL && !mch_isdir(fname))
-      {
-        /* Remove the file name. */
-        char_u *tail = gettail_sep(fname);
-
-        if (tail == fname)
-          *tail++ = '.'; /* use current dir */
-        *tail = NUL;
-      }
-#endif
-    }
-    else
-      fname = gui_mch_browse(flags & BROWSE_SAVE,
-                             title, dflt, ext, initdir, (char_u *)_(filter));
-
-    /* We hang around in the dialog for a while, the user might do some
-	 * things to our files.  The Win32 dialog allows deleting or renaming
-	 * a file, check timestamps. */
-    need_check_timestamps = TRUE;
-    did_check_timestamps = FALSE;
-  }
-  else
-#endif
-  {
-    /* TODO: non-GUI file selector here */
-    emsg(_("E338: Sorry, no file browser in console mode"));
-    fname = NULL;
-  }
+  /* TODO: non-GUI file selector here */
+  emsg(_("E338: Sorry, no file browser in console mode"));
+  fname = NULL;
 
   /* keep the directory for next time */
   if (fname != NULL)

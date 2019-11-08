@@ -3533,33 +3533,7 @@ mch_system_classic(char *cmd, int options)
 
   /* Wait for the command to terminate before continuing */
   {
-#ifdef FEAT_GUI
-    int delay = 1;
-
-    /* Keep updating the window while waiting for the shell to finish. */
-    for (;;)
-    {
-      MSG msg;
-
-      if (pPeekMessage(&msg, (HWND)NULL, 0, 0, PM_REMOVE))
-      {
-        TranslateMessage(&msg);
-        pDispatchMessage(&msg);
-        delay = 1;
-        continue;
-      }
-      if (WaitForSingleObject(pi.hProcess, delay) != WAIT_TIMEOUT)
-        break;
-
-      /* We start waiting for a very short time and then increase it, so
-	     * that we respond quickly when the process is quick, and don't
-	     * consume too much overhead when it's slow. */
-      if (delay < 50)
-        delay += 10;
-    }
-#else
     WaitForSingleObject(pi.hProcess, INFINITE);
-#endif
 
     /* Get the command exit code */
     GetExitCodeProcess(pi.hProcess, &ret);
@@ -3863,18 +3837,10 @@ mch_system_piped(char *cmd, int options)
     }
 
     /* write pipe information in the window */
-    if ((options & (SHELL_READ | SHELL_WRITE))
-#ifdef FEAT_GUI
-        || gui.in_use
-#endif
-    )
+    if ((options & (SHELL_READ | SHELL_WRITE)))
     {
       len = 0;
-      if (!(options & SHELL_EXPAND) && ((options & (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) != (SHELL_READ | SHELL_WRITE | SHELL_COOKED)
-#ifdef FEAT_GUI
-                                        || gui.in_use
-#endif
-                                        ) &&
+      if (!(options & SHELL_EXPAND) && ((options & (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) != (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) &&
           (ta_len > 0 || noread_cnt > 4))
       {
         if (ta_len == 0)
@@ -4070,90 +4036,6 @@ mch_system(char *cmd, int options)
 #endif
 }
 
-#if defined(FEAT_GUI) && defined(FEAT_TERMINAL)
-/*
- * Use a terminal window to run a shell command in.
- */
-static int
-mch_call_shell_terminal(
-    char_u *cmd,
-    int options UNUSED) /* SHELL_*, see vim.h */
-{
-  jobopt_T opt;
-  char_u *newcmd = NULL;
-  typval_T argvar[2];
-  long_u cmdlen;
-  int retval = -1;
-  buf_T *buf;
-  job_T *job;
-  aco_save_T aco;
-  oparg_T oa; /* operator arguments */
-
-  if (cmd == NULL)
-    cmdlen = STRLEN(p_sh) + 1;
-  else
-    cmdlen = STRLEN(p_sh) + STRLEN(p_shcf) + STRLEN(cmd) + 10;
-  newcmd = alloc(cmdlen);
-  if (newcmd == NULL)
-    return 255;
-  if (cmd == NULL)
-  {
-    STRCPY(newcmd, p_sh);
-    ch_log(NULL, "starting terminal to run a shell");
-  }
-  else
-  {
-    vim_snprintf((char *)newcmd, cmdlen, "%s %s %s", p_sh, p_shcf, cmd);
-    ch_log(NULL, "starting terminal for system command '%s'", cmd);
-  }
-
-  init_job_options(&opt);
-
-  argvar[0].v_type = VAR_STRING;
-  argvar[0].vval.v_string = newcmd;
-  argvar[1].v_type = VAR_UNKNOWN;
-  buf = term_start(argvar, NULL, &opt, TERM_START_SYSTEM);
-  if (buf == NULL)
-  {
-    vim_free(newcmd);
-    return 255;
-  }
-
-  job = term_getjob(buf->b_term);
-  ++job->jv_refcount;
-
-  /* Find a window to make "buf" curbuf. */
-  aucmd_prepbuf(&aco, buf);
-
-  clear_oparg(&oa);
-  while (term_use_loop())
-  {
-    if (oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active)
-    {
-      /* If terminal_loop() returns OK we got a key that is handled
-	     * in Normal model. We don't do redrawing anyway. */
-      if (terminal_loop(TRUE) == OK)
-        normal_cmd(&oa, TRUE);
-    }
-    else
-      normal_cmd(&oa, TRUE);
-  }
-  retval = job->jv_exitval;
-  ch_log(NULL, "system command finished");
-
-  job_unref(job);
-
-  /* restore curwin/curbuf and a few other things */
-  aucmd_restbuf(&aco);
-
-  wait_return(TRUE);
-  do_buffer(DOBUF_WIPE, DOBUF_FIRST, FORWARD, buf->b_fnum, TRUE);
-
-  vim_free(newcmd);
-  return retval;
-}
-#endif
-
 /*
  * Either execute a command by calling the shell or start a new shell
  */
@@ -4169,19 +4051,6 @@ int mch_call_shell(
   {
     fprintf(fdDump, "mch_call_shell(\"%s\", %d)\n", cmd, options);
     fflush(fdDump);
-  }
-#endif
-#if defined(FEAT_GUI) && defined(FEAT_TERMINAL)
-  /* TODO: make the terminal window work with input or output redirected. */
-  if (
-#ifdef VIMDLL
-      gui.in_use &&
-#endif
-      vim_strchr(p_go, GO_TERMINAL) != NULL && (options & (SHELL_FILTER | SHELL_DOOUT | SHELL_WRITE | SHELL_READ)) == 0)
-  {
-    /* Use a terminal window to run the command in. */
-    x = mch_call_shell_terminal(cmd, options);
-    return x;
   }
 #endif
 

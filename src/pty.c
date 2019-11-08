@@ -43,7 +43,7 @@
 
 #include "vim.h"
 
-#if defined(FEAT_GUI) || defined(FEAT_JOB_CHANNEL)
+#if defined(FEAT_JOB_CHANNEL)
 
 #include <signal.h>
 
@@ -463,4 +463,4 @@ int mch_isatty(int fd)
   return isatty(fd);
 }
 
-#endif /* FEAT_GUI || FEAT_JOB_CHANNEL */
+#endif /* FEAT_JOB_CHANNEL */

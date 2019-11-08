@@ -3768,50 +3768,7 @@ void list_version(void)
 #endif
 #endif
 #endif
-#ifndef FEAT_GUI
   msg_puts(_("without GUI."));
-#else
-#ifdef FEAT_GUI_GTK
-#ifdef USE_GTK3
-  msg_puts(_("with GTK3 GUI."));
-#else
-#ifdef FEAT_GUI_GNOME
-  msg_puts(_("with GTK2-GNOME GUI."));
-#else
-  msg_puts(_("with GTK2 GUI."));
-#endif
-#endif
-#else
-#ifdef FEAT_GUI_MOTIF
-  msg_puts(_("with X11-Motif GUI."));
-#else
-#ifdef FEAT_GUI_ATHENA
-#ifdef FEAT_GUI_NEXTAW
-  msg_puts(_("with X11-neXtaw GUI."));
-#else
-  msg_puts(_("with X11-Athena GUI."));
-#endif
-#else
-#ifdef FEAT_GUI_PHOTON
-  msg_puts(_("with Photon GUI."));
-#else
-#if defined(MSWIN)
-  msg_puts(_("with GUI."));
-#else
-#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
-  msg_puts(_("with Carbon GUI."));
-#else
-#if defined(TARGET_API_MAC_OSX) && TARGET_API_MAC_OSX
-  msg_puts(_("with Cocoa GUI."));
-#else
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
   version_msg(_("  Features included (+) or not (-):\n"));
 
   list_features();
@@ -3846,36 +3803,9 @@ void list_version(void)
   version_msg(USR_EXRC_FILE2);
   version_msg("\"\n");
 #endif
-#ifdef FEAT_GUI
-#ifdef SYS_GVIMRC_FILE
-  version_msg(_("  system gvimrc file: \""));
-  version_msg(SYS_GVIMRC_FILE);
-  version_msg("\"\n");
-#endif
-  version_msg(_("    user gvimrc file: \""));
-  version_msg(USR_GVIMRC_FILE);
-  version_msg("\"\n");
-#ifdef USR_GVIMRC_FILE2
-  version_msg(_("2nd user gvimrc file: \""));
-  version_msg(USR_GVIMRC_FILE2);
-  version_msg("\"\n");
-#endif
-#ifdef USR_GVIMRC_FILE3
-  version_msg(_("3rd user gvimrc file: \""));
-  version_msg(USR_GVIMRC_FILE3);
-  version_msg("\"\n");
-#endif
-#endif
   version_msg(_("       defaults file: \""));
   version_msg(VIM_DEFAULTS_FILE);
   version_msg("\"\n");
-#ifdef FEAT_GUI
-#ifdef SYS_MENU_FILE
-  version_msg(_("    system menu file: \""));
-  version_msg(SYS_MENU_FILE);
-  version_msg("\"\n");
-#endif
-#endif
 #ifdef HAVE_PATHDEF
   if (*default_vim_dir != NUL)
   {
@@ -3956,31 +3886,6 @@ void intro_message(
           N_("type  :set nocp<Enter>        for Vim defaults"),
           N_("type  :help cp-default<Enter> for info on this"),
       };
-#ifdef FEAT_GUI
-  static char *(gui_lines[]) =
-      {
-          NULL,
-          NULL,
-          NULL,
-          NULL,
-#ifdef MODIFIED_BY
-          NULL,
-#endif
-          NULL,
-          NULL,
-          NULL,
-          N_("menu  Help->Orphans           for information    "),
-          NULL,
-          N_("Running modeless, typed text is inserted"),
-          N_("menu  Edit->Global Settings->Toggle Insert Mode  "),
-          N_("                              for two modes      "),
-          NULL,
-          NULL,
-          NULL,
-          N_("menu  Edit->Global Settings->Toggle Vi Compatible"),
-          N_("                              for Vim defaults   "),
-      };
-#endif
 
   /* blanklines = screen height - # message lines */
   blanklines = (int)Rows - ((sizeof(lines) / sizeof(char *)) - 1);
@@ -4005,10 +3910,6 @@ void intro_message(
     for (i = 0; i < (int)(sizeof(lines) / sizeof(char *)); ++i)
     {
       p = lines[i];
-#ifdef FEAT_GUI
-      if (p_im && gui.in_use && gui_lines[i] != NULL)
-        p = gui_lines[i];
-#endif
       if (p == NULL)
       {
         if (!p_cp)

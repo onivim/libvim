@@ -141,14 +141,6 @@
 #define EVIM_FILE "$VIMRUNTIME/evim.vim"
 #endif
 
-#ifdef FEAT_GUI
-#ifndef USR_GVIMRC_FILE
-#define USR_GVIMRC_FILE "~/.gvimrc"
-#endif
-#ifndef GVIMRC_FILE
-#define GVIMRC_FILE "_gvimrc"
-#endif
-#endif
 #ifndef USR_VIMRC_FILE
 #define USR_VIMRC_FILE "~/.vimrc"
 #endif
