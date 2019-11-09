@@ -1417,20 +1417,16 @@ uc_check_code(
     } mod_entry_T;
     static mod_entry_T mod_entries[] = {
 #ifdef FEAT_BROWSE_CMD
-      {&cmdmod.browse, "browse"},
+        {&cmdmod.browse, "browse"},
 #endif
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-      {&cmdmod.confirm, "confirm"},
-#endif
-      {&cmdmod.hide, "hide"},
-      {&cmdmod.keepalt, "keepalt"},
-      {&cmdmod.keepjumps, "keepjumps"},
-      {&cmdmod.keepmarks, "keepmarks"},
-      {&cmdmod.keeppatterns, "keeppatterns"},
-      {&cmdmod.lockmarks, "lockmarks"},
-      {&cmdmod.noswapfile, "noswapfile"},
-      {NULL, NULL}
-    };
+        {&cmdmod.hide, "hide"},
+        {&cmdmod.keepalt, "keepalt"},
+        {&cmdmod.keepjumps, "keepjumps"},
+        {&cmdmod.keepmarks, "keepmarks"},
+        {&cmdmod.keeppatterns, "keeppatterns"},
+        {&cmdmod.lockmarks, "lockmarks"},
+        {&cmdmod.noswapfile, "noswapfile"},
+        {NULL, NULL}};
     int i;
 
     result = quote ? 2 : 0;

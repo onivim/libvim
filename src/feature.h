@@ -836,8 +836,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_CLIPBOARD
 
 /* GUI features */
-#undef FEAT_CON_DIALOG
-#undef FEAT_GUI_DIALOG
 #undef ALWAYS_USE_GUI
 
 #undef FEAT_TEXT_PROP

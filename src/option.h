@@ -378,10 +378,7 @@ EXTERN int p_deco;    /* 'delcombine' */
 #ifdef FEAT_EVAL
 EXTERN char_u *p_ccv; /* 'charconvert' */
 #endif
-EXTERN long p_ch; /* 'cmdheight' */
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-EXTERN int p_confirm; /* 'confirm' */
-#endif
+EXTERN long p_ch;       /* 'cmdheight' */
 EXTERN int p_cp;        /* 'compatible' */
 EXTERN char_u *p_cpo;   /* 'cpoptions' */
 EXTERN char_u *p_debug; /* 'debug' */

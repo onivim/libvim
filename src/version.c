@@ -150,19 +150,7 @@ static char *(features[]) =
         "-cscope",
 #endif
         "+cursorbind",
-#if defined(FEAT_CON_DIALOG) && defined(FEAT_GUI_DIALOG)
-        "+dialog_con_gui",
-#else
-#if defined(FEAT_CON_DIALOG)
-        "+dialog_con",
-#else
-#if defined(FEAT_GUI_DIALOG)
-        "+dialog_gui",
-#else
         "-dialog",
-#endif
-#endif
-#endif
 #ifdef FEAT_DIFF
         "+diff",
 #else

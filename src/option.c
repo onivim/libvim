@@ -701,15 +701,7 @@ static struct vimoption options[] =
         {"conceallevel", "cole", P_NUM | P_RWIN | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"completefunc", "cfu", P_STRING | P_ALLOCED | P_VI_DEF | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"completeopt", "cot", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
-        {"confirm", "cf", P_BOOL | P_VI_DEF,
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-         (char_u *)&p_confirm,
-         PV_NONE,
-#else
-         (char_u *)NULL,
-         PV_NONE,
-#endif
-         {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"confirm", "cf", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"conskey", "consk", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"copyindent", "ci", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_ci, PV_CI, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"cpoptions", "cpo", P_STRING | P_VIM | P_RALL | P_FLAGLIST, (char_u *)&p_cpo, PV_NONE, {(char_u *)CPO_VI, (char_u *)CPO_VIM} SCTX_INIT},

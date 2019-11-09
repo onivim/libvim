@@ -6460,9 +6460,6 @@ int buf_check_timestamp(
   int helpmesg = FALSE;
   int reload = FALSE;
   char *reason;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-  int can_reload = FALSE;
-#endif
   off_T orig_size = buf->b_orig_size;
   int orig_mode = buf->b_orig_mode;
   static int busy = FALSE;
@@ -6572,9 +6569,6 @@ int buf_check_timestamp(
         else
         {
           helpmesg = TRUE;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-          can_reload = TRUE;
-#endif
           if (reason[2] == 'n')
           {
             mesg = _("W12: Warning: File \"%s\" has changed and the buffer was changed in Vim as well");
@@ -6603,9 +6597,6 @@ int buf_check_timestamp(
     retval = 1;
     mesg = _("W13: Warning: File \"%s\" has been created after editing started");
     buf->b_flags |= BF_NEW_W;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-    can_reload = TRUE;
-#endif
   }
 
   if (mesg != NULL)

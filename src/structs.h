@@ -692,11 +692,8 @@ typedef struct
 #ifdef FEAT_BROWSE_CMD
   int browse; /* TRUE to invoke file dialog */
 #endif
-  int split; /* flags for win_split() */
-  int tab;   /* > 0 when ":tab" was used */
-#if defined(FEAT_CON_DIALOG)
-  int confirm; /* TRUE to invoke yes/no dialog */
-#endif
+  int split;                  /* flags for win_split() */
+  int tab;                    /* > 0 when ":tab" was used */
   int keepalt;                /* TRUE when ":keepalt" was used */
   int keepmarks;              /* TRUE when ":keepmarks" was used */
   int keepjumps;              /* TRUE when ":keepjumps" was used */

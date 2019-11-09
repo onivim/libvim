@@ -23,12 +23,6 @@ static void msg_puts_attr_len(char *str, int maxlen, int attr);
 static int do_more_prompt(int typed_char);
 static int msg_check_screen(void);
 static void redir_write(char_u *s, int maxlen);
-#ifdef FEAT_CON_DIALOG
-static char_u *msg_show_console_dialog(char_u *message, char_u *buttons, int dfltbutton);
-static int confirm_msg_used = FALSE; /* displaying confirm_msg */
-static char_u *confirm_msg = NULL;   /* ":confirm" message */
-static char_u *confirm_msg_tail;     /* tail of confirm_msg */
-#endif
 #ifdef FEAT_JOB_CHANNEL
 static int emsg_to_channel_log = FALSE;
 #endif
@@ -946,7 +940,7 @@ void ex_messages(exarg_T *eap)
   msg_hist_off = FALSE;
 }
 
-#if defined(FEAT_CON_DIALOG) || defined(FIND_REPLACE_DIALOG) || defined(PROTO)
+#if defined(FIND_REPLACE_DIALOG) || defined(PROTO)
 /*
  * Call this after prompting the user.  This will avoid a hit-return message
  * and a delay.
@@ -1855,13 +1849,6 @@ void repeat_message(void)
     msg_moremsg(TRUE); /* display --more-- message again */
     msg_row = Rows - 1;
   }
-#ifdef FEAT_CON_DIALOG
-  else if (State == CONFIRM)
-  {
-    display_confirm_msg(); /* display ":confirm" message again */
-    msg_row = Rows - 1;
-  }
-#endif
   else if (State == EXTERNCMD)
   {
     windgoto(msg_row, msg_col); /* put cursor back */
@@ -2204,7 +2191,7 @@ void msg_advance(int col)
       msg_putchar(' ');
 }
 
-#if defined(FEAT_CON_DIALOG) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Used for "confirm()" function, and the :confirm command prefix.
  * Versions which haven't got flexible dialogs yet, and console
@@ -2244,23 +2231,6 @@ int do_dialog(
   /* Don't output anything in silent mode ("ex -s") */
   if (silent_mode)
     return dfltbutton; /* return default option */
-#endif
-
-#ifdef FEAT_GUI_DIALOG
-  /* When GUI is running and 'c' not in 'guioptions', use the GUI dialog */
-  if (gui.in_use && vim_strchr(p_go, GO_CONDIALOG) == NULL)
-  {
-    c = gui_mch_dialog(type, title, message, buttons, dfltbutton,
-                       textfield, ex_cmd);
-    /* avoid a hit-enter prompt without clearing the cmdline */
-    need_wait_return = FALSE;
-    emsg_on_display = FALSE;
-    cmdline_row = msg_row;
-
-    gui_mch_update();
-
-    return c;
-  }
 #endif
 
   oldState = State;
@@ -2545,68 +2515,7 @@ void display_confirm_msg(void)
   --confirm_msg_used;
 }
 
-#endif /* FEAT_CON_DIALOG */
-
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-
-int vim_dialog_yesno(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  if (do_dialog(type,
-                title == NULL ? (char_u *)_("Question") : title,
-                message,
-                (char_u *)_("&Yes\n&No"), dflt, NULL, FALSE) == 1)
-    return VIM_YES;
-  return VIM_NO;
-}
-
-int vim_dialog_yesnocancel(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  switch (do_dialog(type,
-                    title == NULL ? (char_u *)_("Question") : title,
-                    message,
-                    (char_u *)_("&Yes\n&No\n&Cancel"), dflt, NULL, FALSE))
-  {
-  case 1:
-    return VIM_YES;
-  case 2:
-    return VIM_NO;
-  }
-  return VIM_CANCEL;
-}
-
-int vim_dialog_yesnoallcancel(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  switch (do_dialog(type,
-                    title == NULL ? (char_u *)"Question" : title,
-                    message,
-                    (char_u *)_("&Yes\n&No\nSave &All\n&Discard All\n&Cancel"),
-                    dflt, NULL, FALSE))
-  {
-  case 1:
-    return VIM_YES;
-  case 2:
-    return VIM_NO;
-  case 3:
-    return VIM_ALL;
-  case 4:
-    return VIM_DISCARDALL;
-  }
-  return VIM_CANCEL;
-}
-
-#endif /* FEAT_GUI_DIALOG || FEAT_CON_DIALOG */
+#endif
 
 #if defined(FEAT_BROWSE) || defined(PROTO)
 /*

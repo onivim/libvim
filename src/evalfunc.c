@@ -5993,9 +5993,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef DEBUG
     "debug",
 #endif
-#ifdef FEAT_CON_DIALOG
-    "dialog_con",
-#endif
 #ifdef FEAT_DIFF
     "diff",
 #endif

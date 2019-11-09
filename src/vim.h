@@ -1897,13 +1897,6 @@ typedef enum
 #include "globals.h" /* global variables and messages */
 
 /*
- * If console dialog not supported, but GUI dialog is, use the GUI one.
- */
-#if defined(FEAT_GUI_DIALOG) && !defined(FEAT_CON_DIALOG)
-#define do_dialog gui_mch_dialog
-#endif
-
-/*
  * Default filters for gui_mch_browse().
  * The filters are almost system independent.  Except for the difference
  * between "*" and "*.*" for MSDOS-like systems.
