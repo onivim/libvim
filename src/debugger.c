@@ -62,16 +62,6 @@ void do_debug(char_u *cmd)
 #define CMD_UP 9
 #define CMD_DOWN 10
 
-#ifdef ALWAYS_USE_GUI
-  // Can't do this when there is no terminal for input/output.
-  if (!gui.in_use)
-  {
-    // Break as soon as possible.
-    debug_break_level = 9999;
-    return;
-  }
-#endif
-
   // Make sure we are in raw mode and start termcap mode.  Might have side
   // effects...
   settmode(TMODE_RAW);

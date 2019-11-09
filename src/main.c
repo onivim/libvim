@@ -180,15 +180,6 @@ main2
   command_line_scan(&params);
   TIME_MSG("parsing arguments");
 
-  /*
-     * On some systems, when we compile with the GUI, we always use it.  On Mac
-     * there is no terminal version, and on Windows we can't fork one off with
-     * :gui.
-     */
-#ifdef ALWAYS_USE_GUI
-  gui.starting = TRUE;
-#endif
-
   if (GARGCOUNT > 0)
   {
 #ifdef EXPAND_FILENAMES
@@ -258,7 +249,7 @@ main2
      * For GTK we can't be sure, but when started from the desktop it doesn't
      * make sense to try using a terminal.
      */
-#if defined(ALWAYS_USE_GUI) || defined(VIMDLL)
+#if defined(VIMDLL)
   if (gui.starting)
     params.want_full_screen = FALSE;
 #endif

@@ -27,7 +27,7 @@ MU_TEST(test_search_in_large_file)
   vimSearchGetHighlights(0, 0, &num, &highlights);
   printf("Got %d highlights\n", num);
   vim_free(highlights);
-  mu_check(num == 15427);
+  mu_assert_int_eq(num == 15427);
 }
 
 MU_TEST_SUITE(test_suite)
