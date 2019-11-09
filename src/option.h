@@ -449,10 +449,6 @@ EXTERN int p_fs; /* 'fsync' */
 #endif
 EXTERN int p_gd;     /* 'gdefault' */
 EXTERN int p_prompt; /* 'prompt' */
-#if defined(FEAT_GUI_TABLINE)
-EXTERN char_u *p_gtl; /* 'guitablabel' */
-EXTERN char_u *p_gtt; /* 'guitabtooltip' */
-#endif
 EXTERN char_u *p_hf; /* 'helpfile' */
 EXTERN long p_hh;    /* 'helpheight' */
 #ifdef FEAT_MULTI_LANG
@@ -762,7 +758,7 @@ EXTERN int p_warn; /* 'warn' */
 EXTERN char_u *p_wop; /* 'wildoptions' */
 #endif
 EXTERN long p_window; /* 'window' */
-#if defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_PHOTON)
+#if defined(LINT)
 #define FEAT_WAK
 EXTERN char_u *p_wak; /* 'winaltkeys' */
 #endif

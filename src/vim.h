@@ -91,10 +91,6 @@ Error : configure did not run properly.Check auto / config.log.
 #define UNIX
 #endif
 
-#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_PHOTON)
-#define FEAT_GUI_ENABLED /* also defined with NO_X11_INCLUDES */
-#endif
-
 #undef FEAT_RENDER_OPTIONS
 
 /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
@@ -134,12 +130,6 @@ Error : configure did not run properly.Check auto / config.log.
 #endif
 #ifdef FEAT_XCLIPBOARD
 #undef FEAT_XCLIPBOARD
-#endif
-#ifdef FEAT_GUI_MOTIF
-#undef FEAT_GUI_MOTIF
-#endif
-#ifdef FEAT_GUI_ATHENA
-#undef FEAT_GUI_ATHENA
 #endif
 #ifdef FEAT_BEVAL_TIP
 #undef FEAT_BEVAL_TIP
