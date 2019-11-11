@@ -292,7 +292,8 @@ static int sort_abort; /* flag to indicate if sorting has been interrupted */
 typedef struct
 {
   linenr_T lnum; // line number
-  union {
+  union
+  {
     struct
     {
       varnumber_T start_col_nr; // starting column number

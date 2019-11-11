@@ -950,7 +950,7 @@ uc_add_command(
   cmd->uc_rep = rep_buf;
   cmd->uc_argt = argt;
   cmd->uc_def = def;
-  cmd->uc_compl = compl;
+  cmd->uc_compl = compl ;
 #ifdef FEAT_EVAL
   cmd->uc_script_ctx = current_sctx;
   cmd->uc_script_ctx.sc_lnum += sourcing_lnum;

@@ -420,7 +420,8 @@ mch_total_mem(int special UNUSED)
     long_u physmem;
 #else
     /* sysctl() may return 32 bit or 64 bit, accept both */
-    union {
+    union
+    {
       int_u u32;
       long_u u64;
     } physmem;
