@@ -1990,11 +1990,6 @@ make_percent_swname(char_u *dir, char_u *name)
 }
 #endif
 
-#if (defined(UNIX) || defined(VMS) || defined(MSWIN)) && (defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG))
-#define HAVE_PROCESS_STILL_RUNNING
-static int process_still_running;
-#endif
-
 #if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Return information found in swapfile "fname" in dictionary "d".
@@ -4545,14 +4540,6 @@ findswapname(
           if (choice == 0)
 #endif
           {
-#ifdef FEAT_GUI
-            // If we are supposed to start the GUI but it wasn't
-            // completely started yet, start it now.  This makes
-            // the messages displayed in the Vim window when
-            // loading a session from the .gvimrc file.
-            if (gui.starting && !gui.in_use)
-              gui_start(NULL);
-#endif
             // Show info about the existing swap file.
             attention_message(buf, fname);
 
@@ -4564,44 +4551,6 @@ findswapname(
             // interfere with the prompt here.
             flush_buffers(FLUSH_TYPEAHEAD);
           }
-
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-          if (swap_exists_action != SEA_NONE && choice == 0)
-          {
-            char_u *name;
-
-            name = alloc(STRLEN(fname) + STRLEN(_("Swap file \"")) + STRLEN(_("\" already exists!")) + 5);
-            if (name != NULL)
-            {
-              STRCPY(name, _("Swap file \""));
-              home_replace(NULL, fname, name + STRLEN(name),
-                           1000, TRUE);
-              STRCAT(name, _("\" already exists!"));
-            }
-            choice = do_dialog(VIM_WARNING,
-                               (char_u *)_("VIM - ATTENTION"),
-                               name == NULL
-                                   ? (char_u *)_("Swap file already exists!")
-                                   : name,
-#ifdef HAVE_PROCESS_STILL_RUNNING
-                               process_still_running
-                                   ? (char_u *)_("&Open Read-Only\n&Edit anyway\n&Recover\n&Quit\n&Abort")
-                                   :
-#endif
-                                   (char_u *)_("&Open Read-Only\n&Edit anyway\n&Recover\n&Delete it\n&Quit\n&Abort"),
-                               1, NULL, FALSE);
-
-#ifdef HAVE_PROCESS_STILL_RUNNING
-            if (process_still_running && choice >= 4)
-              choice++; /* Skip missing "Delete it" button */
-#endif
-            vim_free(name);
-
-            /* pretend screen didn't scroll, need redraw anyway */
-            msg_scrolled = 0;
-            redraw_all_later(NOT_VALID);
-          }
-#endif
 
           if (choice > 0)
           {

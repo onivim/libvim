@@ -41,13 +41,6 @@
 #define USE_FNAME_CASE /* Fix filename case differences. */
 #endif
 
-/* On AIX 4.2 there is a conflicting prototype for ioctl() in stropts.h and
- * unistd.h.  This hack should fix that (suggested by Jeff George).
- * But on AIX 4.3 it's alright (suggested by Jake Hamby). */
-#if defined(FEAT_GUI) && defined(_AIX) && !defined(_AIX43) && !defined(_NO_PROTO)
-#define _NO_PROTO
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -197,10 +190,6 @@
 #include <ttdef.h>
 #include <unixio.h>
 #include <unixlib.h>
-
-#ifdef FEAT_GUI_GTK
-#include "gui_gtk_vms.h"
-#endif
 #endif
 
 #endif /* PROTO */
@@ -324,12 +313,6 @@ typedef struct dsc$descriptor DESC;
 
 #ifndef VIMRC_FILE
 #define VIMRC_FILE ".vimrc"
-#endif
-
-#ifdef FEAT_GUI
-#ifndef GVIMRC_FILE
-#define GVIMRC_FILE ".gvimrc"
-#endif
 #endif
 
 #ifndef SYNTAX_FNAME

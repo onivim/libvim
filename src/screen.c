@@ -195,15 +195,8 @@ void redraw_win_later(
 void redraw_later_clear(void)
 {
   redraw_all_later(CLEAR);
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    /* Use a code that will reset gui.highlight_mask in
-	 * gui_stop_highlight(). */
-    screen_attr = HL_ALL + 1;
-  else
-#endif
-    /* Use attributes that is very unlikely to appear in text. */
-    screen_attr = HL_BOLD | HL_UNDERLINE | HL_INVERSE | HL_STRIKETHROUGH;
+  /* Use attributes that is very unlikely to appear in text. */
+  screen_attr = HL_BOLD | HL_UNDERLINE | HL_INVERSE | HL_STRIKETHROUGH;
 }
 
 /*
@@ -341,10 +334,6 @@ void redrawWinline(
 void after_updating_screen(int may_resize_shell UNUSED)
 {
   updating_screen = FALSE;
-#ifdef FEAT_GUI
-  if (may_resize_shell)
-    gui_may_resize_shell();
-#endif
 #ifdef FEAT_TERMINAL
   term_check_channel_closed_recently();
 #endif
@@ -377,11 +366,6 @@ int update_screen(int type_arg)
   static int did_intro = FALSE;
 #if defined(FEAT_SEARCH_EXTRA)
   int did_one;
-#endif
-#ifdef FEAT_GUI
-  int did_undraw = FALSE;
-  int gui_cursor_col = 0;
-  int gui_cursor_row = 0;
 #endif
   int no_update = FALSE;
 
@@ -544,18 +528,6 @@ int update_screen(int type_arg)
 #ifdef FEAT_SEARCH_EXTRA
         start_search_hl();
 #endif
-#ifdef FEAT_GUI
-        /* Remove the cursor before starting to do anything, because
-		 * scrolling may make it difficult to redraw the text under
-		 * it. */
-        if (gui.in_use && wp == curwin)
-        {
-          gui_cursor_col = gui.cursor_col;
-          gui_cursor_row = gui.cursor_row;
-          gui_undraw_cursor();
-          did_undraw = TRUE;
-        }
-#endif
       }
 #endif
       win_update(wp);
@@ -592,75 +564,8 @@ int update_screen(int type_arg)
     maybe_intro_message();
   did_intro = TRUE;
 
-#ifdef FEAT_GUI
-  /* Redraw the cursor and update the scrollbars when all screen updating is
-     * done. */
-  if (gui.in_use)
-  {
-    if (did_undraw && !gui_mch_is_blink_off())
-    {
-      /* Put the GUI position where the cursor was, gui_update_cursor()
-	     * uses that. */
-      gui.col = gui_cursor_col;
-      gui.row = gui_cursor_row;
-      gui.col = mb_fix_col(gui.col, gui.row);
-      gui_update_cursor(FALSE, FALSE);
-      gui_may_flush();
-      screen_cur_col = gui.col;
-      screen_cur_row = gui.row;
-    }
-    gui_update_scrollbars(FALSE);
-  }
-#endif
   return OK;
 }
-
-#if defined(FEAT_GUI)
-/*
- * Prepare for updating one or more windows.
- * Caller must check for "updating_screen" already set to avoid recursiveness.
- */
-static void
-update_prepare(void)
-{
-  cursor_off();
-  updating_screen = TRUE;
-#ifdef FEAT_GUI
-  /* Remove the cursor before starting to do anything, because scrolling may
-     * make it difficult to redraw the text under it. */
-  if (gui.in_use)
-    gui_undraw_cursor();
-#endif
-#ifdef FEAT_SEARCH_EXTRA
-  start_search_hl();
-#endif
-}
-
-/*
- * Finish updating one or more windows.
- */
-static void
-update_finish(void)
-{
-  if (redraw_cmdline || redraw_mode)
-    showmode();
-
-#ifdef FEAT_SEARCH_EXTRA
-  end_search_hl();
-#endif
-
-  after_updating_screen(TRUE);
-
-#ifdef FEAT_GUI
-  /* Redraw the cursor and update the scrollbars when all screen updating is
-     * done. */
-  if (gui.in_use)
-  {
-    gui_update_scrollbars(FALSE);
-  }
-#endif
-}
-#endif
 
 /*
  * Get 'wincolor' attribute for window "wp".  If not set and "wp" is a popup
@@ -676,7 +581,7 @@ get_wcr_attr(win_T *wp)
   return wcr_attr;
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Update a single window, its status line and maybe the command line msg.
  * Used for the GUI scrollbar.
@@ -2580,10 +2485,6 @@ win_line(
 #endif
 #define WL_LINE WL_SBR + 1   /* text in the line */
   int draw_state = WL_START; /* what to draw next */
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  int feedback_col = 0;
-  int feedback_old_attr = -1;
-#endif
   int screen_line_flags = 0;
 
 #define VCOL_HLC (vcol)
@@ -2678,11 +2579,7 @@ win_line(
       }
 
       /* Check if the character under the cursor should not be inverted */
-      if (!highlight_match && lnum == curwin->w_cursor.lnum && wp == curwin
-#ifdef FEAT_GUI
-          && !gui.in_use
-#endif
-      )
+      if (!highlight_match && lnum == curwin->w_cursor.lnum && wp == curwin)
         noinvcur = TRUE;
 
       /* if inverting in this line set area_highlighting */
@@ -3989,38 +3886,6 @@ win_line(
     if (n_attr > 0 && draw_state == WL_LINE && !attr_pri)
       char_attr = extra_attr;
 
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-    /* XIM don't send preedit_start and preedit_end, but they send
-	 * preedit_changed and commit.  Thus Vim can't set "im_is_active", use
-	 * im_is_preediting() here. */
-    if (p_imst == IM_ON_THE_SPOT && xic != NULL && lnum == wp->w_cursor.lnum && (State & INSERT) && !p_imdisable && im_is_preediting() && draw_state == WL_LINE)
-    {
-      colnr_T tcol;
-
-      if (preedit_end_col == MAXCOL)
-        getvcol(curwin, &(wp->w_cursor), &tcol, NULL, NULL);
-      else
-        tcol = preedit_end_col;
-      if ((long)preedit_start_col <= vcol && vcol < (long)tcol)
-      {
-        if (feedback_old_attr < 0)
-        {
-          feedback_col = 0;
-          feedback_old_attr = char_attr;
-        }
-        char_attr = im_get_feedback_attr(feedback_col);
-        if (char_attr < 0)
-          char_attr = feedback_old_attr;
-        feedback_col++;
-      }
-      else if (feedback_old_attr >= 0)
-      {
-        char_attr = feedback_old_attr;
-        feedback_old_attr = -1;
-        feedback_col = 0;
-      }
-    }
-#endif
     /*
 	 * Handle the case where we are in column 0 but not on the first
 	 * character of the line and the user wants us to show us a
@@ -4421,14 +4286,10 @@ win_line(
 		 * Don't do this for double-width characters.
 		 * Don't do this for a window not at the right screen border.
 		 */
-        if (p_tf
-#ifdef FEAT_GUI
-            && !gui.in_use
-#endif
-            && !(has_mbyte && ((*mb_off2cells)(LineOffset[screen_row],
-                                               LineOffset[screen_row] + screen_Columns) == 2 ||
-                               (*mb_off2cells)(LineOffset[screen_row - 1] + (int)Columns - 2,
-                                               LineOffset[screen_row] + screen_Columns) == 2)))
+        if (p_tf && !(has_mbyte && ((*mb_off2cells)(LineOffset[screen_row],
+                                                    LineOffset[screen_row] + screen_Columns) == 2 ||
+                                    (*mb_off2cells)(LineOffset[screen_row - 1] + (int)Columns - 2,
+                                                    LineOffset[screen_row] + screen_Columns) == 2)))
         {
           /* First make sure we are at the end of the screen line,
 		     * then output the same character again to let the
@@ -4555,12 +4416,8 @@ void screen_line(
   int col = 0;
   int hl;
   int force = FALSE; /* force update rest of the line */
-  int redraw_this    /* bool: does character need redraw? */
-#ifdef FEAT_GUI
-      = TRUE /* For GUI when while-loop empty */
-#endif
-      ;
-  int redraw_next; /* redraw_this for next character */
+  int redraw_this;   /* bool: does character need redraw? */
+  int redraw_next;   /* redraw_this for next character */
   int clear_next = FALSE;
   int char_cells; /* 1: normal char */
                   /* 2: occupies two display cells */
@@ -4612,21 +4469,6 @@ void screen_line(
     redraw_next = force || char_needs_redraw(off_from + CHAR_CELLS,
                                              off_to + CHAR_CELLS, endcol - col - CHAR_CELLS);
 
-#ifdef FEAT_GUI
-    /* If the next character was bold, then redraw the current character to
-	 * remove any pixels that might have spilt over into us.  This only
-	 * happens in the GUI.
-	 */
-    if (redraw_next && gui.in_use)
-    {
-      hl = ScreenAttrs[off_to + CHAR_CELLS];
-      if (hl > HL_ALL)
-        hl = syn_attr2attr(hl);
-      if (hl & HL_BOLD)
-        redraw_this = TRUE;
-    }
-#endif
-
     if (redraw_this)
     {
       /*
@@ -4641,11 +4483,7 @@ void screen_line(
 	     * to clear the rest of the line, and force redrawing it
 	     * completely.
 	     */
-      if (p_wiv && !force
-#ifdef FEAT_GUI
-          && !gui.in_use
-#endif
-          && ScreenAttrs[off_to] != 0 && ScreenAttrs[off_from] != ScreenAttrs[off_to])
+      if (p_wiv && !force && ScreenAttrs[off_to] != 0 && ScreenAttrs[off_from] != ScreenAttrs[off_to])
       {
         /*
 		 * Need to remove highlighting attributes here.
@@ -4717,22 +4555,12 @@ void screen_line(
       if (char_cells == 2)
         ScreenLines[off_to + 1] = ScreenLines[off_from + 1];
 
-#if defined(FEAT_GUI) || defined(UNIX)
+#ifdef UNIX
       /* The bold trick makes a single column of pixels appear in the
 	     * next character.  When a bold character is removed, the next
 	     * character should be redrawn too.  This happens for our own GUI
 	     * and for some xterms. */
-      if (
-#ifdef FEAT_GUI
-          gui.in_use
-#endif
-#if defined(FEAT_GUI) && defined(UNIX)
-          ||
-#endif
-#ifdef UNIX
-          term_is_xterm
-#endif
-      )
+      if (term_is_xterm)
       {
         hl = ScreenAttrs[off_to];
         if (hl > HL_ALL)
@@ -4753,11 +4581,7 @@ void screen_line(
       else
         screen_char(off_to, row, col + coloff);
     }
-    else if (p_wiv
-#ifdef FEAT_GUI
-             && !gui.in_use
-#endif
-             && col + coloff > 0)
+    else if (p_wiv && col + coloff > 0)
     {
       if (ScreenAttrs[off_to] == ScreenAttrs[off_to - 1])
       {
@@ -4792,10 +4616,6 @@ void screen_line(
 #endif
   )
   {
-#ifdef FEAT_GUI
-    int startCol = col;
-#endif
-
     /* blank out the rest of the line */
     while (col < clear_width && ScreenLines[off_to] == ' ' && ScreenAttrs[off_to] == 0 && (!enc_utf8 || ScreenLinesUC[off_to] == 0))
     {
@@ -4804,48 +4624,6 @@ void screen_line(
     }
     if (col < clear_width)
     {
-#ifdef FEAT_GUI
-      /*
-	     * In the GUI, clearing the rest of the line may leave pixels
-	     * behind if the first character cleared was bold.  Some bold
-	     * fonts spill over the left.  In this case we redraw the previous
-	     * character too.  If we didn't skip any blanks above, then we
-	     * only redraw if the character wasn't already redrawn anyway.
-	     */
-      if (gui.in_use && (col > startCol || !redraw_this))
-      {
-        hl = ScreenAttrs[off_to];
-        if (hl > HL_ALL || (hl & HL_BOLD))
-        {
-          int prev_cells = 1;
-
-          if (enc_utf8)
-            /* for utf-8, ScreenLines[char_offset + 1] == 0 means
-			 * that its width is 2. */
-            prev_cells = ScreenLines[off_to - 1] == 0 ? 2 : 1;
-          else if (enc_dbcs != 0)
-          {
-            /* find previous character by counting from first
-			 * column and get its width. */
-            unsigned off = LineOffset[row];
-            unsigned max_off = LineOffset[row] + screen_Columns;
-
-            while (off < off_to)
-            {
-              prev_cells = (*mb_off2cells)(off, max_off);
-              off += prev_cells;
-            }
-          }
-
-          if (enc_dbcs != 0 && prev_cells > 1)
-            screen_char_2(off_to - prev_cells, row,
-                          col + coloff - prev_cells);
-          else
-            screen_char(off_to - prev_cells, row,
-                        col + coloff - prev_cells);
-        }
-      }
-#endif
       screen_fill(row, row + 1, col + coloff, clear_width + coloff,
                   ' ', ' ', 0);
       off_to += clear_width - col;
@@ -5557,11 +5335,7 @@ void screen_puts_len(
 
   /* When drawing over the right halve of a double-wide char clear out the
      * left halve.  Only needed in a terminal. */
-  if (has_mbyte && col > 0 && col < screen_Columns
-#ifdef FEAT_GUI
-      && !gui.in_use
-#endif
-      && mb_fix_col(col, row) != col)
+  if (has_mbyte && col > 0 && col < screen_Columns && mb_fix_col(col, row) != col)
   {
     ScreenLines[off - 1] = ' ';
     ScreenAttrs[off - 1] = 0;
@@ -5639,22 +5413,12 @@ void screen_puts_len(
 
     if (need_redraw || force_redraw_this)
     {
-#if defined(FEAT_GUI) || defined(UNIX)
+#ifdef UNIX
       /* The bold trick makes a single row of pixels appear in the next
 	     * character.  When a bold character is removed, the next
 	     * character should be redrawn too.  This happens for our own GUI
 	     * and for some xterms. */
-      if (need_redraw && ScreenLines[off] != ' ' && (
-#ifdef FEAT_GUI
-                                                        gui.in_use
-#endif
-#if defined(FEAT_GUI) && defined(UNIX)
-                                                        ||
-#endif
-#ifdef UNIX
-                                                        term_is_xterm
-#endif
-                                                        ))
+      if (need_redraw && ScreenLines[off] != ' ' && (term_is_xterm))
       {
         int n = ScreenAttrs[off];
 
@@ -6100,17 +5864,6 @@ screen_start_highlight(int attr)
 #endif
   )
   {
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-      char buf[20];
-
-      /* The GUI handles this internally. */
-      sprintf(buf, IF_EB("\033|%dh", ESC_STR "|%dh"), attr);
-      OUT_STR(buf);
-    }
-    else
-#endif
     {
       if (attr > HL_ALL) /* special HL attr. */
       {
@@ -6181,17 +5934,6 @@ void screen_stop_highlight(void)
 #endif
   )
   {
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-      char buf[20];
-
-      /* use internal GUI code */
-      sprintf(buf, IF_EB("\033|%dH", ESC_STR "|%dH"), screen_attr);
-      OUT_STR(buf);
-    }
-    else
-#endif
     {
       if (screen_attr > HL_ALL) /* special HL attr. */
       {
@@ -6355,11 +6097,7 @@ screen_char(unsigned off, int row, int col)
 
     if (utf_ambiguous_width(ScreenLinesUC[off]))
     {
-      if (*p_ambw == 'd'
-#ifdef FEAT_GUI
-          && !gui.in_use
-#endif
-      )
+      if (*p_ambw == 'd')
       {
         /* Clear the two screen cells. If the character is actually
 		 * single width it won't change the second cell. */
@@ -6503,7 +6241,7 @@ void screen_fill(
   int did_delete;
   int c;
   int norm_term;
-#if defined(FEAT_GUI) || defined(UNIX)
+#if defined(UNIX)
   int force_next = FALSE;
 #endif
 
@@ -6514,19 +6252,11 @@ void screen_fill(
   if (ScreenLines == NULL || start_row >= end_row || start_col >= end_col) /* nothing to do */
     return;
 
-  /* it's a "normal" terminal when not in a GUI or cterm */
-  norm_term = (
-#ifdef FEAT_GUI
-      !gui.in_use &&
-#endif
-      !IS_CTERM);
+  /* it's a "normal" terminal when not in a cterm */
+  norm_term = !IS_CTERM;
   for (row = start_row; row < end_row; ++row)
   {
-    if (has_mbyte
-#ifdef FEAT_GUI
-        && !gui.in_use
-#endif
-    )
+    if (has_mbyte)
     {
       /* When drawing over the right halve of a double-wide char clear
 	     * out the left halve.  When drawing over the left halve of a
@@ -6584,27 +6314,17 @@ void screen_fill(
     for (col = start_col; col < end_col; ++col)
     {
       if (ScreenLines[off] != c || (enc_utf8 && (int)ScreenLinesUC[off] != (c >= 0x80 ? c : 0)) || ScreenAttrs[off] != attr
-#if defined(FEAT_GUI) || defined(UNIX)
+#ifdef UNIX
           || force_next
 #endif
       )
       {
-#if defined(FEAT_GUI) || defined(UNIX)
+#if defined(UNIX)
         /* The bold trick may make a single row of pixels appear in
 		 * the next character.  When a bold character is removed, the
 		 * next character should be redrawn too.  This happens for our
 		 * own GUI and for some xterms.  */
-        if (
-#ifdef FEAT_GUI
-            gui.in_use
-#endif
-#if defined(FEAT_GUI) && defined(UNIX)
-            ||
-#endif
-#ifdef UNIX
-            term_is_xterm
-#endif
-        )
+        if (term_is_xterm)
         {
           if (ScreenLines[off] != ' ' && (ScreenAttrs[off] > HL_ALL || ScreenAttrs[off] & HL_BOLD))
             force_next = TRUE;
@@ -6699,9 +6419,6 @@ int screen_valid(int doclear)
 void screenalloc(int doclear)
 {
   int new_row, old_row;
-#ifdef FEAT_GUI
-  int old_Rows;
-#endif
   win_T *wp;
   int outofmem = FALSE;
   int len;
@@ -6900,31 +6617,12 @@ give_up:
 
   /* It's important that screen_Rows and screen_Columns reflect the actual
      * size of ScreenLines[].  Set them before calling anything. */
-#ifdef FEAT_GUI
-  old_Rows = screen_Rows;
-#endif
   screen_Rows = Rows;
   screen_Columns = Columns;
 
   must_redraw = CLEAR; /* need to clear the screen later */
   if (doclear)
     screenclear2();
-#ifdef FEAT_GUI
-  else if (gui.in_use && !gui.starting && ScreenLines != NULL && old_Rows != Rows)
-  {
-    (void)gui_redraw_block(0, 0, (int)Rows - 1, (int)Columns - 1, 0);
-    /*
-	 * Adjust the position of the cursor, for when executing an external
-	 * command.
-	 */
-    if (msg_row >= Rows)          /* Rows got smaller */
-      msg_row = Rows - 1;         /* put cursor at last row */
-    else if (Rows > old_Rows)     /* Rows got bigger */
-      msg_row += Rows - old_Rows; /* put cursor in same place */
-    if (msg_col >= Columns)       /* Columns got smaller */
-      msg_col = Columns - 1;      /* put cursor at last column */
-  }
-#endif
   clear_TabPageIdxs();
 
   entered = FALSE;
@@ -6970,17 +6668,10 @@ screenclear2(void)
 {
   int i;
 
-  if (starting == NO_SCREEN || ScreenLines == NULL
-#ifdef FEAT_GUI
-      || (gui.in_use && gui.starting)
-#endif
-  )
+  if (starting == NO_SCREEN || ScreenLines == NULL)
     return;
 
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-    screen_attr = -1;      /* force setting the Normal colors */
+  screen_attr = -1;        /* force setting the Normal colors */
   screen_stop_highlight(); /* don't want highlighting here */
 
   /* blank out ScreenLines */
@@ -7077,11 +6768,7 @@ linecopy(int to, int from, win_T *wp)
  */
 int can_clear(char_u *p)
 {
-  return (*p != NUL && (t_colors <= 1
-#ifdef FEAT_GUI
-                        || gui.in_use
-#endif
-                        || cterm_normal_bg_color == 0 || *T_UT != NUL));
+  return (*p != NUL && (t_colors <= 1 || cterm_normal_bg_color == 0 || *T_UT != NUL));
 }
 
 /*
@@ -7703,12 +7390,6 @@ int screen_ins_lines(
   if (*T_DB)
     screen_del_lines(off, end - line_count, line_count, end, FALSE, 0, wp);
 
-#ifdef FEAT_GUI
-  /* Don't update the GUI cursor here, ScreenLines[] is invalid until the
-     * scrolling is actually carried out. */
-  gui_dont_update_cursor(row + off <= gui.cursor_row);
-#endif
-
   if (wp != NULL && wp->w_wincol != 0 && *T_CSV != NUL && *T_CCS == NUL)
     cursor_col = wp->w_wincol;
 
@@ -7800,9 +7481,6 @@ int screen_ins_lines(
     }
   }
 
-#ifdef FEAT_GUI
-  gui_can_update_cursor();
-#endif
   return OK;
 }
 
@@ -7900,12 +7578,6 @@ int screen_del_lines(
     type = USE_T_CDL;
   else
     return FAIL;
-
-#ifdef FEAT_GUI
-  /* Don't update the GUI cursor here, ScreenLines[] is invalid until the
-     * scrolling is actually carried out. */
-  gui_dont_update_cursor(gui.cursor_row >= row + off && gui.cursor_row < end + off);
-#endif
 
   if (wp != NULL && wp->w_wincol != 0 && *T_CSV != NUL && *T_CCS == NUL)
     cursor_col = wp->w_wincol;
@@ -8023,10 +7695,6 @@ int screen_del_lines(
     }
   }
 
-#ifdef FEAT_GUI
-  gui_can_update_cursor();
-#endif
-
   return OK;
 }
 
@@ -8088,30 +7756,8 @@ int showmode(void)
       msg_puts_attr("--", attr);
 #if defined(FEAT_XIM)
       if (
-#ifdef FEAT_GUI_GTK
-          preedit_get_status()
-#else
-          im_get_status()
-#endif
-      )
-#ifdef FEAT_GUI_GTK /* most of the time, it's not XIM being used */
-        msg_puts_attr(" IM", attr);
-#else
+          im_get_status())
         msg_puts_attr(" XIM", attr);
-#endif
-#endif
-#if defined(FEAT_HANGULIN) && defined(FEAT_GUI)
-      if (gui.in_use)
-      {
-        if (hangul_input_state_get())
-        {
-          /* HANGUL */
-          if (enc_utf8)
-            msg_puts_attr(" \355\225\234\352\270\200", attr);
-          else
-            msg_puts_attr(" \307\321\261\333", attr);
-        }
-      }
 #endif
       {
         if (State & VREPLACE_FLAG)
@@ -8294,11 +7940,7 @@ void draw_tabline(void)
   int attr_fill = HL_ATTR(HLF_TPF);
   char_u *p;
   int room;
-  int use_sep_chars = (t_colors < 8
-#ifdef FEAT_GUI
-                       && !gui.in_use
-#endif
-  );
+  int use_sep_chars = t_colors < 8;
 
   if (ScreenLines == NULL)
     return;

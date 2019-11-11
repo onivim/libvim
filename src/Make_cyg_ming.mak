@@ -429,7 +429,6 @@ endif # RUBY
 
 # See feature.h for a list of options.
 # Any other defines can be included here.
-DEF_GUI=-DFEAT_GUI_MSWIN -DFEAT_CLIPBOARD
 DEFINES=-DWIN32 -DWINVER=$(WINVER) -D_WIN32_WINNT=$(WINVER) \
 	-DHAVE_PATHDEF -DFEAT_$(FEATURES) -DHAVE_STDINT_H
 ifeq ($(ARCH),x86-64)
@@ -700,32 +699,11 @@ endif
 LFLAGS += -municode
 
 ifeq ($(VIMDLL),yes)
-VIMEXE := vim$(DEBUG_SUFFIX).exe
-GVIMEXE := gvim$(DEBUG_SUFFIX).exe
- ifeq ($(ARCH),x86-64)
-VIMDLLBASE := vim64$(DEBUG_SUFFIX)
- else
-VIMDLLBASE := vim32$(DEBUG_SUFFIX)
- endif
-TARGET = $(VIMDLLBASE).dll
-LFLAGS += -shared
-EXELFLAGS += -municode
- ifneq ($(DEBUG),yes)
-EXELFLAGS += -s
- endif
-DEFINES += $(DEF_GUI) -DVIMDLL
-OBJ += $(GUIOBJ) $(CUIOBJ)
-OUTDIR = dobj$(DEBUG_SUFFIX)$(MZSCHEME_SUFFIX)$(ARCH)
-MAIN_TARGET = $(GVIMEXE) $(VIMEXE) $(VIMDLLBASE).dll
-else ifeq ($(GUI),yes)
-TARGET := gvim$(DEBUG_SUFFIX).exe
-DEFINES += $(DEF_GUI)
-OBJ += $(GUIOBJ)
-LFLAGS += -mwindows
-OUTDIR = gobj$(DEBUG_SUFFIX)$(MZSCHEME_SUFFIX)$(ARCH)
+TARGET := vim$(DEBUG_SUFFIX).exe
+OUTDIR = obj$(DEBUG_SUFFIX)$(MZSCHEME_SUFFIX)$(ARCH)
 MAIN_TARGET = $(TARGET)
 else
-OBJ += $(CUIOBJ)
+OBJ += $(CUIOBJ)	
 TARGET := vim$(DEBUG_SUFFIX).exe
 OUTDIR = obj$(DEBUG_SUFFIX)$(MZSCHEME_SUFFIX)$(ARCH)
 MAIN_TARGET = $(TARGET)
@@ -898,7 +876,7 @@ $(OUTDIR)/%.o : %.c $(INCL)
 
 ifeq ($(VIMDLL),yes)
 $(OUTDIR)/vimrcc.o:	vim.rc gvim.exe.mnf version.h gui_w32_rc.h vim.ico
-	$(WINDRES) $(WINDRES_FLAGS) $(DEFINES) -UFEAT_GUI_MSWIN \
+	$(WINDRES) $(WINDRES_FLAGS) $(DEFINES) \
 	    --input-format=rc --output-format=coff -i vim.rc -o $@
 
 $(OUTDIR)/vimrcg.o:	vim.rc gvim.exe.mnf version.h gui_w32_rc.h vim.ico
@@ -953,7 +931,7 @@ $(OUTDIR)/main.o:	main.c $(INCL) $(CUI_INCL)
 	$(CC) -c $(CFLAGS) main.c -o $@
 
 $(OUTDIR)/os_w32exec.o:	os_w32exe.c $(INCL)
-	$(CC) -c $(CFLAGS) -UFEAT_GUI_MSWIN os_w32exe.c -o $@
+	$(CC) -c $(CFLAGS) os_w32exe.c -o $@
 
 $(OUTDIR)/os_w32exeg.o:	os_w32exe.c $(INCL)
 	$(CC) -c $(CFLAGS) os_w32exe.c -o $@

@@ -742,12 +742,10 @@ int readfile(
     {
       if (!is_not_a_term())
       {
-#ifndef ALWAYS_USE_GUI
 #ifdef VIMDLL
         if (!gui.in_use)
 #endif
           mch_msg(_("Vim: Reading from stdin...\n"));
-#endif
       }
     }
     else if (!read_buffer)
@@ -2301,7 +2299,6 @@ failed:
     else if (linecnt) /* appended at least one line */
       appended_lines_mark(from, linecnt);
 
-#ifndef ALWAYS_USE_GUI
     /*
 	 * If we were reading from the same terminal as where messages go,
 	 * the screen will have been messed up.
@@ -2313,7 +2310,6 @@ failed:
       starttermcap();
       screenclear();
     }
-#endif
 
     if (got_int)
     {
@@ -2419,14 +2415,7 @@ failed:
 
       VIM_CLEAR(keep_msg);
       msg_scrolled_ign = TRUE;
-#ifdef ALWAYS_USE_GUI
-      /* Don't show the message when reading stdin, it would end up in a
-	     * message box (which might be shown when exiting!) */
-      if (read_stdin || read_buffer)
-        p = msg_may_trunc(FALSE, IObuff);
-      else
-#endif
-        p = (char_u *)msg_trunc_attr((char *)IObuff, FALSE, 0);
+      p = (char_u *)msg_trunc_attr((char *)IObuff, FALSE, 0);
       if (read_stdin || read_buffer || restart_edit != 0 || (msg_scrolled != 0 && !need_wait_return))
         /* Need to repeat the message after redrawing when:
 		 * - When reading from stdin (the screen will be cleared next).
@@ -3523,7 +3512,8 @@ int buf_write(
 		     * file, we can't delete it then.  Keep trying for half a
 		     * second. */
           {
-            int try
+            int
+            try
               ;
 
             for (try = 0; try < 10; ++try)
@@ -5906,7 +5896,7 @@ void shorten_fnames(int force)
   redraw_tabline = TRUE;
 }
 
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MAC) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Shorten all filenames in "fnames[count]" by current directory.
  */
@@ -6459,14 +6449,8 @@ int buf_check_timestamp(
   int helpmesg = FALSE;
   int reload = FALSE;
   char *reason;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-  int can_reload = FALSE;
-#endif
   off_T orig_size = buf->b_orig_size;
   int orig_mode = buf->b_orig_mode;
-#ifdef FEAT_GUI
-  int save_mouse_correct = need_mouse_correct;
-#endif
   static int busy = FALSE;
   int n;
 #ifdef FEAT_EVAL
@@ -6574,9 +6558,6 @@ int buf_check_timestamp(
         else
         {
           helpmesg = TRUE;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-          can_reload = TRUE;
-#endif
           if (reason[2] == 'n')
           {
             mesg = _("W12: Warning: File \"%s\" has changed and the buffer was changed in Vim as well");
@@ -6605,9 +6586,6 @@ int buf_check_timestamp(
     retval = 1;
     mesg = _("W13: Warning: File \"%s\" has been created after editing started");
     buf->b_flags |= BF_NEW_W;
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-    can_reload = TRUE;
-#endif
   }
 
   if (mesg != NULL)
@@ -6676,11 +6654,6 @@ int buf_check_timestamp(
   if (bufref_valid(&bufref) && retval != 0)
     (void)apply_autocmds(EVENT_FILECHANGEDSHELLPOST,
                          buf->b_fname, buf->b_fname, FALSE, buf);
-#ifdef FEAT_GUI
-  /* restore this in case an autocommand has set it; it would break
-     * 'mousefocus' */
-  need_mouse_correct = save_mouse_correct;
-#endif
 
   return retval;
 }

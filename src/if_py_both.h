@@ -4028,9 +4028,6 @@ WindowSetattr(WindowObject *self, char *name, PyObject *valObject)
     if (NumberToLong(valObject, &height, NUMBER_INT | NUMBER_UNSIGNED))
       return -1;
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     savewin = curwin;
     curwin = self->win;
 
@@ -4050,9 +4047,6 @@ WindowSetattr(WindowObject *self, char *name, PyObject *valObject)
     if (NumberToLong(valObject, &width, NUMBER_INT | NUMBER_UNSIGNED))
       return -1;
 
-#ifdef FEAT_GUI
-    need_mouse_correct = TRUE;
-#endif
     savewin = curwin;
     curwin = self->win;
 

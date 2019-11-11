@@ -402,9 +402,6 @@
 /* Define if you want to include Hangul input support. */
 #undef FEAT_HANGULIN
 
-/* Define if you use GTK and want GNOME support. */
-#undef FEAT_GUI_GNOME
-
 /* Define if you use KDE and want KDE Toolbar support. */
 #undef FEAT_KDETOOLBAR
 

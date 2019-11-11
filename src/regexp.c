@@ -3704,7 +3704,8 @@ read_limits(long *minval, long *maxval)
  */
 typedef struct
 {
-  union {
+  union
+  {
     char_u *ptr; /* rex.input pointer, for single-line regexp */
     lpos_T pos;  /* rex.input pos, for multi-line regexp */
   } rs_u;
@@ -3714,7 +3715,8 @@ typedef struct
 /* struct to save start/end pointer/position in for \(\) */
 typedef struct
 {
-  union {
+  union
+  {
     char_u *ptr;
     lpos_T pos;
   } se_u;
@@ -3879,7 +3881,8 @@ typedef struct regitem_S
   regstate_T rs_state; // what we are doing, one of RS_ above
   short rs_no;         // submatch nr or BEHIND/NOBEHIND
   char_u *rs_scan;     // current node in program
-  union {
+  union
+  {
     save_se_T sesave;
     regsave_T regsave;
   } rs_un; // room for saving rex.input

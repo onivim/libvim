@@ -154,7 +154,7 @@ case `uname` in
     *)		BEOS=no; AC_MSG_RESULT(no);;
 esac
 
-dnl If QNX is found, assume we don't want to use Xphoton
+dnl If QNX is found, assume we don\'t want to use Xphoton
 dnl unless it was specifically asked for (--with-x)
 AC_MSG_CHECKING(for QNX)
 case `uname` in
@@ -199,7 +199,7 @@ if test "`(uname) 2>/dev/null`" = Darwin; then
   AC_ARG_WITH(developer-dir, [  --with-developer-dir=PATH    use PATH as location for Xcode developer tools],
 	DEVELOPER_DIR="$withval"; AC_MSG_RESULT($DEVELOPER_DIR),
         AC_MSG_RESULT(not present))
-  
+
   if test "x$DEVELOPER_DIR" = "x"; then
     AC_PATH_PROG(XCODE_SELECT, xcode-select)
     if test "x$XCODE_SELECT" != "x"; then
@@ -253,14 +253,12 @@ if test "`(uname) 2>/dev/null`" = Darwin; then
     dnl Removed -no-cpp-precomp, only for very old compilers.
     CPPFLAGS="$CPPFLAGS -DMACOS_X_DARWIN"
 
-    dnl If Carbon is found, assume we don't want X11
+    dnl If Carbon is found, assume we don\'t want X11
     dnl unless it was specifically asked for (--with-x)
     dnl or Motif, Athena or GTK GUI is used.
     AC_CHECK_HEADER(Carbon/Carbon.h, CARBON=yes)
     if test "x$CARBON" = "xyes"; then
-      if test -z "$with_x" -a "X$enable_gui" != Xmotif -a "X$enable_gui" != Xathena -a "X$enable_gui" != Xgtk2 -a "X$enable_gui" != Xgtk3; then
-	with_x=no
-      fi
+	 with_x=no
     fi
   fi
 
@@ -1424,36 +1422,36 @@ if test "$enable_python3interp" = "yes" -o "$enable_python3interp" = "dynamic"; 
        if ${vi_cv_path_python3} -c \
            "import sys; sys.exit(${vi_cv_var_python3_version} < 3.2)"
        then
-         vi_cv_var_python3_abiflags=`${vi_cv_path_python3} -c \    
+         vi_cv_var_python3_abiflags=`${vi_cv_path_python3} -c \
            "import sys; print(sys.abiflags)"`
        fi ])
-  
+
       dnl -- find where python3 thinks it was installed
       AC_CACHE_CHECK(Python's install prefix,vi_cv_path_python3_pfx,
       [ vi_cv_path_python3_pfx=`
        ${vi_cv_path_python3} -c \
        "import sys; print(sys.prefix)"` ])
-  
+
       dnl -- and where it thinks it runs
       AC_CACHE_CHECK(Python's execution prefix,vi_cv_path_python3_epfx,
       [ vi_cv_path_python3_epfx=`
        ${vi_cv_path_python3} -c \
        "import sys; print(sys.exec_prefix)"` ])
-  
+
       dnl -- python3's internal library path
-  
+
       AC_CACHE_VAL(vi_cv_path_python3path,
       [ vi_cv_path_python3path=`
        unset PYTHONPATH;
        ${vi_cv_path_python3} -c \
        "import sys, string; print(':'.join(sys.path))"` ])
-  
+
       dnl -- where the Python implementation library archives are
-  
+
       AC_ARG_WITH(python3-config-dir,
        [  --with-python3-config-dir=PATH  Python's config directory (deprecated)],
        [ vi_cv_path_python3_conf="${withval}"; have_python3_config_dir=1 ] )
-  
+
       AC_CACHE_CHECK(Python's configuration directory,vi_cv_path_python3_conf,
       [
        vi_cv_path_python3_conf=
@@ -1472,13 +1470,13 @@ if test "$enable_python3interp" = "yes" -o "$enable_python3interp" = "dynamic"; 
          done
        fi
       ])
-  
+
       PYTHON3_CONFDIR="${vi_cv_path_python3_conf}"
-  
+
       if test "X$PYTHON3_CONFDIR" = "X"; then
         AC_MSG_RESULT([can't find it!])
       else
-  
+
         dnl -- we need to examine Python's config/Makefile too
         dnl    see what the interpreter is built from
         AC_CACHE_VAL(vi_cv_path_python3_plibs,
@@ -1523,7 +1521,7 @@ eof
 	fi
         PYTHON3_SRC="if_python3.c"
         PYTHON3_OBJ="objects/if_python3.o"
-  
+
         dnl On FreeBSD linking with "-pthread" is required to use threads.
         dnl _THREAD_SAFE must be used for compiling then.
         dnl The "-pthread" is added to $LIBS, so that the following check for
@@ -1558,7 +1556,7 @@ eof
         else
           AC_MSG_RESULT(no)
         fi
-  
+
         dnl check that compiling a simple program still works with the flags
         dnl added for Python.
         AC_MSG_CHECKING([if compile and link flags for Python 3 are sane])
@@ -1596,7 +1594,7 @@ AC_SUBST(PYTHON3_SRC)
 AC_SUBST(PYTHON3_OBJ)
 
 dnl if python2.x and python3.x are enabled one can only link in code
-dnl with dlopen(), dlsym(), dlclose() 
+dnl with dlopen(), dlsym(), dlclose()
 if test "$python_ok" = yes && test "$python3_ok" = yes; then
   AC_DEFINE(DYNAMIC_PYTHON)
   AC_DEFINE(DYNAMIC_PYTHON3)
@@ -1796,7 +1794,7 @@ if test "$enable_rubyinterp" = "yes" -o "$enable_rubyinterp" = "dynamic"; then
 	  librubyarg="$librubyarg"
 	  RUBY_LIBS="$RUBY_LIBS -L$rubylibdir"
 	elif test "$librubyarg" = "libruby.a"; then
-	  dnl required on Mac OS 10.3 where libruby.a doesn't exist
+	  dnl required on Mac OS 10.3 where libruby.a doesn\'t exist
 	  librubyarg="-lruby"
 	  RUBY_LIBS="$RUBY_LIBS -L$rubylibdir"
 	fi
@@ -2010,29 +2008,9 @@ dnl Farsi language support has been removed, ignore --disable-farsi
 AC_ARG_ENABLE(farsi,
 	[  --disable-farsi         Deprecated.],,)
 
-AC_MSG_CHECKING(--enable-hangulinput argument)
-AC_ARG_ENABLE(hangulinput,
-	[  --enable-hangulinput    Include Hangul input support.], ,
-	[enable_hangulinput="no"])
-AC_MSG_RESULT($enable_hangulinput)
-
-AC_MSG_CHECKING(--enable-xim argument)
-AC_ARG_ENABLE(xim,
-	[  --enable-xim            Include XIM input support.],
-	AC_MSG_RESULT($enable_xim),
-	[enable_xim="auto"; AC_MSG_RESULT(defaulting to auto)])
-
-AC_MSG_CHECKING(--enable-fontset argument)
-AC_ARG_ENABLE(fontset,
-	[  --enable-fontset        Include X fontset output support.], ,
-	[enable_fontset="no"])
-AC_MSG_RESULT($enable_fontset)
-dnl defining FEAT_XFONTSET is delayed, so that it can be disabled for no GUI
-
 test -z "$with_x" && with_x=yes
-test "${enable_gui-yes}" != no -a "x$MACOS_X" != "xyes" -a "x$QNX" != "xyes" && with_x=yes
 if test "$with_x" = no; then
-  AC_MSG_RESULT(defaulting to: don't HAVE_X11)
+  AC_MSG_RESULT(defaulting to: don\'t HAVE_X11)
 else
   dnl Do this check early, so that its failure can override user requests.
 
@@ -2077,7 +2055,7 @@ else
 
 
   dnl Check if the X11 header files are correctly installed. On some systems
-  dnl Xlib.h includes files that don't exist.  On some systems X11/Intrinsic.h
+  dnl Xlib.h includes files that don\'t exist.  On some systems X11/Intrinsic.h
   dnl is missing.
   AC_MSG_CHECKING(if X11 header files can be found)
   cflags_save=$CFLAGS
@@ -2104,7 +2082,7 @@ else
 		[-lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS -lXdmcp])
 
     dnl Some systems need -lnsl -lsocket when testing for ICE.
-    dnl The check above doesn't do this, try here (again).  Also needed to get
+    dnl The check above doesn\'t do this, try here (again).  Also needed to get
     dnl them after Xdmcp.  link.sh will remove them when not needed.
     dnl Check for other function than above to avoid the cached value
     AC_CHECK_LIB(ICE, IceOpenConnection,
@@ -2166,17 +2144,6 @@ if test "x$with_x" = xno -a "x$with_x_arg" = xyes; then
     AC_MSG_ERROR([could not configure X])
 fi
 
-test "x$with_x" = xno -a "x$MACOS_X" != "xyes" -a "x$QNX" != "xyes" && enable_gui=no
-
-AC_MSG_CHECKING(--enable-gui argument)
-AC_ARG_ENABLE(gui,
- [  --enable-gui[=OPTS]       X11 GUI. [default=auto] [OPTS=auto/no/gtk2/gnome2/gtk3/motif/athena/neXtaw/photon/carbon]], , enable_gui="auto")
-
-dnl Canonicalize the --enable-gui= argument so that it can be easily compared.
-dnl Do not use character classes for portability with old tools.
-enable_gui_canon=`echo "_$enable_gui" | \
-	sed 's/[[ _+-]]//g;y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/'`
-
 dnl Skip everything by default.
 SKIP_GTK2=YES
 SKIP_GTK3=YES
@@ -2187,142 +2154,6 @@ SKIP_NEXTAW=YES
 SKIP_PHOTON=YES
 SKIP_CARBON=YES
 GUITYPE=NONE
-
-if test "x$QNX" = "xyes" -a "x$with_x" = "xno" ; then
-  SKIP_PHOTON=
-  case "$enable_gui_canon" in
-    no)		AC_MSG_RESULT(no GUI support)
-		SKIP_PHOTON=YES ;;
-    yes|""|auto) AC_MSG_RESULT(automatic GUI support)
-    		gui_auto=yes ;;
-    photon)	AC_MSG_RESULT(Photon GUI support) ;;
-    *)		AC_MSG_RESULT([Sorry, $enable_gui GUI is not supported])
-		SKIP_PHOTON=YES ;;
-  esac
-
-elif test "x$MACOS_X" = "xyes" -a "x$with_x" = "xno" ; then
-  SKIP_CARBON=
-  case "$enable_gui_canon" in
-    no)		AC_MSG_RESULT(no GUI support)
-		SKIP_CARBON=YES ;;
-    yes|"")	AC_MSG_RESULT(yes - automatic GUI support)
-    		gui_auto=yes ;;
-    auto)	AC_MSG_RESULT(auto - Carbon GUI is outdated - disable GUI support)
-		SKIP_CARBON=YES ;;
-    carbon)	AC_MSG_RESULT(Carbon GUI support) ;;
-    *)		AC_MSG_RESULT([Sorry, $enable_gui GUI is not supported])
-		SKIP_CARBON=YES ;;
-  esac
-
-else
-
-  case "$enable_gui_canon" in
-    no|none)	AC_MSG_RESULT(no GUI support) ;;
-    yes|""|auto)	AC_MSG_RESULT(yes/auto - automatic GUI support)
-		gui_auto=yes
-		SKIP_GTK2=
-		SKIP_GNOME=
-		SKIP_MOTIF=
-		SKIP_ATHENA=
-		SKIP_NEXTAW=
-		SKIP_CARBON=;;
-    gtk2)	AC_MSG_RESULT(GTK+ 2.x GUI support)
-		SKIP_GTK2=;;
-    gnome2)	AC_MSG_RESULT(GNOME 2.x GUI support)
-		SKIP_GNOME=
-		SKIP_GTK2=;;
-    gtk3)	AC_MSG_RESULT(GTK+ 3.x GUI support)
-		SKIP_GTK3=;;
-    motif)	AC_MSG_RESULT(Motif GUI support)
-		SKIP_MOTIF=;;
-    athena)	AC_MSG_RESULT(Athena GUI support)
-		SKIP_ATHENA=;;
-    nextaw)	AC_MSG_RESULT(neXtaw GUI support)
-		SKIP_NEXTAW=;;
-    *)		AC_MSG_RESULT([Sorry, $enable_gui GUI is not supported]) ;;
-  esac
-
-fi
-
-if test "x$SKIP_GTK2" != "xYES" -a "$enable_gui_canon" != "gtk2" \
-				-a "$enable_gui_canon" != "gnome2"; then
-  AC_MSG_CHECKING(whether or not to look for GTK+ 2)
-  AC_ARG_ENABLE(gtk2-check,
-	[  --enable-gtk2-check     If auto-select GUI, check for GTK+ 2 [default=yes]],
-	, enable_gtk2_check="yes")
-  AC_MSG_RESULT($enable_gtk2_check)
-  if test "x$enable_gtk2_check" = "xno"; then
-    SKIP_GTK2=YES
-    SKIP_GNOME=YES
-  fi
-fi
-
-if test "x$SKIP_GNOME" != "xYES" -a "$enable_gui_canon" != "gnome2"; then
-  AC_MSG_CHECKING(whether or not to look for GNOME)
-  AC_ARG_ENABLE(gnome-check,
-	[  --enable-gnome-check    If GTK GUI, check for GNOME [default=no]],
-	, enable_gnome_check="no")
-  AC_MSG_RESULT($enable_gnome_check)
-  if test "x$enable_gnome_check" = "xno"; then
-    SKIP_GNOME=YES
-  fi
-fi
-
-if test "x$SKIP_GTK3" != "xYES" -a "$enable_gui_canon" != "gtk3"; then
-  AC_MSG_CHECKING(whether or not to look for GTK+ 3)
-  AC_ARG_ENABLE(gtk3-check,
-	[  --enable-gtk3-check     If auto-select GUI, check for GTK+ 3 [default=yes]],
-	, enable_gtk3_check="yes")
-  AC_MSG_RESULT($enable_gtk3_check)
-  if test "x$enable_gtk3_check" = "xno"; then
-    SKIP_GTK3=YES
-  fi
-fi
-
-if test "x$SKIP_MOTIF" != "xYES" -a "$enable_gui_canon" != "motif"; then
-  AC_MSG_CHECKING(whether or not to look for Motif)
-  AC_ARG_ENABLE(motif-check,
-	[  --enable-motif-check    If auto-select GUI, check for Motif [default=yes]],
-	, enable_motif_check="yes")
-  AC_MSG_RESULT($enable_motif_check)
-  if test "x$enable_motif_check" = "xno"; then
-    SKIP_MOTIF=YES
-  fi
-fi
-
-if test "x$SKIP_ATHENA" != "xYES" -a "$enable_gui_canon" != "athena"; then
-  AC_MSG_CHECKING(whether or not to look for Athena)
-  AC_ARG_ENABLE(athena-check,
-	[  --enable-athena-check   If auto-select GUI, check for Athena [default=yes]],
-	, enable_athena_check="yes")
-  AC_MSG_RESULT($enable_athena_check)
-  if test "x$enable_athena_check" = "xno"; then
-    SKIP_ATHENA=YES
-  fi
-fi
-
-if test "x$SKIP_NEXTAW" != "xYES" -a "$enable_gui_canon" != "nextaw"; then
-  AC_MSG_CHECKING(whether or not to look for neXtaw)
-  AC_ARG_ENABLE(nextaw-check,
-	[  --enable-nextaw-check   If auto-select GUI, check for neXtaw [default=yes]],
-	, enable_nextaw_check="yes")
-  AC_MSG_RESULT($enable_nextaw_check);
-  if test "x$enable_nextaw_check" = "xno"; then
-    SKIP_NEXTAW=YES
-  fi
-fi
-
-if test "x$SKIP_CARBON" != "xYES" -a "$enable_gui_canon" != "carbon"; then
-  AC_MSG_CHECKING(whether or not to look for Carbon)
-  AC_ARG_ENABLE(carbon-check,
-	[  --enable-carbon-check   If auto-select GUI, check for Carbon [default=yes]],
-	, enable_carbon_check="yes")
-  AC_MSG_RESULT($enable_carbon_check);
-  if test "x$enable_carbon_check" = "xno"; then
-    SKIP_CARBON=YES
-  fi
-fi
-
 
 if test "x$MACOS_X" = "xyes" -a -z "$SKIP_CARBON" -a "x$CARBON" = "xyes"; then
   AC_MSG_CHECKING(for Carbon GUI)
@@ -2367,110 +2198,13 @@ AC_DEFUN(AM_PATH_GTK,
 [
   if test "X$GTK_CONFIG" != "Xno" -o "X$PKG_CONFIG" != "Xno"; then
   {
-    no_gtk=""
-    if (test "X$SKIP_GTK2" != "XYES" -a "X$PKG_CONFIG" != "Xno") \
-	  && $PKG_CONFIG --exists gtk+-2.0; then
-    {
-      min_gtk_version=ifelse([$1], ,2.2.0,$1)
-      AC_MSG_CHECKING(for GTK - version >= $min_gtk_version)
-      dnl We should be using PKG_CHECK_MODULES() instead of this hack.
-      dnl But I guess the dependency on pkgconfig.m4 is not wanted or
-      dnl something like that.
-      GTK_CFLAGS=`$PKG_CONFIG --cflags gtk+-2.0`
-      GTK_LIBDIR=`$PKG_CONFIG --libs-only-L gtk+-2.0`
-      GTK_LIBS=`$PKG_CONFIG --libs gtk+-2.0`
-      gtk_major_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
-      gtk_minor_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
-      gtk_micro_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
-    }
-    elif (test "X$SKIP_GTK3" != "XYES" -a "X$PKG_CONFIG" != "Xno") \
-	  && $PKG_CONFIG --exists gtk+-3.0; then
-    {
-      min_gtk_version=ifelse([$1], ,3.0.0,$1)
-      AC_MSG_CHECKING(for GTK - version >= $min_gtk_version)
-
-      GTK_CFLAGS=`$PKG_CONFIG --cflags gtk+-3.0`
-      GTK_LIBDIR=`$PKG_CONFIG --libs-only-L gtk+-3.0`
-      GTK_LIBS=`$PKG_CONFIG --libs gtk+-3.0`
-      gtk_major_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
-      gtk_minor_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
-      gtk_micro_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
-	     sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
-    }
-    else
-      no_gtk=yes
-    fi
-
-    if test "x$enable_gtktest" = "xyes" -a "x$no_gtk" = "x"; then
-    {
-      ac_save_CFLAGS="$CFLAGS"
-      ac_save_LIBS="$LIBS"
-      CFLAGS="$CFLAGS $GTK_CFLAGS"
-      LIBS="$LIBS $GTK_LIBS"
-
-      dnl
-      dnl Now check if the installed GTK is sufficiently new.
-      dnl
-      rm -f conf.gtktest
-      AC_TRY_RUN([
-#include <gtk/gtk.h>
-#include <stdio.h>
-#if STDC_HEADERS
-# include <stdlib.h>
-# include <stddef.h>
-#endif
-
-int
-main ()
-{
-int major, minor, micro;
-char *tmp_version;
-
-system ("touch conf.gtktest");
-
-/* HP/UX 9 (%@#!) writes to sscanf strings */
-tmp_version = g_strdup("$min_gtk_version");
-if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
-   printf("%s, bad version string\n", "$min_gtk_version");
-   exit(1);
- }
-
-if ((gtk_major_version > major) ||
-    ((gtk_major_version == major) && (gtk_minor_version > minor)) ||
-    ((gtk_major_version == major) && (gtk_minor_version == minor) &&
-				     (gtk_micro_version >= micro)))
-{
-    return 0;
-}
-return 1;
-}
-],, no_gtk=yes,[echo $ac_n "cross compiling; assumed OK... $ac_c"])
-      CFLAGS="$ac_save_CFLAGS"
-      LIBS="$ac_save_LIBS"
-    }
-    fi
-    if test "x$no_gtk" = x ; then
-      if test "x$enable_gtktest" = "xyes"; then
-	AC_MSG_RESULT(yes; found version $gtk_major_version.$gtk_minor_version.$gtk_micro_version)
-      else
-	AC_MSG_RESULT(found version $gtk_major_version.$gtk_minor_version.$gtk_micro_version)
-      fi
-      ifelse([$2], , :, [$2])
-    else
-    {
-      AC_MSG_RESULT(no)
-      GTK_CFLAGS=""
-      GTK_LIBS=""
-      ifelse([$3], , :, [$3])
-      if test "$fail_if_missing" = "yes" -a "X$gui_auto" != "Xyes"; then
-	AC_MSG_ERROR([could not configure GTK])
-      fi
-    }
+    no_gtk=yes
+    AC_MSG_RESULT(no)
+    GTK_CFLAGS=""
+    GTK_LIBS=""
+    ifelse([$3], , :, [$3])
+    if test "$fail_if_missing" = "yes" -a "X$gui_auto" != "Xyes"; then
+	  AC_MSG_ERROR([could not configure GTK])
     fi
   }
   else
@@ -2528,7 +2262,7 @@ AC_DEFUN([GNOME_INIT_HOOK],
       GNOME_LIBDIR=`$PKG_CONFIG --libs-only-L libgnomeui-2.0`
       GNOME_INCLUDEDIR=`$PKG_CONFIG --cflags libgnomeui-2.0`
 
-      dnl On FreeBSD we need -pthread but pkg-config doesn't include it.
+      dnl On FreeBSD we need -pthread but pkg-config doesn\'t include it.
       dnl This might not be the right way but it works for me...
       AC_MSG_CHECKING(for FreeBSD)
       if test "`(uname) 2>/dev/null`" = FreeBSD; then
@@ -2553,340 +2287,15 @@ AC_DEFUN([GNOME_INIT],[
 	GNOME_INIT_HOOK([],fail)
 ])
 
-
-dnl ---------------------------------------------------------------------------
-dnl Check for GTK2.  If it fails, then continue on for Motif as before...
-dnl ---------------------------------------------------------------------------
-if test -z "$SKIP_GTK2"; then
-
-  AC_MSG_CHECKING(--disable-gtktest argument)
-  AC_ARG_ENABLE(gtktest, [  --disable-gtktest       Do not try to compile and run a test GTK program],
-	, enable_gtktest=yes)
-  if test "x$enable_gtktest" = "xyes" ; then
-    AC_MSG_RESULT(gtk test enabled)
-  else
-    AC_MSG_RESULT(gtk test disabled)
-  fi
-
-  if test "X$PKG_CONFIG" = "X"; then
-    AC_PATH_TOOL(PKG_CONFIG, pkg-config, no)
-  fi
-
-  if test "x$PKG_CONFIG" != "xno"; then
-    dnl First try finding version 2.2.0 or later.  The 2.0.x series has
-    dnl problems (bold fonts, --remote doesn't work).
-    AM_PATH_GTK(2.2.0,
-		[GUI_LIB_LOC="$GTK_LIBDIR"
-		 GTK_LIBNAME="$GTK_LIBS"
-		GUI_INC_LOC="$GTK_CFLAGS"], )
-    if test "x$GTK_CFLAGS" != "x"; then
-      SKIP_GTK3=YES
-      SKIP_ATHENA=YES
-      SKIP_NEXTAW=YES
-      SKIP_MOTIF=YES
-      GUITYPE=GTK
-      AC_SUBST(GTK_LIBNAME)
-    fi
-  fi
-  if test "x$GUITYPE" = "xGTK"; then
-    dnl
-    dnl if GTK exists, then check for GNOME.
-    dnl
-    if test -z "$SKIP_GNOME"; then
-    {
-      GNOME_INIT_HOOK([have_gnome=yes])
-      if test "x$have_gnome" = xyes ; then
-	AC_DEFINE(FEAT_GUI_GNOME)
-	GUI_INC_LOC="$GUI_INC_LOC $GNOME_INCLUDEDIR"
-	GTK_LIBNAME="$GTK_LIBNAME $GNOME_LIBDIR $GNOME_LIBS"
-      fi
-    }
-    fi
-  fi
-fi
-
-
-dnl ---------------------------------------------------------------------------
-dnl Check for GTK3.
-dnl ---------------------------------------------------------------------------
-if test -z "$SKIP_GTK3"; then
-
-  AC_MSG_CHECKING(--disable-gtktest argument)
-  AC_ARG_ENABLE(gtktest, [  --disable-gtktest       Do not try to compile and run a test GTK program],
-	, enable_gtktest=yes)
-  if test "x$enable_gtktest" = "xyes" ; then
-    AC_MSG_RESULT(gtk test enabled)
-  else
-    AC_MSG_RESULT(gtk test disabled)
-  fi
-
-  if test "X$PKG_CONFIG" = "X"; then
-    AC_PATH_TOOL(PKG_CONFIG, pkg-config, no)
-  fi
-
-  if test "x$PKG_CONFIG" != "xno"; then
-    AM_PATH_GTK(3.0.0,
-		[GUI_LIB_LOC="$GTK_LIBDIR"
-		 GTK_LIBNAME="$GTK_LIBS"
-		GUI_INC_LOC="$GTK_CFLAGS"], )
-    if test "x$GTK_CFLAGS" != "x"; then
-      SKIP_GTK2=YES
-      SKIP_GNOME=YES
-      SKIP_ATHENA=YES
-      SKIP_NEXTAW=YES
-      SKIP_MOTIF=YES
-      GUITYPE=GTK
-      AC_SUBST(GTK_LIBNAME)
-      AC_DEFINE(USE_GTK3)
-    fi
-  fi
-fi
-
-dnl Check the version of Gdk-Pixbuf.  If the version is 2.31 or later and
-dnl glib-compile-resources is found in PATH, use GResource.
-if test "x$GUITYPE" = "xGTK"; then
-  AC_MSG_CHECKING([version of Gdk-Pixbuf])
-  gdk_pixbuf_version=`$PKG_CONFIG --modversion gdk-pixbuf-2.0`
-  if test "x$gdk_pixbuf_version" != x ; then
-    gdk_pixbuf_version_minor=`echo $gdk_pixbuf_version | \
-      sed -e 's/[[0-9]][[0-9]]*\.\([[0-9]][[0-9]]*\)\.[[0-9]][[0-9]]*/\1/'`
-    if test "x$gdk_pixbuf_version_minor" != x -a \
-	$gdk_pixbuf_version_minor -ge 31 ; then
-      AC_MSG_RESULT([OK.])
-      AC_PATH_PROG(GLIB_COMPILE_RESOURCES,[glib-compile-resources],no)
-      AC_MSG_CHECKING([glib-compile-resources])
-      if test "x$GLIB_COMPILE_RESOURCES" = xno ; then
-	GLIB_COMPILE_RESOURCES=""
-	AC_MSG_RESULT([cannot be found in PATH.])
-      else
-	AC_MSG_RESULT([usable.])
-	AC_DEFINE(USE_GRESOURCE)
-	GRESOURCE_SRC="auto/gui_gtk_gresources.c"
-	GRESOURCE_OBJ="objects/gui_gtk_gresources.o"
-      fi
-    else
-      AC_MSG_RESULT([not usable.])
-    fi
-  else
-    AC_MSG_RESULT([cannot obtain from pkg_config.])
-  fi
-
-  AC_MSG_CHECKING([--disable-icon-cache-update argument])
-  AC_ARG_ENABLE(icon_cache_update,
-          [  --disable-icon-cache-update        update disabled],
-          [],
-          [enable_icon_cache_update="yes"])
-  if test "$enable_icon_cache_update" = "yes"; then
-    AC_MSG_RESULT([not set])
-    AC_PATH_PROG(GTK_UPDATE_ICON_CACHE,[gtk-update-icon-cache],no)
-    if test "x$GTK_UPDATE_ICON_CACHE" = "xno" ; then
-      AC_MSG_RESULT([not found in PATH.])
-    fi
-  else
-    AC_MSG_RESULT([update disabled])
-  fi
-
-  AC_MSG_CHECKING([--disable-desktop-database-update argument])
-  AC_ARG_ENABLE(desktop_database_update,
-          [  --disable-desktop-database-update  update disabled],
-          [],
-          [enable_desktop_database_update="yes"])
-  if test "$enable_desktop_database_update" = "yes"; then
-    AC_MSG_RESULT([not set])
-    AC_PATH_PROG(UPDATE_DESKTOP_DATABASE,[update-desktop-database],no)
-    if test "x$UPDATE_DESKTOP_DATABASE" = "xno" ; then
-      AC_MSG_RESULT([not found in PATH.])
-    fi
-  else
-    AC_MSG_RESULT([update disabled])
-  fi
-fi
 AC_SUBST(GLIB_COMPILE_RESOURCES)
 AC_SUBST(GRESOURCE_SRC)
 AC_SUBST(GRESOURCE_OBJ)
 AC_SUBST(GTK_UPDATE_ICON_CACHE)
 AC_SUBST(UPDATE_DESKTOP_DATABASE)
 
-dnl Check for Motif include files location.
-dnl The LAST one found is used, this makes the highest version to be used,
-dnl e.g. when Motif1.2 and Motif2.0 are both present.
-
-if test -z "$SKIP_MOTIF"; then
-  gui_XXX="/usr/XXX/Motif* /usr/Motif*/XXX /usr/XXX /usr/shlib /usr/X11*/XXX /usr/XXX/X11* /usr/dt/XXX /local/Motif*/XXX /local/XXX/Motif* /usr/local/Motif*/XXX /usr/local/XXX/Motif* /usr/local/XXX /usr/local/X11*/XXX /usr/local/LessTif/Motif*/XXX $MOTIFHOME/XXX"
-  dnl Remove "-I" from before $GUI_INC_LOC if it's there
-  GUI_INC_LOC="`echo $GUI_INC_LOC|sed 's%-I%%g'`"
-
-  AC_MSG_CHECKING(for location of Motif GUI includes)
-  gui_includes="`echo $x_includes|sed 's%/[^/][^/]*$%%'` `echo "$gui_XXX" | sed s/XXX/include/g` $GUI_INC_LOC"
-  GUI_INC_LOC=
-  for try in $gui_includes; do
-    if test -f "$try/Xm/Xm.h"; then
-      GUI_INC_LOC=$try
-    fi
-  done
-  if test -n "$GUI_INC_LOC"; then
-    if test "$GUI_INC_LOC" = /usr/include; then
-      GUI_INC_LOC=
-      AC_MSG_RESULT(in default path)
-    else
-      AC_MSG_RESULT($GUI_INC_LOC)
-    fi
-  else
-    AC_MSG_RESULT(<not found>)
-    SKIP_MOTIF=YES
-  fi
-fi
-
-dnl Check for Motif library files location.  In the same order as the include
-dnl files, to avoid a mixup if several versions are present
-
-if test -z "$SKIP_MOTIF"; then
-  AC_MSG_CHECKING(--with-motif-lib argument)
-  AC_ARG_WITH(motif-lib,
-  [  --with-motif-lib=STRING Library for Motif ],
-  [ MOTIF_LIBNAME="${withval}" ] )
-
-  if test -n "$MOTIF_LIBNAME"; then
-    AC_MSG_RESULT($MOTIF_LIBNAME)
-    GUI_LIB_LOC=
-  else
-    AC_MSG_RESULT(no)
-
-    dnl Remove "-L" from before $GUI_LIB_LOC if it's there
-    GUI_LIB_LOC="`echo $GUI_LIB_LOC|sed 's%-L%%g'`"
-
-    dnl Ubuntu has libXm.so in /usr/lib/i386-linux-gnu and elsewhere.  The
-    dnl linker will figure out which one to use, we only check if one exists.
-    AC_MSG_CHECKING(for location of Motif GUI libs)
-    gui_libs="`echo $x_libraries|sed 's%/[^/][^/]*$%%'` `echo "$gui_XXX" | sed s/XXX/lib/g` /usr/lib/i386-linux-gnu /usr/lib/x86_64-linux-gnu `echo "$GUI_INC_LOC" | sed s/include/lib/` $GUI_LIB_LOC"
-    GUI_LIB_LOC=
-    for try in $gui_libs; do
-      for libtry in "$try"/libXm.a "$try"/libXm.so* "$try"/libXm.sl "$try"/libXm.dylib; do
-	if test -f "$libtry"; then
-	  GUI_LIB_LOC=$try
-	fi
-      done
-    done
-    if test -n "$GUI_LIB_LOC"; then
-      dnl Remove /usr/lib, it causes trouble on some systems
-      if test "$GUI_LIB_LOC" = /usr/lib \
-	   -o "$GUI_LIB_LOC" = /usr/lib/i386-linux-gnu \
-	   -o "$GUI_LIB_LOC" = /usr/lib/x86_64-linux-gnu; then
-	GUI_LIB_LOC=
-	AC_MSG_RESULT(in default path)
-      else
-	if test -n "$GUI_LIB_LOC"; then
-	  AC_MSG_RESULT($GUI_LIB_LOC)
-	  if test "`(uname) 2>/dev/null`" = SunOS &&
-					 uname -r | grep '^5' >/dev/null; then
-	    GUI_LIB_LOC="$GUI_LIB_LOC -R $GUI_LIB_LOC"
-	  fi
-	fi
-      fi
-      MOTIF_LIBNAME=-lXm
-    else
-      AC_MSG_RESULT(<not found>)
-      SKIP_MOTIF=YES
-    fi
-  fi
-fi
-
-if test -z "$SKIP_MOTIF"; then
-  SKIP_ATHENA=YES
-  SKIP_NEXTAW=YES
-  GUITYPE=MOTIF
-  AC_SUBST(MOTIF_LIBNAME)
-fi
-
-dnl Check if the Athena files can be found
-
 GUI_X_LIBS=
 
-if test -z "$SKIP_ATHENA"; then
-  AC_MSG_CHECKING(if Athena header files can be found)
-  cflags_save=$CFLAGS
-  CFLAGS="$CFLAGS $X_CFLAGS"
-  AC_TRY_COMPILE([
-#include <X11/Intrinsic.h>
-#include <X11/Xaw/Paned.h>], ,
-	AC_MSG_RESULT(yes),
-	AC_MSG_RESULT(no); SKIP_ATHENA=YES )
-  CFLAGS=$cflags_save
-fi
-
-if test -z "$SKIP_ATHENA"; then
-  GUITYPE=ATHENA
-fi
-
-if test -z "$SKIP_NEXTAW"; then
-  AC_MSG_CHECKING(if neXtaw header files can be found)
-  cflags_save=$CFLAGS
-  CFLAGS="$CFLAGS $X_CFLAGS"
-  AC_TRY_COMPILE([
-#include <X11/Intrinsic.h>
-#include <X11/neXtaw/Paned.h>], ,
-	AC_MSG_RESULT(yes),
-	AC_MSG_RESULT(no); SKIP_NEXTAW=YES )
-  CFLAGS=$cflags_save
-fi
-
-if test -z "$SKIP_NEXTAW"; then
-  GUITYPE=NEXTAW
-fi
-
-if test -z "$SKIP_ATHENA" -o -z "$SKIP_NEXTAW" -o -z "$SKIP_MOTIF"; then
-  dnl Prepend -I and -L to $GUI_INC_LOC and $GUI_LIB_LOC if not empty
-  dnl Avoid adding it when it twice
-  if test -n "$GUI_INC_LOC"; then
-    GUI_INC_LOC=-I"`echo $GUI_INC_LOC|sed 's%-I%%'`"
-  fi
-  if test -n "$GUI_LIB_LOC"; then
-    GUI_LIB_LOC=-L"`echo $GUI_LIB_LOC|sed 's%-L%%'`"
-  fi
-
-  dnl Check for -lXext and then for -lXmu
-  ldflags_save=$LDFLAGS
-  LDFLAGS="$X_LIBS $LDFLAGS"
-  AC_CHECK_LIB(Xext, XShapeQueryExtension, [GUI_X_LIBS="-lXext"],,
-		[-lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS])
-  dnl For Solaris we need -lw and -ldl before linking with -lXmu works.
-  AC_CHECK_LIB(w, wslen, [X_EXTRA_LIBS="$X_EXTRA_LIBS -lw"],,
-		[$GUI_X_LIBS -lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS])
-  AC_CHECK_LIB(dl, dlsym, [X_EXTRA_LIBS="$X_EXTRA_LIBS -ldl"],,
-		[$GUI_X_LIBS -lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS])
-  AC_CHECK_LIB(Xmu, XmuCreateStippledPixmap, [GUI_X_LIBS="-lXmu $GUI_X_LIBS"],,
-		[$GUI_X_LIBS -lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS])
-  if test -z "$SKIP_MOTIF"; then
-    AC_CHECK_LIB(Xp, XpEndJob, [GUI_X_LIBS="-lXp $GUI_X_LIBS"],,
-		[$GUI_X_LIBS -lXm -lXt $X_PRE_LIBS -lX11 $X_EXTRA_LIBS])
-  fi
-  LDFLAGS=$ldflags_save
-
-  dnl Execute xmkmf to figure out if -DNARROWPROTO is needed.
-  AC_MSG_CHECKING(for extra X11 defines)
-  NARROW_PROTO=
-  rm -fr conftestdir
-  if mkdir conftestdir; then
-    cd conftestdir
-    cat > Imakefile <<'EOF'
-acfindx:
-	@echo 'NARROW_PROTO="${PROTO_DEFINES}"'
-EOF
-    if (xmkmf) >/dev/null 2>/dev/null && test -f Makefile; then
-      eval `${MAKE-make} acfindx 2>/dev/null | grep -v make`
-    fi
-    cd ..
-    rm -fr conftestdir
-  fi
-  if test -z "$NARROW_PROTO"; then
-    AC_MSG_RESULT(no)
-  else
-    AC_MSG_RESULT($NARROW_PROTO)
-  fi
-  AC_SUBST(NARROW_PROTO)
-fi
-
-dnl Look for XSMP support - but don't necessarily restrict it to X11 GUIs
+dnl Look for XSMP support - but don\'t necessarily restrict it to X11 GUIs
 dnl use the X11 include path
 if test "$enable_xsmp" = "yes"; then
   cppflags_save=$CPPFLAGS
@@ -2895,104 +2304,13 @@ if test "$enable_xsmp" = "yes"; then
   CPPFLAGS=$cppflags_save
 fi
 
-
-if test -z "$SKIP_ATHENA" -o -z "$SKIP_NEXTAW" -o -z "$SKIP_MOTIF" -o -z "$SKIP_GTK2" -o -z "$SKIP_GTK3"; then
-  dnl Check for X11/xpm.h and X11/Sunkeysym.h with the GUI include path
-  cppflags_save=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-  AC_CHECK_HEADERS(X11/xpm.h X11/Sunkeysym.h)
-
-  dnl automatically disable XIM when XIMtext isn't in X11/Xlib.h
-  if test ! "$enable_xim" = "no"; then
-    AC_MSG_CHECKING(for XIMText in X11/Xlib.h)
-    AC_EGREP_CPP(XIMText, [#include <X11/Xlib.h>],
-		  AC_MSG_RESULT(yes),
-		  AC_MSG_RESULT(no; xim has been disabled); enable_xim="no")
-  fi
-  CPPFLAGS=$cppflags_save
-
-  dnl automatically enable XIM when hangul input isn't enabled
-  if test "$enable_xim" = "auto" -a "$enable_hangulinput" != "yes" \
-		-a "x$GUITYPE" != "xNONE" ; then
-    AC_MSG_RESULT(X GUI selected; xim has been enabled)
-    enable_xim="yes"
-  fi
-fi
-
-if test -z "$SKIP_ATHENA" -o -z "$SKIP_NEXTAW" -o -z "$SKIP_MOTIF"; then
-  cppflags_save=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-dnl Xmu/Editres.h may exist but can only be used after including Intrinsic.h
-  AC_MSG_CHECKING([for X11/Xmu/Editres.h])
-  AC_TRY_COMPILE([
-#include <X11/Intrinsic.h>
-#include <X11/Xmu/Editres.h>],
-		      [int i; i = 0;],
-	      AC_MSG_RESULT(yes)
-		      AC_DEFINE(HAVE_X11_XMU_EDITRES_H),
-	      AC_MSG_RESULT(no))
-  CPPFLAGS=$cppflags_save
-fi
-
-dnl Only use the Xm directory when compiling Motif, don't use it for Athena
-if test -z "$SKIP_MOTIF"; then
-  cppflags_save=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-  if test "$zOSUnix" = "yes"; then
-	xmheader="Xm/Xm.h"
-  else
-	xmheader="Xm/Xm.h Xm/XpmP.h Xm/JoinSideT.h Xm/TraitP.h Xm/Manager.h
-	   Xm/UnhighlightT.h Xm/Notebook.h"  
-  fi    
-  AC_CHECK_HEADERS($xmheader)
-
-  if test "x$ac_cv_header_Xm_XpmP_h" = "xyes"; then
-    dnl Solaris uses XpmAttributes_21, very annoying.
-    AC_MSG_CHECKING([for XpmAttributes_21 in Xm/XpmP.h])
-    AC_TRY_COMPILE([#include <Xm/XpmP.h>], [XpmAttributes_21 attr;],
-	AC_MSG_RESULT(yes); AC_DEFINE(XPMATTRIBUTES_TYPE, XpmAttributes_21),
-	AC_MSG_RESULT(no); AC_DEFINE(XPMATTRIBUTES_TYPE, XpmAttributes)
-	)
-  else
-    AC_DEFINE(XPMATTRIBUTES_TYPE, XpmAttributes)
-  fi
-  CPPFLAGS=$cppflags_save
-fi
-
-if test "x$GUITYPE" = "xNONE" -a "$enable_xim" = "yes"; then
-  AC_MSG_RESULT(no GUI selected; xim has been disabled)
-  enable_xim="no"
-fi
-if test "x$GUITYPE" = "xNONE" -a "$enable_fontset" = "yes"; then
-  AC_MSG_RESULT(no GUI selected; fontset has been disabled)
-  enable_fontset="no"
-fi
-if test "x$GUITYPE:$enable_fontset" = "xGTK:yes"; then
-  AC_MSG_RESULT(GTK+ 2 GUI selected; fontset has been disabled)
-  enable_fontset="no"
-fi
-
-if test -z "$SKIP_PHOTON"; then
-  GUITYPE=PHOTONGUI
-fi
-
 AC_SUBST(GUI_INC_LOC)
 AC_SUBST(GUI_LIB_LOC)
-AC_SUBST(GUITYPE)
 AC_SUBST(GUI_X_LIBS)
 
 if test "$enable_workshop" = "yes" -a -n "$SKIP_MOTIF"; then
   AC_MSG_ERROR([cannot use workshop without Motif])
 fi
-
-dnl defining FEAT_XIM and FEAT_XFONTSET is delayed, so that they can be disabled
-if test "$enable_xim" = "yes"; then
-  AC_DEFINE(FEAT_XIM)
-fi
-if test "$enable_fontset" = "yes"; then
-  AC_DEFINE(FEAT_XFONTSET)
-fi
-
 
 dnl ---------------------------------------------------------------------------
 dnl end of GUI-checking
@@ -3030,20 +2348,6 @@ case `uname` in
 
     *)          CYGWIN=no; AC_MSG_RESULT(no);;
 esac
-
-dnl Only really enable hangul input when GUI and XFONTSET are available
-if test "$enable_hangulinput" = "yes"; then
-  if test "x$GUITYPE" = "xNONE"; then
-    AC_MSG_RESULT(no GUI selected; hangul input has been disabled)
-    enable_hangulinput=no
-  else
-    AC_DEFINE(FEAT_HANGULIN)
-    HANGULIN_SRC=hangulin.c
-    AC_SUBST(HANGULIN_SRC)
-    HANGULIN_OBJ=objects/hangulin.o
-    AC_SUBST(HANGULIN_OBJ)
-  fi
-fi
 
 dnl Checks for libraries and include files.
 
@@ -3642,7 +2946,7 @@ main() {struct stat st;  exit(stat("configure/", &st) != 0); }
 if test "x$vim_cv_stat_ignores_slash" = "xyes" ; then
   AC_DEFINE(STAT_IGNORES_SLASH)
 fi
-  
+
 dnl Link with iconv for charset translation, if not found without library.
 dnl check for iconv() requires including iconv.h
 dnl Add "-liconv" when possible; Solaris has iconv but use GNU iconv when it
@@ -3983,7 +3287,7 @@ main() {
   if (strncmp(buf, "cdedef", 6))
     exit(1);
   exit(0); /* libc version works properly.  */
-}']
+}\']
 
 AC_CACHE_CHECK([whether memmove handles overlaps],[vim_cv_memmove_handles_overlap],
   [
@@ -4245,10 +3549,7 @@ fi
 
 if test "$MACOS_X" = "yes"; then
   AC_MSG_CHECKING([whether we need macOS frameworks])
-  if test "$GUITYPE" = "CARBONGUI"; then
-    AC_MSG_RESULT([yes, we need Carbon])
-    LIBS="$LIBS -framework Carbon"
-  elif test "$MACOS_X_DARWIN" = "yes"; then
+  if test "$MACOS_X_DARWIN" = "yes"; then
     if test "$features" = "tiny"; then
       dnl Since no FEAT_CLIPBOARD, no longer need for os_macosx.m.
       OS_EXTRA_SRC=`echo "$OS_EXTRA_SRC" | sed -e 's+os_macosx.m++'`
@@ -4262,9 +3563,6 @@ if test "$MACOS_X" = "yes"; then
   else
     AC_MSG_RESULT([no])
   fi
-fi
-if test "x$MACARCH" = "xboth" && test "x$GUITYPE" = "xCARBONGUI"; then
-  LDFLAGS="$LDFLAGS -isysroot $DEVELOPER_DIR/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
 fi
 
 dnl gcc 3.1 changed the meaning of -MM.  The only solution appears to be to
@@ -4303,7 +3601,7 @@ dnl (e.g. ino_t and off_t), all of Vim's modules must be compiled with a
 dnl consistent value.  It's therefore safest to force the use of the define
 dnl if it's present in any of the *_CFLAGS variables.
 AC_MSG_CHECKING(whether we need to force -D_FILE_OFFSET_BITS=64)
-if echo "$CFLAGS $LUA_CFLAGS $MZSCHEME_CFLAGS $PERL_CFLAGS $PYTHON_CFLAGS $PYTHON3_CFLAGS $TCL_CFLAGS $RUBY_CFLAGS $GTK_CFLAGS" | grep -q D_FILE_OFFSET_BITS 2>/dev/null; then
+if echo "$CFLAGS $LUA_CFLAGS $MZSCHEME_CFLAGS $PERL_CFLAGS $PYTHON_CFLAGS $PYTHON3_CFLAGS $RUBY_CFLAGS $GTK_CFLAGS" | grep -q D_FILE_OFFSET_BITS 2>/dev/null; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(_FILE_OFFSET_BITS, 64)
 else

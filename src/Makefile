@@ -44,7 +44,6 @@
 #		--enable-python3interp	for Python3 interpreter
 #		--enable-pythoninterp	for Python interpreter
 #		--enable-rubyinterp	for Ruby interpreter
-#		--enable-tclinterp	for Tcl interpreter
 #	- Uncomment one of the lines with --with-features= to enable a set of
 #	  features (but not the interfaces just mentioned).
 #	- Uncomment the line with --disable-acl to disable ACL support even
@@ -326,77 +325,6 @@ CClink = $(CC)
 # Use this one if you distribute a modified version of Vim.
 #CONF_ARGS6 = --with-modified-by="John Doe"
 
-# GUI - For creating Vim with GUI (gvim) (B)
-# Uncomment this line when you don't want to get the GUI version, although you
-# have GTK, Motif and/or Athena.  Also use --without-x if you don't want X11
-# at all.
-#CONF_OPT_GUI = --disable-gui
-
-# Uncomment one of these lines if you have that GUI but don't want to use it.
-# The automatic check will use another one that can be found.
-# Gnome is disabled by default, because it may cause trouble.
-#
-# When both GTK+ 2 and GTK+ 3 are possible then GTK+ 2 will be selected.
-# To use GTK+ 3 instead use --enable-gui=gtk3 (see below).
-#CONF_OPT_GUI = --disable-gtk2-check
-#CONF_OPT_GUI = --enable-gnome-check
-#CONF_OPT_GUI = --disable-gtk3-check
-#CONF_OPT_GUI = --disable-motif-check
-#CONF_OPT_GUI = --disable-athena-check
-#CONF_OPT_GUI = --disable-nextaw-check
-
-# Uncomment one of these lines to select a specific GUI to use.
-# When using "yes" or nothing, configure will use the first one found: GTK+,
-# Motif or Athena.
-#
-# GTK versions that are known not to work 100% are rejected.
-# Use "--disable-gtktest" to accept them anyway.
-# For GTK 1 use Vim 7.2.
-#
-# GNOME means GTK with Gnome support.  If using GTK and --enable-gnome-check
-# is used then GNOME will automatically be used if it is found.  If you have
-# GNOME, but do not want to use it (e.g., want a GTK-only version), then use
-# --enable-gui=gtk or leave out --enable-gnome-check.
-#
-# GNOME makes sense only for GTK+ 2.  Avoid use of --enable-gnome-check with
-# GTK+ 3 build, as the functionality of GNOME is already incooperated into
-# GTK+ 3.
-#
-# If the selected GUI isn't found, the GUI is disabled automatically
-#CONF_OPT_GUI = --enable-gui=gtk2
-#CONF_OPT_GUI = --enable-gui=gtk2 --disable-gtktest
-#CONF_OPT_GUI = --enable-gui=gnome2
-#CONF_OPT_GUI = --enable-gui=gnome2 --disable-gtktest
-#CONF_OPT_GUI = --enable-gui=gtk3
-#CONF_OPT_GUI = --enable-gui=gtk3 --disable-gtktest
-#CONF_OPT_GUI = --enable-gui=motif
-#CONF_OPT_GUI = --enable-gui=motif --with-motif-lib="-static -lXm -shared"
-#CONF_OPT_GUI = --enable-gui=athena
-#CONF_OPT_GUI = --enable-gui=nextaw
-
-# Carbon GUI for Mac OS X
-#CONF_OPT_GUI = --enable-gui=carbon
-
-# Uncomment this line to run an individual test with gvim.
-#GUI_TESTARG = GUI_FLAG=-g 
-
-# DARWIN - detecting Mac OS X
-# Uncomment this line when you want to compile a Unix version of Vim on
-# Darwin.  None of the Mac specific options or files will be used.
-#CONF_OPT_DARWIN = --disable-darwin
-
-# Select the architecture supported.  Default is to build for the current
-# platform.  Use "both" for a universal binary.  That probably doesn't work
-# when including Perl, Python, etc.
-#CONF_OPT_DARWIN = --with-mac-arch=i386
-#CONF_OPT_DARWIN = --with-mac-arch=ppc
-#CONF_OPT_DARWIN = --with-mac-arch=both
-
-# Uncomment the next line to fail if one of the requested language interfaces
-# cannot be configured.  Without this Vim will be build anyway, without
-# the failing interfaces.
-#CONF_OPT_FAIL = --enable-fail-if-missing
-
 # LUA
 # Uncomment one of these when you want to include the Lua interface.
 # First one is for static linking, second one for dynamic loading.
@@ -460,13 +388,6 @@ CClink = $(CC)
 #CONF_OPT_RUBY = --enable-rubyinterp=dynamic
 #CONF_OPT_RUBY = --enable-rubyinterp --with-ruby-command=ruby1.9.1
 
-# TCL
-# Uncomment this when you want to include the Tcl interface.
-# First one is for static linking, second one for dynamic loading.
-#CONF_OPT_TCL = --enable-tclinterp
-#CONF_OPT_TCL = --enable-tclinterp=dynamic
-#CONF_OPT_TCL = --enable-tclinterp --with-tclsh=tclsh8.4
-
 # CHANNEL - inter process communication. Same conditions as NetBeans.
 # Uncomment this when you do not want inter process communication.
 #CONF_OPT_CHANNEL = --disable-channel
@@ -494,11 +415,9 @@ CClink = $(CC)
 # XIM - X Input Method.  Special character input support for X11 (Chinese,
 # Japanese, special symbols, etc).  Also needed for dead-key support.
 # When omitted it's automatically enabled for the X-windows GUI.
-# HANGUL - Input Hangul (Korean) language using internal routines.
 # Uncomment one of these when you want to input a multibyte language.
 #CONF_OPT_INPUT = --enable-xim
 #CONF_OPT_INPUT = --disable-xim
-#CONF_OPT_INPUT = --enable-hangulinput
 
 # FONTSET - X fontset support for output of languages with many characters.
 # Uncomment this when you want to output a multibyte language.
@@ -1347,7 +1266,7 @@ LINT_CFLAGS = -DLINT -I. $(PRE_DEFS) $(POST_DEFS) \
 
 LINT_EXTRA = -DHANGUL_INPUT -D"__attribute__(x)="
 
-DEPEND_CFLAGS = -DPROTO -DDEPEND -DFEAT_GUI $(LINT_CFLAGS)
+DEPEND_CFLAGS = -DPROTO -DDEPEND $(LINT_CFLAGS)
 
 # Note: MZSCHEME_LIBS must come before LIBS, because LIBS adds -lm which is
 # needed by racket.
@@ -1366,7 +1285,6 @@ ALL_LIBS = \
 	   $(PERL_LIBS) \
 	   $(PYTHON_LIBS) \
 	   $(PYTHON3_LIBS) \
-	   $(TCL_LIBS) \
 	   $(RUBY_LIBS) \
 	   $(PROFILE_LIBS) \
 	   $(SANITIZER_LIBS) \
@@ -1503,15 +1421,13 @@ SRC =	$(BASIC_SRC) \
 	$(GUI_SRC) \
 	$(TERM_SRC) \
 	$(XDIFF_SRC) \
-	$(HANGULIN_SRC) \
 	$(LUA_SRC) \
 	$(MZSCHEME_SRC) \
 	$(PERL_SRC) \
 	$(PYTHON_SRC) $(PYTHON3_SRC) \
-	$(TCL_SRC) \
 	$(RUBY_SRC)
 
-EXTRA_SRC = hangulin.c if_lua.c if_mzsch.c \
+EXTRA_SRC = if_lua.c if_mzsch.c \
 	    if_python.c if_python3.c \
 	    channel.c \
 	    $(GRESOURCE_SRC)
@@ -1537,7 +1453,7 @@ ALL_SRC = $(BASIC_SRC) $(ALL_GUI_SRC) $(UNITTEST_SRC) \
 # Which files to check with lint.  Select one of these three lines.  ALL_SRC
 # checks more, but may not work well for checking a GUI that wasn't configured.
 # The perl sources also don't work well with lint.
-LINT_SRC = $(BASIC_SRC) $(GUI_SRC) $(HANGULIN_SRC) \
+LINT_SRC = $(BASIC_SRC) $(GUI_SRC) \
 	   $(PYTHON_SRC) $(PYTHON3_SRC) $(TCL_SRC) \
 	   $(CHANNEL_SRC) $(TERM_SRC)
 #LINT_SRC = $(SRC)
@@ -1568,7 +1484,6 @@ OBJ_COMMON = \
 	objects/fold.o \
 	objects/getchar.o \
 	objects/hashtab.o \
-	$(HANGULIN_OBJ) \
 	objects/indent.o \
 	objects/libvim.o \
 	objects/list.o \
@@ -1611,7 +1526,6 @@ OBJ_COMMON = \
 	$(PERL_OBJ) \
 	$(PYTHON_OBJ) \
 	$(PYTHON3_OBJ) \
-	$(TCL_OBJ) \
 	$(RUBY_OBJ) \
 	$(OS_EXTRA_OBJ) \
 	$(CHANNEL_OBJ) \
@@ -1691,7 +1605,6 @@ PRO_AUTO = \
 	fold.pro \
 	getchar.pro \
 	hashtab.pro \
-	hangulin.pro \
 	if_lua.pro \
 	if_mzsch.pro \
 	if_python.pro \
@@ -1732,9 +1645,7 @@ PRO_AUTO = \
 	userfunc.pro \
 	version.pro \
 	window.pro \
-	channel.pro \
-	$(ALL_GUI_PRO) \
-	$(TCL_PRO)
+	channel.pro
 
 # Resources used for the Mac are in one directory.
 RSRC_DIR = os_mac_rsrc
@@ -1886,13 +1797,8 @@ CPROTO = cproto $(PROTO_FLAGS) -DPROTO \
 
 ### Would be nice if this would work for "normal" make.
 ### Currently it only works for (Free)BSD make.
-#$(PRO_AUTO): $$(*F).c
-#	$(CPROTO) -DFEAT_GUI $(*F).c > $@
-
-# Always define FEAT_GUI.  This may generate a few warnings if it's also
-# defined in auto/config.h, you can ignore that.
 .c.pro:
-	$(CPROTO) -DFEAT_GUI $< > proto/$@
+	$(CPROTO) $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
 
 os_win32.pro: os_win32.c
@@ -1909,10 +1815,6 @@ winclip.pro: winclip.c
 
 os_beos.pro: os_beos.c
 	$(CPROTO) -D__BEOS__ -UHAVE_CONFIG_H $< > proto/$@
-	echo "/* vim: set ft=c : */" >> proto/$@
-
-gui_gtk_gresources.pro: auto/gui_gtk_gresources.c
-	$(CPROTO) -DFEAT_GUI $< > proto/$@
 	echo "/* vim: set ft=c : */" >> proto/$@
 
 notags:
@@ -2837,9 +2739,6 @@ objects/getchar.o: getchar.c
 objects/hashtab.o: hashtab.c
 	$(CCC) -o $@ hashtab.c
 
-objects/hangulin.o: hangulin.c
-	$(CCC) -o $@ hangulin.c
-
 objects/if_lua.o: if_lua.c
 	$(CCC_NF) $(LUA_CFLAGS) $(ALL_CFLAGS) -o $@ if_lua.c
 
@@ -2916,7 +2815,7 @@ objects/ops.o: ops.c
 	$(CCC) -o $@ ops.c
 
 objects/option.o: option.c
-	$(CCC_NF) $(LUA_CFLAGS) $(PERL_CFLAGS) $(PYTHON_CFLAGS) $(PYTHON3_CFLAGS) $(RUBY_CFLAGS) $(TCL_CFLAGS) $(ALL_CFLAGS) -o $@ option.c
+	$(CCC_NF) $(LUA_CFLAGS) $(PERL_CFLAGS) $(PYTHON_CFLAGS) $(PYTHON3_CFLAGS) $(RUBY_CFLAGS) $(ALL_CFLAGS) -o $@ option.c
 
 objects/os_beos.o: os_beos.c
 	$(CCC) -o $@ os_beos.c
@@ -3397,10 +3296,6 @@ objects/message_test.o: message_test.c main.c vim.h protodef.h auto/config.h \
  feature.h os_unix.h auto/osdef.h ascii.h keymap.h term.h macros.h \
  option.h  structs.h regexp.h  alloc.h \
  ex_cmds.h proto.h globals.h message.c
-objects/hangulin.o: hangulin.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h
 objects/if_lua.o: if_lua.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \

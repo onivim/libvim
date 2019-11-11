@@ -3892,7 +3892,7 @@ set_one_cmd_context(
         }
         xp->xp_pattern = arg;
       }
-      xp->xp_context = compl;
+      xp->xp_context = compl ;
     }
     break;
 

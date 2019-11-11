@@ -950,7 +950,7 @@ uc_add_command(
   cmd->uc_rep = rep_buf;
   cmd->uc_argt = argt;
   cmd->uc_def = def;
-  cmd->uc_compl = compl;
+  cmd->uc_compl = compl ;
 #ifdef FEAT_EVAL
   cmd->uc_script_ctx = current_sctx;
   cmd->uc_script_ctx.sc_lnum += sourcing_lnum;
@@ -1417,20 +1417,16 @@ uc_check_code(
     } mod_entry_T;
     static mod_entry_T mod_entries[] = {
 #ifdef FEAT_BROWSE_CMD
-      {&cmdmod.browse, "browse"},
+        {&cmdmod.browse, "browse"},
 #endif
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-      {&cmdmod.confirm, "confirm"},
-#endif
-      {&cmdmod.hide, "hide"},
-      {&cmdmod.keepalt, "keepalt"},
-      {&cmdmod.keepjumps, "keepjumps"},
-      {&cmdmod.keepmarks, "keepmarks"},
-      {&cmdmod.keeppatterns, "keeppatterns"},
-      {&cmdmod.lockmarks, "lockmarks"},
-      {&cmdmod.noswapfile, "noswapfile"},
-      {NULL, NULL}
-    };
+        {&cmdmod.hide, "hide"},
+        {&cmdmod.keepalt, "keepalt"},
+        {&cmdmod.keepjumps, "keepjumps"},
+        {&cmdmod.keepmarks, "keepmarks"},
+        {&cmdmod.keeppatterns, "keeppatterns"},
+        {&cmdmod.lockmarks, "lockmarks"},
+        {&cmdmod.noswapfile, "noswapfile"},
+        {NULL, NULL}};
     int i;
 
     result = quote ? 2 : 0;
@@ -1565,11 +1561,7 @@ void do_ucmd(exarg_T *eap)
       {
         for (ksp = p; *ksp != NUL && *ksp != K_SPECIAL; ++ksp)
           ;
-        if (*ksp == K_SPECIAL && (start == NULL || ksp < start || end == NULL) && ((ksp[1] == KS_SPECIAL && ksp[2] == KE_FILLER)
-#ifdef FEAT_GUI
-                                                                                   || (ksp[1] == KS_EXTRA && ksp[2] == (int)KE_CSI)
-#endif
-                                                                                       ))
+        if (*ksp == K_SPECIAL && (start == NULL || ksp < start || end == NULL) && ((ksp[1] == KS_SPECIAL && ksp[2] == KE_FILLER)))
         {
           // K_SPECIAL has been put in the buffer as K_SPECIAL
           // KS_SPECIAL KE_FILLER, like for mappings, but

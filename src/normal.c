@@ -57,10 +57,6 @@ static void nv_addsub(cmdarg_T *cap);
 static void nv_page(cmdarg_T *cap);
 static void nv_scroll_line(cmdarg_T *cap);
 static void nv_zet(cmdarg_T *cap);
-#ifdef FEAT_GUI
-static void nv_ver_scrollbar(cmdarg_T *cap);
-static void nv_hor_scrollbar(cmdarg_T *cap);
-#endif
 static void nv_colon(cmdarg_T *cap);
 static void nv_ctrlg(cmdarg_T *cap);
 static void nv_ctrlh(cmdarg_T *cap);
@@ -346,10 +342,6 @@ static const struct nv_cmd
     {K_F1, nv_help, NV_NCW, 0},
     {K_XF1, nv_help, NV_NCW, 0},
     {K_SELECT, nv_select, 0, 0},
-#ifdef FEAT_GUI
-    {K_VER_SCROLLBAR, nv_ver_scrollbar, 0, 0},
-    {K_HOR_SCROLLBAR, nv_hor_scrollbar, 0, 0},
-#endif
     {K_CURSORHOLD, nv_cursorhold, NV_KEEPREG, 0},
     {K_PS, nv_edit, 0, 0},
 };
@@ -3485,9 +3477,6 @@ static void nv_zet(cmdarg_T *cap)
         n = n * 10 + (nchar - '0');
       else if (nchar == CAR)
       {
-#ifdef FEAT_GUI
-        need_mouse_correct = TRUE;
-#endif
         win_setheight((int)n);
         break;
       }
@@ -3893,32 +3882,6 @@ dozet:
 #endif
 }
 
-#ifdef FEAT_GUI
-/*
- * Vertical scrollbar movement.
- */
-static void nv_ver_scrollbar(cmdarg_T *cap)
-{
-  if (cap->oap->op_type != OP_NOP)
-    clearopbeep(cap->oap);
-
-  /* Even if an operator was pending, we still want to scroll */
-  gui_do_scroll();
-}
-
-/*
- * Horizontal scrollbar movement.
- */
-static void nv_hor_scrollbar(cmdarg_T *cap)
-{
-  if (cap->oap->op_type != OP_NOP)
-    clearopbeep(cap->oap);
-
-  /* Even if an operator was pending, we still want to scroll */
-  gui_do_horiz_scroll(scrollbar_value, FALSE);
-}
-#endif
-
 /*
  * Handle a ":" command.
  */
@@ -3998,7 +3961,7 @@ static void nv_clear(cmdarg_T *cap)
     ui_get_shellsize();
 #endif
     redraw_later(CLEAR);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
     if (!gui.in_use)
 #endif

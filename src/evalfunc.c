@@ -5966,7 +5966,7 @@ f_has(typval_T *argvars, typval_T *rettv)
     "all_builtin_terms",
 #endif
 #endif
-#if defined(FEAT_BROWSE) && (defined(USE_FILE_CHOOSER) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF))
+#if defined(FEAT_BROWSE) && defined(USE_FILE_CHOOSER)
     "browsefilter",
 #endif
 #ifdef FEAT_BYTEOFF
@@ -5992,9 +5992,6 @@ f_has(typval_T *argvars, typval_T *rettv)
     "cursorbind",
 #ifdef DEBUG
     "debug",
-#endif
-#ifdef FEAT_CON_DIALOG
-    "dialog_con",
 #endif
 #ifdef FEAT_DIFF
     "diff",

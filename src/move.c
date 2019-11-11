@@ -580,7 +580,7 @@ void validate_cursor(void)
     curs_columns(TRUE);
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 /*
  * validate w_cline_row.
  */

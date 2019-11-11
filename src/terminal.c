@@ -93,10 +93,6 @@ struct terminal_S
   VTerm *tl_vterm;
   job_T *tl_job;
   buf_T *tl_buffer;
-#if defined(FEAT_GUI)
-  int tl_system; /* when non-zero used for :!cmd output */
-  int tl_toprow; /* row with first line of system terminal */
-#endif
 
   /* Set when setting the size of a vterm, reset after redrawing. */
   int tl_vterm_size_changed;
@@ -190,9 +186,6 @@ static int term_and_job_init(term_T *term, typval_T *argvar, char **argv, jobopt
 static int create_pty_only(term_T *term, jobopt_T *opt);
 static void term_report_winsize(term_T *term, int rows, int cols);
 static void term_free_vterm(term_T *term);
-#ifdef FEAT_GUI
-static void update_system_term(term_T *term);
-#endif
 
 static void handle_postponed_scrollback(term_T *term);
 
@@ -277,16 +270,6 @@ parse_termwinsize(win_T *wp, int *rows, int *cols)
 static void
 set_term_and_win_size(term_T *term)
 {
-#ifdef FEAT_GUI
-  if (term->tl_system)
-  {
-    /* Use the whole screen for the system command.  However, it will start
-	 * at the command line and scroll up as needed, using tl_toprow. */
-    term->tl_rows = Rows;
-    term->tl_cols = Columns;
-    return;
-  }
-#endif
   if (parse_termwinsize(curwin, &term->tl_rows, &term->tl_cols))
   {
     if (term->tl_rows != 0)
@@ -417,9 +400,6 @@ term_start(
   term->tl_cursor_visible = TRUE;
   term->tl_cursor_shape = VTERM_PROP_CURSORSHAPE_BLOCK;
   term->tl_finish = opt->jo_term_finish;
-#ifdef FEAT_GUI
-  term->tl_system = (flags & TERM_START_SYSTEM);
-#endif
   ga_init2(&term->tl_scrollback, sizeof(sb_line_T), 300);
   ga_init2(&term->tl_scrollback_postponed, sizeof(sb_line_T), 300);
 
@@ -633,14 +613,6 @@ term_start(
     /* Get and remember the size we ended up with.  Update the pty. */
     vterm_get_size(term->tl_vterm, &term->tl_rows, &term->tl_cols);
     term_report_winsize(term, term->tl_rows, term->tl_cols);
-#ifdef FEAT_GUI
-    if (term->tl_system)
-    {
-      /* display first line below typed command */
-      term->tl_toprow = msg_row + 1;
-      term->tl_dirty_row_end = 0;
-    }
-#endif
 
     /* Make sure we don't get stuck on sending keys to the job, it leads to
 	 * a deadlock if the job is waiting for Vim to read. */
@@ -968,24 +940,13 @@ update_cursor(term_T *term, int redraw)
 {
   if (term->tl_normal_mode)
     return;
-#ifdef FEAT_GUI
-  if (term->tl_system)
-    windgoto(term->tl_cursor_pos.row + term->tl_toprow,
-             term->tl_cursor_pos.col);
-  else
-#endif
-    setcursor();
+
+  setcursor();
+
   if (redraw)
   {
     if (term->tl_buffer == curbuf && term->tl_cursor_visible)
       cursor_on();
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-      gui_update_cursor(FALSE, FALSE);
-      gui_mch_flush();
-    }
-#endif
   }
 }
 
@@ -1017,18 +978,9 @@ void write_to_term(buf_T *buffer, char_u *msg, channel_T *channel)
   ch_log(channel, "writing %d bytes to terminal", (int)len);
   term_write_job_output(term, msg, len);
 
-#ifdef FEAT_GUI
-  if (term->tl_system)
-  {
-    /* show system output, scrolling up the screen as needed */
-    update_system_term(term);
-    update_cursor(term, TRUE);
-  }
-  else
-#endif
-      /* In Terminal-Normal mode we are displaying the buffer, not the terminal
+  /* In Terminal-Normal mode we are displaying the buffer, not the terminal
      * contents, thus no screen update is needed. */
-      if (!term->tl_normal_mode)
+  if (!term->tl_normal_mode)
   {
     // Don't use update_screen() when editing the command line, it gets
     // cleared.
@@ -1274,12 +1226,6 @@ term_convert_key(term_T *term, int c, char *buf)
     break;
   case K_SELECT:
     return 0;
-#ifdef FEAT_GUI
-  case K_VER_SCROLLBAR:
-    return 0;
-  case K_HOR_SCROLLBAR:
-    return 0;
-#endif
   case K_CURSORHOLD:
     return 0;
   case K_PS:
@@ -1930,12 +1876,6 @@ may_output_cursor_props(void)
 static void
 may_set_cursor_props(term_T *term)
 {
-#ifdef FEAT_GUI
-  /* For the GUI the cursor properties are obtained with
-     * term_get_cursor_shape(). */
-  if (gui.in_use)
-    return;
-#endif
   if (in_terminal_loop == term)
   {
     cursor_color_copy(&desired_cursor_color, term->tl_cursor_color);
@@ -1950,10 +1890,6 @@ may_set_cursor_props(term_T *term)
 static void
 prepare_restore_cursor_props(void)
 {
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    return;
-#endif
   cursor_color_copy(&desired_cursor_color, NULL);
   desired_cursor_shape = -1;
   desired_cursor_blink = -1;
@@ -2039,14 +1975,11 @@ int terminal_loop(int blocking)
 
   while (blocking || vpeekc_nomap() != NUL)
   {
-#ifdef FEAT_GUI
-    if (!curbuf->b_term->tl_system)
-#endif
-      // TODO: skip screen update when handling a sequence of keys.
-      // Repeat redrawing in case a message is received while redrawing.
-      while (must_redraw != 0)
-        if (update_screen(0) == FAIL)
-          break;
+    // TODO: skip screen update when handling a sequence of keys.
+    // Repeat redrawing in case a message is received while redrawing.
+    while (must_redraw != 0)
+      if (update_screen(0) == FAIL)
+        break;
     if (!term_use_loop_check(TRUE) || in_terminal_loop != curbuf->b_term)
       /* job finished while redrawing */
       break;
@@ -2090,11 +2023,7 @@ int terminal_loop(int blocking)
 #endif
     /* Was either CTRL-W (termwinkey) or CTRL-\ pressed?
 	 * Not in a system terminal. */
-    if ((c == (termwinkey == 0 ? Ctrl_W : termwinkey) || c == Ctrl_BSL)
-#ifdef FEAT_GUI
-        && !curbuf->b_term->tl_system
-#endif
-    )
+    if ((c == (termwinkey == 0 ? Ctrl_W : termwinkey) || c == Ctrl_BSL))
     {
       int prev_c = c;
 
@@ -2342,37 +2271,23 @@ cell2attr(VTermScreenCellAttrs cellattrs, VTermColor cellfg, VTermColor cellbg)
 {
   int attr = vtermAttr2hl(cellattrs);
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
+  int bold = MAYBE;
+  int fg = color2index(&cellfg, TRUE, &bold);
+  int bg = color2index(&cellbg, FALSE, &bold);
+
+  /* Use the "Terminal" highlighting for the default colors. */
+  if ((fg == 0 || bg == 0) && t_colors >= 16)
   {
-    guicolor_T fg, bg;
-
-    fg = gui_mch_get_rgb_color(cellfg.red, cellfg.green, cellfg.blue);
-    bg = gui_mch_get_rgb_color(cellbg.red, cellbg.green, cellbg.blue);
-    return get_gui_attr_idx(attr, fg, bg);
+    if (fg == 0 && term_default_cterm_fg >= 0)
+      fg = term_default_cterm_fg + 1;
+    if (bg == 0 && term_default_cterm_bg >= 0)
+      bg = term_default_cterm_bg + 1;
   }
-  else
-#endif
-  {
-    int bold = MAYBE;
-    int fg = color2index(&cellfg, TRUE, &bold);
-    int bg = color2index(&cellbg, FALSE, &bold);
 
-    /* Use the "Terminal" highlighting for the default colors. */
-    if ((fg == 0 || bg == 0) && t_colors >= 16)
-    {
-      if (fg == 0 && term_default_cterm_fg >= 0)
-        fg = term_default_cterm_fg + 1;
-      if (bg == 0 && term_default_cterm_bg >= 0)
-        bg = term_default_cterm_bg + 1;
-    }
-
-    /* with 8 colors set the bold attribute to get a bright foreground */
-    if (bold == TRUE)
-      attr |= HL_BOLD;
-    return get_cterm_attr_idx(attr, fg, bg);
-  }
-  return 0;
+  /* with 8 colors set the bold attribute to get a bright foreground */
+  if (bold == TRUE)
+    attr |= HL_BOLD;
+  return get_cterm_attr_idx(attr, fg, bg);
 }
 
 static void
@@ -2997,48 +2912,6 @@ term_line2screenline(VTermScreen *screen, VTermPos *pos, int max_col)
   }
 }
 
-#if defined(FEAT_GUI)
-static void
-update_system_term(term_T *term)
-{
-  VTermPos pos;
-  VTermScreen *screen;
-
-  if (term->tl_vterm == NULL)
-    return;
-  screen = vterm_obtain_screen(term->tl_vterm);
-
-  /* Scroll up to make more room for terminal lines if needed. */
-  while (term->tl_toprow > 0 && (Rows - term->tl_toprow) < term->tl_dirty_row_end)
-  {
-    int save_p_more = p_more;
-
-    p_more = FALSE;
-    msg_row = Rows - 1;
-    msg_puts("\n");
-    p_more = save_p_more;
-    --term->tl_toprow;
-  }
-
-  for (pos.row = term->tl_dirty_row_start; pos.row < term->tl_dirty_row_end && pos.row < Rows; ++pos.row)
-  {
-    if (pos.row < term->tl_rows)
-    {
-      int max_col = MIN(Columns, term->tl_cols);
-
-      term_line2screenline(screen, &pos, max_col);
-    }
-    else
-      pos.col = 0;
-
-    screen_line(term->tl_toprow + pos.row, 0, pos.col, Columns, 0);
-  }
-
-  term->tl_dirty_row_start = MAX_ROW;
-  term->tl_dirty_row_end = 0;
-}
-#endif
-
 /*
  * Return TRUE if window "wp" is to be redrawn with term_update_window().
  * Returns FALSE when there is no terminal running in this window or it is in
@@ -3251,49 +3124,7 @@ init_default_colors(term_T *term)
   /* The "Terminal" highlight group overrules the defaults. */
   id = syn_name2id((char_u *)"Terminal");
 
-  /* Use the actual color for the GUI and when 'termguicolors' is set. */
-#if defined(FEAT_GUI)
-  if (0
-#ifdef FEAT_GUI
-      || gui.in_use
-#endif
-  )
-  {
-    guicolor_T fg_rgb = INVALCOLOR;
-    guicolor_T bg_rgb = INVALCOLOR;
-
-    if (id != 0)
-      syn_id2colors(id, &fg_rgb, &bg_rgb);
-
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-      if (fg_rgb == INVALCOLOR)
-        fg_rgb = gui.norm_pixel;
-      if (bg_rgb == INVALCOLOR)
-        bg_rgb = gui.back_pixel;
-    }
-#endif
-    if (fg_rgb != INVALCOLOR)
-    {
-      long_u rgb = GUI_MCH_GET_RGB(fg_rgb);
-
-      fg->red = (unsigned)(rgb >> 16);
-      fg->green = (unsigned)(rgb >> 8) & 255;
-      fg->blue = (unsigned)rgb & 255;
-    }
-    if (bg_rgb != INVALCOLOR)
-    {
-      long_u rgb = GUI_MCH_GET_RGB(bg_rgb);
-
-      bg->red = (unsigned)(rgb >> 16);
-      bg->green = (unsigned)(rgb >> 8) & 255;
-      bg->blue = (unsigned)rgb & 255;
-    }
-  }
-  else
-#endif
-      if (id != 0 && t_colors >= 16)
+  if (id != 0 && t_colors >= 16)
   {
     if (term_default_cterm_fg >= 0)
       cterm_color2vterm(term_default_cterm_fg, fg);
@@ -3302,7 +3133,7 @@ init_default_colors(term_T *term)
   }
   else
   {
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
     int tmp;
 #endif
 
@@ -3310,7 +3141,7 @@ init_default_colors(term_T *term)
     if (cterm_normal_fg_color > 0)
     {
       cterm_color2vterm(cterm_normal_fg_color - 1, fg);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
       if (!gui.in_use)
 #endif
@@ -3325,7 +3156,7 @@ init_default_colors(term_T *term)
     if (cterm_normal_bg_color > 0)
     {
       cterm_color2vterm(cterm_normal_bg_color - 1, bg);
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
+#if defined(MSWIN)
 #ifdef VIMDLL
       if (!gui.in_use)
 #endif
@@ -3338,74 +3169,6 @@ init_default_colors(term_T *term)
     }
   }
 }
-
-#if defined(FEAT_GUI)
-/*
- * Set the 16 ANSI colors from array of RGB values
- */
-static void
-set_vterm_palette(VTerm *vterm, long_u *rgb)
-{
-  int index = 0;
-  VTermState *state = vterm_obtain_state(vterm);
-
-  for (; index < 16; index++)
-  {
-    VTermColor color;
-
-    color.red = (unsigned)(rgb[index] >> 16);
-    color.green = (unsigned)(rgb[index] >> 8) & 255;
-    color.blue = (unsigned)rgb[index] & 255;
-    vterm_state_set_palette_color(state, index, &color);
-  }
-}
-
-/*
- * Set the ANSI color palette from a list of colors
- */
-static int
-set_ansi_colors_list(VTerm *vterm, list_T *list)
-{
-  int n = 0;
-  long_u rgb[16];
-  listitem_T *li = list->lv_first;
-
-  for (; li != NULL && n < 16; li = li->li_next, n++)
-  {
-    char_u *color_name;
-    guicolor_T guicolor;
-
-    color_name = tv_get_string_chk(&li->li_tv);
-    if (color_name == NULL)
-      return FAIL;
-
-    guicolor = GUI_GET_COLOR(color_name);
-    if (guicolor == INVALCOLOR)
-      return FAIL;
-
-    rgb[n] = GUI_MCH_GET_RGB(guicolor);
-  }
-
-  if (n != 16 || li != NULL)
-    return FAIL;
-
-  set_vterm_palette(vterm, rgb);
-
-  return OK;
-}
-
-/*
- * Initialize the ANSI color palette from g:terminal_ansi_colors[0:15]
- */
-static void
-init_vterm_ansi_colors(VTerm *vterm)
-{
-  dictitem_T *var = find_var((char_u *)"g:terminal_ansi_colors", NULL, TRUE);
-
-  if (var != NULL && (var->di_tv.v_type != VAR_LIST || var->di_tv.vval.v_list == NULL || set_ansi_colors_list(vterm, var->di_tv.vval.v_list) == FAIL))
-    semsg(_(e_invarg2), "g:terminal_ansi_colors");
-}
-#endif
 
 /*
  * Handles a "drop" command from the job in the terminal.
@@ -3614,20 +3377,11 @@ parse_csi(
     break;
   if (wp != NULL)
   {
-#ifdef FEAT_GUI
-    if (gui.in_use)
-    {
-      x += wp->w_wincol * gui.char_width;
-      y += W_WINROW(wp) * gui.char_height;
-    }
-    else
-#endif
-    {
-      // We roughly estimate the position of the terminal window inside
-      // the Vim window by assuming a 10 x 7 character cell.
-      x += wp->w_wincol * 7;
-      y += W_WINROW(wp) * 10;
-    }
+
+    // We roughly estimate the position of the terminal window inside
+    // the Vim window by assuming a 10 x 7 character cell.
+    x += wp->w_wincol * 7;
+    y += W_WINROW(wp) * 10;
   }
 
   len = vim_snprintf(buf, 100, "\x1b[3;%d;%dt", x, y);
@@ -5120,7 +4874,7 @@ void f_term_sendkeys(typval_T *argvars, typval_T *rettv)
   }
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#ifdef PROTO
 /*
  * "term_getansicolors(buf)" function
  */
@@ -5324,7 +5078,7 @@ void term_send_eof(channel_T *ch)
     }
 }
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#ifdef PROTO
 job_T *
 term_getjob(term_T *term)
 {
@@ -5570,13 +5324,6 @@ conpty_term_and_job_init(
 
   if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
     goto failed;
-
-#if defined(FEAT_GUI)
-  if (opt->jo_set2 & JO2_ANSI_COLORS)
-    set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
-  else
-    init_vterm_ansi_colors(term->tl_vterm);
-#endif
 
   channel_set_job(channel, job, opt);
   job_set_options(job, opt);
@@ -5904,13 +5651,6 @@ winpty_term_and_job_init(
   if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
     goto failed;
 
-#if defined(FEAT_GUI)
-  if (opt->jo_set2 & JO2_ANSI_COLORS)
-    set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
-  else
-    init_vterm_ansi_colors(term->tl_vterm);
-#endif
-
   channel_set_job(channel, job, opt);
   job_set_options(job, opt);
 
@@ -6162,13 +5902,6 @@ term_and_job_init(
 
   if (create_vterm(term, term->tl_rows, term->tl_cols) == FAIL)
     return FAIL;
-
-#if defined(FEAT_GUI)
-  if (opt->jo_set2 & JO2_ANSI_COLORS)
-    set_vterm_palette(term->tl_vterm, opt->jo_ansi_colors);
-  else
-    init_vterm_ansi_colors(term->tl_vterm);
-#endif
 
   /* This may change a string in "argvar". */
   term->tl_job = job_start(argvar, argv, opt, TRUE);

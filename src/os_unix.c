@@ -420,7 +420,8 @@ mch_total_mem(int special UNUSED)
     long_u physmem;
 #else
     /* sysctl() may return 32 bit or 64 bit, accept both */
-    union {
+    union
+    {
       int_u u32;
       long_u u64;
     } physmem;
@@ -1188,14 +1189,6 @@ set_signals(void)
      * Arrange for other signals to gracefully shutdown Vim.
      */
   catch_signals(deathtrap, SIG_ERR);
-
-#if defined(FEAT_GUI) && defined(SIGHUP)
-  /*
-     * When the GUI is running, ignore the hangup signal.
-     */
-  if (gui.in_use)
-    signal(SIGHUP, SIG_IGN);
-#endif
 }
 
 #if defined(SIGINT) || defined(PROTO)
@@ -2419,42 +2412,34 @@ void mch_exit(int r)
 {
   exiting = TRUE;
 
-#ifdef FEAT_GUI
-  if (!gui.in_use)
-#endif
-  {
-    settmode(TMODE_COOK);
-    /*
+  settmode(TMODE_COOK);
+  /*
 	 * When t_ti is not empty but it doesn't cause swapping terminal
 	 * pages, need to output a newline when msg_didout is set.  But when
 	 * t_ti does swap pages it should not go to the shell page.  Do this
 	 * before stoptermcap().
 	 */
-    if (swapping_screen() && !newline_on_exit)
-      exit_scroll();
+  if (swapping_screen() && !newline_on_exit)
+    exit_scroll();
 
-    /* Stop termcap: May need to check for T_CRV response, which
+  /* Stop termcap: May need to check for T_CRV response, which
 	 * requires RAW mode. */
-    stoptermcap();
+  stoptermcap();
 
-    /*
+  /*
 	 * A newline is only required after a message in the alternate screen.
 	 * This is set to TRUE by wait_return().
 	 */
-    if (!swapping_screen() || newline_on_exit)
-      exit_scroll();
+  if (!swapping_screen() || newline_on_exit)
+    exit_scroll();
 
-    /* Cursor may have been switched off without calling starttermcap()
+  /* Cursor may have been switched off without calling starttermcap()
 	 * when doing "vim -u vimrc" and vimrc contains ":q". */
-    if (full_screen)
-      cursor_on();
-  }
+  if (full_screen)
+    cursor_on();
+
   ml_close_all(TRUE); /* remove all memfiles */
   may_core_dump();
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    gui_exit(r);
-#endif
 
 #ifdef MACOS_CONVERT
   mac_conv_cleanup();
@@ -2914,10 +2899,7 @@ set_child_environment(
 #endif
 #endif
   long colors =
-#ifdef FEAT_GUI
-      gui.in_use ? 256 * 256 * 256 :
-#endif
-                 t_colors;
+      t_colors;
 
 #ifdef HAVE_SETENV
   setenv("TERM", term, 1);
@@ -2971,7 +2953,7 @@ set_default_child_environment(int is_terminal)
 }
 #endif
 
-#if defined(FEAT_GUI) || defined(FEAT_JOB_CHANNEL)
+#if defined(FEAT_JOB_CHANNEL)
 /*
  * Open a PTY, with FD for the master and slave side.
  * When failing "pty_master_fd" and "pty_slave_fd" are -1.
@@ -3034,7 +3016,7 @@ void may_send_sigint(int c UNUSED, pid_t pid UNUSED, pid_t wpid UNUSED)
 #endif
 }
 
-#if !defined(USE_SYSTEM) || (defined(FEAT_GUI) && defined(FEAT_TERMINAL))
+#if !defined(USE_SYSTEM)
 
 static int
 build_argv(
@@ -3082,72 +3064,6 @@ build_argv(
   }
   argv[argc] = NULL;
   return OK;
-}
-#endif
-
-#if defined(FEAT_GUI) && defined(FEAT_TERMINAL)
-/*
- * Use a terminal window to run a shell command in.
- */
-static int
-mch_call_shell_terminal(
-    char_u *cmd,
-    int options UNUSED) /* SHELL_*, see vim.h */
-{
-  jobopt_T opt;
-  char **argv = NULL;
-  char_u *tofree1 = NULL;
-  char_u *tofree2 = NULL;
-  int retval = -1;
-  buf_T *buf;
-  job_T *job;
-  aco_save_T aco;
-  oparg_T oa; /* operator arguments */
-
-  if (build_argv(cmd, &argv, &tofree1, &tofree2) == FAIL)
-    goto theend;
-
-  init_job_options(&opt);
-  ch_log(NULL, "starting terminal for system command '%s'", cmd);
-  buf = term_start(NULL, argv, &opt, TERM_START_SYSTEM);
-  if (buf == NULL)
-    goto theend;
-
-  job = term_getjob(buf->b_term);
-  ++job->jv_refcount;
-
-  /* Find a window to make "buf" curbuf. */
-  aucmd_prepbuf(&aco, buf);
-
-  clear_oparg(&oa);
-  while (term_use_loop())
-  {
-    if (oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active)
-    {
-      /* If terminal_loop() returns OK we got a key that is handled
-	     * in Normal model. We don't do redrawing anyway. */
-      if (terminal_loop(TRUE) == OK)
-        normal_cmd(&oa, TRUE);
-    }
-    else
-      normal_cmd(&oa, TRUE);
-  }
-  retval = job->jv_exitval;
-  ch_log(NULL, "system command finished");
-
-  job_unref(job);
-
-  /* restore curwin/curbuf and a few other things */
-  aucmd_restbuf(&aco);
-
-  wait_return(TRUE);
-  do_buffer(DOBUF_WIPE, DOBUF_FIRST, FORWARD, buf->b_fnum, TRUE);
-
-theend:
-  vim_free(argv);
-  vim_free(tofree1);
-  vim_free(tofree2);
-  return retval;
 }
 #endif
 
@@ -3259,10 +3175,7 @@ mch_call_shell_fork(
   char_u *tofree2 = NULL;
   int i;
   int pty_master_fd = -1; /* for pty's */
-#ifdef FEAT_GUI
-  int pty_slave_fd = -1;
-#endif
-  int fd_toshell[2]; /* for pipes */
+  int fd_toshell[2];      /* for pipes */
   int fd_fromshell[2];
   int pipe_error = FALSE;
   int did_settmode = FALSE; /* settmode(TMODE_RAW) called */
@@ -3278,40 +3191,21 @@ mch_call_shell_fork(
      * input from the buffer: Try using a pseudo-tty to get the stdin/stdout
      * of the executed command into the Vim window.  Or use a pipe.
      */
-  if ((options & (SHELL_READ | SHELL_WRITE))
-#ifdef FEAT_GUI
-      || (gui.in_use && show_shell_mess)
-#endif
-  )
+  if ((options & (SHELL_READ | SHELL_WRITE)))
   {
-#ifdef FEAT_GUI
-    /*
-	 * Try to open a master pty.
-	 * If this works, open the slave pty.
-	 * If the slave can't be opened, close the master pty.
-	 */
-    if (p_guipty && !(options & (SHELL_READ | SHELL_WRITE)))
-      open_pty(&pty_master_fd, &pty_slave_fd, NULL, NULL);
-    /*
-	 * If not opening a pty or it didn't work, try using pipes.
-	 */
-    if (pty_master_fd < 0)
-#endif
+    pipe_error = (pipe(fd_toshell) < 0);
+    if (!pipe_error) /* pipe create OK */
     {
-      pipe_error = (pipe(fd_toshell) < 0);
-      if (!pipe_error) /* pipe create OK */
+      pipe_error = (pipe(fd_fromshell) < 0);
+      if (pipe_error) /* pipe create failed */
       {
-        pipe_error = (pipe(fd_fromshell) < 0);
-        if (pipe_error) /* pipe create failed */
-        {
-          close(fd_toshell[0]);
-          close(fd_toshell[1]);
-        }
+        close(fd_toshell[0]);
+        close(fd_toshell[1]);
       }
-      if (pipe_error)
-      {
-        msg_puts(_("\nCannot create pipes\n"));
-      }
+    }
+    if (pipe_error)
+    {
+      msg_puts(_("\nCannot create pipes\n"));
     }
   }
 
@@ -3330,26 +3224,13 @@ mch_call_shell_fork(
       UNBLOCK_SIGNALS(&curset);
 
       msg_puts(_("\nCannot fork\n"));
-      if ((options & (SHELL_READ | SHELL_WRITE))
-#ifdef FEAT_GUI
-          || (gui.in_use && show_shell_mess)
-#endif
-      )
+      if ((options & (SHELL_READ | SHELL_WRITE)))
       {
-#ifdef FEAT_GUI
-        if (pty_master_fd >= 0) /* close the pseudo tty */
-        {
-          close(pty_master_fd);
-          close(pty_slave_fd);
-        }
-        else /* close the pipes */
-#endif
-        {
-          close(fd_toshell[0]);
-          close(fd_toshell[1]);
-          close(fd_fromshell[0]);
-          close(fd_fromshell[1]);
-        }
+
+        close(fd_toshell[0]);
+        close(fd_toshell[1]);
+        close(fd_fromshell[0]);
+        close(fd_fromshell[1]);
       }
     }
     else if (pid == 0) /* child */
@@ -3399,11 +3280,7 @@ mch_call_shell_fork(
           close(fd);
         }
       }
-      else if ((options & (SHELL_READ | SHELL_WRITE))
-#ifdef FEAT_GUI
-               || gui.in_use
-#endif
-      )
+      else if ((options & (SHELL_READ | SHELL_WRITE)))
       {
 
 #ifdef HAVE_SETSID
@@ -3423,19 +3300,6 @@ mch_call_shell_fork(
 #endif
         }
 #endif
-#ifdef FEAT_GUI
-        if (pty_slave_fd >= 0)
-        {
-          /* push stream discipline modules */
-          if (options & SHELL_COOKED)
-            setup_slavepty(pty_slave_fd);
-#ifdef TIOCSCTTY
-          /* Try to become controlling tty (probably doesn't work,
-		     * unless run by root) */
-          ioctl(pty_slave_fd, TIOCSCTTY, (char *)NULL);
-#endif
-        }
-#endif
         set_default_child_environment(FALSE);
 
         /*
@@ -3443,48 +3307,18 @@ mch_call_shell_fork(
 		 * program like gpg can still access the terminal to get a
 		 * passphrase using stderr.
 		 */
-#ifdef FEAT_GUI
-        if (pty_master_fd >= 0)
-        {
-          close(pty_master_fd); /* close master side of pty */
 
-          /* set up stdin/stdout/stderr for the child */
-          close(0);
-          vim_ignored = dup(pty_slave_fd);
-          close(1);
-          vim_ignored = dup(pty_slave_fd);
-          if (gui.in_use)
-          {
-            close(2);
-            vim_ignored = dup(pty_slave_fd);
-          }
+        /* set up stdin for the child */
+        close(fd_toshell[1]);
+        close(0);
+        vim_ignored = dup(fd_toshell[0]);
+        close(fd_toshell[0]);
 
-          close(pty_slave_fd); /* has been dupped, close it now */
-        }
-        else
-#endif
-        {
-          /* set up stdin for the child */
-          close(fd_toshell[1]);
-          close(0);
-          vim_ignored = dup(fd_toshell[0]);
-          close(fd_toshell[0]);
-
-          /* set up stdout for the child */
-          close(fd_fromshell[0]);
-          close(1);
-          vim_ignored = dup(fd_fromshell[1]);
-          close(fd_fromshell[1]);
-
-#ifdef FEAT_GUI
-          if (gui.in_use)
-          {
-            /* set up stderr for the child */
-            close(2);
-            vim_ignored = dup(1);
-          }
-#endif
-        }
+        /* set up stdout for the child */
+        close(fd_fromshell[0]);
+        close(1);
+        vim_ignored = dup(fd_fromshell[1]);
+        close(fd_fromshell[1]);
       }
 
       /*
@@ -3514,11 +3348,7 @@ mch_call_shell_fork(
 	     * This is also used to pipe stdin/stdout to/from the external
 	     * command.
 	     */
-      if ((options & (SHELL_READ | SHELL_WRITE))
-#ifdef FEAT_GUI
-          || (gui.in_use && show_shell_mess)
-#endif
-      )
+      if ((options & (SHELL_READ | SHELL_WRITE)))
       {
 #define BUFLEN 100 /* length for buffer, pseudo tty limit is 128 */
         char_u buffer[BUFLEN + 1];
@@ -3537,20 +3367,10 @@ mch_call_shell_fork(
         elapsed_T start_tv;
 #endif
 
-#ifdef FEAT_GUI
-        if (pty_master_fd >= 0)
-        {
-          fromshell_fd = pty_master_fd;
-          toshell_fd = dup(pty_master_fd);
-        }
-        else
-#endif
-        {
-          close(fd_toshell[0]);
-          close(fd_fromshell[1]);
-          toshell_fd = fd_toshell[1];
-          fromshell_fd = fd_fromshell[0];
-        }
+        close(fd_toshell[0]);
+        close(fd_fromshell[1]);
+        toshell_fd = fd_toshell[1];
+        fromshell_fd = fd_fromshell[0];
 
         /*
 		 * Write to the child if there are typed characters.
@@ -3659,11 +3479,7 @@ mch_call_shell_fork(
 		     * typeahead.
 		     */
           len = 0;
-          if (!(options & SHELL_EXPAND) && ((options & (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) != (SHELL_READ | SHELL_WRITE | SHELL_COOKED)
-#ifdef FEAT_GUI
-                                            || gui.in_use
-#endif
-                                            ) &&
+          if (!(options & SHELL_EXPAND) && ((options & (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) != (SHELL_READ | SHELL_WRITE | SHELL_COOKED)) &&
               wait_pid == 0 && (ta_len > 0 || noread_cnt > 4))
           {
             if (ta_len == 0)
@@ -3999,14 +3815,6 @@ mch_call_shell_fork(
       if (wait_pid != pid)
         wait_pid = wait4pid(pid, &status);
 
-#ifdef FEAT_GUI
-      /* Close slave side of pty.  Only do this after the child has
-	     * exited, otherwise the child may hang when it tries to write on
-	     * the pty. */
-      if (pty_master_fd >= 0)
-        close(pty_slave_fd);
-#endif
-
       /* Make sure the child that writes to the external program is
 	     * dead. */
       if (wpid > 0)
@@ -4069,10 +3877,6 @@ int mch_call_shell(
     char_u *cmd,
     int options) /* SHELL_*, see vim.h */
 {
-#if defined(FEAT_GUI) && defined(FEAT_TERMINAL)
-  if (gui.in_use && vim_strchr(p_go, GO_TERMINAL) != NULL)
-    return mch_call_shell_terminal(cmd, options);
-#endif
 #ifdef USE_SYSTEM
   return mch_call_shell_system(cmd, options);
 #else
@@ -4209,11 +4013,6 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options, int is_terminal)
     {
       char *term = (char *)T_NAME;
 
-#ifdef FEAT_GUI
-      if (term_is_gui(T_NAME))
-        /* In the GUI 'term' is not what we want, use $TERM. */
-        term = getenv("TERM");
-#endif
       /* Use 'term' or $TERM if it starts with "xterm", otherwise fall
 	     * back to "xterm". */
       if (term == NULL || *term == NUL || STRNCMP(term, "xterm", 5) != 0)
@@ -5973,7 +5772,7 @@ do_xterm_trace(void)
   return TRUE;
 }
 
-#if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD) || defined(PROTO)
+#if defined(FEAT_XCLIPBOARD) || defined(PROTO)
 /*
  * Destroy the display, window and app_context.  Required for GTK.
  */
@@ -6011,12 +5810,7 @@ void clear_xterm_clip(void)
 static void
 clip_update(void)
 {
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    gui_mch_update();
-  else
-#endif
-      if (xterm_Shell != (Widget)0)
+  if (xterm_Shell != (Widget)0)
     xterm_update();
 }
 
@@ -6078,44 +5872,6 @@ void clip_xterm_set_selection(VimClipboard *cbd)
 #endif
 
 #if defined(USE_XSMP) || defined(PROTO)
-/*
- * Code for X Session Management Protocol.
- */
-
-#if defined(FEAT_GUI) && defined(USE_XSMP_INTERACT)
-/*
- * This is our chance to ask the user if they want to save,
- * or abort the logout
- */
-static void
-xsmp_handle_interaction(SmcConn smc_conn, SmPointer client_data UNUSED)
-{
-  cmdmod_T save_cmdmod;
-  int cancel_shutdown = False;
-
-  save_cmdmod = cmdmod;
-  cmdmod.confirm = TRUE;
-  if (check_changed_any(FALSE, FALSE))
-    /* Mustn't logout */
-    cancel_shutdown = True;
-  cmdmod = save_cmdmod;
-  setcursor(); /* position cursor */
-
-  /* Done interaction */
-  SmcInteractDone(smc_conn, cancel_shutdown);
-
-  /* Finish off
-     * Only end save-yourself here if we're not cancelling shutdown;
-     * we'll get a cancelled callback later in which we'll end it.
-     * Hopefully get around glitchy SMs (like GNOME-1)
-     */
-  if (!cancel_shutdown)
-  {
-    xsmp.save_yourself = False;
-    SmcSaveYourselfDone(smc_conn, True);
-  }
-}
-#endif
 
 /*
  * Callback that starts save-yourself.
@@ -6141,19 +5897,9 @@ xsmp_handle_save_yourself(
   if (p_verbose > 0)
     verb_msg(_("XSMP handling save-yourself request"));
 
-#if defined(FEAT_GUI) && defined(USE_XSMP_INTERACT)
-  /* Now see if we can ask about unsaved files */
-  if (shutdown && !fast && gui.in_use)
-    /* Need to interact with user, but need SM's permission */
-    SmcInteractRequest(smc_conn, SmDialogError,
-                       xsmp_handle_interaction, client_data);
-  else
-#endif
-  {
-    /* Can stop the cycle here */
-    SmcSaveYourselfDone(smc_conn, True);
-    xsmp.save_yourself = False;
-  }
+  /* Can stop the cycle here */
+  SmcSaveYourselfDone(smc_conn, True);
+  xsmp.save_yourself = False;
 }
 
 /*

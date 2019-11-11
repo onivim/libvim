@@ -453,19 +453,23 @@ struct u_header
 {
   /* The following have a pointer and a number. The number is used when
      * reading the undo file in u_read_undo() */
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next undo header in list */
     long seq;
   } uh_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header in list */
     long seq;
   } uh_prev;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next header for alt. redo */
     long seq;
   } uh_alt_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header for alt. redo */
     long seq;
   } uh_alt_prev;
@@ -692,11 +696,8 @@ typedef struct
 #ifdef FEAT_BROWSE_CMD
   int browse; /* TRUE to invoke file dialog */
 #endif
-  int split; /* flags for win_split() */
-  int tab;   /* > 0 when ":tab" was used */
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-  int confirm; /* TRUE to invoke yes/no dialog */
-#endif
+  int split;                  /* flags for win_split() */
+  int tab;                    /* > 0 when ":tab" was used */
   int keepalt;                /* TRUE when ":keepalt" was used */
   int keepmarks;              /* TRUE when ":keepmarks" was used */
   int keepjumps;              /* TRUE when ":keepjumps" was used */
@@ -930,7 +931,8 @@ struct condstack
 {
   short cs_flags[CSTACK_LEN];  /* CSF_ flags */
   char cs_pending[CSTACK_LEN]; /* CSTP_: what's pending in ":finally"*/
-  union {
+  union
+  {
     void *csp_rv[CSTACK_LEN]; /* return typeval for pending return */
     void *csp_ex[CSTACK_LEN]; /* exception for pending throw */
   } cs_pend;
@@ -1038,7 +1040,8 @@ struct cleanup_stuff
 typedef struct attr_entry
 {
   short ae_attr; /* HL_BOLD, etc. */
-  union {
+  union
+  {
     struct
     {
       char_u *start; /* start escape sequence */
@@ -1050,18 +1053,6 @@ typedef struct attr_entry
       short_u fg_color; /* foreground color number */
       short_u bg_color; /* background color number */
     } cterm;
-#ifdef FEAT_GUI
-    struct
-    {
-      guicolor_T fg_color; /* foreground color handle */
-      guicolor_T bg_color; /* background color handle */
-      guicolor_T sp_color; /* special color handle */
-      GuiFont font;        /* font handle */
-#ifdef FEAT_XFONTSET
-      GuiFontset fontset; /* fontset handle */
-#endif
-    } gui;
-#endif
   } ae_u;
 } attrentry_T;
 
@@ -1316,7 +1307,8 @@ typedef struct
 {
   vartype_T v_type;
   char v_lock; /* see below: VAR_LOCKED, VAR_FIXED */
-  union {
+  union
+  {
     varnumber_T v_number; /* number value */
 #ifdef FEAT_FLOAT
     float_T v_float; /* floating number value */
@@ -1713,13 +1705,6 @@ typedef struct
   int ch_poll_idx; /* used by channel_poll_setup() */
 #endif
 
-#ifdef FEAT_GUI_X11
-  XtInputId ch_inputHandler; /* Cookie for input */
-#endif
-#ifdef FEAT_GUI_GTK
-  gint ch_inputHandler; /* Cookie for input */
-#endif
-
   ch_mode_T ch_mode;
   job_io_T ch_io;
   int ch_timeout; /* request timeout in msec */
@@ -1918,9 +1903,6 @@ typedef struct
   int jo_term_finish;
   char_u *jo_eof_chars;
   char_u *jo_term_kill;
-#if defined(FEAT_GUI)
-  long_u jo_ansi_colors[16];
-#endif
   int jo_tty_type; // first character of "tty_type"
 #endif
 } jobopt_T;
@@ -2495,13 +2477,8 @@ struct tabpage_S
   long tp_old_Columns;  // Columns when Tab page was left
   long tp_ch_used;      // value of 'cmdheight' when frame size
                         // was set
-#ifdef FEAT_GUI
-  int tp_prev_which_scrollbars[3];
-  // previous value of which_scrollbars
-#endif
-
-  char_u *tp_localdir; // absolute path of local directory or
-                       // NULL
+  char_u *tp_localdir;  // absolute path of local directory or
+                        // NULL
 #ifdef FEAT_DIFF
   diff_T *tp_first_diff;
   buf_T *(tp_diffbuf[DB_COUNT]);
@@ -2899,9 +2876,6 @@ struct window_S
   int w_fraction;
   int w_prev_fraction_row;
 
-#ifdef FEAT_GUI
-  scrollbar_T w_scrollbars[2]; /* vert. Scrollbars for this window */
-#endif
 #ifdef FEAT_LINEBREAK
   linenr_T w_nrwidth_line_count; /* line count when ml_nrwidth_width
 					 * was computed. */

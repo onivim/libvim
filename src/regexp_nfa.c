@@ -3330,7 +3330,8 @@ alloc_state(int c, nfa_state_T *out, nfa_state_T *out1)
  * uninitialized, we use the pointers themselves
  * as storage for the Ptrlists. */
 typedef union Ptrlist Ptrlist;
-union Ptrlist {
+union Ptrlist
+{
   Ptrlist *next;
   nfa_state_T *s;
 };
@@ -4228,7 +4229,8 @@ typedef struct
   int in_use; /* number of subexpr with useful info */
 
   /* When REG_MULTI is TRUE list.multi is used, otherwise list.line. */
-  union {
+  union
+  {
     struct multipos
     {
       linenr_T start_lnum;
@@ -4256,7 +4258,8 @@ struct nfa_pim_S
   int result;         /* NFA_PIM_*, see below */
   nfa_state_T *state; /* the invisible match start state */
   regsubs_T subs;     /* submatch info, only party used */
-  union {
+  union
+  {
     lpos_T pos;
     char_u *ptr;
   } end; /* where the match must end */

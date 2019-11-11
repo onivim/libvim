@@ -351,13 +351,8 @@ static inline int isinf(double x)
 /*
  * Flush control functions.
  */
-#ifdef FEAT_GUI
-#define mch_enable_flush() gui_enable_flush()
-#define mch_disable_flush() gui_disable_flush()
-#else
 #define mch_enable_flush()
 #define mch_disable_flush()
-#endif
 
 /*
  * Like vim_free(), and also set the pointer to NULL.
