@@ -4625,17 +4625,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
   int temp;
   static int disabled_redraw = FALSE;
 
-#if defined(FEAT_HANGULIN)
-#if defined(ESC_CHG_TO_ENG_MODE)
-  hangul_input_state_set(0);
-#endif
-  if (composing_hangul)
-  {
-    push_raw_key(composing_hangul_buffer, 2);
-    composing_hangul = 0;
-  }
-#endif
-
   temp = curwin->w_cursor.col;
   if (disabled_redraw)
   {

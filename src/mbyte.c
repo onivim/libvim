@@ -4595,10 +4595,6 @@ mb_unescape(char_u **pp)
  */
 int mb_lefthalve(int row, int col)
 {
-#ifdef FEAT_HANGULIN
-  if (composing_hangul)
-    return TRUE;
-#endif
   return (*mb_off2cells)(LineOffset[row] + col,
                          LineOffset[row] + screen_Columns) > 1;
 }

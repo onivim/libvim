@@ -134,9 +134,6 @@ Error : configure did not run properly.Check auto / config.log.
 #ifdef FEAT_BEVAL_TIP
 #undef FEAT_BEVAL_TIP
 #endif
-#ifdef FEAT_XIM
-#undef FEAT_XIM
-#endif
 #endif
 
 /* The Mac conversion stuff doesn't work under X11. */
@@ -1858,19 +1855,6 @@ typedef enum
 #include "ex_cmds.h" /* Ex command defines */
 
 #include "proto.h" /* function prototypes */
-
-#if defined(FEAT_EVAL)
-/* Whether IME is supported by im_get_status() defined in mbyte.c.
- * For Win32 GUI it's in gui_w32.c when FEAT_MBYTE_IME or GLOBAL_IME is defined.
- * for Mac it is in gui_mac.c for the GUI or in os_mac_conv.c when
- * MACOS_CONVERT is defined. */
-#define IME_WITHOUT_XIM
-#endif
-
-#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM)
-/* im_set_active() is available */
-#define HAVE_INPUT_METHOD
-#endif
 
 #ifndef FEAT_LINEBREAK
 /* Without the 'numberwidth' option line numbers are always 7 chars. */
