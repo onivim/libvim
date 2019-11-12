@@ -688,12 +688,6 @@ void add_to_input_buf(char_u *s, int len)
   if (inbufcount + len > INBUFLEN + MAX_KEY_CODE_LEN)
     return; /* Shouldn't ever happen! */
 
-#ifdef FEAT_HANGULIN
-  if ((State & (INSERT | CMDLINE)) && hangul_input_state_get())
-    if ((len = hangul_input_process(s, len)) == 0)
-      return;
-#endif
-
   while (len--)
     inbuf[inbufcount++] = *s++;
 }
@@ -718,31 +712,6 @@ void add_to_input_buf_csi(char_u *str, int len)
     }
   }
 }
-
-#if defined(FEAT_HANGULIN) || defined(PROTO)
-void push_raw_key(char_u *s, int len)
-{
-  char_u *tmpbuf;
-  char_u *inp = s;
-
-  /* use the conversion result if possible */
-  tmpbuf = hangul_string_convert(s, &len);
-  if (tmpbuf != NULL)
-    inp = tmpbuf;
-
-  for (; len--; inp++)
-  {
-    inbuf[inbufcount++] = *inp;
-    if (*inp == CSI)
-    {
-      /* Turn CSI into K_CSI. */
-      inbuf[inbufcount++] = KS_EXTRA;
-      inbuf[inbufcount++] = (int)KE_CSI;
-    }
-  }
-  vim_free(tmpbuf);
-}
-#endif
 
 /* Remove everything from the input buffer.  Called when ^C is found */
 void trash_input_buf(void)
@@ -983,34 +952,6 @@ void ui_focus_change(
       setcursor();
     }
     cursor_on(); /* redrawing may have switched it off */
-  }
-}
-#endif
-
-#if defined(HAVE_INPUT_METHOD) || defined(PROTO)
-/*
- * Save current Input Method status to specified place.
- */
-void im_save_status(long *psave)
-{
-  /* Don't save when 'imdisable' is set or "xic" is NULL, IM is always
-     * disabled then (but might start later).
-     * Also don't save when inside a mapping, vgetc_im_active has not been set
-     * then.
-     * And don't save when the keys were stuffed (e.g., for a "." command).
-     * And don't save when the GUI is running but our window doesn't have
-     * input focus (e.g., when a find dialog is open). */
-  if (!p_imdisable && KeyTyped && !KeyStuffed
-#ifdef FEAT_XIM
-      && xic != NULL
-#endif
-  )
-  {
-    /* Do save when IM is on, or IM is off and saved status is on. */
-    if (vgetc_im_active)
-      *psave = B_IMODE_IM;
-    else if (*psave == B_IMODE_IM)
-      *psave = B_IMODE_NONE;
   }
 }
 #endif

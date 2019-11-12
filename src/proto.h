@@ -50,6 +50,7 @@ extern int _stricoll(char *a, char *b);
 
 #include "auto_closing_pairs.pro"
 #include "autocmd.pro"
+#include "blob.pro"
 #include "buffer.pro"
 #include "change.pro"
 #include "charset.pro"
@@ -69,10 +70,6 @@ extern int _stricoll(char *a, char *b);
 #include "findfile.pro"
 #include "fold.pro"
 #include "getchar.pro"
-#ifdef FEAT_HANGULIN
-#include "hangulin.pro"
-#endif
-#include "blob.pro"
 #include "hashtab.pro"
 #include "indent.pro"
 #include "json.pro"

@@ -221,11 +221,7 @@ static char *(features[]) =
 #else
         "-gettext",
 #endif
-#ifdef FEAT_HANGULIN
-        "+hangul_input",
-#else
         "-hangul_input",
-#endif
 #if (defined(HAVE_ICONV_H) && defined(USE_ICONV)) || defined(DYNAMIC_ICONV)
 #ifdef DYNAMIC_ICONV
         "+iconv/dyn",
@@ -496,11 +492,7 @@ static char *(features[]) =
 #else
         "-xfontset",
 #endif
-#ifdef FEAT_XIM
-        "+xim",
-#else
         "-xim",
-#endif
 #if defined(UNIX) || defined(VMS)
 #ifdef USE_XSMP_INTERACT
         "+xsmp_interact",

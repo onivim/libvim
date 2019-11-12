@@ -711,11 +711,6 @@ EXTERN int (*iconvctl)(iconv_t cd, int request, void *argument);
 EXTERN int *(*iconv_errno)(void);
 #endif
 
-#ifdef FEAT_HANGULIN
-EXTERN int composing_hangul INIT(= 0);
-EXTERN char_u composing_hangul_buffer[5];
-#endif
-
 /*
  * "State" is the main state of Vim.
  * There are other variables that modify the state:
@@ -808,12 +803,8 @@ EXTERN int ignore_script INIT(= FALSE); /* ignore script input */
 #endif
 EXTERN int stop_insert_mode; /* for ":stopinsert" and 'insertmode' */
 
-EXTERN int KeyTyped;   /* TRUE if user typed current char */
-EXTERN int KeyStuffed; /* TRUE if current char from stuffbuf */
-#ifdef HAVE_INPUT_METHOD
-EXTERN int vgetc_im_active; /* Input Method was active for last
-					   character obtained from vgetc() */
-#endif
+EXTERN int KeyTyped;          /* TRUE if user typed current char */
+EXTERN int KeyStuffed;        /* TRUE if current char from stuffbuf */
 EXTERN int maptick INIT(= 0); /* tick for each non-mapped char */
 
 EXTERN int must_redraw INIT(= 0);     /* type of redraw necessary */

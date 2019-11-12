@@ -2125,7 +2125,7 @@ void unblock_autocmds(void)
 #endif
 }
 
-#if defined(FEAT_EVAL) && (defined(FEAT_XIM) || defined(IME_WITHOUT_XIM)) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 int is_autocmd_blocked(void)
 {
   return autocmd_blocked != 0;

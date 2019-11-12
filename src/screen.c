@@ -7754,81 +7754,75 @@ int showmode(void)
     if (do_mode)
     {
       msg_puts_attr("--", attr);
-#if defined(FEAT_XIM)
-      if (
-          im_get_status())
-        msg_puts_attr(" XIM", attr);
-#endif
+
+      if (State & VREPLACE_FLAG)
+        msg_puts_attr(_(" VREPLACE"), attr);
+      else if (State & REPLACE_FLAG)
+        msg_puts_attr(_(" REPLACE"), attr);
+      else if (State & INSERT)
       {
-        if (State & VREPLACE_FLAG)
-          msg_puts_attr(_(" VREPLACE"), attr);
-        else if (State & REPLACE_FLAG)
-          msg_puts_attr(_(" REPLACE"), attr);
-        else if (State & INSERT)
-        {
 #ifdef FEAT_RIGHTLEFT
-          if (p_ri)
-            msg_puts_attr(_(" REVERSE"), attr);
+        if (p_ri)
+          msg_puts_attr(_(" REVERSE"), attr);
 #endif
-          msg_puts_attr(_(" INSERT"), attr);
-        }
-        else if (restart_edit == 'I' || restart_edit == 'A')
-          msg_puts_attr(_(" (insert)"), attr);
-        else if (restart_edit == 'R')
-          msg_puts_attr(_(" (replace)"), attr);
-        else if (restart_edit == 'V')
-          msg_puts_attr(_(" (vreplace)"), attr);
+        msg_puts_attr(_(" INSERT"), attr);
+      }
+      else if (restart_edit == 'I' || restart_edit == 'A')
+        msg_puts_attr(_(" (insert)"), attr);
+      else if (restart_edit == 'R')
+        msg_puts_attr(_(" (replace)"), attr);
+      else if (restart_edit == 'V')
+        msg_puts_attr(_(" (vreplace)"), attr);
 #ifdef FEAT_RIGHTLEFT
-        if (p_hkmap)
-          msg_puts_attr(_(" Hebrew"), attr);
+      if (p_hkmap)
+        msg_puts_attr(_(" Hebrew"), attr);
 #endif
 #ifdef FEAT_KEYMAP
-        if (State & LANGMAP)
-        {
+      if (State & LANGMAP)
+      {
 #ifdef FEAT_ARABIC
-          if (curwin->w_p_arab)
-            msg_puts_attr(_(" Arabic"), attr);
-          else
+        if (curwin->w_p_arab)
+          msg_puts_attr(_(" Arabic"), attr);
+        else
 #endif
-              if (get_keymap_str(curwin, (char_u *)" (%s)",
-                                 NameBuff, MAXPATHL))
-            msg_puts_attr((char *)NameBuff, attr);
-        }
-#endif
-        if ((State & INSERT) && p_paste)
-          msg_puts_attr(_(" (paste)"), attr);
-
-        if (VIsual_active)
-        {
-          char *p;
-
-          /* Don't concatenate separate words to avoid translation
-		     * problems. */
-          switch ((VIsual_select ? 4 : 0) + (VIsual_mode == Ctrl_V) * 2 + (VIsual_mode == 'V'))
-          {
-          case 0:
-            p = N_(" VISUAL");
-            break;
-          case 1:
-            p = N_(" VISUAL LINE");
-            break;
-          case 2:
-            p = N_(" VISUAL BLOCK");
-            break;
-          case 4:
-            p = N_(" SELECT");
-            break;
-          case 5:
-            p = N_(" SELECT LINE");
-            break;
-          default:
-            p = N_(" SELECT BLOCK");
-            break;
-          }
-          msg_puts_attr(_(p), attr);
-        }
-        msg_puts_attr(" --", attr);
+            if (get_keymap_str(curwin, (char_u *)" (%s)",
+                               NameBuff, MAXPATHL))
+          msg_puts_attr((char *)NameBuff, attr);
       }
+#endif
+      if ((State & INSERT) && p_paste)
+        msg_puts_attr(_(" (paste)"), attr);
+
+      if (VIsual_active)
+      {
+        char *p;
+
+        /* Don't concatenate separate words to avoid translation
+		     * problems. */
+        switch ((VIsual_select ? 4 : 0) + (VIsual_mode == Ctrl_V) * 2 + (VIsual_mode == 'V'))
+        {
+        case 0:
+          p = N_(" VISUAL");
+          break;
+        case 1:
+          p = N_(" VISUAL LINE");
+          break;
+        case 2:
+          p = N_(" VISUAL BLOCK");
+          break;
+        case 4:
+          p = N_(" SELECT");
+          break;
+        case 5:
+          p = N_(" SELECT LINE");
+          break;
+        default:
+          p = N_(" SELECT BLOCK");
+          break;
+        }
+        msg_puts_attr(_(p), attr);
+      }
+      msg_puts_attr(" --", attr);
 
       need_clear = TRUE;
     }

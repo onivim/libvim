@@ -468,23 +468,6 @@
 #define USE_ICONV
 #endif
 
-// clang-format off
-#ifdef FEAT_HANGULIN
-#define HANGUL_DEFAULT_KEYBOARD 2 /* 2 or 3 bulsik keyboard */
-#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed, \
-                                   * turn to english mode          \
-                                   */
-#if defined(FEAT_XIM) && !defined(LINT)
-Error : You should select only ONE of XIM and HANGUL INPUT
-#endif
-#endif
-// clang-format on
-
-#if defined(FEAT_HANGULIN)
-/* # define X_LOCALE */ /* for OS with incomplete locale
-					   support, like old linux versions. */
-#endif
-
 /*
  * +xfontset		X fontset support.  For outputting wide characters.
  */
@@ -827,8 +810,6 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_FOOTER
 #undef FEAT_INS_EXPAND
 #undef FEAT_LISP
-#undef HAVE_INPUT_METHOD
-#undef IME_WITHOUT_XIM
 
 /* We externalize clipboard integration, so the `libvim`
  * consumer can decide how `*` and `+` behave.
@@ -849,4 +830,3 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * +vtp: Win32 virtual console.
  */
 #undef FEAT_VTP
-#undef FEAT_XIM

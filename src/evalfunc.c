@@ -6034,9 +6034,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_GETTEXT
     "gettext",
 #endif
-#ifdef FEAT_HANGULIN
-    "hangul_input",
-#endif
 #if defined(HAVE_ICONV_H) && defined(USE_ICONV)
     "iconv",
 #endif
@@ -6196,9 +6193,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #endif
 #ifdef FEAT_WRITEBACKUP
     "writebackup",
-#endif
-#ifdef FEAT_XIM
-    "xim",
 #endif
 #ifdef FEAT_XFONTSET
     "xfontset",

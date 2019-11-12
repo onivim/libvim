@@ -2594,11 +2594,6 @@ vgetorpeek(int advance)
         { /* allow mapping for just typed characters */
           while (typebuf.tb_buf[typebuf.tb_off + typebuf.tb_len] != NUL)
             typebuf.tb_noremap[typebuf.tb_off + typebuf.tb_len++] = RM_YES;
-#ifdef HAVE_INPUT_METHOD
-          /* Get IM status right after getting keys, not after the
-		     * timeout for a mapping (focus may be lost by then). */
-          vgetc_im_active = im_get_status();
-#endif
         }
       } /* for (;;) */
     }   /* if (!character from stuffbuf) */
