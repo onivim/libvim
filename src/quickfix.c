@@ -752,7 +752,7 @@ qf_get_next_file_line(qfstate_T *state)
 
   discard = FALSE;
   state->linelen = (int)STRLEN(IObuff);
-  if (state->linelen == IOSIZE - 1 && !(IObuff[state->linelen - 1] == '\n'))
+  if (state->linelen == IOSIZE - 1 && IObuff[state->linelen - 1] != '\n')
   {
     // The current line exceeds IObuff, continue reading using
     // growbuf until EOL or LINE_MAXLEN bytes is read.

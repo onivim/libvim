@@ -3962,10 +3962,7 @@ static void nv_clear(cmdarg_T *cap)
 #endif
     redraw_later(CLEAR);
 #if defined(MSWIN)
-#ifdef VIMDLL
-    if (!gui.in_use)
-#endif
-      resize_console_buf();
+    resize_console_buf();
 #endif
   }
 }

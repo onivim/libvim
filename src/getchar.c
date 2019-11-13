@@ -2796,16 +2796,7 @@ int fix_input_buffer(char_u *buf, int len)
   {
     if (p[0] == NUL || (p[0] == K_SPECIAL
                         // timeout may generate K_CURSORHOLD
-                        && (i < 2 || p[1] != KS_EXTRA || p[2] != (int)KE_CURSORHOLD)
-#if defined(MSWIN) && (defined(VIMDLL))
-                        // Win32 console passes modifiers
-                        && (
-#ifdef VIMDLL
-                               gui.in_use ||
-#endif
-                               (i < 2 || p[1] != KS_MODIFIER))
-#endif
-                            ))
+                        && (i < 2 || p[1] != KS_EXTRA || p[2] != (int)KE_CURSORHOLD)))
     {
       mch_memmove(p + 3, p + 1, (size_t)i);
       p[2] = K_THIRD(p[0]);
@@ -4876,25 +4867,6 @@ struct initmap
   int mode;
 };
 
-#if defined(MSWIN) && (defined(VIMDLL))
-/* Use the Windows (CUA) keybindings. (Console) */
-static struct initmap cinitmappings[] =
-    {
-        {(char_u *)"\316w <C-Home>", NORMAL + VIS_SEL},
-        {(char_u *)"\316w <C-Home>", INSERT + CMDLINE},
-        {(char_u *)"\316u <C-End>", NORMAL + VIS_SEL},
-        {(char_u *)"\316u <C-End>", INSERT + CMDLINE},
-
-        /* paste, copy and cut */
-        {(char_u *)"\316\324 P", NORMAL},          /* SHIFT-Insert is P */
-        {(char_u *)"\316\324 \"-dP", VIS_SEL},     /* SHIFT-Insert is "-dP */
-        {(char_u *)"\316\324 \022\017\"", INSERT}, /* SHIFT-Insert is ^R^O" */
-        {(char_u *)"\316\325 y", VIS_SEL},         /* CTRL-Insert is y */
-        {(char_u *)"\316\327 d", VIS_SEL},         /* SHIFT-Del is d */
-        {(char_u *)"\316\330 d", VIS_SEL},         /* CTRL-Del is d */
-};
-#endif
-
 #if defined(MACOS_X)
 static struct initmap initmappings[] =
     {
@@ -4918,16 +4890,6 @@ static struct initmap initmappings[] =
 void init_mappings(void)
 {
 #if defined(MSWIN) || defined(MACOS_X)
-#if defined(MSWIN) && (defined(VIMDLL))
-#ifdef VIMDLL
-  if (!gui.starting)
-#endif
-  {
-    for (int i = 0;
-         i < (int)(sizeof(cinitmappings) / sizeof(struct initmap)); ++i)
-      add_map(cinitmappings[i].arg, cinitmappings[i].mode);
-  }
-#endif
 #if defined(MACOS_X)
   for (int i = 0; i < (int)(sizeof(initmappings) / sizeof(struct initmap)); ++i)
     add_map(initmappings[i].arg, initmappings[i].mode);

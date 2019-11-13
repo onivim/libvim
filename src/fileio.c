@@ -742,10 +742,7 @@ int readfile(
     {
       if (!is_not_a_term())
       {
-#ifdef VIMDLL
-        if (!gui.in_use)
-#endif
-          mch_msg(_("Vim: Reading from stdin...\n"));
+        mch_msg(_("Vim: Reading from stdin...\n"));
       }
     }
     else if (!read_buffer)

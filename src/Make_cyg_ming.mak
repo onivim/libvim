@@ -44,11 +44,6 @@ OPTIMIZE=MAXSPEED
 # set to yes to make gvim, no for vim
 GUI=no
 
-# set to yes to enable the DLL support (EXPERIMENTAL).
-# Creates vim{32,64}.dll, and stub gvim.exe and vim.exe.
-# "GUI" should be also set to "yes".
-#VIMDLL=yes
-
 # set to no if you do not want to use DirectWrite (DirectX)
 # MinGW-w64 is needed, and ARCH should be set to i686 or x86-64.
 DIRECTX=yes

@@ -1776,11 +1776,7 @@ int msg_use_printf(void)
 {
   return (!msg_check_screen()
 #if defined(MSWIN)
-#ifdef VIMDLL
-          || (!gui.in_use && !termcap_active)
-#else
           || !termcap_active
-#endif
 #endif
           || (swapping_screen() && !termcap_active));
 }

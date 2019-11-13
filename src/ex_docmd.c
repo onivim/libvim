@@ -3087,12 +3087,6 @@ find_command(exarg_T *eap, int *full UNUSED)
       int c1 = eap->cmd[0];
       int c2 = eap->cmd[1];
 
-      if (command_count != (int)CMD_SIZE)
-      {
-        iemsg(_("E943: Command table needs to be updated, run 'make cmdidxs'"));
-        getout(1);
-      }
-
       /* Use a precomputed index for fast look-up in cmdnames[]
 	     * taking into account the first 2 letters of eap->cmd. */
       eap->cmdidx = cmdidxs1[CharOrdLow(c1)];
@@ -7475,11 +7469,7 @@ ex_winpos(exarg_T *eap)
   if (*arg == NUL)
   {
 #if defined(MSWIN)
-#ifdef VIMDLL
-    if (gui.in_use ? gui_mch_get_winpos(&x, &y) != FAIL : mch_get_winpos(&x, &y) != FAIL)
-#else
     if (mch_get_winpos(&x, &y) != FAIL)
-#endif
     {
       sprintf((char *)IObuff, _("Window position: X %d, Y %d"), x, y);
       msg((char *)IObuff);
@@ -7499,9 +7489,6 @@ ex_winpos(exarg_T *eap)
       emsg(_("E466: :winpos requires two number arguments"));
       return;
     }
-#if defined(MSWIN) && (defined(VIMDLL))
-    mch_set_winpos(x, y);
-#endif
 #ifdef HAVE_TGETENT
     if (*T_CWP)
       term_set_winpos(x, y);
@@ -7946,12 +7933,6 @@ void ex_redraw(exarg_T *eap)
   validate_cursor();
   update_topline();
   update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
-#if defined(MSWIN) && (defined(VIMDLL))
-#ifdef VIMDLL
-  if (!gui.in_use)
-#endif
-    resize_console_buf();
-#endif
   RedrawingDisabled = r;
   p_lz = p;
 
