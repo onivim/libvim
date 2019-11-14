@@ -443,27 +443,6 @@ vimLoadLib(char *name)
   return dll;
 }
 
-#if defined(VIMDLL) || defined(PROTO)
-/*
- * Check if the current executable file is for the GUI subsystem.
- */
-int mch_is_gui_executable(void)
-{
-  PBYTE pImage = (PBYTE)GetModuleHandle(NULL);
-  PIMAGE_DOS_HEADER pDOS = (PIMAGE_DOS_HEADER)pImage;
-  PIMAGE_NT_HEADERS pPE;
-
-  if (pDOS->e_magic != IMAGE_DOS_SIGNATURE)
-    return FALSE;
-  pPE = (PIMAGE_NT_HEADERS)(pImage + pDOS->e_lfanew);
-  if (pPE->Signature != IMAGE_NT_SIGNATURE)
-    return FALSE;
-  if (pPE->OptionalHeader.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-    return TRUE;
-  return FALSE;
-}
-#endif
-
 #if defined(DYNAMIC_ICONV) || defined(DYNAMIC_GETTEXT) || defined(PROTO)
 /*
  * Get related information about 'funcname' which is imported by 'hInst'.
@@ -1500,10 +1479,6 @@ WaitForChar(long msec, int ignore_input)
  */
 int mch_char_avail(void)
 {
-#ifdef VIMDLL
-  if (gui.in_use)
-    return TRUE;
-#endif
   return WaitForChar(0L, FALSE);
 }
 
@@ -1513,10 +1488,6 @@ int mch_char_avail(void)
  */
 int mch_check_messages(void)
 {
-#ifdef VIMDLL
-  if (gui.in_use)
-    return TRUE;
-#endif
   return WaitForChar(0L, TRUE);
 }
 #endif
@@ -1587,11 +1558,6 @@ int mch_inchar(
 #define TYPEAHEADLEN 20
   static char_u typeahead[TYPEAHEADLEN]; /* previously typed bytes. */
   static int typeaheadlen = 0;
-
-#ifdef VIMDLL
-  if (gui.in_use)
-    return 0;
-#endif
 
   /* First use any typeahead that was kept because "buf" was too small. */
   if (typeaheadlen > 0)
@@ -2266,26 +2232,12 @@ mch_exit_c(int r)
 
 void mch_init(void)
 {
-#ifdef VIMDLL
-  if (gui.starting)
-    mch_init_g();
-  else
-    mch_init_c();
-#else
   mch_init_c();
-#endif
 }
 
 void mch_exit(int r)
 {
-#ifdef VIMDLL
-  if (gui.in_use || gui.starting)
-    mch_exit_g(r);
-  else
-    mch_exit_c(r);
-#else
   mch_exit_c(r);
-#endif
 }
 
 /*
@@ -2296,11 +2248,6 @@ int mch_check_win(
     char **argv UNUSED)
 {
   get_exe_name();
-
-#ifdef VIMDLL
-  if (gui.in_use)
-    return OK;
-#endif
   if (isatty(1))
     return OK;
   return FAIL;
@@ -3073,10 +3020,6 @@ void mch_settmode(int tmode)
   DWORD cmodeout;
   BOOL bEnableHandler;
 
-#ifdef VIMDLL
-  if (gui.in_use)
-    return;
-#endif
   GetConsoleMode(g_hConIn, &cmodein);
   GetConsoleMode(g_hConOut, &cmodeout);
   if (tmode == TMODE_RAW)
@@ -3118,10 +3061,6 @@ int mch_get_shellsize(void)
 {
   CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-#ifdef VIMDLL
-  if (gui.in_use)
-    return OK;
-#endif
   if (!g_fTermcapMode && g_cbTermcap.IsValid)
   {
     /*
@@ -3267,10 +3206,6 @@ void mch_set_shellsize(void)
 {
   COORD coordScreen;
 
-#ifdef VIMDLL
-  if (gui.in_use)
-    return;
-#endif
   /* Don't change window size while still starting up */
   if (suppress_winsize != 0)
   {
@@ -3297,10 +3232,6 @@ void mch_set_shellsize(void)
  */
 void mch_new_shellsize(void)
 {
-#ifdef VIMDLL
-  if (gui.in_use)
-    return;
-#endif
   set_scroll_region(0, 0, Columns - 1, Rows - 1);
 }
 
@@ -3904,14 +3835,7 @@ mch_system_c(char *cmd, int options)
 static int
 mch_system(char *cmd, int options)
 {
-#ifdef VIMDLL
-  if (gui.in_use || gui.starting)
-    return mch_system_g(cmd, options);
-  else
-    return mch_system_c(cmd, options);
-#else
   return mch_system_c(cmd, options);
-#endif
 }
 
 /*
@@ -5158,11 +5082,6 @@ void mch_write(
     char_u *s,
     int len)
 {
-#ifdef VIMDLL
-  if (gui.in_use)
-    return;
-#endif
-
   s[len] = NUL;
 
   if (!term_console)
@@ -5459,43 +5378,6 @@ void mch_write(
 }
 
 /*
- * Delay for "msec" milliseconds.
- */
-void mch_delay(
-    long msec,
-    int ignoreinput UNUSED)
-{
-#ifdef VIMDLL
-  if (gui.in_use)
-  {
-    Sleep((int)msec); /* never wait for input */
-    return;
-  }
-#endif
-  if (ignoreinput)
-#ifdef FEAT_MZSCHEME
-    if (mzthreads_allowed() && p_mzq > 0 && msec > p_mzq)
-    {
-      int towait = p_mzq;
-
-      /* if msec is large enough, wait by portions in p_mzq */
-      while (msec > 0)
-      {
-        mzvim_check_threads();
-        if (msec < towait)
-          towait = msec;
-        Sleep(towait);
-        msec -= towait;
-      }
-    }
-    else
-#endif
-      Sleep((int)msec);
-  else
-    WaitForChar(msec, FALSE);
-}
-
-/*
  * This version of remove is not scared by a readonly (backup) file.
  * This can also remove a symbolic link like Unix.
  * Return 0 for success, -1 for failure.
@@ -5528,15 +5410,12 @@ int mch_remove(char_u *name)
  */
 void mch_breakcheck(int force)
 {
-#ifdef VIMDLL
-  if (!gui.in_use)
-#endif
-    if (g_fCtrlCPressed || g_fCBrkPressed)
-    {
-      ctrl_break_was_pressed = g_fCBrkPressed;
-      g_fCtrlCPressed = g_fCBrkPressed = FALSE;
-      got_int = TRUE;
-    }
+  if (g_fCtrlCPressed || g_fCBrkPressed)
+  {
+    ctrl_break_was_pressed = g_fCBrkPressed;
+    g_fCtrlCPressed = g_fCBrkPressed = FALSE;
+    got_int = TRUE;
+  }
 }
 
 /* physical RAM to leave for the OS */
@@ -6306,20 +6185,14 @@ vtp_flag_init(void)
 {
   DWORD ver = get_build_number();
   DWORD mode;
-  HANDLE out;
 
-#ifdef VIMDLL
-  if (!gui.in_use)
-#endif
-  {
-    out = GetStdHandle(STD_OUTPUT_HANDLE);
+  HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    vtp_working = (ver >= VTP_FIRST_SUPPORT_BUILD) ? 1 : 0;
-    GetConsoleMode(out, &mode);
-    mode |= (ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-    if (SetConsoleMode(out, mode) == 0)
-      vtp_working = 0;
-  }
+  vtp_working = (ver >= VTP_FIRST_SUPPORT_BUILD) ? 1 : 0;
+  GetConsoleMode(out, &mode);
+  mode |= (ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+  if (SetConsoleMode(out, mode) == 0)
+    vtp_working = 0;
 
   if (ver >= CONPTY_FIRST_SUPPORT_BUILD)
     conpty_working = 1;

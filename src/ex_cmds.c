@@ -1593,38 +1593,27 @@ void do_shell(
   }
   else
   {
-    /*
-	 * For ":sh" there is no need to call wait_return(), just redraw.
-	 * Also for the Win32 GUI (the output is in a console window).
-	 * Otherwise there is probably text on the screen that the user wants
-	 * to read before redrawing, so call wait_return().
-	 */
-#ifdef VIMDLL
-    if (!gui.in_use)
-#endif
-    {
-      if (cmd == NULL
+    if (cmd == NULL
 #ifdef MSWIN
-          || (keep_termcap && !need_wait_return)
+        || (keep_termcap && !need_wait_return)
 #endif
-      )
-      {
-        if (msg_silent == 0)
-          redraw_later_clear();
-        need_wait_return = FALSE;
-      }
-      else
-      {
-        /*
-		 * If we switch screens when starttermcap() is called, we
-		 * really want to wait for "hit return to continue".
-		 */
-        save_nwr = no_wait_return;
-        if (swapping_screen())
-          no_wait_return = FALSE;
-        wait_return(msg_silent == 0);
-        no_wait_return = save_nwr;
-      }
+    )
+    {
+      if (msg_silent == 0)
+        redraw_later_clear();
+      need_wait_return = FALSE;
+    }
+    else
+    {
+      /*
+       * If we switch screens when starttermcap() is called, we
+       * really want to wait for "hit return to continue".
+       */
+      save_nwr = no_wait_return;
+      if (swapping_screen())
+        no_wait_return = FALSE;
+      wait_return(msg_silent == 0);
+      no_wait_return = save_nwr;
     }
 
 #ifdef MSWIN

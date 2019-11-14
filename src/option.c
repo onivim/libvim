@@ -5466,10 +5466,7 @@ did_set_string_option(
       /* Since t_me has been set, this probably means that the user
 	     * wants to use this as default colors.  Need to reset default
 	     * background/foreground colors. */
-#ifdef VIMDLL
-      if (!gui.in_use && !gui.starting)
-#endif
-        mch_set_normal_colors();
+      mch_set_normal_colors();
 #endif
     }
     if (varp == &T_BE && termcap_active)

@@ -86,12 +86,9 @@ static char_u *start_dir = NULL; /* current working dir on startup */
 
 static int has_dash_c_arg = FALSE;
 
-#ifdef VIMDLL
-__declspec(dllexport)
-#endif
-    int
+int
 #ifdef MSWIN
-    VimMain
+VimMain
 #else
 main2
 #endif
@@ -153,11 +150,6 @@ main2
     }
 #endif
   common_init(&params);
-
-#ifdef VIMDLL
-  // Check if the current executable file is for the GUI subsystem.
-  gui.starting = mch_is_gui_executable();
-#endif
 
 #ifdef FEAT_CLIENTSERVER
   /*
@@ -243,16 +235,6 @@ main2
      */
   if (recoverymode && params.fname == NULL)
     params.want_full_screen = FALSE;
-
-    /*
-     * When certain to start the GUI, don't check capabilities of terminal.
-     * For GTK we can't be sure, but when started from the desktop it doesn't
-     * make sense to try using a terminal.
-     */
-#if defined(VIMDLL)
-  if (gui.starting)
-    params.want_full_screen = FALSE;
-#endif
 
   /*
      * mch_init() sets up the terminal (window) for use.  This must be
@@ -682,10 +664,7 @@ int vim_main2(void)
 #endif
 
 #if defined(MSWIN)
-#ifdef VIMDLL
-  if (!gui.in_use)
-#endif
-    mch_set_winsize_now(); /* Allow winsize changes from now on */
+  mch_set_winsize_now(); /* Allow winsize changes from now on */
 #endif
 
   /* If ":startinsert" command used, stuff a dummy command to be able to
@@ -2100,9 +2079,6 @@ check_tty(mparm_T *parmp)
 #endif
 #if defined(MSWIN)
     if (
-#ifdef VIMDLL
-        !gui.starting &&
-#endif
         is_cygpty_used())
     {
 #if defined(HAVE_BIND_TEXTDOMAIN_CODESET) && defined(FEAT_GETTEXT)
@@ -2745,10 +2721,6 @@ mainerr(
   reset_signals(); /* kill us with CTRL-C here, if you like */
 #endif
 
-  // If this is a Windows GUI executable, show an error dialog box.
-#ifdef VIMDLL
-  gui.in_use = mch_is_gui_executable();
-#endif
   init_longVersion();
   mch_errmsg(longVersion);
   mch_errmsg("\n");
