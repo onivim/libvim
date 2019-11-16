@@ -1355,7 +1355,6 @@ include testdir/Make_all.mak
 BASIC_SRC = \
 	arabic.c \
 	autocmd.c \
-	auto_closing_pairs.c \
 	blob.c \
 	buffer.c \
 	change.c \
@@ -1462,7 +1461,6 @@ LINT_SRC = $(BASIC_SRC) $(GUI_SRC) \
 
 OBJ_COMMON = \
 	objects/arabic.o \
-	objects/auto_closing_pairs.o \
 	objects/autocmd.o \
 	objects/buffer.o \
 	objects/change.o \
@@ -1583,7 +1581,6 @@ ALL_OBJ = $(OBJ_COMMON) \
 
 PRO_AUTO = \
 	arabic.pro \
-	auto_closing_pairs.pro \
 	autocmd.pro \
 	buffer.pro \
 	change.pro \
@@ -2670,9 +2667,6 @@ $(ALL_OBJ): objects/.dirstamp
 objects/arabic.o: arabic.c
 	$(CCC) -o $@ arabic.c
 
-objects/auto_closing_pairs.o: auto_closing_pairs.c
-	$(CCC) -o $@ auto_closing_pairs.c
-    
 objects/autocmd.o: autocmd.c
 	$(CCC) -o $@ autocmd.c
 

@@ -96,12 +96,6 @@ typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 
 typedef struct
 {
-  char open;
-  char close;
-} autoClosingPair_T;
-
-typedef struct
-{
   sds contents;
   sds title;
   msgPriority_T priority;
