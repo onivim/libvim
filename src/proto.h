@@ -48,7 +48,6 @@ extern int _stricoll(char *a, char *b);
 #include "os_beos.pro"
 #endif
 
-#include "auto_closing_pairs.pro"
 #include "autocmd.pro"
 #include "blob.pro"
 #include "buffer.pro"
