@@ -3017,7 +3017,8 @@ static void nv_gd(oparg_T *oap, int nchar,
   gotoRequest.target = nchar == 'd' ? DEFINITION : DECLARATION;
   int handled = 0;
 
-  if (gotoCallback != NULL) {
+  if (gotoCallback != NULL)
+  {
     handled = gotoCallback(gotoRequest);
   }
 
