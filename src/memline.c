@@ -398,45 +398,6 @@ error:
 }
 
 #ifdef PROTO
-/*
- * Prepare encryption for "buf" for the current key and method.
- */
-static void
-ml_set_mfp_crypt(buf_T *buf)
-{
-  if (*buf->b_p_key != NUL)
-  {
-    int method_nr = crypt_get_method_nr(buf);
-
-    if (method_nr > CRYPT_M_ZIP)
-    {
-      /* Generate a seed and store it in the memfile. */
-      sha2_seed(buf->b_ml.ml_mfp->mf_seed, MF_SEED_LEN, NULL, 0);
-    }
-  }
-}
-
-/*
- * Prepare encryption for "buf" with block 0 "b0p".
- */
-static void
-ml_set_b0_crypt(buf_T *buf, ZERO_BL *b0p)
-{
-  if (*buf->b_p_key == NUL)
-    b0p->b0_id[1] = BLOCK0_ID1;
-  else
-  {
-    int method_nr = crypt_get_method_nr(buf);
-
-    b0p->b0_id[1] = id1_codes[method_nr];
-    if (method_nr > CRYPT_M_ZIP)
-    {
-      /* Generate a seed and store it in block 0 and in the memfile. */
-      sha2_seed(&b0p->b0_seed, MF_SEED_LEN, NULL, 0);
-      mch_memmove(buf->b_ml.ml_mfp->mf_seed, &b0p->b0_seed, MF_SEED_LEN);
-    }
-  }
-}
 
 /*
  * Called after the crypt key or 'cryptmethod' was changed for "buf".

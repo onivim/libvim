@@ -850,16 +850,6 @@ undo_write(bufinfo_T *bi, char_u *ptr, size_t len)
 }
 
 /*
- * Write "ptr[len]" and crypt the bytes when needed.
- * Returns OK or FAIL.
- */
-static int
-fwrite_crypt(bufinfo_T *bi, char_u *ptr, size_t len)
-{
-  return undo_write(bi, ptr, len);
-}
-
-/*
  * Write a number, MSB first, in "len" bytes.
  * Must match with undo_read_?c() functions.
  * Returns OK or FAIL.
@@ -886,30 +876,6 @@ put_header_ptr(bufinfo_T *bi, u_header_T *uhp)
   undo_write_bytes(bi, (long_u)(uhp != NULL ? uhp->uh_seq : 0), 4);
 }
 
-static int
-undo_read_4c(bufinfo_T *bi)
-{
-  return get4c(bi->bi_fp);
-}
-
-static int
-undo_read_2c(bufinfo_T *bi)
-{
-  return get2c(bi->bi_fp);
-}
-
-static int
-undo_read_byte(bufinfo_T *bi)
-{
-  return getc(bi->bi_fp);
-}
-
-static time_t
-undo_read_time(bufinfo_T *bi)
-{
-  return get8ctime(bi->bi_fp);
-}
-
 /*
  * Read "buffer[size]" from the undo file.
  * Return OK or FAIL.
@@ -917,16 +883,15 @@ undo_read_time(bufinfo_T *bi)
 static int
 undo_read(bufinfo_T *bi, char_u *buffer, size_t size)
 {
-  int retval = OK;
-
   if (fread(buffer, (size_t)size, 1, bi->bi_fp) != 1)
-    retval = FAIL;
-
-  if (retval == FAIL)
+  {
     /* Error may be checked for only later.  Fill with zeros,
-	 * so that the reader won't use garbage. */
+	   * so that the reader won't use garbage. */
     vim_memset(buffer, 0, size);
-  return retval;
+    return FAIL;
+  }
+
+  return OK;
 }
 
 /*
@@ -983,7 +948,7 @@ serialize_header(bufinfo_T *bi, char_u *hash)
             ? 0L
             : (long)STRLEN(buf->b_u_line_ptr.ul_line);
   undo_write_bytes(bi, (long_u)len, 4);
-  if (len > 0 && fwrite_crypt(bi, buf->b_u_line_ptr.ul_line, (size_t)len) == FAIL)
+  if (len > 0 && undo_write(bi, buf->b_u_line_ptr.ul_line, (size_t)len) == FAIL)
     return FAIL;
   undo_write_bytes(bi, (long_u)buf->b_u_line_lnum, 4);
   undo_write_bytes(bi, (long_u)buf->b_u_line_colnr, 4);
@@ -1068,11 +1033,11 @@ unserialize_uhp(bufinfo_T *bi, char_u *file_name)
 #ifdef U_DEBUG
   uhp->uh_magic = UH_MAGIC;
 #endif
-  uhp->uh_next.seq = undo_read_4c(bi);
-  uhp->uh_prev.seq = undo_read_4c(bi);
-  uhp->uh_alt_next.seq = undo_read_4c(bi);
-  uhp->uh_alt_prev.seq = undo_read_4c(bi);
-  uhp->uh_seq = undo_read_4c(bi);
+  uhp->uh_next.seq = get4c(bi->bi_fp);
+  uhp->uh_prev.seq = get4c(bi->bi_fp);
+  uhp->uh_alt_next.seq = get4c(bi->bi_fp);
+  uhp->uh_alt_prev.seq = get4c(bi->bi_fp);
+  uhp->uh_seq = get4c(bi->bi_fp);
   if (uhp->uh_seq <= 0)
   {
     corruption_error("uh_seq", file_name);
@@ -1080,37 +1045,37 @@ unserialize_uhp(bufinfo_T *bi, char_u *file_name)
     return NULL;
   }
   unserialize_pos(bi, &uhp->uh_cursor);
-  uhp->uh_cursor_vcol = undo_read_4c(bi);
-  uhp->uh_flags = undo_read_2c(bi);
+  uhp->uh_cursor_vcol = get4c(bi->bi_fp);
+  uhp->uh_flags = get2c(bi->bi_fp);
   for (i = 0; i < NMARKS; ++i)
     unserialize_pos(bi, &uhp->uh_namedm[i]);
   unserialize_visualinfo(bi, &uhp->uh_visual);
-  uhp->uh_time = undo_read_time(bi);
+  uhp->uh_time = get8ctime(bi->bi_fp);
 
   /* Optional fields. */
   for (;;)
   {
-    int len = undo_read_byte(bi);
+    int len = getc(bi->bi_fp);
     int what;
 
     if (len == 0)
       break;
-    what = undo_read_byte(bi);
+    what = getc(bi->bi_fp);
     switch (what)
     {
     case UHP_SAVE_NR:
-      uhp->uh_save_nr = undo_read_4c(bi);
+      uhp->uh_save_nr = get4c(bi->bi_fp);
       break;
     default:
       /* field not supported, skip */
       while (--len >= 0)
-        (void)undo_read_byte(bi);
+        (void)getc(bi->bi_fp);
     }
   }
 
   /* Unserialize the uep list. */
   last_uep = NULL;
-  while ((c = undo_read_2c(bi)) == UF_ENTRY_MAGIC)
+  while ((c = get2c(bi->bi_fp)) == UF_ENTRY_MAGIC)
   {
     error = FALSE;
     uep = unserialize_uep(bi, &error, file_name);
@@ -1157,7 +1122,7 @@ serialize_uep(
     len = STRLEN(uep->ue_array[i].ul_line);
     if (undo_write_bytes(bi, (long_u)len, 4) == FAIL)
       return FAIL;
-    if (len > 0 && fwrite_crypt(bi, uep->ue_array[i].ul_line, len) == FAIL)
+    if (len > 0 && undo_write(bi, uep->ue_array[i].ul_line, len) == FAIL)
       return FAIL;
   }
   return OK;
@@ -1179,10 +1144,10 @@ unserialize_uep(bufinfo_T *bi, int *error, char_u *file_name)
 #ifdef U_DEBUG
   uep->ue_magic = UE_MAGIC;
 #endif
-  uep->ue_top = undo_read_4c(bi);
-  uep->ue_bot = undo_read_4c(bi);
-  uep->ue_lcount = undo_read_4c(bi);
-  uep->ue_size = undo_read_4c(bi);
+  uep->ue_top = get4c(bi->bi_fp);
+  uep->ue_bot = get4c(bi->bi_fp);
+  uep->ue_lcount = get4c(bi->bi_fp);
+  uep->ue_size = get4c(bi->bi_fp);
   if (uep->ue_size > 0)
   {
     if (uep->ue_size < LONG_MAX / (int)sizeof(char_u *))
@@ -1198,7 +1163,7 @@ unserialize_uep(bufinfo_T *bi, int *error, char_u *file_name)
 
   for (i = 0; i < uep->ue_size; ++i)
   {
-    line_len = undo_read_4c(bi);
+    line_len = get4c(bi->bi_fp);
     if (line_len >= 0)
       line = read_string_decrypt(bi, line_len);
     else
@@ -1234,13 +1199,13 @@ serialize_pos(bufinfo_T *bi, pos_T pos)
 static void
 unserialize_pos(bufinfo_T *bi, pos_T *pos)
 {
-  pos->lnum = undo_read_4c(bi);
+  pos->lnum = get4c(bi->bi_fp);
   if (pos->lnum < 0)
     pos->lnum = 0;
-  pos->col = undo_read_4c(bi);
+  pos->col = get4c(bi->bi_fp);
   if (pos->col < 0)
     pos->col = 0;
-  pos->coladd = undo_read_4c(bi);
+  pos->coladd = get4c(bi->bi_fp);
   if (pos->coladd < 0)
     pos->coladd = 0;
 }
@@ -1265,8 +1230,8 @@ unserialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
 {
   unserialize_pos(bi, &info->vi_start);
   unserialize_pos(bi, &info->vi_end);
-  info->vi_mode = undo_read_4c(bi);
-  info->vi_curswant = undo_read_4c(bi);
+  info->vi_mode = get4c(bi->bi_fp);
+  info->vi_curswant = get4c(bi->bi_fp);
 }
 
 /*
@@ -1638,7 +1603,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
     corruption_error("hash", file_name);
     goto error;
   }
-  line_count = (linenr_T)undo_read_4c(&bi);
+  line_count = (linenr_T)get4c(bi.bi_fp);
   if (memcmp(hash, read_hash, UNDO_HASH_SIZE) != 0 || line_count != curbuf->b_ml.ml_line_count)
   {
     if (p_verbose > 0 || name != NULL)
@@ -1655,7 +1620,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
   }
 
   /* Read undo data for "U" command. */
-  str_len = undo_read_4c(&bi);
+  str_len = get4c(bi.bi_fp);
   if (str_len < 0)
     goto error;
   if (str_len > 0)
@@ -1663,8 +1628,8 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
     line_ptr.ul_line = read_string_decrypt(&bi, str_len);
     line_ptr.ul_len = str_len + 1;
   }
-  line_lnum = (linenr_T)undo_read_4c(&bi);
-  line_colnr = (colnr_T)undo_read_4c(&bi);
+  line_lnum = (linenr_T)get4c(bi.bi_fp);
+  line_colnr = (colnr_T)get4c(bi.bi_fp);
   if (line_lnum < 0 || line_colnr < 0)
   {
     corruption_error("line lnum/col", file_name);
@@ -1672,32 +1637,32 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
   }
 
   /* Begin general undo data */
-  old_header_seq = undo_read_4c(&bi);
-  new_header_seq = undo_read_4c(&bi);
-  cur_header_seq = undo_read_4c(&bi);
-  num_head = undo_read_4c(&bi);
-  seq_last = undo_read_4c(&bi);
-  seq_cur = undo_read_4c(&bi);
-  seq_time = undo_read_time(&bi);
+  old_header_seq = get4c(bi.bi_fp);
+  new_header_seq = get4c(bi.bi_fp);
+  cur_header_seq = get4c(bi.bi_fp);
+  num_head = get4c(bi.bi_fp);
+  seq_last = get4c(bi.bi_fp);
+  seq_cur = get4c(bi.bi_fp);
+  seq_time = get8ctime(bi.bi_fp);
 
   /* Optional header fields. */
   for (;;)
   {
-    int len = undo_read_byte(&bi);
+    int len = getc(bi.bi_fp);
     int what;
 
     if (len == 0 || len == EOF)
       break;
-    what = undo_read_byte(&bi);
+    what = getc(bi.bi_fp);
     switch (what)
     {
     case UF_LAST_SAVE_NR:
-      last_save_nr = undo_read_4c(&bi);
+      last_save_nr = get4c(bi.bi_fp);
       break;
     default:
       /* field not supported, skip */
       while (--len >= 0)
-        (void)undo_read_byte(&bi);
+        (void)getc(bi.bi_fp);
     }
   }
 
@@ -1713,7 +1678,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
       goto error;
   }
 
-  while ((c = undo_read_2c(&bi)) == UF_HEADER_MAGIC)
+  while ((c = get2c(bi.bi_fp)) == UF_HEADER_MAGIC)
   {
     if (num_read_uhps >= num_head)
     {
