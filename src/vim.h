@@ -1870,31 +1870,6 @@ typedef enum
 
 #include "globals.h" /* global variables and messages */
 
-/*
- * Default filters for gui_mch_browse().
- * The filters are almost system independent.  Except for the difference
- * between "*" and "*.*" for MSDOS-like systems.
- * NOTE: Motif only uses the very first pattern.  Therefore
- * BROWSE_FILTER_DEFAULT should start with a "*" pattern.
- */
-#ifdef FEAT_BROWSE
-#ifdef BACKSLASH_IN_FILENAME
-#define BROWSE_FILTER_MACROS \
-  (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*.*)\t*.*\n")
-#define BROWSE_FILTER_ALL_FILES (char_u *)N_("All Files (*.*)\t*.*\n")
-#define BROWSE_FILTER_DEFAULT \
-  (char_u *)N_("All Files (*.*)\t*.*\nC source (*.c, *.h)\t*.c;*.h\nC++ source (*.cpp, *.hpp)\t*.cpp;*.hpp\nVB code (*.bas, *.frm)\t*.bas;*.frm\nVim files (*.vim, _vimrc, _gvimrc)\t*.vim;_vimrc;_gvimrc\n")
-#else
-#define BROWSE_FILTER_MACROS \
-  (char_u *)N_("Vim macro files (*.vim)\t*.vim\nAll Files (*)\t*\n")
-#define BROWSE_FILTER_ALL_FILES (char_u *)N_("All Files (*)\t*\n")
-#define BROWSE_FILTER_DEFAULT \
-  (char_u *)N_("All Files (*)\t*\nC source (*.c, *.h)\t*.c;*.h\nC++ source (*.cpp, *.hpp)\t*.cpp;*.hpp\nVim files (*.vim, _vimrc, _gvimrc)\t*.vim;_vimrc;_gvimrc\n")
-#endif
-#define BROWSE_SAVE 1 /* flag for do_browse() */
-#define BROWSE_DIR 2  /* flag for do_browse() */
-#endif
-
 #ifdef _MSC_VER
 /* Avoid useless warning "conversion from X to Y of greater size". */
 #pragma warning(disable : 4312)
@@ -1968,12 +1943,6 @@ typedef enum
                        attribute value is sign type */
 
 #define X_DISPLAY xterm_dpy
-
-#if defined(FEAT_BROWSE) && defined(GTK_CHECK_VERSION)
-#if GTK_CHECK_VERSION(2, 4, 0)
-#define USE_FILE_CHOOSER
-#endif
-#endif
 
 #undef NBDEBUG
 #define nbdebug(a)

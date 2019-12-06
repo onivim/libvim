@@ -360,9 +360,6 @@ EXTERN char_u *p_bexpr;
 EXTERN int p_bevalterm; /* 'balloonevalterm' */
 #endif
 #endif
-#ifdef FEAT_BROWSE
-EXTERN char_u *p_bsdir; /* 'browsedir' */
-#endif
 #ifdef FEAT_LINEBREAK
 EXTERN char_u *p_breakat; /* 'breakat' */
 #endif

@@ -5464,20 +5464,7 @@ void ex_cfile(exarg_T *eap)
     apply_autocmds(EVENT_QUICKFIXCMDPRE, au_name, NULL, FALSE, curbuf);
 
   enc = (*curbuf->b_p_menc != NUL) ? curbuf->b_p_menc : p_menc;
-#ifdef FEAT_BROWSE
-  if (cmdmod.browse)
-  {
-    char_u *browse_file = do_browse(0, (char_u *)_("Error file"), eap->arg,
-                                    NULL, NULL,
-                                    (char_u *)_(BROWSE_FILTER_ALL_FILES), NULL);
-    if (browse_file == NULL)
-      return;
-    set_string_option_direct((char_u *)"ef", -1, browse_file, OPT_FREE, 0);
-    vim_free(browse_file);
-  }
-  else
-#endif
-      if (*eap->arg != NUL)
+  if (*eap->arg != NUL)
     set_string_option_direct((char_u *)"ef", -1, eap->arg, OPT_FREE, 0);
 
   if (is_loclist_cmd(eap->cmdidx))

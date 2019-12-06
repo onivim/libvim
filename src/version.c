@@ -96,11 +96,7 @@ static char *(features[]) =
 #else
         "-balloon_eval_term",
 #endif
-#ifdef FEAT_BROWSE
-        "+browse",
-#else
         "-browse",
-#endif
 #ifdef NO_BUILTIN_TCAPS
         "-builtin_terms",
 #endif

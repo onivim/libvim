@@ -1690,29 +1690,7 @@ f_atan2(typval_T *argvars, typval_T *rettv)
 static void
 f_browse(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_BROWSE
-  int save;
-  char_u *title;
-  char_u *initdir;
-  char_u *defname;
-  char_u buf[NUMBUFLEN];
-  char_u buf2[NUMBUFLEN];
-  int error = FALSE;
-
-  save = (int)tv_get_number_chk(&argvars[0], &error);
-  title = tv_get_string_chk(&argvars[1]);
-  initdir = tv_get_string_buf_chk(&argvars[2], buf);
-  defname = tv_get_string_buf_chk(&argvars[3], buf2);
-
-  if (error || title == NULL || initdir == NULL || defname == NULL)
-    rettv->vval.v_string = NULL;
-  else
-    rettv->vval.v_string =
-        do_browse(save ? BROWSE_SAVE : 0,
-                  title, defname, NULL, initdir, NULL, curbuf);
-#else
   rettv->vval.v_string = NULL;
-#endif
   rettv->v_type = VAR_STRING;
 }
 
@@ -1722,22 +1700,7 @@ f_browse(typval_T *argvars UNUSED, typval_T *rettv)
 static void
 f_browsedir(typval_T *argvars UNUSED, typval_T *rettv)
 {
-#ifdef FEAT_BROWSE
-  char_u *title;
-  char_u *initdir;
-  char_u buf[NUMBUFLEN];
-
-  title = tv_get_string_chk(&argvars[0]);
-  initdir = tv_get_string_buf_chk(&argvars[1], buf);
-
-  if (title == NULL || initdir == NULL)
-    rettv->vval.v_string = NULL;
-  else
-    rettv->vval.v_string = do_browse(BROWSE_DIR,
-                                     title, NULL, NULL, initdir, NULL, curbuf);
-#else
   rettv->vval.v_string = NULL;
-#endif
   rettv->v_type = VAR_STRING;
 }
 
@@ -5965,9 +5928,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef ALL_BUILTIN_TCAPS
     "all_builtin_terms",
 #endif
-#endif
-#if defined(FEAT_BROWSE) && defined(USE_FILE_CHOOSER)
-    "browsefilter",
 #endif
 #ifdef FEAT_BYTEOFF
     "byte_offset",

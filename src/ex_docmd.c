@@ -2554,9 +2554,7 @@ int parse_command_modifiers(exarg_T *eap, char **errormsg, int skip_only)
       }
       if (checkforcmd(&eap->cmd, "browse", 3))
       {
-#ifdef FEAT_BROWSE_CMD
-        cmdmod.browse = TRUE;
-#endif
+        /* noop - libvim */
         continue;
       }
       if (!checkforcmd(&eap->cmd, "botright", 2))
@@ -6418,11 +6416,8 @@ ex_wrongmodifier(exarg_T *eap)
 void ex_splitview(exarg_T *eap)
 {
   win_T *old_curwin = curwin;
-#if defined(FEAT_SEARCHPATH) || defined(FEAT_BROWSE)
+#ifdef FEAT_SEARCHPATH
   char_u *fname = NULL;
-#endif
-#ifdef FEAT_BROWSE
-  int browse_flag = cmdmod.browse;
 #endif
 
   int use_tab = eap->cmdidx == CMD_tabedit || eap->cmdidx == CMD_tabfind || eap->cmdidx == CMD_tabnew;
@@ -6478,31 +6473,6 @@ void ex_splitview(exarg_T *eap)
       goto theend;
     eap->arg = fname;
   }
-#ifdef FEAT_BROWSE
-  else
-#endif
-#endif
-#ifdef FEAT_BROWSE
-      if (cmdmod.browse && eap->cmdidx != CMD_vnew && eap->cmdidx != CMD_new)
-  {
-    if (
-        au_has_group((char_u *)"FileExplorer"))
-    {
-      /* No browsing supported but we do have the file explorer:
-	     * Edit the directory. */
-      if (*eap->arg == NUL || !mch_isdir(eap->arg))
-        eap->arg = (char_u *)".";
-    }
-    else
-    {
-      fname = do_browse(0, (char_u *)(use_tab ? _("Edit File in new tab page") : _("Edit File in new window")),
-                        eap->arg, NULL, NULL, NULL, curbuf);
-      if (fname == NULL)
-        goto theend;
-      eap->arg = fname;
-    }
-  }
-  cmdmod.browse = FALSE; /* Don't browse again in do_ecmd(). */
 #endif
 
   /*
@@ -6526,22 +6496,14 @@ void ex_splitview(exarg_T *eap)
   {
     /* Reset 'scrollbind' when editing another file, but keep it when
 	 * doing ":split" without arguments. */
-    if (*eap->arg != NUL
-#ifdef FEAT_BROWSE
-        || cmdmod.browse
-#endif
-    )
+    if (*eap->arg != NUL)
       RESET_BINDING(curwin);
     else
       do_check_scrollbind(FALSE);
     do_exedit(eap, old_curwin);
   }
 
-#ifdef FEAT_BROWSE
-  cmdmod.browse = browse_flag;
-#endif
-
-#if defined(FEAT_SEARCHPATH) || defined(FEAT_BROWSE)
+#ifdef FEAT_SEARCHPATH
 theend:
   vim_free(fname);
 #endif
@@ -6864,11 +6826,7 @@ void do_exedit(
                   ECMD_HIDE + (eap->forceit ? ECMD_FORCEIT : 0),
                   old_curwin == NULL ? curwin : NULL);
   }
-  else if ((eap->cmdidx != CMD_split && eap->cmdidx != CMD_vsplit) || *eap->arg != NUL
-#ifdef FEAT_BROWSE
-           || cmdmod.browse
-#endif
-  )
+  else if ((eap->cmdidx != CMD_split && eap->cmdidx != CMD_vsplit) || *eap->arg != NUL)
   {
     /* Can't edit another file when "curbuf_lock" is set.  Only ":edit"
 	 * can bring us here, others are stopped earlier. */
@@ -7052,25 +7010,7 @@ ex_read(exarg_T *eap)
     if (u_save(eap->line2, (linenr_T)(eap->line2 + 1)) == FAIL)
       return;
 
-#ifdef FEAT_BROWSE
-    if (cmdmod.browse)
-    {
-      char_u *browseFile;
-
-      browseFile = do_browse(0, (char_u *)_("Append File"), eap->arg,
-                             NULL, NULL, NULL, curbuf);
-      if (browseFile != NULL)
-      {
-        i = readfile(browseFile, NULL,
-                     eap->line2, (linenr_T)0, (linenr_T)MAXLNUM, eap, 0);
-        vim_free(browseFile);
-      }
-      else
-        i = OK;
-    }
-    else
-#endif
-        if (*eap->arg == NUL)
+    if (*eap->arg == NUL)
     {
       if (check_fname() == FAIL) /* check for no file name */
         return;
@@ -7848,22 +7788,6 @@ ex_redir(exarg_T *eap)
       fname = expand_env_save(arg);
       if (fname == NULL)
         return;
-#ifdef FEAT_BROWSE
-      if (cmdmod.browse)
-      {
-        char_u *browseFile;
-
-        browseFile = do_browse(BROWSE_SAVE,
-                               (char_u *)_("Save Redirection"),
-                               fname, NULL, NULL,
-                               (char_u *)_(BROWSE_FILTER_ALL_FILES), curbuf);
-        if (browseFile == NULL)
-          return; /* operation cancelled */
-        vim_free(fname);
-        fname = browseFile;
-        eap->forceit = TRUE; /* since dialog already asked */
-      }
-#endif
 
       redir_fd = open_exfile(fname, eap->forceit, mode);
       vim_free(fname);
@@ -8014,9 +7938,6 @@ ex_mkrc(
   FILE *fd;
   int failed = FALSE;
   char_u *fname;
-#ifdef FEAT_BROWSE
-  char_u *browseFile = NULL;
-#endif
 #ifdef FEAT_SESSION
   int view_session = FALSE;
   int using_vdir = FALSE; /* using 'viewdir'? */
@@ -8061,23 +7982,6 @@ ex_mkrc(
 #endif
   else
     fname = (char_u *)EXRC_FILE;
-
-#ifdef FEAT_BROWSE
-  if (cmdmod.browse)
-  {
-    browseFile = do_browse(BROWSE_SAVE,
-#ifdef FEAT_SESSION
-                           eap->cmdidx == CMD_mkview ? (char_u *)_("Save View") : eap->cmdidx == CMD_mksession ? (char_u *)_("Save Session") :
-#endif
-                                                                                                               (char_u *)_("Save Setup"),
-                           fname, (char_u *)"vim", NULL,
-                           (char_u *)_(BROWSE_FILTER_MACROS), NULL);
-    if (browseFile == NULL)
-      goto theend;
-    fname = browseFile;
-    eap->forceit = TRUE; /* since dialog already asked */
-  }
-#endif
 
 #if defined(FEAT_SESSION) && defined(vim_mkdir)
   /* When using 'viewdir' may have to create the directory. */
@@ -8217,10 +8121,6 @@ ex_mkrc(
 #endif
   }
 
-#ifdef FEAT_BROWSE
-theend:
-  vim_free(browseFile);
-#endif
 #ifdef FEAT_SESSION
   vim_free(viewFile);
 #endif
@@ -10345,12 +10245,8 @@ ex_set(exarg_T *eap)
     flags = OPT_LOCAL;
   else if (eap->cmdidx == CMD_setglobal)
     flags = OPT_GLOBAL;
-#if defined(FEAT_EVAL) && defined(FEAT_BROWSE)
-  if (cmdmod.browse && flags == 0)
-    ex_options(eap);
-  else
-#endif
-    (void)do_set(eap->arg, flags);
+
+  (void)do_set(eap->arg, flags);
 }
 
 #if defined(FEAT_SEARCH_EXTRA) || defined(PROTO)
