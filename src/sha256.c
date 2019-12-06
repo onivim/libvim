@@ -22,7 +22,7 @@
 
 #include "vim.h"
 
-#if defined(FEAT_CRYPT) || defined(FEAT_PERSISTENT_UNDO)
+#ifdef FEAT_PERSISTENT_UNDO
 
 #define GET_UINT32(n, b, i)                                                                                                       \
   {                                                                                                                               \
@@ -253,9 +253,9 @@ void sha256_finish(context_sha256_T *ctx, char_u digest[32])
   PUT_UINT32(ctx->state[6], digest, 24);
   PUT_UINT32(ctx->state[7], digest, 28);
 }
-#endif /* FEAT_CRYPT || FEAT_PERSISTENT_UNDO */
+#endif /* FEAT_PERSISTENT_UNDO */
 
-#if defined(FEAT_CRYPT) || defined(PROTO)
+#ifdef PROTO
 /*
  * Returns hex digest of "buf[buf_len]" in a static array.
  * if "salt" is not NULL also do "salt[salt_len]".
@@ -413,4 +413,4 @@ void sha2_seed(
       salt[i] = sha256sum[(i + header_len) % sizeof(sha256sum)];
 }
 
-#endif /* FEAT_CRYPT */
+#endif

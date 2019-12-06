@@ -1970,15 +1970,9 @@ void free_buf_options(
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
   clear_string_option(&buf->b_p_bexpr);
 #endif
-#if defined(FEAT_CRYPT)
-  clear_string_option(&buf->b_p_cm);
-#endif
   clear_string_option(&buf->b_p_fp);
 #if defined(FEAT_EVAL)
   clear_string_option(&buf->b_p_fex);
-#endif
-#ifdef FEAT_CRYPT
-  clear_string_option(&buf->b_p_key);
 #endif
   clear_string_option(&buf->b_p_kp);
   clear_string_option(&buf->b_p_mps);

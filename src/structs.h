@@ -731,16 +731,6 @@ struct memfile
   blocknr_T mf_infile_count;  // number of pages in the file
   unsigned mf_page_size;      // number of bytes in a page
   int mf_dirty;               // TRUE if there are dirty blocks
-#ifdef FEAT_CRYPT
-  buf_T *mf_buffer;            // buffer this memfile is for
-  char_u mf_seed[MF_SEED_LEN]; // seed for encryption
-
-  // Values for key, method and seed used for reading data blocks when
-  // updating for a newly set key or method. Only when mf_old_key != NULL.
-  char_u *mf_old_key;
-  int mf_old_cm;
-  char_u mf_old_seed[MF_SEED_LEN];
-#endif
 };
 
 /*
@@ -1986,28 +1976,6 @@ struct timer_S
 #endif
 };
 
-#ifdef FEAT_CRYPT
-/*
- * Structure to hold the type of encryption and the state of encryption or
- * decryption.
- */
-typedef struct
-{
-  int method_nr;
-  void *method_state; /* method-specific state information */
-} cryptstate_T;
-
-/* values for method_nr */
-#define CRYPT_M_ZIP 0
-#define CRYPT_M_BF 1
-#define CRYPT_M_BF2 2
-#define CRYPT_M_COUNT 3 /* number of crypt methods */
-
-// Currently all crypt methods work inplace.  If one is added that isn't then
-// define this.
-//  # define CRYPT_NOT_INPLACE 1
-#endif
-
 /*
  * These are items normally related to a buffer.  But when using ":ownsyntax"
  * a window may have its own instance.
@@ -3121,12 +3089,9 @@ typedef struct
 #endif
 
   int want_full_screen;
-  int not_a_term; /* no warning for missing term? */
-  int tty_fail;   /* exit if not a tty */
-  char_u *term;   /* specified terminal name */
-#ifdef FEAT_CRYPT
-  int ask_for_key; /* -x argument */
-#endif
+  int not_a_term;   /* no warning for missing term? */
+  int tty_fail;     /* exit if not a tty */
+  char_u *term;     /* specified terminal name */
   int no_swap_file; /* "-n" argument used */
 #ifdef FEAT_EVAL
   int use_debug_break_level;

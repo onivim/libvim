@@ -105,9 +105,6 @@
 #endif
 #define PV_INF OPT_BUF(BV_INF)
 #define PV_ISK OPT_BUF(BV_ISK)
-#ifdef FEAT_CRYPT
-#define PV_KEY OPT_BUF(BV_KEY)
-#endif
 #ifdef FEAT_KEYMAP
 #define PV_KMAP OPT_BUF(BV_KMAP)
 #endif
@@ -268,9 +265,6 @@ static char_u *p_fex;
 #endif
 static int p_inf;
 static char_u *p_isk;
-#ifdef FEAT_CRYPT
-static char_u *p_key;
-#endif
 static int p_ml;
 static int p_ma;
 static int p_mod;
@@ -705,17 +699,7 @@ static struct vimoption options[] =
         {"conskey", "consk", P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"copyindent", "ci", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_ci, PV_CI, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"cpoptions", "cpo", P_STRING | P_VIM | P_RALL | P_FLAGLIST, (char_u *)&p_cpo, PV_NONE, {(char_u *)CPO_VI, (char_u *)CPO_VIM} SCTX_INIT},
-        {"cryptmethod", "cm", P_STRING | P_ALLOCED | P_VI_DEF,
-#ifdef FEAT_CRYPT
-         (char_u *)&p_cm,
-         PV_CM,
-         {(char_u *)"blowfish2", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"cryptmethod", "cm", P_STRING | P_ALLOCED | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"cscopepathcomp", "cspc", P_NUM | P_VI_DEF | P_VIM, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"cscopeprg", "csprg", P_STRING | P_EXPAND | P_VI_DEF | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"cscopequickfix", "csqf", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
@@ -1212,17 +1196,7 @@ static struct vimoption options[] =
 #endif
                                                                                                             (char_u *)0L} SCTX_INIT},
         {"joinspaces", "js", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_js, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
-        {"key", NULL, P_STRING | P_ALLOCED | P_VI_DEF | P_NO_MKRC,
-#ifdef FEAT_CRYPT
-         (char_u *)&p_key,
-         PV_KEY,
-         {(char_u *)"", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"key", NULL, P_STRING | P_ALLOCED | P_VI_DEF | P_NO_MKRC, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"keymap", "kmp", P_STRING | P_ALLOCED | P_VI_DEF | P_RBUF | P_RSTAT | P_NFNAME | P_PRI_MKRC,
 #ifdef FEAT_KEYMAP
          (char_u *)&p_keymap,
@@ -2198,9 +2172,6 @@ static char *(p_ambw_values[]) = {"single", "double", NULL};
 static char *(p_bg_values[]) = {"light", "dark", NULL};
 static char *(p_nf_values[]) = {"bin", "octal", "hex", "alpha", NULL};
 static char *(p_ff_values[]) = {FF_UNIX, FF_DOS, FF_MAC, NULL};
-#ifdef FEAT_CRYPT
-static char *(p_cm_values[]) = {"zip", "blowfish", "blowfish2", NULL};
-#endif
 #ifdef FEAT_CMDL_COMPL
 static char *(p_wop_values[]) = {"tagfile", NULL};
 #endif
@@ -2752,11 +2723,7 @@ set_options_default(
   tabpage_T *tp;
 
   for (i = 0; !istermoption(&options[i]); i++)
-    if (!(options[i].flags & P_NODEFAULT) && (opt_flags == 0 || (options[i].var != (char_u *)&p_enc
-#if defined(FEAT_CRYPT)
-                                                                 && options[i].var != (char_u *)&p_cm && options[i].var != (char_u *)&p_key
-#endif
-                                                                 )))
+    if (!(options[i].flags & P_NODEFAULT) && (opt_flags == 0 || (options[i].var != (char_u *)&p_enc)))
       set_option_default(i, opt_flags, p_cp);
 
   /* The 'scroll' option must be computed for all windows. */
@@ -3928,11 +3895,7 @@ int do_set(
             *(char_u **)(varp) = newval;
 
 #if defined(FEAT_EVAL)
-            if (!starting
-#ifdef FEAT_CRYPT
-                && options[opt_idx].indir != PV_KEY
-#endif
-                && origval != NULL && newval != NULL)
+            if (!starting && origval != NULL && newval != NULL)
             {
               /* origval may be freed by
 			     * did_set_string_option(), make a copy. */
@@ -4361,15 +4324,9 @@ void check_buf_options(buf_T *buf)
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
   check_string_option(&buf->b_p_bexpr);
 #endif
-#if defined(FEAT_CRYPT)
-  check_string_option(&buf->b_p_cm);
-#endif
   check_string_option(&buf->b_p_fp);
 #if defined(FEAT_EVAL)
   check_string_option(&buf->b_p_fex);
-#endif
-#ifdef FEAT_CRYPT
-  check_string_option(&buf->b_p_key);
 #endif
   check_string_option(&buf->b_p_kp);
   check_string_option(&buf->b_p_mps);
@@ -4706,11 +4663,7 @@ set_string_option(
     *varp = s;
 
 #if defined(FEAT_EVAL)
-    if (!starting
-#ifdef FEAT_CRYPT
-        && options[opt_idx].indir != PV_KEY
-#endif
-    )
+    if (!starting)
     {
       saved_oldval = vim_strsave(oldval);
       saved_newval = vim_strsave(s);
@@ -5203,78 +5156,6 @@ did_set_string_option(
         p_ta = TRUE;
     }
   }
-
-#if defined(FEAT_CRYPT)
-  /* 'cryptkey' */
-  else if (gvarp == &p_key)
-  {
-#if defined(FEAT_CMDHIST)
-    /* Make sure the ":set" command doesn't show the new value in the
-	 * history. */
-    remove_key_from_history();
-#endif
-    if (STRCMP(curbuf->b_p_key, oldval) != 0)
-      /* Need to update the swapfile. */
-      ml_set_crypt_key(curbuf, oldval,
-                       *curbuf->b_p_cm == NUL ? p_cm : curbuf->b_p_cm);
-  }
-
-  else if (gvarp == &p_cm)
-  {
-    if (opt_flags & OPT_LOCAL)
-      p = curbuf->b_p_cm;
-    else
-      p = p_cm;
-    if (check_opt_strings(p, p_cm_values, TRUE) != OK)
-      errmsg = e_invarg;
-    else if (crypt_self_test() == FAIL)
-      errmsg = e_invarg;
-    else
-    {
-      /* When setting the global value to empty, make it "zip". */
-      if (*p_cm == NUL)
-      {
-        if (new_value_alloced)
-          free_string_option(p_cm);
-        p_cm = vim_strsave((char_u *)"zip");
-        new_value_alloced = TRUE;
-      }
-      /* When using ":set cm=name" the local value is going to be empty.
-	     * Do that here, otherwise the crypt functions will still use the
-	     * local value. */
-      if ((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0)
-      {
-        free_string_option(curbuf->b_p_cm);
-        curbuf->b_p_cm = empty_option;
-      }
-
-      /* Need to update the swapfile when the effective method changed.
-	     * Set "s" to the effective old value, "p" to the effective new
-	     * method and compare. */
-      if ((opt_flags & OPT_LOCAL) && *oldval == NUL)
-        s = p_cm; /* was previously using the global value */
-      else
-        s = oldval;
-      if (*curbuf->b_p_cm == NUL)
-        p = p_cm; /* is now using the global value */
-      else
-        p = curbuf->b_p_cm;
-      if (STRCMP(s, p) != 0)
-        ml_set_crypt_key(curbuf, curbuf->b_p_key, s);
-
-      /* If the global value changes need to update the swapfile for all
-	     * buffers using that value. */
-      if ((opt_flags & OPT_GLOBAL) && STRCMP(p_cm, oldval) != 0)
-      {
-        buf_T *buf;
-
-        FOR_ALL_BUFFERS(buf)
-        if (buf != curbuf && *buf->b_p_cm == NUL)
-          ml_set_crypt_key(buf, buf->b_p_key, oldval);
-      }
-    }
-  }
-#endif
 
   /* 'matchpairs' */
   else if (gvarp == &p_mps)
@@ -7258,13 +7139,7 @@ int get_option_value(
       return -2;
     if (stringval != NULL)
     {
-#ifdef FEAT_CRYPT
-      /* never return the value of the crypt key */
-      if ((char_u **)varp == &curbuf->b_p_key && **(char_u **)(varp) != NUL)
-        *stringval = vim_strsave((char_u *)"*****");
-      else
-#endif
-        *stringval = vim_strsave(*(char_u **)(varp));
+      *stringval = vim_strsave(*(char_u **)(varp));
     }
     return 0;
   }
@@ -7380,14 +7255,6 @@ int get_option_value_strict(
         *numval = bufIsChanged((buf_T *)from);
         varp = NULL;
       }
-#ifdef FEAT_CRYPT
-      else if (p->indir == PV_KEY)
-      {
-        /* never return the value of the crypt key */
-        *stringval = NULL;
-        varp = NULL;
-      }
-#endif
       else
       {
         buf_T *save_curbuf = curbuf;
@@ -8284,11 +8151,6 @@ void unset_global_local_option(char_u *name, void *from)
     clear_string_option(&buf->b_p_bexpr);
     break;
 #endif
-#if defined(FEAT_CRYPT)
-  case PV_CM:
-    clear_string_option(&buf->b_p_cm);
-    break;
-#endif
   case PV_UL:
     buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
     break;
@@ -8350,10 +8212,6 @@ get_varp_scope(struct vimoption *p, int opt_flags)
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
     case PV_BEXPR:
       return (char_u *)&(curbuf->b_p_bexpr);
-#endif
-#if defined(FEAT_CRYPT)
-    case PV_CM:
-      return (char_u *)&(curbuf->b_p_cm);
 #endif
     case PV_UL:
       return (char_u *)&(curbuf->b_p_ul);
@@ -8451,12 +8309,6 @@ get_varp(struct vimoption *p)
   case PV_BEXPR:
     return *curbuf->b_p_bexpr != NUL
                ? (char_u *)&(curbuf->b_p_bexpr)
-               : p->var;
-#endif
-#if defined(FEAT_CRYPT)
-  case PV_CM:
-    return *curbuf->b_p_cm != NUL
-               ? (char_u *)&(curbuf->b_p_cm)
                : p->var;
 #endif
   case PV_UL:
@@ -8614,10 +8466,6 @@ get_varp(struct vimoption *p)
 #ifdef FEAT_EVAL
   case PV_FEX:
     return (char_u *)&(curbuf->b_p_fex);
-#endif
-#ifdef FEAT_CRYPT
-  case PV_KEY:
-    return (char_u *)&(curbuf->b_p_key);
 #endif
   case PV_ML:
     return (char_u *)&(curbuf->b_p_ml);
@@ -8990,9 +8838,6 @@ void buf_copy_options(buf_T *buf, int flags)
 #if defined(FEAT_EVAL)
       buf->b_p_fex = vim_strsave(p_fex);
 #endif
-#ifdef FEAT_CRYPT
-      buf->b_p_key = vim_strsave(p_key);
-#endif
 #ifdef FEAT_SEARCHPATH
       buf->b_p_sua = vim_strsave(p_sua);
 #endif
@@ -9037,9 +8882,6 @@ void buf_copy_options(buf_T *buf, int flags)
 #endif
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
       buf->b_p_bexpr = empty_option;
-#endif
-#if defined(FEAT_CRYPT)
-      buf->b_p_cm = empty_option;
 #endif
 #ifdef FEAT_PERSISTENT_UNDO
       buf->b_p_udf = p_udf;
@@ -9559,11 +9401,6 @@ option_value2string(
     varp = *(char_u **)(varp);
     if (varp == NULL) /* just in case */
       NameBuff[0] = NUL;
-#ifdef FEAT_CRYPT
-    /* don't show the actual value of 'key', only that it's set */
-    else if (opp->var == (char_u *)&p_key && *varp)
-      STRCPY(NameBuff, "*****");
-#endif
     else if (opp->flags & P_EXPAND)
       home_replace(NULL, varp, NameBuff, MAXPATHL, FALSE);
     /* Translate 'pastetoggle' into special key names */

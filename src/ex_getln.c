@@ -993,11 +993,8 @@ getcmdline_int(
          || c == intr_char
 #endif
          )
-#if defined(FEAT_EVAL) || defined(FEAT_CRYPT)
-        && firstc != '@'
-#endif
 #ifdef FEAT_EVAL
-        && !break_ctrl_c
+        && firstc != '@' && !break_ctrl_c
 #endif
         && !global_busy)
       got_int = FALSE;
@@ -2099,7 +2096,7 @@ theend:
 }
 }
 
-#if (defined(FEAT_CRYPT) || defined(FEAT_EVAL)) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Get a command line with a prompt.
  * This is prepared to be called recursively from getcmdline() (e.g. by
@@ -2209,7 +2206,7 @@ int allbuf_locked(void)
 static int
 cmdline_charsize(int idx)
 {
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
   if (cmdline_star > 0) /* showing '*', always 1 position */
     return 1;
 #endif
@@ -2523,11 +2520,8 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
        || c == intr_char
 #endif
        )
-#if defined(FEAT_EVAL) || defined(FEAT_CRYPT)
-      && context->firstc != '@'
-#endif
 #ifdef FEAT_EVAL
-      && !context->break_ctrl_c
+      && context->firstc != '@' && !context->break_ctrl_c
 #endif
       && !global_busy)
     got_int = FALSE;
@@ -3866,7 +3860,7 @@ void free_cmdline_buf(void)
 static void
 draw_cmdline(int start, int len)
 {
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
   int i;
 
   if (cmdline_star > 0)
@@ -6854,37 +6848,6 @@ int del_history_idx(int histype, int idx)
 }
 
 #endif /* FEAT_EVAL */
-
-#if defined(FEAT_CRYPT) || defined(PROTO)
-/*
- * Very specific function to remove the value in ":set key=val" from the
- * history.
- */
-void remove_key_from_history(void)
-{
-  char_u *p;
-  int i;
-
-  i = hisidx[HIST_CMD];
-  if (i < 0)
-    return;
-  p = history[HIST_CMD][i].hisstr;
-  if (p != NULL)
-    for (; *p; ++p)
-      if (STRNCMP(p, "key", 3) == 0 && !isalpha(p[3]))
-      {
-        p = vim_strchr(p + 3, '=');
-        if (p == NULL)
-          break;
-        ++p;
-        for (i = 0; p[i] && !VIM_ISWHITE(p[i]); ++i)
-          if (p[i] == '\\' && p[i + 1])
-            ++i;
-        STRMOVE(p, p + i);
-        --p;
-      }
-}
-#endif
 
 #endif /* FEAT_CMDHIST */
 
