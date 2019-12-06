@@ -2532,7 +2532,7 @@ vgetorpeek(int advance)
 
           /* this looks nice when typing a dead character map */
           if ((State & CMDLINE)
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
               && cmdline_star == 0
 #endif
               && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)

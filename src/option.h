@@ -344,9 +344,6 @@ static char *(p_bo_values[]) = {"all", "backspace", "cursor", "complete",
 #ifdef FEAT_WILDIGN
 EXTERN char_u *p_bsk; /* 'backupskip' */
 #endif
-#ifdef FEAT_CRYPT
-EXTERN char_u *p_cm; /* 'cryptmethod' */
-#endif
 #ifdef FEAT_BEVAL
 #ifdef FEAT_BEVAL_GUI
 EXTERN int p_beval; /* 'ballooneval' */
@@ -859,10 +856,6 @@ enum
   ,
   BV_INF,
   BV_ISK
-#ifdef FEAT_CRYPT
-  ,
-  BV_KEY
-#endif
 #ifdef FEAT_KEYMAP
   ,
   BV_KMAP

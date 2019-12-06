@@ -308,11 +308,7 @@ static void ex_match(exarg_T *eap);
 #define ex_nohlsearch ex_ni
 #define ex_match ex_ni
 #endif
-#ifdef FEAT_CRYPT
-static void ex_X(exarg_T *eap);
-#else
 #define ex_X ex_ni
-#endif
 #ifdef FEAT_FOLDING
 static void ex_fold(exarg_T *eap);
 static void ex_foldopen(exarg_T *eap);
@@ -10424,18 +10420,6 @@ ex_match(exarg_T *eap)
     }
   }
   eap->nextcmd = find_nextcmd(end);
-}
-#endif
-
-#ifdef FEAT_CRYPT
-/*
- * ":X": Get crypt key
- */
-static void
-ex_X(exarg_T *eap UNUSED)
-{
-  crypt_check_current_method();
-  (void)crypt_get_key(TRUE, TRUE);
 }
 #endif
 

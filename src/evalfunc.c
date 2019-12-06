@@ -356,9 +356,6 @@ static void f_settabvar(typval_T *argvars, typval_T *rettv);
 static void f_settabwinvar(typval_T *argvars, typval_T *rettv);
 static void f_settagstack(typval_T *argvars, typval_T *rettv);
 static void f_setwinvar(typval_T *argvars, typval_T *rettv);
-#ifdef FEAT_CRYPT
-static void f_sha256(typval_T *argvars, typval_T *rettv);
-#endif /* FEAT_CRYPT */
 static void f_shellescape(typval_T *argvars, typval_T *rettv);
 static void f_shiftwidth(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_SIGNS
@@ -836,9 +833,6 @@ static struct fst
         {"settabwinvar", 4, 4, f_settabwinvar},
         {"settagstack", 2, 3, f_settagstack},
         {"setwinvar", 3, 3, f_setwinvar},
-#ifdef FEAT_CRYPT
-        {"sha256", 1, 1, f_sha256},
-#endif
         {"shellescape", 1, 2, f_shellescape},
         {"shiftwidth", 0, 1, f_shiftwidth},
 #ifdef FEAT_SIGNS
@@ -5984,11 +5978,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_COMMENTS
     "comments",
 #endif
-#ifdef FEAT_CRYPT
-    "cryptv",
-    "crypt-blowfish",
-    "crypt-blowfish2",
-#endif
     "cursorbind",
 #ifdef DEBUG
     "debug",
@@ -10891,22 +10880,6 @@ f_setwinvar(typval_T *argvars, typval_T *rettv)
 {
   setwinvar(argvars, rettv, 0);
 }
-
-#ifdef FEAT_CRYPT
-/*
- * "sha256({string})" function
- */
-static void
-f_sha256(typval_T *argvars, typval_T *rettv)
-{
-  char_u *p;
-
-  p = tv_get_string(&argvars[0]);
-  rettv->vval.v_string = vim_strsave(
-      sha256_bytes(p, (int)STRLEN(p), NULL, 0));
-  rettv->v_type = VAR_STRING;
-}
-#endif /* FEAT_CRYPT */
 
 /*
  * "shellescape({string})" function

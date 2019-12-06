@@ -34,9 +34,6 @@ static char_u *readfile_charconvert(char_u *fname, char_u *fenc, int *fdp);
 #ifdef FEAT_VIMINFO
 static void check_marks_read(void);
 #endif
-#ifdef FEAT_CRYPT
-static char_u *check_for_cryptkey(char_u *cryptkey, char_u *ptr, long *sizep, off_T *filesizep, int newfile, char_u *fname, int *did_ask);
-#endif
 static int set_rw_fname(char_u *fname, char_u *sfname);
 static int msg_add_fileformat(int eol_type);
 static void msg_add_eol(void);
@@ -81,9 +78,6 @@ struct bw_info
   int bw_len;     /* length of data */
 #ifdef HAS_BW_FLAGS
   int bw_flags; /* FIO_ flags */
-#endif
-#ifdef FEAT_CRYPT
-  buf_T *bw_buffer; /* buffer being written */
 #endif
   char_u bw_rest[CONV_RESTLEN]; /* not converted bytes */
   int bw_restlen;               /* nr of bytes in bw_rest[] */
@@ -179,10 +173,6 @@ int readfile(
   char_u *p;
   off_T filesize = 0;
   int skip_read = FALSE;
-#ifdef FEAT_CRYPT
-  char_u *cryptkey = NULL;
-  int did_ask_for_key = FALSE;
-#endif
 #ifdef FEAT_PERSISTENT_UNDO
   context_sha256_T sha_ctx;
   int read_undo_file = FALSE;
@@ -1075,15 +1065,6 @@ retry:
     if (read_undo_file)
       sha256_start(&sha_ctx);
 #endif
-#ifdef FEAT_CRYPT
-    if (curbuf->b_cryptstate != NULL)
-    {
-      /* Need to free the state, but keep the key, don't want to ask for
-	     * it again. */
-      crypt_free_state(curbuf->b_cryptstate);
-      curbuf->b_cryptstate = NULL;
-    }
-#endif
   }
 
   while (!error && !got_int)
@@ -1248,80 +1229,6 @@ retry:
           size = read_eintr(fd, ptr, size);
         }
 
-#ifdef FEAT_CRYPT
-        /*
-		 * At start of file: Check for magic number of encryption.
-		 */
-        if (filesize == 0 && size > 0)
-          cryptkey = check_for_cryptkey(cryptkey, ptr, &size,
-                                        &filesize, newfile, sfname,
-                                        &did_ask_for_key);
-        /*
-		 * Decrypt the read bytes.  This is done before checking for
-		 * EOF because the crypt layer may be buffering.
-		 */
-        if (cryptkey != NULL && curbuf->b_cryptstate != NULL && size > 0)
-        {
-#ifdef CRYPT_NOT_INPLACE
-          if (crypt_works_inplace(curbuf->b_cryptstate))
-          {
-#endif
-            crypt_decode_inplace(curbuf->b_cryptstate, ptr, size);
-#ifdef CRYPT_NOT_INPLACE
-          }
-          else
-          {
-            char_u *newptr = NULL;
-            int decrypted_size;
-
-            decrypted_size = crypt_decode_alloc(
-                curbuf->b_cryptstate, ptr, size, &newptr);
-
-            /* If the crypt layer is buffering, not producing
-			 * anything yet, need to read more. */
-            if (decrypted_size == 0)
-              continue;
-
-            if (linerest == 0)
-            {
-              /* Simple case: reuse returned buffer (may be
-			     * NULL, checked later). */
-              new_buffer = newptr;
-            }
-            else
-            {
-              long_u new_size;
-
-              /* Need new buffer to add bytes carried over. */
-              new_size = (long_u)(decrypted_size + linerest + 1);
-              new_buffer = lalloc(new_size, FALSE);
-              if (new_buffer == NULL)
-              {
-                do_outofmem_msg(new_size);
-                error = TRUE;
-                break;
-              }
-
-              mch_memmove(new_buffer, buffer, linerest);
-              if (newptr != NULL)
-                mch_memmove(new_buffer + linerest, newptr,
-                            decrypted_size);
-            }
-
-            if (new_buffer != NULL)
-            {
-              vim_free(buffer);
-              buffer = new_buffer;
-              new_buffer = NULL;
-              line_start = buffer;
-              ptr = buffer + linerest;
-            }
-            size = decrypted_size;
-          }
-#endif
-        }
-#endif
-
         if (size <= 0)
         {
           if (size < 0) /* read error */
@@ -1391,12 +1298,7 @@ retry:
 	     * converting with 'charconvert' or when a BOM has already been
 	     * found.
 	     */
-      if ((filesize == 0
-#ifdef FEAT_CRYPT
-           || (cryptkey != NULL && filesize == crypt_get_header_len(
-                                                   crypt_get_method_nr(curbuf)))
-#endif
-               ) &&
+      if (filesize == 0 &&
           (fio_flags == FIO_UCSBOM || (!curbuf->b_p_bomb && tmpname == NULL && (*fenc == 'u' || (*fenc == NUL && enc_utf8)))))
       {
         char_u *ccname;
@@ -2213,18 +2115,6 @@ failed:
   if (set_options)
     save_file_ff(curbuf); /* remember the current file format */
 
-#ifdef FEAT_CRYPT
-  if (curbuf->b_cryptstate != NULL)
-  {
-    crypt_free_state(curbuf->b_cryptstate);
-    curbuf->b_cryptstate = NULL;
-  }
-  if (cryptkey != NULL && cryptkey != curbuf->b_p_key)
-    crypt_free_key(cryptkey);
-    /* Don't set cryptkey to NULL, it's used below as a flag that
-     * encryption was used. */
-#endif
-
   /* If editing a new file: set 'fenc' for the current buffer.
      * Also for ":read ++edit file". */
   if (set_options)
@@ -2377,13 +2267,7 @@ failed:
         STRCAT(IObuff, _("[converted]"));
         c = TRUE;
       }
-#ifdef FEAT_CRYPT
-      if (cryptkey != NULL)
-      {
-        crypt_append_msg(curbuf);
-        c = TRUE;
-      }
-#endif
+
       if (conv_error != 0)
       {
         sprintf((char *)IObuff + STRLEN(IObuff),
@@ -2403,12 +2287,8 @@ failed:
       }
       if (msg_add_fileformat(fileformat))
         c = TRUE;
-#ifdef FEAT_CRYPT
-      if (cryptkey != NULL)
-        msg_add_lines(c, (long)linecnt, filesize - crypt_get_header_len(crypt_get_method_nr(curbuf)));
-      else
-#endif
-        msg_add_lines(c, (long)linecnt, filesize);
+
+      msg_add_lines(c, (long)linecnt, filesize);
 
       VIM_CLEAR(keep_msg);
       msg_scrolled_ign = TRUE;
@@ -2755,90 +2635,6 @@ check_marks_read(void)
 }
 #endif
 
-#if defined(FEAT_CRYPT) || defined(PROTO)
-/*
- * Check for magic number used for encryption.  Applies to the current buffer.
- * If found, the magic number is removed from ptr[*sizep] and *sizep and
- * *filesizep are updated.
- * Return the (new) encryption key, NULL for no encryption.
- */
-static char_u *
-check_for_cryptkey(
-    char_u *cryptkey, /* previous encryption key or NULL */
-    char_u *ptr,      /* pointer to read bytes */
-    long *sizep,      /* length of read bytes */
-    off_T *filesizep, /* nr of bytes used from file */
-    int newfile,      /* editing a new buffer */
-    char_u *fname,    /* file name to display */
-    int *did_ask)     /* flag: whether already asked for key */
-{
-  int method = crypt_method_nr_from_magic((char *)ptr, *sizep);
-  int b_p_ro = curbuf->b_p_ro;
-
-  if (method >= 0)
-  {
-    /* Mark the buffer as read-only until the decryption has taken place.
-	 * Avoids accidentally overwriting the file with garbage. */
-    curbuf->b_p_ro = TRUE;
-
-    /* Set the cryptmethod local to the buffer. */
-    crypt_set_cm_option(curbuf, method);
-    if (cryptkey == NULL && !*did_ask)
-    {
-      if (*curbuf->b_p_key)
-        cryptkey = curbuf->b_p_key;
-      else
-      {
-        /* When newfile is TRUE, store the typed key in the 'key'
-		 * option and don't free it.  bf needs hash of the key saved.
-		 * Don't ask for the key again when first time Enter was hit.
-		 * Happens when retrying to detect encoding. */
-        smsg(_(need_key_msg), fname);
-        msg_scroll = TRUE;
-        crypt_check_method(method);
-        cryptkey = crypt_get_key(newfile, FALSE);
-        *did_ask = TRUE;
-
-        /* check if empty key entered */
-        if (cryptkey != NULL && *cryptkey == NUL)
-        {
-          if (cryptkey != curbuf->b_p_key)
-            vim_free(cryptkey);
-          cryptkey = NULL;
-        }
-      }
-    }
-
-    if (cryptkey != NULL)
-    {
-      int header_len;
-
-      curbuf->b_cryptstate = crypt_create_from_header(
-          method, cryptkey, ptr);
-      crypt_set_cm_option(curbuf, method);
-
-      /* Remove cryptmethod specific header from the text. */
-      header_len = crypt_get_header_len(method);
-      if (*sizep <= header_len)
-        /* invalid header, buffer can't be encrypted */
-        return NULL;
-      *filesizep += header_len;
-      *sizep -= header_len;
-      mch_memmove(ptr, ptr + header_len, (size_t)*sizep);
-
-      /* Restore the read-only flag. */
-      curbuf->b_p_ro = b_p_ro;
-    }
-  }
-  /* When starting to edit a new file which does not have encryption, clear
-     * the 'key' option, except when starting up (called with -x argument) */
-  else if (newfile && *curbuf->b_p_key != NUL && !starting)
-    set_option_value((char_u *)"key", 0L, (char_u *)"", OPT_LOCAL);
-
-  return cryptkey;
-}
-#endif /* FEAT_CRYPT */
-
 #ifdef UNIX
 static void
 set_file_time(
@@ -3018,9 +2814,6 @@ int buf_write(
   write_info.bw_restlen = 0;
 #ifdef USE_ICONV
   write_info.bw_iconv_fd = (iconv_t)-1;
-#endif
-#ifdef FEAT_CRYPT
-  write_info.bw_buffer = buf;
 #endif
 
   /* After writing a file changedtick changes but we don't want to display
@@ -4235,33 +4028,8 @@ int buf_write(
         /* Should copy resource fork */
       }
 #endif
-
-#ifdef FEAT_CRYPT
-      if (*buf->b_p_key != NUL && !filtering)
-      {
-        char_u *header;
-        int header_len;
-
-        buf->b_cryptstate = crypt_create_for_writing(
-            crypt_get_method_nr(buf),
-            buf->b_p_key, &header, &header_len);
-        if (buf->b_cryptstate == NULL || header == NULL)
-          end = 0;
-        else
-        {
-          /* Write magic number, so that Vim knows how this file is
-		     * encrypted when reading it back. */
-          write_info.bw_buf = header;
-          write_info.bw_len = header_len;
-          write_info.bw_flags = FIO_NOCONVERT;
-          if (buf_write_bytes(&write_info) == FAIL)
-            end = 0;
-          wb_flags |= FIO_ENCRYPTED;
-          vim_free(header);
-        }
-      }
-#endif
     }
+
     errmsg = NULL;
 
     write_info.bw_buf = buffer;
@@ -4526,13 +4294,6 @@ int buf_write(
 #endif
       mch_set_acl(wfname, acl);
 #endif
-#ifdef FEAT_CRYPT
-    if (buf->b_cryptstate != NULL)
-    {
-      crypt_free_state(buf->b_cryptstate);
-      buf->b_cryptstate = NULL;
-    }
-#endif
 
 #if defined(FEAT_EVAL)
     if (wfname != fname)
@@ -4677,13 +4438,7 @@ int buf_write(
     /* may add [unix/dos/mac] */
     if (msg_add_fileformat(fileformat))
       c = TRUE;
-#ifdef FEAT_CRYPT
-    if (wb_flags & FIO_ENCRYPTED)
-    {
-      crypt_append_msg(buf);
-      c = TRUE;
-    }
-#endif
+
     msg_add_lines(c, (long)lnum, nchars); /* add line/char count */
     if (!shortmess(SHM_WRITE))
     {
@@ -5450,33 +5205,6 @@ buf_write_bytes(struct bw_info *ip)
   if (ip->bw_fd < 0)
     /* Only checking conversion, which is OK if we get here. */
     return OK;
-
-#ifdef FEAT_CRYPT
-  if (flags & FIO_ENCRYPTED)
-  {
-    /* Encrypt the data. Do it in-place if possible, otherwise use an
-	 * allocated buffer. */
-#ifdef CRYPT_NOT_INPLACE
-    if (crypt_works_inplace(ip->bw_buffer->b_cryptstate))
-    {
-#endif
-      crypt_encode_inplace(ip->bw_buffer->b_cryptstate, buf, len);
-#ifdef CRYPT_NOT_INPLACE
-    }
-    else
-    {
-      char_u *outbuf;
-
-      len = crypt_encode_alloc(curbuf->b_cryptstate, buf, len, &outbuf);
-      if (len == 0)
-        return OK; /* Crypt layer is buffering, will flush later. */
-      wlen = write_eintr(ip->bw_fd, outbuf, len);
-      vim_free(outbuf);
-      return (wlen < len) ? FAIL : OK;
-    }
-#endif
-  }
-#endif
 
   wlen = write_eintr(ip->bw_fd, buf, len);
   return (wlen < len) ? FAIL : OK;

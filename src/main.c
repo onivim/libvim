@@ -546,15 +546,6 @@ int vim_main2(void)
     TIME_MSG("clearing screen");
   }
 
-#ifdef FEAT_CRYPT
-  if (params.ask_for_key)
-  {
-    crypt_check_current_method();
-    (void)crypt_get_key(TRUE, TRUE);
-    TIME_MSG("getting crypt key");
-  }
-#endif
-
   no_wait_return = TRUE;
 
   /*
@@ -1739,12 +1730,6 @@ command_line_scan(mparm_T *parmp)
         want_argument = TRUE;
         break;
 
-#ifdef FEAT_CRYPT
-      case 'x': /* "-x"  encrypted reading/writing of files */
-        parmp->ask_for_key = TRUE;
-        break;
-#endif
-
       case 'X': /* "-X"  don't connect to X server */
 #if (defined(UNIX) || defined(VMS)) && defined(FEAT_X11)
         x_no_connect = TRUE;
@@ -2843,9 +2828,6 @@ usage(void)
   main_msg(_("-s <scriptin>\tRead Normal mode commands from file <scriptin>"));
   main_msg(_("-w <scriptout>\tAppend all typed commands to file <scriptout>"));
   main_msg(_("-W <scriptout>\tWrite all typed commands to file <scriptout>"));
-#ifdef FEAT_CRYPT
-  main_msg(_("-x\t\t\tEdit encrypted files"));
-#endif
 #if (defined(UNIX) || defined(VMS)) && defined(FEAT_X11)
   main_msg(_("-X\t\t\tDo not connect to X server"));
 #endif

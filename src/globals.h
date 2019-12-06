@@ -118,7 +118,7 @@ EXTERN int redraw_mode INIT(= FALSE);         // mode must be redrawn
 EXTERN int clear_cmdline INIT(= FALSE);       // cmdline must be cleared
 EXTERN int mode_displayed INIT(= FALSE);      // mode is being displayed
 EXTERN int no_win_do_lines_ins INIT(= FALSE); // don't insert lines
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
 EXTERN int cmdline_star INIT(= FALSE); // cmdline is crypted
 #endif
 
@@ -1184,10 +1184,6 @@ EXTERN char e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behav
 
 EXTERN char top_bot_msg[] INIT(= N_("search hit TOP, continuing at BOTTOM"));
 EXTERN char bot_top_msg[] INIT(= N_("search hit BOTTOM, continuing at TOP"));
-
-#ifdef FEAT_CRYPT
-EXTERN char need_key_msg[] INIT(= N_("Need encryption key for \"%s\""));
-#endif
 
 /*
  * Comms. with the session manager (XSMP)
