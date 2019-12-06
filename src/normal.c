@@ -3015,7 +3015,11 @@ static void nv_gd(oparg_T *oap, int nchar,
 
   gotoRequest.location = curwin->w_cursor;
   gotoRequest.target = nchar == 'd' ? DEFINITION : DECLARATION;
-  int handled = gotoCallback(gotoRequest);
+  int handled = 0;
+
+  if (gotoCallback != NULL) {
+    handled = gotoCallback(gotoRequest);
+  }
 
   if (!handled)
   {
