@@ -18,7 +18,7 @@ int onGoto(gotoRequest_T gotoRequest)
 void test_setup(void)
 {
   vimSetGotoCallback(&onGoto);
-  
+
   vimInput("<esc>");
   vimInput("<esc>");
 
