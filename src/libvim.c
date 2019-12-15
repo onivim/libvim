@@ -46,6 +46,29 @@ char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 
 size_t vimBufferGetLineCount(buf_T *buf) { return buf->b_ml.ml_line_count; }
 
+void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count)
+{
+  // Append in reverse order... find more efficient strategy though
+  // We append first, because `ml_delete_buf` can't delete the last line,
+  // for replacing entire an buffer contents
+  for (int i = count - 1; i >= 0; i--)
+  {
+    ml_append_buf(buf, start, lines[i], 0, FALSE);
+  }
+
+  int deleteCount = end - start;
+  int deleteStart = start + count + 1;
+  int deleteEnd = deleteStart + deleteCount;
+
+  // Delete from end to start
+  for (int i = deleteStart; i < deleteEnd; i++)
+  {
+    ml_delete_buf(buf, deleteStart, FALSE);
+  }
+
+  changed_lines_buf(buf, start, end, (end - start) - count);
+}
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback f)
 {
   bufferUpdateCallback = f;

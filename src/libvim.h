@@ -42,6 +42,19 @@ int vimBufferGetId(buf_T *buf);
 long vimBufferGetLastChangedTick(buf_T *buf);
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum);
 size_t vimBufferGetLineCount(buf_T *buf);
+
+/*
+ * vimBufferSetLines
+ *
+ * Set a range of lines from the one-based start line to one-based end, inclusive.
+ * 
+ * Examples:
+ * vimBufferSetLine(buf, 1, 1, ["abc"]); // Set line 1 to "abc""
+ * vimBufferSetLine(buf, 1, 2, ["abc"]); // Remove line 2, set line 1 to "abc"
+ * vimBufferSetLine(buf, 0, 0, ["def"]); // Insert "def" before the contents of the buffer
+ */
+void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count);
+
 int vimBufferGetModified(buf_T *buf);
 
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
