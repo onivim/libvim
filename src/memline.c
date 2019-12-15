@@ -3091,6 +3091,12 @@ int ml_delete(linenr_T lnum, int message)
   return ml_delete_int(curbuf, lnum, message);
 }
 
+int ml_delete_buf(buf_T *buf, linenr_T lnum, int message)
+{
+  ml_flush_line(buf);
+  return ml_delete_int(buf, lnum, message);
+}
+
 static int
 ml_delete_int(buf_T *buf, linenr_T lnum, int message)
 {

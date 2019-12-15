@@ -28,6 +28,7 @@ int ml_replace(linenr_T lnum, char_u *line, int copy);
 int ml_replace_len(linenr_T lnum, char_u *line_arg, colnr_T len_arg,
                    int has_props, int copy);
 int ml_delete(linenr_T lnum, int message);
+int ml_delete_buf(buf_T *buf, linenr_T lnum, int message);
 void ml_setmarked(linenr_T lnum);
 linenr_T ml_firstmarked(void);
 void ml_clearmarked(void);

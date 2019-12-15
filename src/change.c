@@ -710,8 +710,7 @@ void deleted_lines_mark(linenr_T lnum, long count)
 /*
  * Marks the area to be redrawn after a change.
  */
-static void
-changed_lines_buf(
+void changed_lines_buf(
     buf_T *buf,
     linenr_T lnum,  // first line with change
     linenr_T lnume, // line below last changed line
