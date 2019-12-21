@@ -111,6 +111,34 @@ MU_TEST(test_delete_n_lines)
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 }
 
+MU_TEST(test_delete_large_n_lines)
+{
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimInput("5");
+  vimInput("5");
+  vimInput("d");
+  vimInput("d");
+
+  mu_check(updateCount == 1);
+  mu_check((lastLnume - lastLnum) == 55);
+  mu_check(lastXtra == -55);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
+}
+
+MU_TEST(test_delete_mn_lines)
+{
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  vimInput("5");
+  vimInput("d");
+  vimInput("3");
+  vimInput("d");
+
+  mu_check(updateCount == 1);
+  mu_check((lastLnume - lastLnum) == 15);
+  mu_check(lastXtra == -15);
+  mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
+}
+
 MU_TEST(test_insert)
 {
   vimInput("i");
@@ -175,6 +203,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_reset_modified_after_reload);
   MU_RUN_TEST(test_reset_modified_after_undo);
   MU_RUN_TEST(test_delete_n_lines);
+  MU_RUN_TEST(test_delete_large_n_lines);
+  MU_RUN_TEST(test_delete_mn_lines);
 }
 
 int main(int argc, char **argv)
