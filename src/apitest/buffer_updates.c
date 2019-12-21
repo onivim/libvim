@@ -104,7 +104,7 @@ MU_TEST(test_delete_n_lines)
   vimInput("5");
   vimInput("d");
   vimInput("d");
-  
+
   mu_check(updateCount == 1);
   mu_check((lastLnume - lastLnum) == 5);
   mu_check(lastXtra == -5);
