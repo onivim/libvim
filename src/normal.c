@@ -608,6 +608,9 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
   oparg_T *oap = context->oap;
 
 restart_state:
+  printf("We are running with state %i\n", context->state);
+  printf("At the start of this state, the opcount is %li\n", context->ca.opcount);
+  printf("At the start of this state, the count0 is %li\n", context->ca.count0);
   switch (context->state)
   {
   case NORMAL_INITIAL:
@@ -647,6 +650,8 @@ restart_state:
     context->state = NORMAL_START_COUNT;
     goto restart_state;
   case NORMAL_START_COUNT:
+    printf("Input params: c=%i, count0=%li\n", c, context->ca.count0);
+    printf("Bool normal start count: %i\n", (!((c >= '1' && c <= '9') || (context->ca.count0 != 0 && (c == K_DEL || c == K_KDEL || c == '0')))));
     if (!((c >= '1' && c <= '9') ||
           (context->ca.count0 != 0 &&
            (c == K_DEL || c == K_KDEL || c == '0'))))
@@ -666,8 +671,11 @@ restart_state:
     {
       context->ca.count0 /= 10;
     }
-    else
+    else {
+      printf("Input params: c=%i, count0=%li\n", c, context->ca.count0);
+      printf("C0*10: %li, c-0: %i, tot: %li \n", (context->ca.count0 * 10), (c - '0'), (context->ca.count0 * 10 + (c - '0')));
       context->ca.count0 = context->ca.count0 * 10 + (c - '0');
+    }
     if (context->ca.count0 < 0) /* got too large! */
       context->ca.count0 = 999999999L;
 #ifdef FEAT_EVAL
@@ -797,6 +805,7 @@ restart_state:
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL)
     {
+      printf("7-1...\n");
       context->returnState = stateMode;
       context->returnPriorPosition = curwin->w_cursor;
       return HANDLED;
@@ -804,10 +813,13 @@ restart_state:
 
     if (finish_op && !previous_finish_op && !VIsual_active)
     {
+      printf("7-2...\n");
       context->state = NORMAL_START_COUNT;
       context->ca.opcount = 0;
       return HANDLED;
     }
+
+    printf("We are running with %li\n", context->ca.opcount);
 
     /*
      * If we didn't start or finish an operator, reset oap->regname, unless we

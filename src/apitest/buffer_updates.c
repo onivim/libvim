@@ -128,10 +128,15 @@ MU_TEST(test_delete_large_n_lines)
 MU_TEST(test_delete_mn_lines)
 {
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  printf("=5=========================================================\n");
   vimInput("5");
+  printf("=d=========================================================\n");
   vimInput("d");
+  printf("=3=========================================================\n");
   vimInput("3");
+  printf("=d=========================================================\n");
   vimInput("d");
+  printf("===========================================================\n");
 
   mu_check(updateCount == 1);
   mu_check((lastLnume - lastLnum) == 15);
