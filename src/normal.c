@@ -807,7 +807,7 @@ restart_state:
       context->state = NORMAL_START_COUNT;
       context->ca.count0 = 0;
 #ifdef FEAT_EVAL
-    context->set_prevcount = TRUE;
+      context->set_prevcount = TRUE;
 #endif
       return HANDLED;
     }
