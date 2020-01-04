@@ -805,6 +805,10 @@ restart_state:
     if (finish_op && !previous_finish_op && !VIsual_active)
     {
       context->state = NORMAL_START_COUNT;
+      context->ca.count0 = 0;
+#ifdef FEAT_EVAL
+      context->set_prevcount = TRUE;
+#endif
       return HANDLED;
     }
 
