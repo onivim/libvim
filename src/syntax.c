@@ -272,7 +272,7 @@ void init_highlight(
 
     if (copy_p != NULL)
     {
-      r = load_colors(copy_p);
+      r = OK; // This used to be used to look up the load_colors() which has been removed in libvim.
       vim_free(copy_p);
       if (r == OK)
         return;
@@ -321,38 +321,6 @@ void init_highlight(
     if (*p_bg == 'l')
       do_highlight((char_u *)"Search ctermfg=black", FALSE, TRUE);
   }
-}
-
-/*
- * Load color file "name".
- * Return OK for success, FAIL for failure.
- */
-int load_colors(char_u *name)
-{
-  char_u *buf;
-  int retval = FAIL;
-  static int recursive = FALSE;
-
-  /* When being called recursively, this is probably because setting
-     * 'background' caused the highlighting to be reloaded.  This means it is
-     * working, thus we should return OK. */
-  if (recursive)
-    return OK;
-
-  recursive = TRUE;
-  buf = alloc(STRLEN(name) + 12);
-  if (buf != NULL)
-  {
-    apply_autocmds(EVENT_COLORSCHEMEPRE, name,
-                   curbuf->b_fname, FALSE, curbuf);
-    sprintf((char *)buf, "colors/%s.vim", name);
-    retval = source_runtime(buf, DIP_START + DIP_OPT);
-    vim_free(buf);
-    apply_autocmds(EVENT_COLORSCHEME, name, curbuf->b_fname, FALSE, curbuf);
-  }
-  recursive = FALSE;
-
-  return retval;
 }
 
 static char *(color_names[28]) = {
