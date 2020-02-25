@@ -1415,10 +1415,7 @@ void hl_set_fg_color_name(
 static GuiFont
 font_name2handle(char_u *name)
 {
-  if (STRCMP(name, "NONE") == 0)
     return NOFONT;
-
-  return gui_mch_get_font(name, TRUE);
 }
 
 #ifdef FEAT_XFONTSET
@@ -1429,10 +1426,7 @@ font_name2handle(char_u *name)
 static GuiFontset
 fontset_name2handle(char_u *name, int fixed_width)
 {
-  if (STRCMP(name, "NONE") == 0)
     return NOFONTSET;
-
-  return gui_mch_get_fontset(name, TRUE, fixed_width);
 }
 #endif
 
@@ -1507,18 +1501,6 @@ hl_do_font(
 guicolor_T
 color_name2handle(char_u *name)
 {
-  if (STRCMP(name, "NONE") == 0)
-    return INVALCOLOR;
-
-  if (STRICMP(name, "fg") == 0 || STRICMP(name, "foreground") == 0)
-  {
-    /* noop - libvim */
-  }
-  if (STRICMP(name, "bg") == 0 || STRICMP(name, "background") == 0)
-  {
-    /* noop - libvim */
-  }
-
   return GUI_GET_COLOR(name);
 }
 #endif
