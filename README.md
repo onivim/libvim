@@ -62,13 +62,14 @@ npm install -g esy@0.5.7
 - `esy install`
 - `esy '@test' install`
 
-### Building
+### Building from Head
 
 - `esy build`
 
-### Running tests
+### Running tests in a testing environment
 
 - `esy '@test' build`
+- `esy '@test' x run-tests.sh` (This will compile your code first and all tests) 
 
 ## FAQ
 
