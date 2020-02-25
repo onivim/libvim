@@ -49,7 +49,6 @@ char_u *highlight_color(int id, char_u *what, int modec);
 long_u highlight_gui_color_rgb(int id, int fg);
 int syn_name2id(char_u *name);
 int syn_name2attr(char_u *name);
-int highlight_exists(char_u *name);
 char_u *syn_id2name(int id);
 int syn_namen2id(char_u *linep, int len);
 int syn_check_group(char_u *pp, int len);

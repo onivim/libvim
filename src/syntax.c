@@ -2024,13 +2024,6 @@ int syn_name2attr(char_u *name)
 }
 
 #if defined(FEAT_EVAL) || defined(PROTO)
-/*
- * Return TRUE if highlight group "name" exists.
- */
-int highlight_exists(char_u *name)
-{
-  return (syn_name2id(name) > 0);
-}
 
 #if defined(FEAT_SEARCH_EXTRA) || defined(PROTO)
 /*
