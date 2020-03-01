@@ -641,7 +641,7 @@ term_start(
  */
 void ex_terminal(exarg_T *eap)
 {
-  typval_T argvar[2];
+  //typval_T argvar[2];
   jobopt_T opt;
   char_u *cmd;
   char_u *tofree = NULL;
@@ -750,9 +750,9 @@ void ex_terminal(exarg_T *eap)
     opt.jo_in_bot = eap->line2;
   }
 
-  argvar[0].v_type = VAR_STRING;
+  /*argvar[0].v_type = VAR_STRING;
   argvar[0].vval.v_string = cmd;
-  argvar[1].v_type = VAR_UNKNOWN;
+  argvar[1].v_type = VAR_UNKNOWN;*/
 
   if (terminalCallback)
   {
