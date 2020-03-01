@@ -672,7 +672,7 @@ static struct fst
         {"has_key", 2, 2, f_has_key},
         {"haslocaldir", 0, 2, f_haslocaldir},
         {"hasmapto", 1, 3, f_hasmapto},
-        {"highlightID", 1, 1, f_hlID},          /* obsolete */
+        {"highlightID", 1, 1, f_hlID}, /* obsolete */
         {"histadd", 2, 2, f_histadd},
         {"histdel", 1, 2, f_histdel},
         {"histget", 1, 2, f_histget},
@@ -6478,7 +6478,6 @@ f_hlID(typval_T *argvars, typval_T *rettv)
 {
   rettv->vval.v_number = syn_name2id(tv_get_string(&argvars[0]));
 }
-
 
 /*
  * "hostname()" function

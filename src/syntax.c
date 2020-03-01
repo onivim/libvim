@@ -1294,7 +1294,7 @@ void hl_set_fg_color_name(
 static GuiFont
 font_name2handle(char_u *name)
 {
-    return NOFONT;
+  return NOFONT;
 }
 
 #ifdef FEAT_XFONTSET
@@ -1305,7 +1305,7 @@ font_name2handle(char_u *name)
 static GuiFontset
 fontset_name2handle(char_u *name, int fixed_width)
 {
-    return NOFONTSET;
+  return NOFONTSET;
 }
 #endif
 
