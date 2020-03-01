@@ -87,11 +87,22 @@ typedef struct
   gotoTarget_T target;
 } gotoRequest_T;
 
+typedef struct
+{
+  char_u *cmd;
+  int rows;
+  int cols;
+  int curwin;
+  char finish;
+  int hidden;
+} terminalRequest_t;
+
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
+typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 
 typedef struct

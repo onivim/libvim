@@ -55,6 +55,7 @@ EXTERN VoidCallback displayIntroCallback INIT(= NULL);
 EXTERN VoidCallback displayVersionCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN TerminalCallback terminalCallback INIT(= NULL);
 EXTERN VoidCallback stopSearchHighlightCallback INIT(= NULL);
 EXTERN VoidCallback unhandledEscapeCallback INIT(= NULL);
 EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
