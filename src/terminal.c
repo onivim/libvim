@@ -767,7 +767,6 @@ void ex_terminal(exarg_T *eap)
     terminalCallback(pRequest);
     free(pRequest);
   }
-  //term_start(argvar, NULL, &opt, eap->forceit ? TERM_START_FORCEIT : 0);
   vim_free(tofree);
 
 theend:
