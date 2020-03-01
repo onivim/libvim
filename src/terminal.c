@@ -753,7 +753,21 @@ void ex_terminal(exarg_T *eap)
   argvar[0].v_type = VAR_STRING;
   argvar[0].vval.v_string = cmd;
   argvar[1].v_type = VAR_UNKNOWN;
-  term_start(argvar, NULL, &opt, eap->forceit ? TERM_START_FORCEIT : 0);
+
+  if (terminalCallback)
+  {
+    terminalRequest_t *pRequest = malloc(sizeof(terminalRequest_t));
+    pRequest->rows = opt.jo_term_rows;
+    pRequest->cols = opt.jo_term_cols;
+    pRequest->finish = opt.jo_term_finish;
+    pRequest->curwin = opt.jo_curwin;
+    pRequest->hidden = opt.jo_hidden;
+    pRequest->cmd = cmd;
+
+    terminalCallback(pRequest);
+    free(pRequest);
+  }
+  //term_start(argvar, NULL, &opt, eap->forceit ? TERM_START_FORCEIT : 0);
   vim_free(tofree);
 
 theend:
