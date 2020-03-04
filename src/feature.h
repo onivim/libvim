@@ -795,6 +795,7 @@
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
 #undef FEAT_CONCEAL
+#undef FEAT_TERMINAL
 
 /*
  * +footer		Motif only: Add a message area at the bottom of the
