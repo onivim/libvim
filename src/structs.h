@@ -1885,7 +1885,6 @@ typedef struct
   char_u jo_cwd_buf[NUMBUFLEN];
   char_u *jo_cwd;
 
-#ifdef FEAT_TERMINAL
   /* when non-zero run the job in a terminal window of this size */
   int jo_term_rows;
   int jo_term_cols;
@@ -1899,7 +1898,6 @@ typedef struct
   char_u *jo_eof_chars;
   char_u *jo_term_kill;
   int jo_tty_type; // first character of "tty_type"
-#endif
 } jobopt_T;
 
 #ifdef FEAT_EVAL
