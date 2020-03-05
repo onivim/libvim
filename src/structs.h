@@ -87,11 +87,22 @@ typedef struct
   gotoTarget_T target;
 } gotoRequest_T;
 
+typedef struct
+{
+  char_u *cmd;
+  int rows;
+  int cols;
+  int curwin;
+  char finish;
+  int hidden;
+} terminalRequest_t;
+
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
+typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 
 typedef struct
@@ -1874,7 +1885,6 @@ typedef struct
   char_u jo_cwd_buf[NUMBUFLEN];
   char_u *jo_cwd;
 
-#ifdef FEAT_TERMINAL
   /* when non-zero run the job in a terminal window of this size */
   int jo_term_rows;
   int jo_term_cols;
@@ -1888,7 +1898,6 @@ typedef struct
   char_u *jo_eof_chars;
   char_u *jo_term_kill;
   int jo_tty_type; // first character of "tty_type"
-#endif
 } jobopt_T;
 
 #ifdef FEAT_EVAL

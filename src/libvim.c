@@ -89,6 +89,11 @@ void vimSetMessageCallback(MessageCallback f)
   messageCallback = f;
 }
 
+void vimSetTerminalCallback(TerminalCallback f)
+{
+  terminalCallback = f;
+}
+
 void vimSetWindowSplitCallback(WindowSplitCallback f)
 {
   windowSplitCallback = f;

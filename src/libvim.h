@@ -210,6 +210,12 @@ char_u *vimSearchGetPattern();
 void vimSetStopSearchHighlightCallback(VoidCallback callback);
 
 /***
+ * Terminal
+ */
+
+void vimSetTerminalCallback(TerminalCallback callback);
+
+/***
  * Window
  */
 

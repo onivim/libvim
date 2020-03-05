@@ -641,7 +641,7 @@ term_start(
  */
 void ex_terminal(exarg_T *eap)
 {
-  typval_T argvar[2];
+  //typval_T argvar[2];
   jobopt_T opt;
   char_u *cmd;
   char_u *tofree = NULL;
@@ -750,10 +750,23 @@ void ex_terminal(exarg_T *eap)
     opt.jo_in_bot = eap->line2;
   }
 
-  argvar[0].v_type = VAR_STRING;
+  /*argvar[0].v_type = VAR_STRING;
   argvar[0].vval.v_string = cmd;
-  argvar[1].v_type = VAR_UNKNOWN;
-  term_start(argvar, NULL, &opt, eap->forceit ? TERM_START_FORCEIT : 0);
+  argvar[1].v_type = VAR_UNKNOWN;*/
+
+  if (terminalCallback)
+  {
+    terminalRequest_t *pRequest = malloc(sizeof(terminalRequest_t));
+    pRequest->rows = opt.jo_term_rows;
+    pRequest->cols = opt.jo_term_cols;
+    pRequest->finish = opt.jo_term_finish;
+    pRequest->curwin = opt.jo_curwin;
+    pRequest->hidden = opt.jo_hidden;
+    pRequest->cmd = cmd;
+
+    terminalCallback(pRequest);
+    free(pRequest);
+  }
   vim_free(tofree);
 
 theend:

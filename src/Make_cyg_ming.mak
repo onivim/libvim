@@ -88,12 +88,7 @@ else
 CHANNEL=$(GUI)
 endif
 
-# Set to yes to enable terminal support.
-ifeq (HUGE, $(FEATURES))
-TERMINAL=yes
-else
 TERMINAL=no
-endif
 
 ifndef CTAGS
 # this assumes ctags is Exuberant ctags
