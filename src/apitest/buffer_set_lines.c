@@ -111,6 +111,15 @@ MU_TEST(test_replace_entire_buffer_with_more_lines)
   mu_check(strcmp(vimBufferGetLine(curbuf, 5), "line5") == 0);
 }
 
+MU_TEST(test_replace_entire_buffer_with_more_lines_again)
+{
+  char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
+  vimBufferSetLines(curbuf, 0, -1, lines, 5);
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "line1") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 5), "line5") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -122,6 +131,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_replace_entire_buffer_from_zero);
   MU_RUN_TEST(test_replace_entire_buffer_after_first_line);
   MU_RUN_TEST(test_replace_entire_buffer_with_more_lines);
+  MU_RUN_TEST(test_replace_entire_buffer_with_more_lines_again);
 }
 
 int main(int argc, char **argv)
