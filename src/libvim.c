@@ -48,6 +48,11 @@ size_t vimBufferGetLineCount(buf_T *buf) { return buf->b_ml.ml_line_count; }
 
 void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count)
 {
+  if (end == -1)
+  {
+    end = vimBufferGetLineCount(buf);
+  }
+
   // Append in reverse order... find more efficient strategy though
   // We append first, because `ml_delete_buf` can't delete the last line,
   // for replacing entire an buffer contents
