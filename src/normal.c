@@ -346,6 +346,45 @@ static const struct nv_cmd
     {K_PS, nv_edit, 0, 0},
 };
 
+#define strstartswith(a,b) (!strncmp(a,b,strlen(b)))
+
+void toggle_comment() {
+  const char_u *comment = "//";
+  int commentlen = (int)STRLEN(comment);
+  linenr_T lnum = curwin->w_cursor.lnum;
+  const char_u* line = ml_get(lnum);
+  int linelen = (int)STRLEN(line);
+  char_u *newp;
+
+  if (strstartswith(line, comment)) {
+    newp = alloc((linelen - commentlen) + 1);
+
+    if (newp == NULL)
+      return;
+      
+    if (virtual_active() && curwin->w_cursor.coladd > 0)
+      coladvance_force(getviscol());
+
+    mch_memmove(newp, line + commentlen, (size_t)((linelen - commentlen) + 1));
+    ml_replace(lnum, newp, FALSE);
+    curwin->w_cursor.col -= commentlen;
+  } else {
+    newp = alloc(linelen + commentlen + 1);
+
+    if (newp == NULL)
+      return;
+      
+    if (virtual_active() && curwin->w_cursor.coladd > 0)
+      coladvance_force(getviscol());
+
+    mch_memmove(newp, comment, (size_t)commentlen);
+    mch_memmove(newp + commentlen, line, (size_t)(linelen + 1));
+    ml_replace(lnum, newp, FALSE);
+    inserted_bytes(lnum, 0, commentlen);
+    curwin->w_cursor.col += commentlen;
+  }
+}
+
 /* Number of commands in nv_cmds[]. */
 #define NV_CMDS_SIZE (sizeof(nv_cmds) / sizeof(struct nv_cmd))
 
@@ -2264,6 +2303,11 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
       }
       check_cursor_col();
       break;
+
+    case OP_COMMENT:
+      toggle_comment();
+      break;
+
     default:
       clearopbeep(oap);
     }
@@ -6569,6 +6613,7 @@ static void nv_g_cmd(cmdarg_T *cap)
   case 'U':
   case '?':
   case '@':
+  case 'c':
     nv_operator(cap);
     break;
 

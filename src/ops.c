@@ -134,6 +134,7 @@ static char opchars[][3] = {
     {'g', '@', OPF_CHANGE},             // OP_FUNCTION
     {Ctrl_A, NUL, OPF_CHANGE},          // OP_NR_ADD
     {Ctrl_X, NUL, OPF_CHANGE},          // OP_NR_SUB
+    {'g', 'c', OPF_LINES | OPF_CHANGE}, // OP_COMMENT
 };
 
 /*
