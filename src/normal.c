@@ -348,14 +348,13 @@ static const struct nv_cmd
 
 #define strstartswith(a,b) (!strncmp(a,b,strlen(b)))
 
-void toggle_comment() {
+void toggle_comment(linenr_T lnum) {
   const char_u *comment = "//";
   int commentlen = (int)STRLEN(comment);
-  linenr_T lnum = curwin->w_cursor.lnum;
   const char_u* line = ml_get(lnum);
   int linelen = (int)STRLEN(line);
   char_u *newp;
-
+    
   if (strstartswith(line, comment)) {
     newp = alloc((linelen - commentlen) + 1);
 
@@ -382,6 +381,20 @@ void toggle_comment() {
     ml_replace(lnum, newp, FALSE);
     inserted_bytes(lnum, 0, commentlen);
     curwin->w_cursor.col += commentlen;
+  }
+}
+
+void toggle_comment_lines(linenr_T start, linenr_T end) {
+  linenr_T lnum;
+
+  if (start > end) {
+    lnum = start;
+    start = end;
+    end = lnum;
+  }
+  
+  for (lnum = start; lnum <= end; lnum++) {
+    toggle_comment(lnum);
   }
 }
 
@@ -2305,7 +2318,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
       break;
 
     case OP_COMMENT:
-      toggle_comment();
+      toggle_comment_lines(oap->start.lnum, oap->end.lnum);
       break;
 
     default:
