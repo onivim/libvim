@@ -336,10 +336,9 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
    * actually changing anything.  It's put after the mode, if any.
    */
   context->i = 0;
-  if (p_smd && msg_silent == 0)
 
-    if (!p_im && did_restart_edit == 0)
-      change_warning(context->i == 0 ? 0 : context->i + 1);
+  if (!p_im && did_restart_edit == 0)
+    change_warning(context->i == 0 ? 0 : context->i + 1);
 
 #ifdef FEAT_DIGRAPHS
   do_digraph(-1); /* clear digraphs */
