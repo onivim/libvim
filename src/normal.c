@@ -1468,21 +1468,6 @@ getcount:
     if (restart_edit != 0)
       State = INSERT;
 
-    /* If need to redraw, and there is a "keep_msg", redraw before the
-     * delay */
-    if (must_redraw && keep_msg != NULL && !emsg_on_display)
-    {
-      char_u *kmsg;
-
-      kmsg = keep_msg;
-      keep_msg = NULL;
-      /* showmode() will clear keep_msg, but we want to use it anyway */
-      update_screen(0);
-      /* now reset it, otherwise it's put in the history again */
-      keep_msg = kmsg;
-      msg_attr((char *)kmsg, keep_msg_attr);
-      vim_free(kmsg);
-    }
     setcursor();
     cursor_on();
     State = save_State;
