@@ -2146,7 +2146,6 @@ vgetorpeek(int advance)
               }
               status_redraw_all();
               redraw_statuslines();
-              showmode();
               setcursor();
               continue;
             }
@@ -2387,7 +2386,6 @@ vgetorpeek(int advance)
 
           if (mode_displayed)
           {
-            unshowmode(TRUE);
             mode_deleted = TRUE;
           }
           validate_cursor();
@@ -2612,15 +2610,11 @@ vgetorpeek(int advance)
     {
       if (typebuf.tb_len && !KeyTyped)
         redraw_cmdline = TRUE; /* delete mode later */
-      else
-        unshowmode(FALSE);
     }
     else if (c != ESC && mode_deleted)
     {
       if (typebuf.tb_len && !KeyTyped)
         redraw_cmdline = TRUE; /* show mode later */
-      else
-        showmode();
     }
   }
   if (timedout && c == ESC)

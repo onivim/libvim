@@ -1523,7 +1523,6 @@ normal_end:
     if (restart_VIsual_select == 1)
     {
       VIsual_select = TRUE;
-      showmode();
       restart_VIsual_select = 0;
     }
     if (restart_edit != 0 && !VIsual_active && old_mapped_len == 0)
@@ -3918,7 +3917,6 @@ static void nv_ctrlg(cmdarg_T *cap)
   if (VIsual_active) /* toggle Selection/Visual mode */
   {
     VIsual_select = !VIsual_select;
-    showmode();
   }
   else if (!checkclearop(cap->oap))
     /* print full name if count given or :cd used */
@@ -3970,7 +3968,6 @@ static void nv_ctrlo(cmdarg_T *cap)
   if (VIsual_active && VIsual_select)
   {
     VIsual_select = FALSE;
-    showmode();
     restart_VIsual_select = 2; /* restart Select mode later */
   }
   else
@@ -5929,7 +5926,6 @@ static void nv_visual(cmdarg_T *cap)
     else /* toggle char/block mode */
     {    /*	   or char/line mode */
       VIsual_mode = cap->cmdchar;
-      showmode();
     }
     redraw_curbuf_later(INVERTED); /* update the inversion */
   }
@@ -6200,7 +6196,6 @@ static void nv_g_cmd(cmdarg_T *cap)
       else
         may_start_select('c');
       redraw_curbuf_later(INVERTED);
-      showmode();
     }
     break;
   /*

@@ -3580,7 +3580,6 @@ int current_block(
     VIsual = start_pos;
     VIsual_mode = 'v';
     redraw_curbuf_later(INVERTED); /* update the inversion */
-    showmode();
   }
   else
   {
@@ -3858,7 +3857,6 @@ again:
     VIsual = start_pos;
     VIsual_mode = 'v';
     redraw_curbuf_later(INVERTED); /* update the inversion */
-    showmode();
   }
   else
   {
@@ -4039,7 +4037,6 @@ int current_par(
     }
     VIsual_mode = 'V';
     redraw_curbuf_later(INVERTED); /* update the inversion */
-    showmode();
   }
   else
   {
@@ -4512,7 +4509,6 @@ int current_search(
 
   may_start_select('c');
   redraw_curbuf_later(INVERTED);
-  showmode();
 
   return OK;
 }
