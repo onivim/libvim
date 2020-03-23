@@ -56,7 +56,6 @@ int screen_ins_lines(int off, int row, int line_count, int end, int clear_attr,
 int screen_del_lines(int off, int row, int line_count, int end, int force,
                      int clear_attr, win_T *wp);
 int skip_showmode(void);
-int showmode(void);
 void unshowmode(int force);
 void clearmode(void);
 void draw_tabline(void);

@@ -913,7 +913,6 @@ int do_record(int c)
     else
     {
       reg_recording = c;
-      showmode();
       regname = c;
       retval = OK;
     }

@@ -944,8 +944,6 @@ void main_loop(
         update_screen(0);
         mch_enable_flush();
       }
-      else if (redraw_cmdline || clear_cmdline)
-        showmode();
       redraw_statuslines();
 #ifdef FEAT_VIMINFO
       curbuf->b_last_used = vim_time();

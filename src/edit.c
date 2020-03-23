@@ -337,10 +337,9 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
    */
   context->i = 0;
   if (p_smd && msg_silent == 0)
-    context->i = showmode();
 
-  if (!p_im && did_restart_edit == 0)
-    change_warning(context->i == 0 ? 0 : context->i + 1);
+    if (!p_im && did_restart_edit == 0)
+      change_warning(context->i == 0 ? 0 : context->i + 1);
 
 #ifdef FEAT_DIGRAPHS
   do_digraph(-1); /* clear digraphs */
@@ -1235,8 +1234,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    * actually changing anything.  It's put after the mode, if any.
    */
   i = 0;
-  if (p_smd && msg_silent == 0)
-    i = showmode();
 
   if (!p_im && did_restart_edit == 0)
     change_warning(i == 0 ? 0 : i + 1);
@@ -1985,8 +1982,7 @@ void ins_redraw(int ready) // not busy with something
 
   if (must_redraw)
     update_screen(0);
-  else if (clear_cmdline || redraw_cmdline)
-    showmode(); /* clear cmdline and show mode */
+
   showruler(FALSE);
   setcursor();
   emsg_on_display = FALSE; /* may remove error message now */
@@ -4659,7 +4655,6 @@ static void ins_ctrl_hat(void)
     }
   }
   set_iminsert_global();
-  showmode();
 #if defined(FEAT_KEYMAP)
   /* Show/unshow value of 'keymap' in status lines. */
   status_redraw_curbuf();
@@ -4763,13 +4758,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
     /* Re-enable bracketed paste mode. */
     out_str(T_BE);
 
-  // When recording or for CTRL-O, need to display the new mode.
-  // Otherwise remove the mode message.
-  if (reg_recording != 0 || restart_edit != NUL)
-    showmode();
-  else if (p_smd && (got_int || !skip_showmode()))
-    msg("");
-
   return TRUE; /* exit Insert mode */
 }
 
@@ -4797,7 +4785,6 @@ static void ins_ctrl_(void)
   else
     revins_scol = -1;
   p_hkmap = curwin->w_p_rl ^ p_ri; // be consistent!
-  showmode();
 }
 #endif
 
@@ -4873,7 +4860,6 @@ static void ins_insert(int replaceState)
   else
     State = replaceState | (State & LANGMAP);
   AppendCharToRedobuff(K_INS);
-  showmode();
 }
 
 /*
