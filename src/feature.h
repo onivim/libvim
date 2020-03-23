@@ -420,10 +420,6 @@
 #endif
 #endif
 
-#ifdef FEAT_NORMAL
-#define FEAT_SMARTINDENT
-#endif
-
 /*
  * +comments		'comments' option.
  */
@@ -795,6 +791,7 @@
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
 #undef FEAT_CONCEAL
+#undef FEAT_SMARTINDENT
 #undef FEAT_TERMINAL
 
 /*
