@@ -458,19 +458,23 @@ struct u_header
 {
   /* The following have a pointer and a number. The number is used when
      * reading the undo file in u_read_undo() */
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next undo header in list */
     long seq;
   } uh_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header in list */
     long seq;
   } uh_prev;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next header for alt. redo */
     long seq;
   } uh_alt_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header for alt. redo */
     long seq;
   } uh_alt_prev;
@@ -922,7 +926,8 @@ struct condstack
 {
   short cs_flags[CSTACK_LEN];  /* CSF_ flags */
   char cs_pending[CSTACK_LEN]; /* CSTP_: what's pending in ":finally"*/
-  union {
+  union
+  {
     void *csp_rv[CSTACK_LEN]; /* return typeval for pending return */
     void *csp_ex[CSTACK_LEN]; /* exception for pending throw */
   } cs_pend;
@@ -1030,7 +1035,8 @@ struct cleanup_stuff
 typedef struct attr_entry
 {
   short ae_attr; /* HL_BOLD, etc. */
-  union {
+  union
+  {
     struct
     {
       char_u *start; /* start escape sequence */
@@ -1296,7 +1302,8 @@ typedef struct
 {
   vartype_T v_type;
   char v_lock; /* see below: VAR_LOCKED, VAR_FIXED */
-  union {
+  union
+  {
     varnumber_T v_number; /* number value */
 #ifdef FEAT_FLOAT
     float_T v_float; /* floating number value */
