@@ -145,16 +145,12 @@ MU_TEST(test_set_lines)
   char_u *lines[] = {"one"};
   vimBufferSetLines(curbuf, 0, -1, lines, 1);
 
-  printf("START!!\n");
-  printf("lnume: %d lastLnum: %d\n", lastLnume, lastLnum);
-
   mu_check(updateCount == 1);
-  mu_check(lastLnum == 0);
-  mu_check(lastLnume == 100);
+  mu_check(lastLnum == 1);
+  mu_check(lastLnume == 101);
   mu_check(lastXtra == -99);
   mu_check(lastVersionAtUpdateTime == vimBufferGetLastChangedTick(curbuf));
 
-  printf("Line count: %zu\n", vimBufferGetLineCount(curbuf));
   mu_check(vimBufferGetLineCount(curbuf) == 1);
 }
 
@@ -196,7 +192,6 @@ MU_TEST(test_reset_modified_after_undo)
 
   vimInput("O");
   vimInput("a");
-  printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
 
   vimInput("<esc>");
