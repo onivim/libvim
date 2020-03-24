@@ -347,8 +347,6 @@ void vimOptionSetLineComment(const char_u *str)
   vim_free(curbuf->b_oni_line_comment);
   curbuf->b_oni_line_comment = (char_u *)alloc(STRLEN(str) + 1);
 
-  printf("str: |%s|\n", str);
-
   if (curbuf->b_oni_line_comment != NULL)
   {
     strcpy(curbuf->b_oni_line_comment, str);
