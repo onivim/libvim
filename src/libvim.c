@@ -80,18 +80,15 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
   {
 
     int newLineCount = vimBufferGetLineCount(buf);
-        originalLineCount,
-	newLineCount);
-        //int lnume = start + count;
-        int lnum = start == 0 ? 1 : start;
-        int lnume = end == 0 ? 1 : end + 1;
-        int xtra = newLineCount - originalLineCount;
-        bufferUpdate_T bufferUpdate;
-        bufferUpdate.buf = buf;
-        bufferUpdate.lnum = lnum;
-        bufferUpdate.lnume = lnume;
-        bufferUpdate.xtra = xtra;
-        bufferUpdateCallback(bufferUpdate);
+    int lnum = start == 0 ? 1 : start;
+    int lnume = end == 0 ? 1 : end + 1;
+    int xtra = newLineCount - originalLineCount;
+    bufferUpdate_T bufferUpdate;
+    bufferUpdate.buf = buf;
+    bufferUpdate.lnum = lnum;
+    bufferUpdate.lnume = lnume;
+    bufferUpdate.xtra = xtra;
+    bufferUpdateCallback(bufferUpdate);
   }
 }
 
