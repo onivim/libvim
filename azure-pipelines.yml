@@ -59,7 +59,7 @@ jobs:
 - job: MacOS14
   displayName: "MacOS Mojave"
   pool:
-    vmImage: 'macOS 10.14'
+    vmImage: 'macOS-10.14'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
@@ -69,7 +69,7 @@ jobs:
 - job: MacOS15
   displayName: "MacOS Catalina"
   pool:
-    vmImage: 'macOS 10.15'
+    vmImage: 'macOS-10.15'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
