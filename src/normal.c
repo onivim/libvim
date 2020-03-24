@@ -349,13 +349,15 @@ static const struct nv_cmd
 #define strstartswith(a,b) (!strncmp(a,b,strlen(b)))
 
 void toggle_comment(linenr_T lnum) {
-  const char_u *comment = "//";
+  const char_u *comment = curbuf->b_oni_line_comment != NULL ? curbuf->b_oni_line_comment : (char_u *)"//";
   int commentlen = (int)STRLEN(comment);
   const char_u* line = ml_get(lnum);
   int linelen = (int)STRLEN(line);
   char_u *newp;
-    
+
   if (strstartswith(line, comment)) {
+    // remove comment
+
     newp = alloc((linelen - commentlen) + 1);
 
     if (newp == NULL)
@@ -368,6 +370,8 @@ void toggle_comment(linenr_T lnum) {
     ml_replace(lnum, newp, FALSE);
     curwin->w_cursor.col -= commentlen;
   } else {
+    // add comment
+
     newp = alloc(linelen + commentlen + 1);
 
     if (newp == NULL)
