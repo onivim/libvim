@@ -88,9 +88,6 @@ MU_TEST(test_toggle_there_and_back_again_visual_multi)
 {
   vimInput("V");
   vimInput("j");
-
-  mu_check(vimCursorGetLine() == 2);
-
   vimInput("g");
   vimInput("c");
 
@@ -110,9 +107,6 @@ MU_TEST(test_toggle_there_and_back_again_visual_multi)
 
   vimInput("V");
   vimInput("j");
-
-  mu_check(vimCursorGetLine() == 2);
-
   vimInput("g");
   vimInput("c");
 
@@ -246,6 +240,54 @@ MU_TEST(test_undo_visual_multi)
   mu_check(strcmp(line3, "This is the third line of a test file") == 0);
 }
 
+MU_TEST(test_cursor_toggle_there_and_back_again)
+{
+  vimInput("g");
+  vimInput("c");
+  vimInput("c");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+
+  // and back again
+
+  vimInput("g");
+  vimInput("c");
+  vimInput("c");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+}
+
+MU_TEST(test_cursor_toggle_there_and_back_again_visual_multi)
+{
+  vimInput("V");
+  vimInput("j");
+
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("g");
+  vimInput("c");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+
+  // and back again
+
+  vimInput("V");
+  vimInput("j");
+
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("g");
+  vimInput("c");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -259,6 +301,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_set_line_comment_multi_there_and_back_again);
   MU_RUN_TEST(test_undo);
   MU_RUN_TEST(test_undo_visual_multi);
+  MU_RUN_TEST(test_cursor_toggle_there_and_back_again);
+  MU_RUN_TEST(test_cursor_toggle_there_and_back_again_visual_multi);
 }
 
 int main(int argc, char **argv)

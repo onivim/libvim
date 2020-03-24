@@ -371,7 +371,6 @@ void toggle_comment(linenr_T lnum)
 
     mch_memmove(newp, line + commentlen, (size_t)((linelen - commentlen) + 1));
     ml_replace(lnum, newp, FALSE);
-    curwin->w_cursor.col -= commentlen;
   }
   else
   {
@@ -389,7 +388,6 @@ void toggle_comment(linenr_T lnum)
     mch_memmove(newp + commentlen, line, (size_t)(linelen + 1));
     ml_replace(lnum, newp, FALSE);
     inserted_bytes(lnum, 0, commentlen);
-    curwin->w_cursor.col += commentlen;
   }
 }
 
@@ -397,6 +395,7 @@ void toggle_comment_lines(linenr_T start, linenr_T end)
 {
   linenr_T lnum;
 
+  // if end is before start, normalize by swapping
   if (start > end)
   {
     lnum = start;
@@ -408,6 +407,10 @@ void toggle_comment_lines(linenr_T start, linenr_T end)
   {
     toggle_comment(lnum);
   }
+
+  // set cursoor to beginning
+  curwin->w_cursor.lnum = start;
+  curwin->w_cursor.col = 0;
 }
 
 /* Number of commands in nv_cmds[]. */
