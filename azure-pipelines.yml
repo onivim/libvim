@@ -56,20 +56,20 @@ jobs:
     parameters:
         testRunner: run-tests.sh
 
-- job: MacOS13
+- job: MacOS14
   displayName: "MacOS Mojave"
   pool:
-    vmImage: 'macOS 10.13'
+    vmImage: 'macOS 10.14'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
     parameters:
         testRunner: run-tests.sh
 
-- job: MacOS14
-  displayName: "MacOS High Sierra"
+- job: MacOS15
+  displayName: "MacOS Catalina"
   pool:
-    vmImage: 'macOS 10.14'
+    vmImage: 'macOS 10.15'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
