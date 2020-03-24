@@ -144,6 +144,7 @@ void vimSetUnhandledEscapeCallback(VoidCallback callback);
 
 void vimOptionSetTabSize(int tabSize);
 void vimOptionSetInsertSpaces(int insertSpaces);
+void vimOptionSetLineComment(char_u* str);
 
 int vimOptionGetInsertSpaces(void);
 int vimOptionGetTabSize(void);

@@ -2372,6 +2372,8 @@ struct file_buffer
 #ifdef FEAT_DIFF
   int b_diff_failed; // internal diff failed for this buffer
 #endif
+
+  char_u *b_oni_line_comment;
 }; /* file_buffer */
 
 /* buffer updates */
