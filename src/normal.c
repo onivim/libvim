@@ -102,6 +102,7 @@ static void nv_g_cmd(cmdarg_T *cap);
 static void nv_dot(cmdarg_T *cap);
 static void nv_redo(cmdarg_T *cap);
 static void nv_Undo(cmdarg_T *cap);
+static void nv_c(cmdarg_T *cap);
 static void nv_tilde(cmdarg_T *cap);
 static void nv_operator(cmdarg_T *cap);
 #ifdef FEAT_EVAL
@@ -278,7 +279,7 @@ static const struct nv_cmd
     {'`', nv_gomark, NV_NCH_ALW, FALSE},
     {'a', nv_edit, NV_NCH, 0},
     {'b', nv_bck_word, 0, 0},
-    {'c', nv_operator, 0, 0},
+    {'c', nv_c, 0, 0},
     {'d', nv_operator, 0, 0},
     {'e', nv_wordcmd, 0, FALSE},
     {'f', nv_csearch, NV_NCH_ALW | NV_LANG, FORWARD},
@@ -6784,6 +6785,22 @@ static void nv_Undo(cmdarg_T *cap)
     u_undoline();
     curwin->w_set_curswant = TRUE;
   }
+}
+
+/*
+ * Handle "c" command.
+ */
+static void nv_c(cmdarg_T *cap)
+{
+  /* In Visual mode and typing "gcc" triggers an operator */
+  if (cap->oap->op_type == OP_COMMENT || VIsual_active)
+  {
+    /* translate "gcc" to "gcgc" */
+    cap->cmdchar = 'g';
+    cap->nchar = 'c';
+  }
+
+  nv_operator(cap);
 }
 
 /*
