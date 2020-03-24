@@ -346,37 +346,41 @@ static const struct nv_cmd
     {K_PS, nv_edit, 0, 0},
 };
 
-#define strstartswith(a,b) (!strncmp(a,b,strlen(b)))
+#define strstartswith(a, b) (!strncmp(a, b, strlen(b)))
 
-void toggle_comment(linenr_T lnum) {
+void toggle_comment(linenr_T lnum)
+{
   const char_u *comment = curbuf->b_oni_line_comment != NULL ? curbuf->b_oni_line_comment : (char_u *)"//";
   int commentlen = (int)STRLEN(comment);
-  const char_u* line = ml_get(lnum);
+  const char_u *line = ml_get(lnum);
   int linelen = (int)STRLEN(line);
   char_u *newp;
 
-  if (strstartswith(line, comment)) {
+  if (strstartswith(line, comment))
+  {
     // remove comment
 
     newp = alloc((linelen - commentlen) + 1);
 
     if (newp == NULL)
       return;
-      
+
     if (virtual_active() && curwin->w_cursor.coladd > 0)
       coladvance_force(getviscol());
 
     mch_memmove(newp, line + commentlen, (size_t)((linelen - commentlen) + 1));
     ml_replace(lnum, newp, FALSE);
     curwin->w_cursor.col -= commentlen;
-  } else {
+  }
+  else
+  {
     // add comment
 
     newp = alloc(linelen + commentlen + 1);
 
     if (newp == NULL)
       return;
-      
+
     if (virtual_active() && curwin->w_cursor.coladd > 0)
       coladvance_force(getviscol());
 
@@ -388,16 +392,19 @@ void toggle_comment(linenr_T lnum) {
   }
 }
 
-void toggle_comment_lines(linenr_T start, linenr_T end) {
+void toggle_comment_lines(linenr_T start, linenr_T end)
+{
   linenr_T lnum;
 
-  if (start > end) {
+  if (start > end)
+  {
     lnum = start;
     start = end;
     end = lnum;
   }
-  
-  for (lnum = start; lnum <= end; lnum++) {
+
+  for (lnum = start; lnum <= end; lnum++)
+  {
     toggle_comment(lnum);
   }
 }
