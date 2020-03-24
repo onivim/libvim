@@ -43,6 +43,8 @@ MU_TEST(test_append_before_buffer)
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "one") == 0);
   printf("LINE 2: %s\n", vimBufferGetLine(curbuf, 2));
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "This is the first line of a test file") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 4);
 }
 
 MU_TEST(test_append_after_buffer)
@@ -54,6 +56,8 @@ MU_TEST(test_append_after_buffer)
   printf("LINE 4: %s\n", vimBufferGetLine(curbuf, 4));
   mu_check(strcmp(vimBufferGetLine(curbuf, 4), "after") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "This is the third line of a test file") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 4);
 }
 
 MU_TEST(test_append_after_first_line)
@@ -68,6 +72,8 @@ MU_TEST(test_append_after_first_line)
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "after first line") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "This is the second line of a test file") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 4);
 }
 
 MU_TEST(test_replace_second_line_multiple_lines)
@@ -91,6 +97,8 @@ MU_TEST(test_replace_entire_buffer_from_zero)
   vimBufferSetLines(curbuf, 0, 3, lines, 1);
   mu_check(vimBufferGetLineCount(curbuf) == 1);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 1);
 }
 
 MU_TEST(test_replace_entire_buffer_after_first_line)
@@ -100,6 +108,8 @@ MU_TEST(test_replace_entire_buffer_after_first_line)
   mu_check(vimBufferGetLineCount(curbuf) == 2);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "abc") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 2);
 }
 
 MU_TEST(test_replace_entire_buffer_with_more_lines)
@@ -109,6 +119,8 @@ MU_TEST(test_replace_entire_buffer_with_more_lines)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "line1") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 5), "line5") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
 MU_TEST(test_replace_entire_buffer_with_more_lines_again)
@@ -118,6 +130,8 @@ MU_TEST(test_replace_entire_buffer_with_more_lines_again)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "line1") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 5), "line5") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
 MU_TEST_SUITE(test_suite)
