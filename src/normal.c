@@ -402,6 +402,9 @@ void toggle_comment_lines(linenr_T start, linenr_T end)
     end = lnum;
   }
 
+  // save state for undo
+  u_save(start - 1, end + 1);
+
   for (lnum = start; lnum <= end; lnum++)
     toggle_comment(lnum);
 
@@ -409,6 +412,7 @@ void toggle_comment_lines(linenr_T start, linenr_T end)
   curwin->w_cursor.lnum = start;
   curwin->w_cursor.col = 0;
 
+  // mark dirty
   changed_lines(start, 0, end + 1, 0);
 }
 
