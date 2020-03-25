@@ -102,6 +102,7 @@ static void nv_g_cmd(cmdarg_T *cap);
 static void nv_dot(cmdarg_T *cap);
 static void nv_redo(cmdarg_T *cap);
 static void nv_Undo(cmdarg_T *cap);
+static void nv_c(cmdarg_T *cap);
 static void nv_tilde(cmdarg_T *cap);
 static void nv_operator(cmdarg_T *cap);
 #ifdef FEAT_EVAL
@@ -278,7 +279,7 @@ static const struct nv_cmd
     {'`', nv_gomark, NV_NCH_ALW, FALSE},
     {'a', nv_edit, NV_NCH, 0},
     {'b', nv_bck_word, 0, 0},
-    {'c', nv_operator, 0, 0},
+    {'c', nv_c, 0, 0},
     {'d', nv_operator, 0, 0},
     {'e', nv_wordcmd, 0, FALSE},
     {'f', nv_csearch, NV_NCH_ALW | NV_LANG, FORWARD},
@@ -345,6 +346,75 @@ static const struct nv_cmd
     {K_CURSORHOLD, nv_cursorhold, NV_KEEPREG, 0},
     {K_PS, nv_edit, 0, 0},
 };
+
+#define strstartswith(a, b) (!strncmp(a, b, strlen(b)))
+
+void toggle_comment(linenr_T lnum)
+{
+  const char_u *comment = curbuf->b_oni_line_comment != NULL ? curbuf->b_oni_line_comment : (char_u *)"//";
+  int commentlen = (int)STRLEN(comment);
+  const char_u *line = ml_get(lnum);
+  int linelen = (int)STRLEN(line);
+  char_u *newp;
+
+  if (strstartswith(line, comment))
+  {
+    // remove comment
+
+    newp = alloc((linelen - commentlen) + 1);
+
+    if (newp == NULL)
+      return;
+
+    if (virtual_active() && curwin->w_cursor.coladd > 0)
+      coladvance_force(getviscol());
+
+    mch_memmove(newp, line + commentlen, (size_t)((linelen - commentlen) + 1));
+    ml_replace(lnum, newp, FALSE);
+  }
+  else
+  {
+    // add comment
+
+    newp = alloc(linelen + commentlen + 1);
+
+    if (newp == NULL)
+      return;
+
+    if (virtual_active() && curwin->w_cursor.coladd > 0)
+      coladvance_force(getviscol());
+
+    mch_memmove(newp, comment, (size_t)commentlen);
+    mch_memmove(newp + commentlen, line, (size_t)(linelen + 1));
+    ml_replace(lnum, newp, FALSE);
+  }
+}
+
+void toggle_comment_lines(linenr_T start, linenr_T end)
+{
+  linenr_T lnum;
+
+  // if end is before start, normalize by swapping
+  if (start > end)
+  {
+    lnum = start;
+    start = end;
+    end = lnum;
+  }
+
+  // save state for undo
+  u_save(start - 1, end + 1);
+
+  for (lnum = start; lnum <= end; lnum++)
+    toggle_comment(lnum);
+
+  // set cursoor to beginning
+  curwin->w_cursor.lnum = start;
+  curwin->w_cursor.col = 0;
+
+  // mark dirty
+  changed_lines(start, 0, end + 1, 0);
+}
 
 /* Number of commands in nv_cmds[]. */
 #define NV_CMDS_SIZE (sizeof(nv_cmds) / sizeof(struct nv_cmd))
@@ -2248,6 +2318,11 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
       }
       check_cursor_col();
       break;
+
+    case OP_COMMENT:
+      toggle_comment_lines(oap->start.lnum, oap->end.lnum);
+      break;
+
     default:
       clearopbeep(oap);
     }
@@ -6549,6 +6624,7 @@ static void nv_g_cmd(cmdarg_T *cap)
   case 'U':
   case '?':
   case '@':
+  case 'c':
     nv_operator(cap);
     break;
 
@@ -6695,6 +6771,22 @@ static void nv_Undo(cmdarg_T *cap)
     u_undoline();
     curwin->w_set_curswant = TRUE;
   }
+}
+
+/*
+ * Handle "c" command.
+ */
+static void nv_c(cmdarg_T *cap)
+{
+  /* In Visual mode and typing "gcc" triggers an operator */
+  if (cap->oap->op_type == OP_COMMENT || VIsual_active)
+  {
+    /* translate "gcc" to "gcgc" */
+    cap->cmdchar = 'g';
+    cap->nchar = 'c';
+  }
+
+  nv_operator(cap);
 }
 
 /*
