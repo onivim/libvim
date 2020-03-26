@@ -1903,21 +1903,6 @@ getcmdline_int(
       break;
 #endif
 
-    case Ctrl_V:
-    case Ctrl_Q:
-      putcmdline('^', TRUE);
-      c = get_literal(); /* get next (two) character(s) */
-      do_abbr = FALSE;   /* don't do abbreviation now */
-      extra_char = NUL;
-      /* may need to remove ^ when composing char was typed */
-      if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
-      {
-        draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
-        msg_putchar(' ');
-        cursorcmd();
-      }
-      break;
-
 #ifdef FEAT_DIGRAPHS
     case Ctrl_K:
       putcmdline('?', TRUE);
@@ -3298,21 +3283,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
       goto cmdline_not_changed;
     break;
 #endif
-
-  case Ctrl_V:
-  case Ctrl_Q:
-    putcmdline('^', TRUE);
-    c = get_literal();        /* get next (two) character(s) */
-    context->do_abbr = FALSE; /* don't do abbreviation now */
-    extra_char = NUL;
-    /* may need to remove ^ when composing char was typed */
-    if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
-    {
-      draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
-      msg_putchar(' ');
-      cursorcmd();
-    }
-    break;
 
 #ifdef FEAT_DIGRAPHS
   case Ctrl_K:
