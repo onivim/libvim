@@ -38,6 +38,12 @@ long vimBufferGetLastChangedTick(buf_T *buf) { return CHANGEDTICK(buf); }
 
 int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 
+int vimBufferGetModifiable(buf_T *buf) { return buf->b_p_ma; }
+void vimBufferSetModifiable(buf_T *buf, int modifiable) { buf->b_p_ma = modifiable; }
+
+int vimBufferGetReadOnly(buf_T *buf) { return buf->b_p_ro; }
+void vimBufferSetReadOnly(buf_T *buf, int readonly) { buf->b_p_ro = readonly; }
+
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 {
   char_u *result = ml_get_buf(buf, lnum, FALSE);

@@ -57,6 +57,12 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
 
 int vimBufferGetModified(buf_T *buf);
 
+int vimBufferGetModifiable(buf_T *buf);
+void vimBufferSetModifiable(buf_T *buf, int modifiable);
+
+int vimBufferGetReadOnly(buf_T *buf);
+void vimBufferSetReadOnly(buf_T *buf, int modifiable);
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
 /***
