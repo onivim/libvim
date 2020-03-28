@@ -288,6 +288,17 @@ MU_TEST(test_cursor_toggle_there_and_back_again_visual_multi)
   mu_check(vimCursorGetColumn() == 0);
 }
 
+MU_TEST(test_regression_Vc)
+{
+  vimInput("V");
+  vimInput("c");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: |%s|\n", line);
+
+  mu_check(strcmp(line, "") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -303,6 +314,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_undo_visual_multi);
   MU_RUN_TEST(test_cursor_toggle_there_and_back_again);
   MU_RUN_TEST(test_cursor_toggle_there_and_back_again_visual_multi);
+  MU_RUN_TEST(test_regression_Vc);
 }
 
 int main(int argc, char **argv)

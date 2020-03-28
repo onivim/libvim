@@ -6758,7 +6758,7 @@ static void nv_redo(cmdarg_T *cap)
  */
 static void nv_Undo(cmdarg_T *cap)
 {
-  /* In Visual mode and typing "gUU" triggers an operator */
+  /* In Visual mode OR typing "gUU" triggers an operator */
   if (cap->oap->op_type == OP_UPPER || VIsual_active)
   {
     /* translate "gUU" to "gUgU" */
@@ -6778,8 +6778,8 @@ static void nv_Undo(cmdarg_T *cap)
  */
 static void nv_c(cmdarg_T *cap)
 {
-  /* In Visual mode and typing "gcc" triggers an operator */
-  if (cap->oap->op_type == OP_COMMENT || VIsual_active)
+  /* In Visual mode AND typing "gcc" triggers an operator */
+  if (cap->oap->op_type == OP_COMMENT && VIsual_active)
   {
     /* translate "gcc" to "gcgc" */
     cap->cmdchar = 'g';
