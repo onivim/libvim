@@ -123,7 +123,7 @@ MU_TEST(test_modify_file_externally)
   vimExecute("w");
 
   // HACK: This sleep is required to get different 'mtimes'
-  // for Vim to realize that th ebfufer is modified
+  // for Vim to realize that the buffer is modified
   sleep(3);
 
   mu_check(writeFailureCount == 0);
@@ -136,6 +136,28 @@ MU_TEST(test_modify_file_externally)
 
   mu_check(writeFailureCount == 1);
   mu_check(lastWriteFailureReason == FILE_CHANGED);
+}
+
+MU_TEST(test_modify_file_externally_forceit)
+{
+  vimInput("i");
+  vimInput("a");
+  vimInput("<esc>");
+  vimExecute("w");
+
+  // HACK: This sleep is required to get different 'mtimes'
+  // for Vim to realize that the buffer is modified
+  sleep(3);
+
+  mu_check(writeFailureCount == 0);
+  FILE *fp = fopen(tempFile, "w");
+  fprintf(fp, "Hello!\n");
+  fclose(fp);
+
+  vimExecute("u");
+  vimExecute("w!");
+
+  mu_check(writeFailureCount == 0);
 }
 
 // Verify that the vimBufferCheckIfChanged call updates the buffer,
@@ -214,6 +236,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_checkifchanged_updates_buffer);
   MU_RUN_TEST(test_checkifchanged_with_unsaved_changes);
   MU_RUN_TEST(test_modify_file_externally);
+  MU_RUN_TEST(test_modify_file_externally_forceit);
 }
 
 int main(int argc, char **argv)
