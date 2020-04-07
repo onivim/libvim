@@ -7252,20 +7252,22 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
-  curbuf->b_visual.vi_mode = VIsual_mode;
-  curbuf->b_visual.vi_start = VIsual;
-  curbuf->b_visual.vi_end = curwin->w_cursor;
-  curbuf->b_visual.vi_start = VIsual;
-  curbuf->b_visual.vi_end = curwin->w_cursor;
+    curbuf->b_visual.vi_mode = VIsual_mode;
+    curbuf->b_visual.vi_start = VIsual;
+    curbuf->b_visual.vi_end = curwin->w_cursor;
+    curbuf->b_visual.vi_start = VIsual;
+    curbuf->b_visual.vi_end = curwin->w_cursor;
 
-    for (int i = VIsual.lnum; i < curwin->w_cursor.lnum; i++) {
+    for (int i = VIsual.lnum; i < curwin->w_cursor.lnum; i++)
+    {
       int lnum = i;
       int col = VIsual_mode == Ctrl_V ? VIsual.col : 0;
-      if (cursorAddCallback != NULL) {
+      if (cursorAddCallback != NULL)
+      {
         pos_T cursor;
         cursor.lnum = lnum;
-	  cursor.col = col;
-	  cursorAddCallback(cursor);
+        cursor.col = col;
+        cursorAddCallback(cursor);
       }
     }
 
