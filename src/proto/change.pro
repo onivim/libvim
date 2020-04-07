@@ -14,6 +14,7 @@ void appended_lines_mark(linenr_T lnum, long count);
 void deleted_lines(linenr_T lnum, long count);
 void deleted_lines_mark(linenr_T lnum, long count);
 void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra);
+void changed_lines_buf(buf_T *buf, linenr_T lnum, linenr_T lnume, long xtra);
 void unchanged(buf_T *buf, int ff);
 void ins_bytes(char_u *p);
 void ins_bytes_len(char_u *p, int len);

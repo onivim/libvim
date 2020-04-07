@@ -37,21 +37,14 @@ jobs:
   - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind alpine-libvim /bin/bash -c 'cd libvim/src && esy build'
 
 - job: UbuntuDocker
-  displayName: "Linux - Ubuntu 18.10 (Docker)"
+  displayName: "Linux - Ubuntu 18.04"
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'Ubuntu 18.04'
   steps:
-  - script: docker build -t ubuntu-18-10-libvim src/build/docker/ubuntu-18.10
-    displayName: 'docker build'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'esy --version'
-    displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && ls'
-    displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && pwd'
-    displayName: 'docker run'
-  - script: docker run --rm --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && esy @test install'
-    displayName: 'docker run'
-  - script: docker run --rm -i --mount src=`pwd`,target=/libvim,type=bind ubuntu-18-10-libvim /bin/bash -c 'cd libvim/src && esy @test x run-tests.sh'
+  - template: .ci/esy-build-steps.yml
+  - template: .ci/libvim-test.yml
+    parameters:
+        testRunner: run-tests.sh
 
 - job: Linux
   displayName: "Linux - Ubuntu 16.04"
@@ -63,20 +56,20 @@ jobs:
     parameters:
         testRunner: run-tests.sh
 
-- job: MacOS13
+- job: MacOS14
   displayName: "MacOS Mojave"
   pool:
-    vmImage: 'macOS 10.13'
+    vmImage: 'macOS-10.14'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
     parameters:
         testRunner: run-tests.sh
 
-- job: MacOS14
-  displayName: "MacOS High Sierra"
+- job: MacOS15
+  displayName: "MacOS Catalina"
   pool:
-    vmImage: 'macOS 10.14'
+    vmImage: 'macOS-10.15'
   steps:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml

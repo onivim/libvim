@@ -16,33 +16,13 @@
 #include "vim.h"
 
 // cproto doesn't create a prototype for VimMain()
-#ifdef VIMDLL
-__declspec(dllimport)
-#endif
-    int VimMain(int argc, char **argv);
-#ifndef VIMDLL
+int VimMain(int argc, char **argv);
 void SaveInst(HINSTANCE hInst);
-#endif
 
 #ifndef PROTO
-#ifdef FEAT_GUI
-int WINAPI
-wWinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInst UNUSED,
-    LPWSTR lpszCmdLine UNUSED,
-    int nCmdShow UNUSED)
-#else
 int wmain(int argc UNUSED, wchar_t **argv UNUSED)
-#endif
 {
-#ifndef VIMDLL
-#ifdef FEAT_GUI
-  SaveInst(hInstance);
-#else
   SaveInst(GetModuleHandleW(NULL));
-#endif
-#endif
   VimMain(0, NULL);
 
   return 0;

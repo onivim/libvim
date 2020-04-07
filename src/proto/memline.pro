@@ -1,6 +1,5 @@
 /* memline.c */
 int ml_open(buf_T *buf);
-void ml_set_crypt_key(buf_T *buf, char_u *old_key, char_u *old_cm);
 void ml_setname(buf_T *buf);
 void ml_open_files(void);
 void ml_open_file(buf_T *buf);
@@ -29,6 +28,7 @@ int ml_replace(linenr_T lnum, char_u *line, int copy);
 int ml_replace_len(linenr_T lnum, char_u *line_arg, colnr_T len_arg,
                    int has_props, int copy);
 int ml_delete(linenr_T lnum, int message);
+int ml_delete_buf(buf_T *buf, linenr_T lnum, int message);
 void ml_setmarked(linenr_T lnum);
 linenr_T ml_firstmarked(void);
 void ml_clearmarked(void);
@@ -37,9 +37,6 @@ char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf,
                      char_u *dir_name);
 char_u *get_file_in_dir(char_u *fname, char_u *dname);
 void ml_setflags(buf_T *buf);
-char_u *ml_encrypt_data(memfile_T *mfp, char_u *data, off_T offset,
-                        unsigned size);
-void ml_decrypt_data(memfile_T *mfp, char_u *data, off_T offset, unsigned size);
 long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp);
 void goto_byte(long cnt);
 /* vim: set ft=c : */

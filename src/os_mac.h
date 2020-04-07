@@ -22,25 +22,6 @@
 #endif
 
 /*
- * Macintosh machine-dependent things.
- *
- * Include the Mac header files, unless also compiling with X11 (the header
- * files have many conflicts).
- */
-#ifdef FEAT_GUI_MAC
-#include <Files.h>
-#include <LowMem.h>
-#include <Memory.h>
-#include <OSUtils.h>
-#include <Quickdraw.h> /* Apple calls it QuickDraw.h... */
-#include <Scrap.h>
-#include <Script.h>
-#include <Sound.h>
-#include <TextUtils.h>
-#include <ToolUtils.h>
-#endif
-
-/*
  * Unix interface
  */
 #if defined(__APPLE_CC__) /* for Project Builder and ... */
@@ -141,14 +122,6 @@
 #define EVIM_FILE "$VIMRUNTIME/evim.vim"
 #endif
 
-#ifdef FEAT_GUI
-#ifndef USR_GVIMRC_FILE
-#define USR_GVIMRC_FILE "~/.gvimrc"
-#endif
-#ifndef GVIMRC_FILE
-#define GVIMRC_FILE "_gvimrc"
-#endif
-#endif
 #ifndef USR_VIMRC_FILE
 #define USR_VIMRC_FILE "~/.vimrc"
 #endif

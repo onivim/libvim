@@ -993,11 +993,8 @@ getcmdline_int(
          || c == intr_char
 #endif
          )
-#if defined(FEAT_EVAL) || defined(FEAT_CRYPT)
-        && firstc != '@'
-#endif
 #ifdef FEAT_EVAL
-        && !break_ctrl_c
+        && firstc != '@' && !break_ctrl_c
 #endif
         && !global_busy)
       got_int = FALSE;
@@ -1713,39 +1710,6 @@ getcmdline_int(
       /* Ignore mouse event or open_cmdwin() result. */
       goto cmdline_not_changed;
 
-#ifdef FEAT_GUI_MSWIN
-      /* On MS-Windows ignore <M-F4>, we get it when closing the window
-	     * was cancelled. */
-    case K_F4:
-      if (mod_mask == MOD_MASK_ALT)
-      {
-        redrawcmd(); /* somehow the cmdline is cleared */
-        goto cmdline_not_changed;
-      }
-      break;
-#endif
-
-#ifdef FEAT_GUI
-    case K_LEFTMOUSE_NM: /* mousefocus click, ignored */
-    case K_LEFTRELEASE_NM:
-      goto cmdline_not_changed;
-
-    case K_VER_SCROLLBAR:
-      if (msg_scrolled == 0)
-      {
-        gui_do_scroll();
-        redrawcmd();
-      }
-      goto cmdline_not_changed;
-
-    case K_HOR_SCROLLBAR:
-      if (msg_scrolled == 0)
-      {
-        gui_do_horiz_scroll(scrollbar_value, FALSE);
-        redrawcmd();
-      }
-      goto cmdline_not_changed;
-#endif
     case K_SELECT: /* end of Select mode mapping - ignore */
       goto cmdline_not_changed;
 
@@ -1939,21 +1903,6 @@ getcmdline_int(
       break;
 #endif
 
-    case Ctrl_V:
-    case Ctrl_Q:
-      putcmdline('^', TRUE);
-      c = get_literal(); /* get next (two) character(s) */
-      do_abbr = FALSE;   /* don't do abbreviation now */
-      extra_char = NUL;
-      /* may need to remove ^ when composing char was typed */
-      if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
-      {
-        draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
-        msg_putchar(' ');
-        cursorcmd();
-      }
-      break;
-
 #ifdef FEAT_DIGRAPHS
     case Ctrl_K:
       putcmdline('?', TRUE);
@@ -2132,7 +2081,7 @@ theend:
 }
 }
 
-#if (defined(FEAT_CRYPT) || defined(FEAT_EVAL)) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Get a command line with a prompt.
  * This is prepared to be called recursively from getcmdline() (e.g. by
@@ -2242,7 +2191,7 @@ int allbuf_locked(void)
 static int
 cmdline_charsize(int idx)
 {
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
   if (cmdline_star > 0) /* showing '*', always 1 position */
     return 1;
 #endif
@@ -2556,11 +2505,8 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
        || c == intr_char
 #endif
        )
-#if defined(FEAT_EVAL) || defined(FEAT_CRYPT)
-      && context->firstc != '@'
-#endif
 #ifdef FEAT_EVAL
-      && !context->break_ctrl_c
+      && context->firstc != '@' && !context->break_ctrl_c
 #endif
       && !global_busy)
     got_int = FALSE;
@@ -3338,21 +3284,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
     break;
 #endif
 
-  case Ctrl_V:
-  case Ctrl_Q:
-    putcmdline('^', TRUE);
-    c = get_literal();        /* get next (two) character(s) */
-    context->do_abbr = FALSE; /* don't do abbreviation now */
-    extra_char = NUL;
-    /* may need to remove ^ when composing char was typed */
-    if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
-    {
-      draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
-      msg_putchar(' ');
-      cursorcmd();
-    }
-    break;
-
 #ifdef FEAT_DIGRAPHS
   case Ctrl_K:
     putcmdline('?', TRUE);
@@ -3798,7 +3729,7 @@ getexmodeline(
   return (char_u *)line_ga.ga_data;
 }
 
-#if (defined(FEAT_XIM) && (defined(FEAT_GUI_GTK))) || defined(PROTO)
+#ifdef PROTO
 /*
  * Return the virtual column number at the current cursor position.
  * This is used by the IM code to obtain the start of the preedit string.
@@ -3899,7 +3830,7 @@ void free_cmdline_buf(void)
 static void
 draw_cmdline(int start, int len)
 {
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
   int i;
 
   if (cmdline_star > 0)
@@ -4422,10 +4353,6 @@ cursorcmd(void)
   }
 
   windgoto(msg_row, msg_col);
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  if (p_imst == IM_ON_THE_SPOT)
-    redrawcmd_preedit();
-#endif
 }
 
 void gotocmdline(int clr)
@@ -6464,15 +6391,15 @@ static char *(history_names[]) =
 static char_u *
 get_history_arg(expand_T *xp UNUSED, int idx)
 {
-  static char_u compl[2] = {NUL, NUL};
+  static char_u compl [2] = {NUL, NUL};
   char *short_names = ":=@>?/";
   int short_names_count = (int)STRLEN(short_names);
   int history_name_count = sizeof(history_names) / sizeof(char *) - 1;
 
   if (idx < short_names_count)
   {
-    compl[0] = (char_u)short_names[idx];
-    return compl;
+    compl [0] = (char_u)short_names[idx];
+    return compl ;
   }
   if (idx < short_names_count + history_name_count)
     return (char_u *)history_names[idx - short_names_count];
@@ -6891,37 +6818,6 @@ int del_history_idx(int histype, int idx)
 }
 
 #endif /* FEAT_EVAL */
-
-#if defined(FEAT_CRYPT) || defined(PROTO)
-/*
- * Very specific function to remove the value in ":set key=val" from the
- * history.
- */
-void remove_key_from_history(void)
-{
-  char_u *p;
-  int i;
-
-  i = hisidx[HIST_CMD];
-  if (i < 0)
-    return;
-  p = history[HIST_CMD][i].hisstr;
-  if (p != NULL)
-    for (; *p; ++p)
-      if (STRNCMP(p, "key", 3) == 0 && !isalpha(p[3]))
-      {
-        p = vim_strchr(p + 3, '=');
-        if (p == NULL)
-          break;
-        ++p;
-        for (i = 0; p[i] && !VIM_ISWHITE(p[i]); ++i)
-          if (p[i] == '\\' && p[i + 1])
-            ++i;
-        STRMOVE(p, p + i);
-        --p;
-      }
-}
-#endif
 
 #endif /* FEAT_CMDHIST */
 

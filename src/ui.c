@@ -26,15 +26,6 @@
 
 void ui_write(char_u *s, int len)
 {
-#ifdef FEAT_GUI
-  if (gui.in_use && !gui.dying && !gui.starting)
-  {
-    gui_write(s, len);
-    if (p_wd)
-      gui_wait_for_chars(p_wd, typebuf.tb_change_cnt);
-    return;
-  }
-#endif
 #ifndef NO_CONSOLE
   /* Don't output anything in silent mode ("ex -s") unless 'verbose' set */
   if (!(silent_mode && p_verbose == 0))
@@ -118,24 +109,6 @@ int ui_inchar(
 {
   int retval = 0;
 
-#if defined(FEAT_GUI) && (defined(UNIX) || defined(VMS))
-  /*
-     * Use the typeahead if there is any.
-     */
-  if (ta_str != NULL)
-  {
-    if (maxlen >= ta_len - ta_off)
-    {
-      mch_memmove(buf, ta_str + ta_off, (size_t)ta_len);
-      VIM_CLEAR(ta_str);
-      return ta_len;
-    }
-    mch_memmove(buf, ta_str + ta_off, (size_t)maxlen);
-    ta_off += maxlen;
-    return maxlen;
-  }
-#endif
-
 #ifdef FEAT_PROFILE
   if (do_profiling == PROF_YES && wtime != 0)
     prof_inchar_enter();
@@ -217,15 +190,8 @@ int ui_inchar(
      *
      */
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    retval = gui_inchar(buf, maxlen, wtime, tb_change_cnt);
-#endif
 #ifndef NO_CONSOLE
-#ifdef FEAT_GUI
-  else
-#endif
-    retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
+  retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
 #endif
 
   if (wtime == -1 || wtime > 100L)
@@ -244,7 +210,7 @@ theend:
   return retval;
 }
 
-#if defined(UNIX) || defined(FEAT_GUI) || defined(PROTO)
+#if defined(UNIX) || defined(PROTO)
 /*
  * Common code for mch_inchar() and gui_inchar(): Wait for a while or
  * indefinitely until characters are available, dealing with timers and
@@ -450,11 +416,7 @@ int ui_wait_for_chars_or_timer(
     if (due_time <= 0 || (wtime > 0 && due_time > remaining))
       due_time = remaining;
 #ifdef FEAT_JOB_CHANNEL
-    if ((due_time < 0 || due_time > 10L)
-#ifdef FEAT_GUI
-        && !gui.in_use
-#endif
-        && (has_pending_job() || channel_any_readahead()))
+    if ((due_time < 0 || due_time > 10L) && (has_pending_job() || channel_any_readahead()))
     {
       // There is a pending job or channel, should return soon in order
       // to handle them ASAP.  Do check for input briefly.
@@ -484,13 +446,6 @@ int ui_wait_for_chars_or_timer(
  */
 int ui_char_avail(void)
 {
-#ifdef FEAT_GUI
-  if (gui.in_use)
-  {
-    gui_mch_update();
-    return input_available();
-  }
-#endif
 #ifndef NO_CONSOLE
 #ifdef NO_CONSOLE_INPUT
   if (no_console_input())
@@ -518,13 +473,6 @@ void ui_delay(long msec, int ignoreinput)
  */
 void ui_suspend(void)
 {
-#ifdef FEAT_GUI
-  if (gui.in_use)
-  {
-    gui_mch_iconify();
-    return;
-  }
-#endif
   mch_suspend();
 }
 
@@ -554,12 +502,7 @@ int ui_get_shellsize(void)
 {
   int retval;
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    retval = gui_get_shellsize();
-  else
-#endif
-    retval = mch_get_shellsize();
+  retval = mch_get_shellsize();
 
   check_shellsize();
 
@@ -580,12 +523,7 @@ int ui_get_shellsize(void)
 void ui_set_shellsize(
     int mustset UNUSED) /* set by the user */
 {
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    gui_set_shellsize(mustset, TRUE, RESIZE_BOTH);
-  else
-#endif
-    mch_set_shellsize();
+  mch_set_shellsize();
 }
 
 /*
@@ -596,12 +534,7 @@ void ui_new_shellsize(void)
 {
   if (full_screen && !exiting)
   {
-#ifdef FEAT_GUI
-    if (gui.in_use)
-      gui_new_shellsize();
-    else
-#endif
-      mch_new_shellsize();
+    mch_new_shellsize();
   }
 }
 
@@ -629,12 +562,7 @@ void ui_breakcheck_force(int force)
   // We do not want gui_resize_shell() to redraw the screen here.
   ++updating_screen;
 
-#ifdef FEAT_GUI
-  if (gui.in_use)
-    gui_mch_update();
-  else
-#endif
-    mch_breakcheck(force);
+  mch_breakcheck(force);
 
   if (save_updating_screen)
     updating_screen = TRUE;
@@ -700,7 +628,7 @@ int vim_free_in_input_buf(void)
 }
 #endif
 
-#if defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(PROTO)
 int vim_used_in_input_buf(void)
 {
   return inbufcount;
@@ -760,12 +688,6 @@ void add_to_input_buf(char_u *s, int len)
   if (inbufcount + len > INBUFLEN + MAX_KEY_CODE_LEN)
     return; /* Shouldn't ever happen! */
 
-#ifdef FEAT_HANGULIN
-  if ((State & (INSERT | CMDLINE)) && hangul_input_state_get())
-    if ((len = hangul_input_process(s, len)) == 0)
-      return;
-#endif
-
   while (len--)
     inbuf[inbufcount++] = *s++;
 }
@@ -790,31 +712,6 @@ void add_to_input_buf_csi(char_u *str, int len)
     }
   }
 }
-
-#if defined(FEAT_HANGULIN) || defined(PROTO)
-void push_raw_key(char_u *s, int len)
-{
-  char_u *tmpbuf;
-  char_u *inp = s;
-
-  /* use the conversion result if possible */
-  tmpbuf = hangul_string_convert(s, &len);
-  if (tmpbuf != NULL)
-    inp = tmpbuf;
-
-  for (; len--; inp++)
-  {
-    inbuf[inbufcount++] = *inp;
-    if (*inp == CSI)
-    {
-      /* Turn CSI into K_CSI. */
-      inbuf[inbufcount++] = KS_EXTRA;
-      inbuf[inbufcount++] = (int)KE_CSI;
-    }
-  }
-  vim_free(tmpbuf);
-}
-#endif
 
 /* Remove everything from the input buffer.  Called when ^C is found */
 void trash_input_buf(void)
@@ -843,7 +740,8 @@ void fill_input_buf(int exit_on_error UNUSED)
 {
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
   int len;
-  int try
+  int
+  try
     ;
   static int did_read_something = FALSE;
   static char_u *rest = NULL; /* unconverted rest of previous read */
@@ -851,19 +749,6 @@ void fill_input_buf(int exit_on_error UNUSED)
   int unconverted;
 #endif
 
-#ifdef FEAT_GUI
-  if (gui.in_use
-#ifdef NO_CONSOLE_INPUT
-      /* Don't use the GUI input when the window hasn't been opened yet.
-     * We get here from ui_inchar() when we should try reading from stdin. */
-      && !no_console_input()
-#endif
-  )
-  {
-    gui_mch_update();
-    return;
-  }
-#endif
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
   if (vim_is_input_buf_full())
     return;
@@ -986,7 +871,7 @@ void fill_input_buf(int exit_on_error UNUSED)
   }
 #endif /* UNIX or VMS*/
 }
-#endif /* defined(UNIX) || defined(FEAT_GUI) || defined(VMS) */
+#endif /* defined(UNIX) || defined(VMS) */
 
 /*
  * Exit because of an input read error.
@@ -1023,7 +908,7 @@ int check_row(int row)
   return row;
 }
 
-#if defined(FEAT_GUI) || defined(MSWIN) || defined(PROTO)
+#if defined(MSWIN) || defined(PROTO)
 /*
  * Called when focus changed.  Used for the GUI or for systems where this can
  * be done in the console (Win32).
@@ -1039,13 +924,7 @@ void ui_focus_change(
      * several events in a row). */
   if (in_focus && last_time + 2 < time(NULL))
   {
-    need_redraw = check_timestamps(
-#ifdef FEAT_GUI
-        gui.in_use
-#else
-        FALSE
-#endif
-    );
+    need_redraw = check_timestamps(FALSE);
     last_time = time(NULL);
   }
 
@@ -1073,41 +952,6 @@ void ui_focus_change(
       setcursor();
     }
     cursor_on(); /* redrawing may have switched it off */
-#ifdef FEAT_GUI
-    if (gui.in_use)
-      gui_update_scrollbars(FALSE);
-#endif
-  }
-}
-#endif
-
-#if defined(HAVE_INPUT_METHOD) || defined(PROTO)
-/*
- * Save current Input Method status to specified place.
- */
-void im_save_status(long *psave)
-{
-  /* Don't save when 'imdisable' is set or "xic" is NULL, IM is always
-     * disabled then (but might start later).
-     * Also don't save when inside a mapping, vgetc_im_active has not been set
-     * then.
-     * And don't save when the keys were stuffed (e.g., for a "." command).
-     * And don't save when the GUI is running but our window doesn't have
-     * input focus (e.g., when a find dialog is open). */
-  if (!p_imdisable && KeyTyped && !KeyStuffed
-#ifdef FEAT_XIM
-      && xic != NULL
-#endif
-#ifdef FEAT_GUI
-      && (!gui.in_use || gui.in_focus)
-#endif
-  )
-  {
-    /* Do save when IM is on, or IM is off and saved status is on. */
-    if (vgetc_im_active)
-      *psave = B_IMODE_IM;
-    else if (*psave == B_IMODE_IM)
-      *psave = B_IMODE_NONE;
   }
 }
 #endif

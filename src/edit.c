@@ -18,7 +18,6 @@
 #define BACKSPACE_WORD_NOT_SPACE 3
 #define BACKSPACE_LINE 4
 
-int oneright2(int allowMoveToNull);
 static void ins_ctrl_v(void);
 #ifdef FEAT_JOB_CHANNEL
 static void init_prompt(int cmdchar_todo);
@@ -337,8 +336,6 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
    * actually changing anything.  It's put after the mode, if any.
    */
   context->i = 0;
-  if (p_smd && msg_silent == 0)
-    context->i = showmode();
 
   if (!p_im && did_restart_edit == 0)
     change_warning(context->i == 0 ? 0 : context->i + 1);
@@ -964,22 +961,7 @@ executionStatus_T state_edit_execute(void *ctx, int c)
              (has_mbyte && c >= 0x100) ? (c + ABBR_OFF) : c) &&
          c != Ctrl_RSB))
     {
-
-      if (acp_is_closing_pair(c) && (*ml_get_cursor() == c))
-      {
-        AppendCharToRedobuff(c);
-        oneright2(TRUE);
-      }
-      else
-      {
-        insert_special(c, FALSE, FALSE);
-        if (acp_is_opening_pair(c))
-        {
-          char_u close = acp_get_closing_character(c);
-          ins_char(close);
-          oneleft();
-        }
-      }
+      insert_special(c, FALSE, FALSE);
 #ifdef FEAT_RIGHTLEFT
       revins_legal++;
       revins_chars++;
@@ -1251,8 +1233,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
    * actually changing anything.  It's put after the mode, if any.
    */
   i = 0;
-  if (p_smd && msg_silent == 0)
-    i = showmode();
 
   if (!p_im && did_restart_edit == 0)
     change_warning(i == 0 ? 0 : i + 1);
@@ -2001,8 +1981,7 @@ void ins_redraw(int ready) // not busy with something
 
   if (must_redraw)
     update_screen(0);
-  else if (clear_cmdline || redraw_cmdline)
-    showmode(); /* clear cmdline and show mode */
+
   showruler(FALSE);
   setcursor();
   emsg_on_display = FALSE; /* may remove error message now */
@@ -2828,7 +2807,6 @@ void insertchar(int c,             /* character to insert or NUL */
   can_si_back = FALSE;
 #endif
 
-  /* LIBVIM todo - this breaks auto-closing pairs */
   /*
    * If there's any pending input, grab up to INPUT_BUFLEN at once.
    * This speeds up normal text input considerably.
@@ -2840,11 +2818,84 @@ void insertchar(int c,             /* character to insert or NUL */
    * Do the check for InsertCharPre before the call to vpeekc() because the
    * InsertCharPre autocommand could change the input buffer.
    */
-  ins_char(c);
-  if (flags & INSCHAR_CTRLV)
-    redo_literal(c);
+  if (!ISSPECIAL(c) && (!has_mbyte || (*mb_char2len)(c) == 1) &&
+      !has_insertcharpre() && vpeekc() != NUL && !(State & REPLACE_FLAG)
+#ifdef FEAT_RIGHTLEFT
+      && !p_ri
+#endif
+  )
+  {
+#define INPUT_BUFLEN 100
+    char_u buf[INPUT_BUFLEN + 1];
+    int i;
+    colnr_T virtcol = 0;
+
+    buf[0] = c;
+    i = 1;
+    if (textwidth > 0)
+      virtcol = get_nolist_virtcol();
+    /*
+     * Stop the string when:
+     * - no more chars available
+     * - finding a special character (command key)
+     * - buffer is full
+     * - running into the 'textwidth' boundary
+     * - need to check for abbreviation: A non-word char after a word-char
+     */
+    while ((c = vpeekc()) != NUL && !ISSPECIAL(c) &&
+           (!has_mbyte || MB_BYTE2LEN_CHECK(c) == 1) && i < INPUT_BUFLEN &&
+           (textwidth == 0 ||
+            (virtcol += byte2cells(buf[i - 1])) < (colnr_T)textwidth) &&
+           !(!no_abbr && !vim_iswordc(c) && vim_iswordc(buf[i - 1])))
+    {
+#ifdef FEAT_RIGHTLEFT
+      c = vgetc();
+      if (p_hkmap && KeyTyped)
+        c = hkmap(c); /* Hebrew mode mapping */
+      buf[i++] = c;
+#else
+      buf[i++] = vgetc();
+#endif
+    }
+
+#ifdef FEAT_DIGRAPHS
+    do_digraph(-1);         /* clear digraphs */
+    do_digraph(buf[i - 1]); /* may be the start of a digraph */
+#endif
+    buf[i] = NUL;
+    ins_str(buf);
+    if (flags & INSCHAR_CTRLV)
+    {
+      redo_literal(*buf);
+      i = 1;
+    }
+    else
+      i = 0;
+    if (buf[i] != NUL)
+      AppendToRedobuffLit(buf + i, -1);
+  }
   else
-    AppendCharToRedobuff(c);
+  {
+    int cc;
+
+    if (has_mbyte && (cc = (*mb_char2len)(c)) > 1)
+    {
+      char_u buf[MB_MAXBYTES + 1];
+
+      (*mb_char2bytes)(c, buf);
+      buf[cc] = NUL;
+      ins_char_bytes(buf, cc);
+      AppendCharToRedobuff(c);
+    }
+    else
+    {
+      ins_char(c);
+      if (flags & INSCHAR_CTRLV)
+        redo_literal(c);
+      else
+        AppendCharToRedobuff(c);
+    }
+  }
 }
 
 /*
@@ -3739,7 +3790,7 @@ void beginline(int flags)
  * Return OK when successful, FAIL when we hit a line of file boundary.
  */
 
-int oneright2(int allowMoveToNull)
+int oneright(void)
 {
   char_u *ptr;
   int l;
@@ -3772,17 +3823,12 @@ int oneright2(int allowMoveToNull)
 
   /* move "l" bytes right, but don't end up on the NUL, unless 'virtualedit'
    * contains "onemore". */
-  if (ptr[l] == NUL && (((ve_flags & VE_ONEMORE) == 0) && allowMoveToNull != TRUE))
+  if (ptr[l] == NUL && (ve_flags & VE_ONEMORE) == 0)
     return FAIL;
   curwin->w_cursor.col += l;
 
   curwin->w_set_curswant = TRUE;
   return OK;
-}
-
-int oneright(void)
-{
-  return oneright2(FALSE);
 }
 
 int oneleft(void)
@@ -4608,7 +4654,6 @@ static void ins_ctrl_hat(void)
     }
   }
   set_iminsert_global();
-  showmode();
 #if defined(FEAT_KEYMAP)
   /* Show/unshow value of 'keymap' in status lines. */
   status_redraw_curbuf();
@@ -4624,17 +4669,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
 {
   int temp;
   static int disabled_redraw = FALSE;
-
-#if defined(FEAT_HANGULIN)
-#if defined(ESC_CHG_TO_ENG_MODE)
-  hangul_input_state_set(0);
-#endif
-  if (composing_hangul)
-  {
-    push_raw_key(composing_hangul_buffer, 2);
-    composing_hangul = 0;
-  }
-#endif
 
   temp = curwin->w_cursor.col;
   if (disabled_redraw)
@@ -4723,13 +4757,6 @@ static int ins_esc(long *count, int cmdchar, int nomove) /* don't move cursor */
     /* Re-enable bracketed paste mode. */
     out_str(T_BE);
 
-  // When recording or for CTRL-O, need to display the new mode.
-  // Otherwise remove the mode message.
-  if (reg_recording != 0 || restart_edit != NUL)
-    showmode();
-  else if (p_smd && (got_int || !skip_showmode()))
-    msg("");
-
   return TRUE; /* exit Insert mode */
 }
 
@@ -4757,7 +4784,6 @@ static void ins_ctrl_(void)
   else
     revins_scol = -1;
   p_hkmap = curwin->w_p_rl ^ p_ri; // be consistent!
-  showmode();
 }
 #endif
 
@@ -4833,7 +4859,6 @@ static void ins_insert(int replaceState)
   else
     State = replaceState | (State & LANGMAP);
   AppendCharToRedobuff(K_INS);
-  showmode();
 }
 
 /*
@@ -5205,21 +5230,6 @@ static int ins_bs(int c, int mode, int *inserted_space_p)
        * happen when using 'sts' and 'linebreak'. */
       if (vcol >= start_vcol)
         ins_bs_one(&vcol);
-    }
-    else if (mode == BACKSPACE_CHAR && curwin->w_cursor.col > 0)
-    {
-      colnr_T vcol;
-      if (acp_is_cursor_between_pair())
-      {
-        getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
-        ins_bs_one(&vcol);
-        del_char(TRUE);
-      }
-      else
-      {
-        getvcol(curwin, &curwin->w_cursor, &vcol, NULL, NULL);
-        ins_bs_one(&vcol);
-      }
     }
 
     /*
@@ -5976,9 +5986,6 @@ int ins_eol(int c)
    * in open_line().
    */
 
-  int prev_indent = get_indent();
-  char_u cur = *ml_get_cursor();
-
   /* Put cursor on NUL if on the last char and coladd is 1 (happens after
    * CTRL-O). */
   if (virtual_active() && curwin->w_cursor.coladd > 0)
@@ -5998,22 +6005,6 @@ int ins_eol(int c)
 #endif
                                                0,
                 old_indent);
-
-  /* If a closing pair, and we pressed enter, split up lines */
-  if (acp_is_closing_pair(cur))
-  {
-    i = open_line(FORWARD,
-#ifdef FEAT_COMMENTS
-                  has_format_option(FO_RET_COMS) ? OPENLINE_DO_COM :
-#endif
-                                                 0,
-                  old_indent);
-
-    set_indent(prev_indent, SIN_INSERT);
-    cursor_up(1, FALSE);
-    shift_line(FALSE, p_sr, 1, FALSE);
-  }
-
   old_indent = 0;
 #ifdef FEAT_FOLDING
   /* When inserting a line the cursor line must never be in a closed fold. */

@@ -17,6 +17,8 @@ int onGoto(gotoRequest_T gotoRequest)
 
 void test_setup(void)
 {
+  vimSetGotoCallback(&onGoto);
+
   vimInput("<esc>");
   vimInput("<esc>");
 
@@ -32,6 +34,15 @@ void test_setup(void)
 }
 
 void test_teardown(void) {}
+
+MU_TEST(test_goto_no_callback)
+{
+  vimSetGotoCallback(NULL);
+  vimInput("g");
+  vimInput("d");
+
+  mu_check(gotoCount == 0);
+}
 
 MU_TEST(test_goto_definition)
 {
@@ -70,6 +81,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
+  MU_RUN_TEST(test_goto_no_callback);
   MU_RUN_TEST(test_goto_definition);
   MU_RUN_TEST(test_goto_declaration);
   //MU_RUN_TEST(test_goto_implementation);

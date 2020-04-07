@@ -54,7 +54,6 @@ char_u *get_history_entry(int histype, int idx);
 int clr_history(int histype);
 int del_history_entry(int histype, char_u *str);
 int del_history_idx(int histype, int idx);
-void remove_key_from_history(void);
 char_u *get_cmdline_str(void);
 int get_cmdline_pos(void);
 int set_cmdline_pos(int pos);

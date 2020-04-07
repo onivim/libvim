@@ -43,6 +43,7 @@ static void ex_bnext(exarg_T *eap);
 static void ex_bprevious(exarg_T *eap);
 static void ex_brewind(exarg_T *eap);
 static void ex_blast(exarg_T *eap);
+static void ex_terminal(exarg_T *eap);
 static char_u *getargcmd(char_u **);
 static char_u *skip_cmd_arg(char_u *p, int rembs);
 static int getargopt(exarg_T *eap);
@@ -308,11 +309,7 @@ static void ex_match(exarg_T *eap);
 #define ex_nohlsearch ex_ni
 #define ex_match ex_ni
 #endif
-#ifdef FEAT_CRYPT
-static void ex_X(exarg_T *eap);
-#else
 #define ex_X ex_ni
-#endif
 #ifdef FEAT_FOLDING
 static void ex_fold(exarg_T *eap);
 static void ex_foldopen(exarg_T *eap);
@@ -352,9 +349,6 @@ static void ex_folddo(exarg_T *eap);
 
 #ifndef FEAT_PROFILE
 #define ex_profile ex_ni
-#endif
-#ifndef FEAT_TERMINAL
-#define ex_terminal ex_ni
 #endif
 #if !defined(FEAT_X11) || !defined(FEAT_XCLIPBOARD)
 #define ex_xrestore ex_ni
@@ -3087,12 +3081,6 @@ find_command(exarg_T *eap, int *full UNUSED)
       int c1 = eap->cmd[0];
       int c2 = eap->cmd[1];
 
-      if (command_count != (int)CMD_SIZE)
-      {
-        iemsg(_("E943: Command table needs to be updated, run 'make cmdidxs'"));
-        getout(1);
-      }
-
       /* Use a precomputed index for fast look-up in cmdnames[]
 	     * taking into account the first 2 letters of eap->cmd. */
       eap->cmdidx = cmdidxs1[CharOrdLow(c1)];
@@ -3892,7 +3880,7 @@ set_one_cmd_context(
         }
         xp->xp_pattern = arg;
       }
-      xp->xp_context = compl;
+      xp->xp_context = compl ;
     }
     break;
 
@@ -7475,11 +7463,7 @@ ex_winpos(exarg_T *eap)
   if (*arg == NUL)
   {
 #if defined(MSWIN)
-#ifdef VIMDLL
-    if (gui.in_use ? gui_mch_get_winpos(&x, &y) != FAIL : mch_get_winpos(&x, &y) != FAIL)
-#else
     if (mch_get_winpos(&x, &y) != FAIL)
-#endif
     {
       sprintf((char *)IObuff, _("Window position: X %d, Y %d"), x, y);
       msg((char *)IObuff);
@@ -7499,9 +7483,6 @@ ex_winpos(exarg_T *eap)
       emsg(_("E466: :winpos requires two number arguments"));
       return;
     }
-#if defined(MSWIN) && (defined(VIMDLL))
-    mch_set_winpos(x, y);
-#endif
 #ifdef HAVE_TGETENT
     if (*T_CWP)
       term_set_winpos(x, y);
@@ -7946,12 +7927,6 @@ void ex_redraw(exarg_T *eap)
   validate_cursor();
   update_topline();
   update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
-#if defined(MSWIN) && (defined(VIMDLL))
-#ifdef VIMDLL
-  if (!gui.in_use)
-#endif
-    resize_console_buf();
-#endif
   RedrawingDisabled = r;
   p_lz = p;
 
@@ -10446,18 +10421,6 @@ ex_match(exarg_T *eap)
 }
 #endif
 
-#ifdef FEAT_CRYPT
-/*
- * ":X": Get crypt key
- */
-static void
-ex_X(exarg_T *eap UNUSED)
-{
-  crypt_check_current_method();
-  (void)crypt_get_key(TRUE, TRUE);
-}
-#endif
-
 #ifdef FEAT_FOLDING
 static void
 ex_fold(exarg_T *eap)
@@ -10501,6 +10464,146 @@ int is_loclist_cmd(int cmdidx)
   return cmdnames[cmdidx].cmd_name[0] == 'l';
 }
 #endif
+
+void ex_terminal(exarg_T *eap)
+{
+  //typval_T argvar[2];
+  jobopt_T opt;
+  char_u *cmd;
+  char_u *tofree = NULL;
+
+  //clear_job_options(opt);
+  vim_memset(&opt, 0, sizeof(jobopt_T));
+  opt.jo_mode = MODE_RAW;
+  opt.jo_out_mode = MODE_RAW;
+  opt.jo_err_mode = MODE_RAW;
+  opt.jo_set = JO_MODE | JO_OUT_MODE | JO_ERR_MODE;
+  //init_job_options(&opt);
+
+  cmd = eap->arg;
+  while (*cmd == '+' && *(cmd + 1) == '+')
+  {
+    char_u *p, *ep;
+
+    cmd += 2;
+    p = skiptowhite(cmd);
+    ep = vim_strchr(cmd, '=');
+    if (ep != NULL && ep < p)
+      p = ep;
+
+    if ((int)(p - cmd) == 5 && STRNICMP(cmd, "close", 5) == 0)
+      opt.jo_term_finish = 'c';
+    else if ((int)(p - cmd) == 7 && STRNICMP(cmd, "noclose", 7) == 0)
+      opt.jo_term_finish = 'n';
+    else if ((int)(p - cmd) == 4 && STRNICMP(cmd, "open", 4) == 0)
+      opt.jo_term_finish = 'o';
+    else if ((int)(p - cmd) == 6 && STRNICMP(cmd, "curwin", 6) == 0)
+      opt.jo_curwin = 1;
+    else if ((int)(p - cmd) == 6 && STRNICMP(cmd, "hidden", 6) == 0)
+      opt.jo_hidden = 1;
+    else if ((int)(p - cmd) == 9 && STRNICMP(cmd, "norestore", 9) == 0)
+      opt.jo_term_norestore = 1;
+    else if ((int)(p - cmd) == 4 && STRNICMP(cmd, "kill", 4) == 0 && ep != NULL)
+    {
+      opt.jo_set2 |= JO2_TERM_KILL;
+      opt.jo_term_kill = ep + 1;
+      p = skiptowhite(cmd);
+    }
+    else if ((int)(p - cmd) == 4 && STRNICMP(cmd, "rows", 4) == 0 && ep != NULL && isdigit(ep[1]))
+    {
+      opt.jo_set2 |= JO2_TERM_ROWS;
+      opt.jo_term_rows = atoi((char *)ep + 1);
+      p = skiptowhite(cmd);
+    }
+    else if ((int)(p - cmd) == 4 && STRNICMP(cmd, "cols", 4) == 0 && ep != NULL && isdigit(ep[1]))
+    {
+      opt.jo_set2 |= JO2_TERM_COLS;
+      opt.jo_term_cols = atoi((char *)ep + 1);
+      p = skiptowhite(cmd);
+    }
+    else if ((int)(p - cmd) == 3 && STRNICMP(cmd, "eof", 3) == 0 && ep != NULL)
+    {
+      char_u *buf = NULL;
+      char_u *keys;
+
+      p = skiptowhite(cmd);
+      *p = NUL;
+      keys = replace_termcodes(ep + 1, &buf, TRUE, TRUE, TRUE);
+      opt.jo_set2 |= JO2_EOF_CHARS;
+      opt.jo_eof_chars = vim_strsave(keys);
+      vim_free(buf);
+      *p = ' ';
+    }
+#ifdef MSWIN
+    else if ((int)(p - cmd) == 4 && STRNICMP(cmd, "type", 4) == 0 && ep != NULL)
+    {
+      int tty_type = NUL;
+
+      p = skiptowhite(cmd);
+      if (STRNICMP(ep + 1, "winpty", p - (ep + 1)) == 0)
+        tty_type = 'w';
+      else if (STRNICMP(ep + 1, "conpty", p - (ep + 1)) == 0)
+        tty_type = 'c';
+      else
+      {
+        semsg(e_invargval, "type");
+        goto theend;
+      }
+      opt.jo_set2 |= JO2_TTY_TYPE;
+      opt.jo_tty_type = tty_type;
+    }
+#endif
+    else
+    {
+      if (*p)
+        *p = NUL;
+      semsg(_("E181: Invalid attribute: %s"), cmd);
+      goto theend;
+    }
+    cmd = skipwhite(p);
+  }
+  if (*cmd == NUL)
+  {
+    /* Make a copy of 'shell', an autocommand may change the option. */
+    tofree = cmd = vim_strsave(p_sh);
+
+    /* default to close when the shell exits */
+    if (opt.jo_term_finish == NUL)
+      opt.jo_term_finish = 'c';
+  }
+
+  if (eap->addr_count > 0)
+  {
+    /* Write lines from current buffer to the job. */
+    opt.jo_set |= JO_IN_IO | JO_IN_BUF | JO_IN_TOP | JO_IN_BOT;
+    //opt.jo_io[PART_IN] = JIO_BUFFER;
+    //opt.jo_io_buf[PART_IN] = curbuf->b_fnum;
+    opt.jo_in_top = eap->line1;
+    opt.jo_in_bot = eap->line2;
+  }
+
+  /*argvar[0].v_type = VAR_STRING;
+  argvar[0].vval.v_string = cmd;
+  argvar[1].v_type = VAR_UNKNOWN;*/
+
+  if (terminalCallback)
+  {
+    terminalRequest_t *pRequest = malloc(sizeof(terminalRequest_t));
+    pRequest->rows = opt.jo_term_rows;
+    pRequest->cols = opt.jo_term_cols;
+    pRequest->finish = opt.jo_term_finish;
+    pRequest->curwin = opt.jo_curwin;
+    pRequest->hidden = opt.jo_hidden;
+    pRequest->cmd = cmd;
+
+    terminalCallback(pRequest);
+    free(pRequest);
+  }
+  vim_free(tofree);
+
+theend:
+  vim_free(opt.jo_eof_chars);
+}
 
 #if defined(FEAT_TIMERS) || defined(PROTO)
 int get_pressedreturn(void)

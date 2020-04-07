@@ -2146,7 +2146,6 @@ vgetorpeek(int advance)
               }
               status_redraw_all();
               redraw_statuslines();
-              showmode();
               setcursor();
               continue;
             }
@@ -2387,7 +2386,6 @@ vgetorpeek(int advance)
 
           if (mode_displayed)
           {
-            unshowmode(TRUE);
             mode_deleted = TRUE;
           }
           validate_cursor();
@@ -2532,7 +2530,7 @@ vgetorpeek(int advance)
 
           /* this looks nice when typing a dead character map */
           if ((State & CMDLINE)
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
               && cmdline_star == 0
 #endif
               && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)
@@ -2594,11 +2592,6 @@ vgetorpeek(int advance)
         { /* allow mapping for just typed characters */
           while (typebuf.tb_buf[typebuf.tb_off + typebuf.tb_len] != NUL)
             typebuf.tb_noremap[typebuf.tb_off + typebuf.tb_len++] = RM_YES;
-#ifdef HAVE_INPUT_METHOD
-          /* Get IM status right after getting keys, not after the
-		     * timeout for a mapping (focus may be lost by then). */
-          vgetc_im_active = im_get_status();
-#endif
         }
       } /* for (;;) */
     }   /* if (!character from stuffbuf) */
@@ -2617,15 +2610,11 @@ vgetorpeek(int advance)
     {
       if (typebuf.tb_len && !KeyTyped)
         redraw_cmdline = TRUE; /* delete mode later */
-      else
-        unshowmode(FALSE);
     }
     else if (c != ESC && mode_deleted)
     {
       if (typebuf.tb_len && !KeyTyped)
         redraw_cmdline = TRUE; /* show mode later */
-      else
-        showmode();
     }
   }
   if (timedout && c == ESC)
@@ -2801,16 +2790,7 @@ int fix_input_buffer(char_u *buf, int len)
   {
     if (p[0] == NUL || (p[0] == K_SPECIAL
                         // timeout may generate K_CURSORHOLD
-                        && (i < 2 || p[1] != KS_EXTRA || p[2] != (int)KE_CURSORHOLD)
-#if defined(MSWIN) && (defined(VIMDLL))
-                        // Win32 console passes modifiers
-                        && (
-#ifdef VIMDLL
-                               gui.in_use ||
-#endif
-                               (i < 2 || p[1] != KS_MODIFIER))
-#endif
-                            ))
+                        && (i < 2 || p[1] != KS_EXTRA || p[2] != (int)KE_CURSORHOLD)))
     {
       mch_memmove(p + 3, p + 1, (size_t)i);
       p[2] = K_THIRD(p[0]);
@@ -4881,25 +4861,6 @@ struct initmap
   int mode;
 };
 
-#if defined(MSWIN) && (defined(VIMDLL))
-/* Use the Windows (CUA) keybindings. (Console) */
-static struct initmap cinitmappings[] =
-    {
-        {(char_u *)"\316w <C-Home>", NORMAL + VIS_SEL},
-        {(char_u *)"\316w <C-Home>", INSERT + CMDLINE},
-        {(char_u *)"\316u <C-End>", NORMAL + VIS_SEL},
-        {(char_u *)"\316u <C-End>", INSERT + CMDLINE},
-
-        /* paste, copy and cut */
-        {(char_u *)"\316\324 P", NORMAL},          /* SHIFT-Insert is P */
-        {(char_u *)"\316\324 \"-dP", VIS_SEL},     /* SHIFT-Insert is "-dP */
-        {(char_u *)"\316\324 \022\017\"", INSERT}, /* SHIFT-Insert is ^R^O" */
-        {(char_u *)"\316\325 y", VIS_SEL},         /* CTRL-Insert is y */
-        {(char_u *)"\316\327 d", VIS_SEL},         /* SHIFT-Del is d */
-        {(char_u *)"\316\330 d", VIS_SEL},         /* CTRL-Del is d */
-};
-#endif
-
 #if defined(MACOS_X)
 static struct initmap initmappings[] =
     {
@@ -4923,16 +4884,6 @@ static struct initmap initmappings[] =
 void init_mappings(void)
 {
 #if defined(MSWIN) || defined(MACOS_X)
-#if defined(MSWIN) && (defined(VIMDLL))
-#ifdef VIMDLL
-  if (!gui.starting)
-#endif
-  {
-    for (int i = 0;
-         i < (int)(sizeof(cinitmappings) / sizeof(struct initmap)); ++i)
-      add_map(cinitmappings[i].arg, cinitmappings[i].mode);
-  }
-#endif
 #if defined(MACOS_X)
   for (int i = 0; i < (int)(sizeof(initmappings) / sizeof(struct initmap)); ++i)
     add_map(initmappings[i].arg, initmappings[i].mode);

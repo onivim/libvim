@@ -87,19 +87,24 @@ typedef struct
   gotoTarget_T target;
 } gotoRequest_T;
 
+typedef struct
+{
+  char_u *cmd;
+  int rows;
+  int cols;
+  int curwin;
+  char finish;
+  int hidden;
+} terminalRequest_t;
+
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
 typedef void (*CursorAddCallback)(pos_T cursor);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
+typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
-
-typedef struct
-{
-  char open;
-  char close;
-} autoClosingPair_T;
 
 typedef struct
 {
@@ -454,19 +459,23 @@ struct u_header
 {
   /* The following have a pointer and a number. The number is used when
      * reading the undo file in u_read_undo() */
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next undo header in list */
     long seq;
   } uh_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header in list */
     long seq;
   } uh_prev;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to next header for alt. redo */
     long seq;
   } uh_alt_next;
-  union {
+  union
+  {
     u_header_T *ptr; /* pointer to previous header for alt. redo */
     long seq;
   } uh_alt_prev;
@@ -693,11 +702,8 @@ typedef struct
 #ifdef FEAT_BROWSE_CMD
   int browse; /* TRUE to invoke file dialog */
 #endif
-  int split; /* flags for win_split() */
-  int tab;   /* > 0 when ":tab" was used */
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-  int confirm; /* TRUE to invoke yes/no dialog */
-#endif
+  int split;                  /* flags for win_split() */
+  int tab;                    /* > 0 when ":tab" was used */
   int keepalt;                /* TRUE when ":keepalt" was used */
   int keepmarks;              /* TRUE when ":keepmarks" was used */
   int keepjumps;              /* TRUE when ":keepjumps" was used */
@@ -731,16 +737,6 @@ struct memfile
   blocknr_T mf_infile_count;  // number of pages in the file
   unsigned mf_page_size;      // number of bytes in a page
   int mf_dirty;               // TRUE if there are dirty blocks
-#ifdef FEAT_CRYPT
-  buf_T *mf_buffer;            // buffer this memfile is for
-  char_u mf_seed[MF_SEED_LEN]; // seed for encryption
-
-  // Values for key, method and seed used for reading data blocks when
-  // updating for a newly set key or method. Only when mf_old_key != NULL.
-  char_u *mf_old_key;
-  int mf_old_cm;
-  char_u mf_old_seed[MF_SEED_LEN];
-#endif
 };
 
 /*
@@ -931,7 +927,8 @@ struct condstack
 {
   short cs_flags[CSTACK_LEN];  /* CSF_ flags */
   char cs_pending[CSTACK_LEN]; /* CSTP_: what's pending in ":finally"*/
-  union {
+  union
+  {
     void *csp_rv[CSTACK_LEN]; /* return typeval for pending return */
     void *csp_ex[CSTACK_LEN]; /* exception for pending throw */
   } cs_pend;
@@ -1039,7 +1036,8 @@ struct cleanup_stuff
 typedef struct attr_entry
 {
   short ae_attr; /* HL_BOLD, etc. */
-  union {
+  union
+  {
     struct
     {
       char_u *start; /* start escape sequence */
@@ -1051,18 +1049,6 @@ typedef struct attr_entry
       short_u fg_color; /* foreground color number */
       short_u bg_color; /* background color number */
     } cterm;
-#ifdef FEAT_GUI
-    struct
-    {
-      guicolor_T fg_color; /* foreground color handle */
-      guicolor_T bg_color; /* background color handle */
-      guicolor_T sp_color; /* special color handle */
-      GuiFont font;        /* font handle */
-#ifdef FEAT_XFONTSET
-      GuiFontset fontset; /* fontset handle */
-#endif
-    } gui;
-#endif
   } ae_u;
 } attrentry_T;
 
@@ -1317,7 +1303,8 @@ typedef struct
 {
   vartype_T v_type;
   char v_lock; /* see below: VAR_LOCKED, VAR_FIXED */
-  union {
+  union
+  {
     varnumber_T v_number; /* number value */
 #ifdef FEAT_FLOAT
     float_T v_float; /* floating number value */
@@ -1714,13 +1701,6 @@ typedef struct
   int ch_poll_idx; /* used by channel_poll_setup() */
 #endif
 
-#ifdef FEAT_GUI_X11
-  XtInputId ch_inputHandler; /* Cookie for input */
-#endif
-#ifdef FEAT_GUI_GTK
-  gint ch_inputHandler; /* Cookie for input */
-#endif
-
   ch_mode_T ch_mode;
   job_io_T ch_io;
   int ch_timeout; /* request timeout in msec */
@@ -1906,7 +1886,6 @@ typedef struct
   char_u jo_cwd_buf[NUMBUFLEN];
   char_u *jo_cwd;
 
-#ifdef FEAT_TERMINAL
   /* when non-zero run the job in a terminal window of this size */
   int jo_term_rows;
   int jo_term_cols;
@@ -1919,11 +1898,7 @@ typedef struct
   int jo_term_finish;
   char_u *jo_eof_chars;
   char_u *jo_term_kill;
-#if defined(FEAT_GUI)
-  long_u jo_ansi_colors[16];
-#endif
   int jo_tty_type; // first character of "tty_type"
-#endif
 } jobopt_T;
 
 #ifdef FEAT_EVAL
@@ -2004,28 +1979,6 @@ struct timer_S
   int tr_emsg_count;
 #endif
 };
-
-#ifdef FEAT_CRYPT
-/*
- * Structure to hold the type of encryption and the state of encryption or
- * decryption.
- */
-typedef struct
-{
-  int method_nr;
-  void *method_state; /* method-specific state information */
-} cryptstate_T;
-
-/* values for method_nr */
-#define CRYPT_M_ZIP 0
-#define CRYPT_M_BF 1
-#define CRYPT_M_BF2 2
-#define CRYPT_M_COUNT 3 /* number of crypt methods */
-
-// Currently all crypt methods work inplace.  If one is added that isn't then
-// define this.
-//  # define CRYPT_NOT_INPLACE 1
-#endif
 
 /*
  * These are items normally related to a buffer.  But when using ":ownsyntax"
@@ -2420,6 +2373,8 @@ struct file_buffer
 #ifdef FEAT_DIFF
   int b_diff_failed; // internal diff failed for this buffer
 #endif
+
+  char_u *b_oni_line_comment;
 }; /* file_buffer */
 
 /* buffer updates */
@@ -2496,13 +2451,8 @@ struct tabpage_S
   long tp_old_Columns;  // Columns when Tab page was left
   long tp_ch_used;      // value of 'cmdheight' when frame size
                         // was set
-#ifdef FEAT_GUI
-  int tp_prev_which_scrollbars[3];
-  // previous value of which_scrollbars
-#endif
-
-  char_u *tp_localdir; // absolute path of local directory or
-                       // NULL
+  char_u *tp_localdir;  // absolute path of local directory or
+                        // NULL
 #ifdef FEAT_DIFF
   diff_T *tp_first_diff;
   buf_T *(tp_diffbuf[DB_COUNT]);
@@ -2900,9 +2850,6 @@ struct window_S
   int w_fraction;
   int w_prev_fraction_row;
 
-#ifdef FEAT_GUI
-  scrollbar_T w_scrollbars[2]; /* vert. Scrollbars for this window */
-#endif
 #ifdef FEAT_LINEBREAK
   linenr_T w_nrwidth_line_count; /* line count when ml_nrwidth_width
 					 * was computed. */
@@ -3148,12 +3095,9 @@ typedef struct
 #endif
 
   int want_full_screen;
-  int not_a_term; /* no warning for missing term? */
-  int tty_fail;   /* exit if not a tty */
-  char_u *term;   /* specified terminal name */
-#ifdef FEAT_CRYPT
-  int ask_for_key; /* -x argument */
-#endif
+  int not_a_term;   /* no warning for missing term? */
+  int tty_fail;     /* exit if not a tty */
+  char_u *term;     /* specified terminal name */
   int no_swap_file; /* "-n" argument used */
 #ifdef FEAT_EVAL
   int use_debug_break_level;

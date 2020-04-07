@@ -38,6 +38,12 @@ long vimBufferGetLastChangedTick(buf_T *buf) { return CHANGEDTICK(buf); }
 
 int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 
+int vimBufferGetModifiable(buf_T *buf) { return buf->b_p_ma; }
+void vimBufferSetModifiable(buf_T *buf, int modifiable) { buf->b_p_ma = modifiable; }
+
+int vimBufferGetReadOnly(buf_T *buf) { return buf->b_p_ro; }
+void vimBufferSetReadOnly(buf_T *buf, int readonly) { buf->b_p_ro = readonly; }
+
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 {
   char_u *result = ml_get_buf(buf, lnum, FALSE);
@@ -45,6 +51,52 @@ char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum)
 }
 
 size_t vimBufferGetLineCount(buf_T *buf) { return buf->b_ml.ml_line_count; }
+
+void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count)
+{
+  int originalLineCount = vimBufferGetLineCount(buf);
+  if (end == -1)
+  {
+    end = originalLineCount;
+  }
+
+  // Append in reverse order... find more efficient strategy though
+  // We append first, because `ml_delete_buf` can't delete the last line,
+  // for replacing entire an buffer contents
+  for (int i = count - 1; i >= 0; i--)
+  {
+    ml_append_buf(buf, start, lines[i], 0, FALSE);
+  }
+
+  int deleteCount = end - start;
+  int deleteStart = start + count + 1;
+  int deleteEnd = deleteStart + deleteCount;
+
+  // Delete from end to start
+  for (int i = deleteStart; i < deleteEnd; i++)
+  {
+    ml_delete_buf(buf, deleteStart, FALSE);
+  }
+
+  changed_lines_buf(buf, start, end, (end - start) - count);
+
+  ++CHANGEDTICK(buf);
+
+  if (bufferUpdateCallback != NULL)
+  {
+
+    int newLineCount = vimBufferGetLineCount(buf);
+    int lnum = start == 0 ? 1 : start;
+    int lnume = end == 0 ? 1 : end + 1;
+    int xtra = newLineCount - originalLineCount;
+    bufferUpdate_T bufferUpdate;
+    bufferUpdate.buf = buf;
+    bufferUpdate.lnum = lnum;
+    bufferUpdate.lnume = lnume;
+    bufferUpdate.xtra = xtra;
+    bufferUpdateCallback(bufferUpdate);
+  }
+}
 
 void vimSetBufferUpdateCallback(BufferUpdateCallback f)
 {
@@ -64,6 +116,11 @@ void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
 void vimSetMessageCallback(MessageCallback f)
 {
   messageCallback = f;
+}
+
+void vimSetTerminalCallback(TerminalCallback f)
+{
+  terminalCallback = f;
 }
 
 void vimSetWindowSplitCallback(WindowSplitCallback f)
@@ -311,6 +368,17 @@ void vimOptionSetInsertSpaces(int insertSpaces)
   if (!insertSpaces)
   {
     curbuf->b_p_sts = 0;
+  }
+}
+
+void vimOptionSetLineComment(const char_u *str)
+{
+  vim_free(curbuf->b_oni_line_comment);
+  curbuf->b_oni_line_comment = (char_u *)alloc(STRLEN(str) + 1);
+
+  if (curbuf->b_oni_line_comment != NULL)
+  {
+    strcpy(curbuf->b_oni_line_comment, str);
   }
 }
 

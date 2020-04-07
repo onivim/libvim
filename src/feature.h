@@ -420,23 +420,12 @@
 #endif
 #endif
 
-#ifdef FEAT_NORMAL
-#define FEAT_SMARTINDENT
-#endif
-
 /*
  * +comments		'comments' option.
  */
 #ifdef FEAT_NORMAL
 #define FEAT_COMMENTS
 #endif
-
-/*
- * +cryptv		Encryption (by Mohsin Ahmed <mosh@sasi.com>).
- */
-/* #if defined(FEAT_NORMAL) && !defined(FEAT_CRYPT) || defined(PROTO) */
-/* # define FEAT_CRYPT */
-/* #endif */
 
 /*
  * +mksession		":mksession" command.
@@ -468,28 +457,11 @@
 #define USE_ICONV
 #endif
 
-// clang-format off
-#ifdef FEAT_HANGULIN
-#define HANGUL_DEFAULT_KEYBOARD 2 /* 2 or 3 bulsik keyboard */
-#define ESC_CHG_TO_ENG_MODE       /* if defined, when ESC pressed, \
-                                   * turn to english mode          \
-                                   */
-#if defined(FEAT_XIM) && !defined(LINT)
-Error : You should select only ONE of XIM and HANGUL INPUT
-#endif
-#endif
-// clang-format on
-
-#if defined(FEAT_HANGULIN)
-/* # define X_LOCALE */ /* for OS with incomplete locale
-					   support, like old linux versions. */
-#endif
-
 /*
  * +xfontset		X fontset support.  For outputting wide characters.
  */
 #ifndef FEAT_XFONTSET
-#if defined(HAVE_X11) && !defined(FEAT_GUI_GTK)
+#if defined(HAVE_X11)
 #define FEAT_XFONTSET
 #else
 /* #  define FEAT_XFONTSET */
@@ -803,7 +775,7 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 /*
  * +filterpipe
  */
-#if (defined(UNIX) && !defined(USE_SYSTEM)) || (defined(MSWIN) && defined(FEAT_GUI_MSWIN))
+#if defined(UNIX) && !defined(USE_SYSTEM)
 #define FEAT_FILTERPIPE
 #endif
 
@@ -819,7 +791,9 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_CLIENTSERVER
 #undef FEAT_CMDWIN
 #undef FEAT_CONCEAL
-#undef FEAT_CRYPT
+#undef FEAT_SMARTINDENT
+#undef FEAT_TERMINAL
+
 /*
  * +footer		Motif only: Add a message area at the bottom of the
  *			main window area.
@@ -827,25 +801,12 @@ Error : You should select only ONE of XIM and HANGUL INPUT
 #undef FEAT_FOOTER
 #undef FEAT_INS_EXPAND
 #undef FEAT_LISP
-#undef HAVE_INPUT_METHOD
-#undef IME_WITHOUT_XIM
 
 /* We externalize clipboard integration, so the `libvim`
  * consumer can decide how `*` and `+` behave.
  */
 #undef FEAT_CLIPBOARD
 
-/* GUI features */
-#undef FEAT_CON_DIALOG
-#undef FEAT_GUI
-#undef FEAT_GUI_DIALOG
-#undef FEAT_GUI_GTK
-#undef FEAT_GUI_MSWIN
-#undef FEAT_GUI_MAC
-#undef FEAT_GUI_X11
-#undef ALWAYS_USE_GUI
-
-#undef FEAT_TEXT_PROP
 /*
  * The Netbeans feature
  */
@@ -860,4 +821,3 @@ Error : You should select only ONE of XIM and HANGUL INPUT
  * +vtp: Win32 virtual console.
  */
 #undef FEAT_VTP
-#undef FEAT_XIM

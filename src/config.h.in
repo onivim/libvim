@@ -396,15 +396,6 @@
 /* Define if you want to include fontset support. */
 #undef FEAT_XFONTSET
 
-/* Define if you want to include XIM support. */
-#undef FEAT_XIM
-
-/* Define if you want to include Hangul input support. */
-#undef FEAT_HANGULIN
-
-/* Define if you use GTK and want GNOME support. */
-#undef FEAT_GUI_GNOME
-
 /* Define if you use KDE and want KDE Toolbar support. */
 #undef FEAT_KDETOOLBAR
 

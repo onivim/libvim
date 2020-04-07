@@ -92,12 +92,6 @@ typedef struct
 {
   buf_T *bi_buf;
   FILE *bi_fp;
-#ifdef FEAT_CRYPT
-  cryptstate_T *bi_state;
-  char_u *bi_buffer; /* CRYPT_BUF_SIZE, NULL when not buffering */
-  size_t bi_used;    /* bytes written to/read from bi_buffer */
-  size_t bi_avail;   /* bytes available in bi_buffer */
-#endif
 } bufinfo_T;
 
 static void u_unch_branch(u_header_T *uhp);
@@ -112,9 +106,6 @@ static void u_freebranch(buf_T *buf, u_header_T *uhp, u_header_T **uhpp);
 static void u_freeentries(buf_T *buf, u_header_T *uhp, u_header_T **uhpp);
 static void u_freeentry(u_entry_T *, long);
 #ifdef FEAT_PERSISTENT_UNDO
-#ifdef FEAT_CRYPT
-static int undo_flush(bufinfo_T *bi);
-#endif
 static int undo_read(bufinfo_T *bi, char_u *buffer, size_t size);
 static int serialize_uep(bufinfo_T *bi, u_entry_T *uep);
 static u_entry_T *unserialize_uep(bufinfo_T *bi, int *error, char_u *file_name);
@@ -853,82 +844,9 @@ u_free_uhp(u_header_T *uhp)
 static int
 undo_write(bufinfo_T *bi, char_u *ptr, size_t len)
 {
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
-  {
-    size_t len_todo = len;
-    char_u *p = ptr;
-
-    while (bi->bi_used + len_todo >= CRYPT_BUF_SIZE)
-    {
-      size_t n = CRYPT_BUF_SIZE - bi->bi_used;
-
-      mch_memmove(bi->bi_buffer + bi->bi_used, p, n);
-      len_todo -= n;
-      p += n;
-      bi->bi_used = CRYPT_BUF_SIZE;
-      if (undo_flush(bi) == FAIL)
-        return FAIL;
-    }
-    if (len_todo > 0)
-    {
-      mch_memmove(bi->bi_buffer + bi->bi_used, p, len_todo);
-      bi->bi_used += len_todo;
-    }
-    return OK;
-  }
-#endif
   if (fwrite(ptr, len, (size_t)1, bi->bi_fp) != 1)
     return FAIL;
   return OK;
-}
-
-#ifdef FEAT_CRYPT
-static int
-undo_flush(bufinfo_T *bi)
-{
-  if (bi->bi_buffer != NULL && bi->bi_state != NULL && bi->bi_used > 0)
-  {
-    crypt_encode_inplace(bi->bi_state, bi->bi_buffer, bi->bi_used);
-    if (fwrite(bi->bi_buffer, bi->bi_used, (size_t)1, bi->bi_fp) != 1)
-      return FAIL;
-    bi->bi_used = 0;
-  }
-  return OK;
-}
-#endif
-
-/*
- * Write "ptr[len]" and crypt the bytes when needed.
- * Returns OK or FAIL.
- */
-static int
-fwrite_crypt(bufinfo_T *bi, char_u *ptr, size_t len)
-{
-#ifdef FEAT_CRYPT
-  char_u *copy;
-  char_u small_buf[100];
-  size_t i;
-
-  if (bi->bi_state != NULL && bi->bi_buffer == NULL)
-  {
-    /* crypting every piece of text separately */
-    if (len < 100)
-      copy = small_buf; /* no malloc()/free() for short strings */
-    else
-    {
-      copy = lalloc(len, FALSE);
-      if (copy == NULL)
-        return 0;
-    }
-    crypt_encode(bi->bi_state, ptr, len, copy);
-    i = fwrite(copy, len, (size_t)1, bi->bi_fp);
-    if (copy != small_buf)
-      vim_free(copy);
-    return i == 1 ? OK : FAIL;
-  }
-#endif
-  return undo_write(bi, ptr, len);
 }
 
 /*
@@ -958,74 +876,6 @@ put_header_ptr(bufinfo_T *bi, u_header_T *uhp)
   undo_write_bytes(bi, (long_u)(uhp != NULL ? uhp->uh_seq : 0), 4);
 }
 
-static int
-undo_read_4c(bufinfo_T *bi)
-{
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
-  {
-    char_u buf[4];
-    int n;
-
-    undo_read(bi, buf, (size_t)4);
-    n = ((unsigned)buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
-    return n;
-  }
-#endif
-  return get4c(bi->bi_fp);
-}
-
-static int
-undo_read_2c(bufinfo_T *bi)
-{
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
-  {
-    char_u buf[2];
-    int n;
-
-    undo_read(bi, buf, (size_t)2);
-    n = (buf[0] << 8) + buf[1];
-    return n;
-  }
-#endif
-  return get2c(bi->bi_fp);
-}
-
-static int
-undo_read_byte(bufinfo_T *bi)
-{
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
-  {
-    char_u buf[1];
-
-    undo_read(bi, buf, (size_t)1);
-    return buf[0];
-  }
-#endif
-  return getc(bi->bi_fp);
-}
-
-static time_t
-undo_read_time(bufinfo_T *bi)
-{
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
-  {
-    char_u buf[8];
-    time_t n = 0;
-    int i;
-
-    undo_read(bi, buf, (size_t)8);
-    for (i = 0; i < 8; ++i)
-      n = (n << 8) + buf[i];
-    return n;
-  }
-#endif
-  return get8ctime(bi->bi_fp);
-}
-
 /*
  * Read "buffer[size]" from the undo file.
  * Return OK or FAIL.
@@ -1033,49 +883,15 @@ undo_read_time(bufinfo_T *bi)
 static int
 undo_read(bufinfo_T *bi, char_u *buffer, size_t size)
 {
-  int retval = OK;
-
-#ifdef FEAT_CRYPT
-  if (bi->bi_buffer != NULL)
+  if (fread(buffer, (size_t)size, 1, bi->bi_fp) != 1)
   {
-    int size_todo = (int)size;
-    char_u *p = buffer;
-
-    while (size_todo > 0)
-    {
-      size_t n;
-
-      if (bi->bi_used >= bi->bi_avail)
-      {
-        n = fread(bi->bi_buffer, 1, (size_t)CRYPT_BUF_SIZE, bi->bi_fp);
-        if (n == 0)
-        {
-          retval = FAIL;
-          break;
-        }
-        bi->bi_avail = n;
-        bi->bi_used = 0;
-        crypt_decode_inplace(bi->bi_state, bi->bi_buffer, bi->bi_avail);
-      }
-      n = size_todo;
-      if (n > bi->bi_avail - bi->bi_used)
-        n = bi->bi_avail - bi->bi_used;
-      mch_memmove(p, bi->bi_buffer + bi->bi_used, n);
-      bi->bi_used += n;
-      size_todo -= (int)n;
-      p += n;
-    }
-  }
-  else
-#endif
-      if (fread(buffer, (size_t)size, 1, bi->bi_fp) != 1)
-    retval = FAIL;
-
-  if (retval == FAIL)
     /* Error may be checked for only later.  Fill with zeros,
-	 * so that the reader won't use garbage. */
+	   * so that the reader won't use garbage. */
     vim_memset(buffer, 0, size);
-  return retval;
+    return FAIL;
+  }
+
+  return OK;
 }
 
 /*
@@ -1100,10 +916,6 @@ read_string_decrypt(bufinfo_T *bi, int len)
     // In case there are text properties there already is a NUL, but
     // checking for that is more expensive than just adding a dummy byte.
     ptr[len] = NUL;
-#ifdef FEAT_CRYPT
-    if (bi->bi_state != NULL && bi->bi_buffer == NULL)
-      crypt_decode_inplace(bi->bi_state, ptr, len);
-#endif
   }
   return ptr;
 }
@@ -1123,43 +935,7 @@ serialize_header(bufinfo_T *bi, char_u *hash)
   if (fwrite(UF_START_MAGIC, (size_t)UF_START_MAGIC_LEN, (size_t)1, fp) != 1)
     return FAIL;
 
-    /* If the buffer is encrypted then all text bytes following will be
-     * encrypted.  Numbers and other info is not crypted. */
-#ifdef FEAT_CRYPT
-  if (*buf->b_p_key != NUL)
-  {
-    char_u *header;
-    int header_len;
-
-    undo_write_bytes(bi, (long_u)UF_VERSION_CRYPT, 2);
-    bi->bi_state = crypt_create_for_writing(crypt_get_method_nr(buf),
-                                            buf->b_p_key, &header, &header_len);
-    if (bi->bi_state == NULL)
-      return FAIL;
-    len = (long)fwrite(header, (size_t)header_len, (size_t)1, fp);
-    vim_free(header);
-    if (len != 1)
-    {
-      crypt_free_state(bi->bi_state);
-      bi->bi_state = NULL;
-      return FAIL;
-    }
-
-    if (crypt_whole_undofile(crypt_get_method_nr(buf)))
-    {
-      bi->bi_buffer = alloc(CRYPT_BUF_SIZE);
-      if (bi->bi_buffer == NULL)
-      {
-        crypt_free_state(bi->bi_state);
-        bi->bi_state = NULL;
-        return FAIL;
-      }
-      bi->bi_used = 0;
-    }
-  }
-  else
-#endif
-    undo_write_bytes(bi, (long_u)UF_VERSION, 2);
+  undo_write_bytes(bi, (long_u)UF_VERSION, 2);
 
   /* Write a hash of the buffer text, so that we can verify it is still the
      * same when reading the buffer text. */
@@ -1172,7 +948,7 @@ serialize_header(bufinfo_T *bi, char_u *hash)
             ? 0L
             : (long)STRLEN(buf->b_u_line_ptr.ul_line);
   undo_write_bytes(bi, (long_u)len, 4);
-  if (len > 0 && fwrite_crypt(bi, buf->b_u_line_ptr.ul_line, (size_t)len) == FAIL)
+  if (len > 0 && undo_write(bi, buf->b_u_line_ptr.ul_line, (size_t)len) == FAIL)
     return FAIL;
   undo_write_bytes(bi, (long_u)buf->b_u_line_lnum, 4);
   undo_write_bytes(bi, (long_u)buf->b_u_line_colnr, 4);
@@ -1257,11 +1033,11 @@ unserialize_uhp(bufinfo_T *bi, char_u *file_name)
 #ifdef U_DEBUG
   uhp->uh_magic = UH_MAGIC;
 #endif
-  uhp->uh_next.seq = undo_read_4c(bi);
-  uhp->uh_prev.seq = undo_read_4c(bi);
-  uhp->uh_alt_next.seq = undo_read_4c(bi);
-  uhp->uh_alt_prev.seq = undo_read_4c(bi);
-  uhp->uh_seq = undo_read_4c(bi);
+  uhp->uh_next.seq = get4c(bi->bi_fp);
+  uhp->uh_prev.seq = get4c(bi->bi_fp);
+  uhp->uh_alt_next.seq = get4c(bi->bi_fp);
+  uhp->uh_alt_prev.seq = get4c(bi->bi_fp);
+  uhp->uh_seq = get4c(bi->bi_fp);
   if (uhp->uh_seq <= 0)
   {
     corruption_error("uh_seq", file_name);
@@ -1269,37 +1045,37 @@ unserialize_uhp(bufinfo_T *bi, char_u *file_name)
     return NULL;
   }
   unserialize_pos(bi, &uhp->uh_cursor);
-  uhp->uh_cursor_vcol = undo_read_4c(bi);
-  uhp->uh_flags = undo_read_2c(bi);
+  uhp->uh_cursor_vcol = get4c(bi->bi_fp);
+  uhp->uh_flags = get2c(bi->bi_fp);
   for (i = 0; i < NMARKS; ++i)
     unserialize_pos(bi, &uhp->uh_namedm[i]);
   unserialize_visualinfo(bi, &uhp->uh_visual);
-  uhp->uh_time = undo_read_time(bi);
+  uhp->uh_time = get8ctime(bi->bi_fp);
 
   /* Optional fields. */
   for (;;)
   {
-    int len = undo_read_byte(bi);
+    int len = getc(bi->bi_fp);
     int what;
 
     if (len == 0)
       break;
-    what = undo_read_byte(bi);
+    what = getc(bi->bi_fp);
     switch (what)
     {
     case UHP_SAVE_NR:
-      uhp->uh_save_nr = undo_read_4c(bi);
+      uhp->uh_save_nr = get4c(bi->bi_fp);
       break;
     default:
       /* field not supported, skip */
       while (--len >= 0)
-        (void)undo_read_byte(bi);
+        (void)getc(bi->bi_fp);
     }
   }
 
   /* Unserialize the uep list. */
   last_uep = NULL;
-  while ((c = undo_read_2c(bi)) == UF_ENTRY_MAGIC)
+  while ((c = get2c(bi->bi_fp)) == UF_ENTRY_MAGIC)
   {
     error = FALSE;
     uep = unserialize_uep(bi, &error, file_name);
@@ -1346,7 +1122,7 @@ serialize_uep(
     len = STRLEN(uep->ue_array[i].ul_line);
     if (undo_write_bytes(bi, (long_u)len, 4) == FAIL)
       return FAIL;
-    if (len > 0 && fwrite_crypt(bi, uep->ue_array[i].ul_line, len) == FAIL)
+    if (len > 0 && undo_write(bi, uep->ue_array[i].ul_line, len) == FAIL)
       return FAIL;
   }
   return OK;
@@ -1368,10 +1144,10 @@ unserialize_uep(bufinfo_T *bi, int *error, char_u *file_name)
 #ifdef U_DEBUG
   uep->ue_magic = UE_MAGIC;
 #endif
-  uep->ue_top = undo_read_4c(bi);
-  uep->ue_bot = undo_read_4c(bi);
-  uep->ue_lcount = undo_read_4c(bi);
-  uep->ue_size = undo_read_4c(bi);
+  uep->ue_top = get4c(bi->bi_fp);
+  uep->ue_bot = get4c(bi->bi_fp);
+  uep->ue_lcount = get4c(bi->bi_fp);
+  uep->ue_size = get4c(bi->bi_fp);
   if (uep->ue_size > 0)
   {
     if (uep->ue_size < LONG_MAX / (int)sizeof(char_u *))
@@ -1387,7 +1163,7 @@ unserialize_uep(bufinfo_T *bi, int *error, char_u *file_name)
 
   for (i = 0; i < uep->ue_size; ++i)
   {
-    line_len = undo_read_4c(bi);
+    line_len = get4c(bi->bi_fp);
     if (line_len >= 0)
       line = read_string_decrypt(bi, line_len);
     else
@@ -1423,13 +1199,13 @@ serialize_pos(bufinfo_T *bi, pos_T pos)
 static void
 unserialize_pos(bufinfo_T *bi, pos_T *pos)
 {
-  pos->lnum = undo_read_4c(bi);
+  pos->lnum = get4c(bi->bi_fp);
   if (pos->lnum < 0)
     pos->lnum = 0;
-  pos->col = undo_read_4c(bi);
+  pos->col = get4c(bi->bi_fp);
   if (pos->col < 0)
     pos->col = 0;
-  pos->coladd = undo_read_4c(bi);
+  pos->coladd = get4c(bi->bi_fp);
   if (pos->coladd < 0)
     pos->coladd = 0;
 }
@@ -1454,8 +1230,8 @@ unserialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
 {
   unserialize_pos(bi, &info->vi_start);
   unserialize_pos(bi, &info->vi_end);
-  info->vi_mode = undo_read_4c(bi);
-  info->vi_curswant = undo_read_4c(bi);
+  info->vi_mode = get4c(bi->bi_fp);
+  info->vi_curswant = get4c(bi->bi_fp);
 }
 
 /*
@@ -1690,11 +1466,6 @@ void u_write_undo(
   }
 #endif
 
-#ifdef FEAT_CRYPT
-  if (bi.bi_state != NULL && undo_flush(&bi) == FAIL)
-    write_ok = FALSE;
-#endif
-
 write_error:
   fclose(fp);
   if (!write_ok)
@@ -1719,11 +1490,6 @@ write_error:
 #endif
 
 theend:
-#ifdef FEAT_CRYPT
-  if (bi.bi_state != NULL)
-    crypt_free_state(bi.bi_state);
-  vim_free(bi.bi_buffer);
-#endif
   if (file_name != name)
     vim_free(file_name);
 }
@@ -1823,35 +1589,8 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
   version = get2c(fp);
   if (version == UF_VERSION_CRYPT)
   {
-#ifdef FEAT_CRYPT
-    if (*curbuf->b_p_key == NUL)
-    {
-      semsg(_("E832: Non-encrypted file has encrypted undo file: %s"),
-            file_name);
-      goto error;
-    }
-    bi.bi_state = crypt_create_from_file(fp, curbuf->b_p_key);
-    if (bi.bi_state == NULL)
-    {
-      semsg(_("E826: Undo file decryption failed: %s"), file_name);
-      goto error;
-    }
-    if (crypt_whole_undofile(bi.bi_state->method_nr))
-    {
-      bi.bi_buffer = alloc(CRYPT_BUF_SIZE);
-      if (bi.bi_buffer == NULL)
-      {
-        crypt_free_state(bi.bi_state);
-        bi.bi_state = NULL;
-        goto error;
-      }
-      bi.bi_avail = 0;
-      bi.bi_used = 0;
-    }
-#else
     semsg(_("E827: Undo file is encrypted: %s"), file_name);
     goto error;
-#endif
   }
   else if (version != UF_VERSION)
   {
@@ -1864,7 +1603,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
     corruption_error("hash", file_name);
     goto error;
   }
-  line_count = (linenr_T)undo_read_4c(&bi);
+  line_count = (linenr_T)get4c(bi.bi_fp);
   if (memcmp(hash, read_hash, UNDO_HASH_SIZE) != 0 || line_count != curbuf->b_ml.ml_line_count)
   {
     if (p_verbose > 0 || name != NULL)
@@ -1881,7 +1620,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
   }
 
   /* Read undo data for "U" command. */
-  str_len = undo_read_4c(&bi);
+  str_len = get4c(bi.bi_fp);
   if (str_len < 0)
     goto error;
   if (str_len > 0)
@@ -1889,8 +1628,8 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
     line_ptr.ul_line = read_string_decrypt(&bi, str_len);
     line_ptr.ul_len = str_len + 1;
   }
-  line_lnum = (linenr_T)undo_read_4c(&bi);
-  line_colnr = (colnr_T)undo_read_4c(&bi);
+  line_lnum = (linenr_T)get4c(bi.bi_fp);
+  line_colnr = (colnr_T)get4c(bi.bi_fp);
   if (line_lnum < 0 || line_colnr < 0)
   {
     corruption_error("line lnum/col", file_name);
@@ -1898,32 +1637,32 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
   }
 
   /* Begin general undo data */
-  old_header_seq = undo_read_4c(&bi);
-  new_header_seq = undo_read_4c(&bi);
-  cur_header_seq = undo_read_4c(&bi);
-  num_head = undo_read_4c(&bi);
-  seq_last = undo_read_4c(&bi);
-  seq_cur = undo_read_4c(&bi);
-  seq_time = undo_read_time(&bi);
+  old_header_seq = get4c(bi.bi_fp);
+  new_header_seq = get4c(bi.bi_fp);
+  cur_header_seq = get4c(bi.bi_fp);
+  num_head = get4c(bi.bi_fp);
+  seq_last = get4c(bi.bi_fp);
+  seq_cur = get4c(bi.bi_fp);
+  seq_time = get8ctime(bi.bi_fp);
 
   /* Optional header fields. */
   for (;;)
   {
-    int len = undo_read_byte(&bi);
+    int len = getc(bi.bi_fp);
     int what;
 
     if (len == 0 || len == EOF)
       break;
-    what = undo_read_byte(&bi);
+    what = getc(bi.bi_fp);
     switch (what)
     {
     case UF_LAST_SAVE_NR:
-      last_save_nr = undo_read_4c(&bi);
+      last_save_nr = get4c(bi.bi_fp);
       break;
     default:
       /* field not supported, skip */
       while (--len >= 0)
-        (void)undo_read_byte(&bi);
+        (void)getc(bi.bi_fp);
     }
   }
 
@@ -1939,7 +1678,7 @@ void u_read_undo(char_u *name, char_u *hash, char_u *orig_name)
       goto error;
   }
 
-  while ((c = undo_read_2c(&bi)) == UF_HEADER_MAGIC)
+  while ((c = get2c(bi.bi_fp)) == UF_HEADER_MAGIC)
   {
     if (num_read_uhps >= num_head)
     {
@@ -2072,11 +1811,6 @@ error:
   }
 
 theend:
-#ifdef FEAT_CRYPT
-  if (bi.bi_state != NULL)
-    crypt_free_state(bi.bi_state);
-  vim_free(bi.bi_buffer);
-#endif
   if (fp != NULL)
     fclose(fp);
   if (file_name != name)
@@ -2901,10 +2635,7 @@ void u_sync(
   /* Skip it when already synced or syncing is disabled. */
   if (curbuf->b_u_synced || (!force && no_u_sync > 0))
     return;
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-  if (p_imst == IM_ON_THE_SPOT && im_is_preediting())
-    return; /* XIM is busy, don't break an undo sequence */
-#endif
+
   if (get_undolevel() < 0)
     curbuf->b_u_synced = TRUE; /* no entries, nothing to do */
   else

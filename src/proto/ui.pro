@@ -50,7 +50,6 @@ char_u *get_input_buf(void);
 void set_input_buf(char_u *p);
 void add_to_input_buf(char_u *s, int len);
 void add_to_input_buf_csi(char_u *str, int len);
-void push_raw_key(char_u *s, int len);
 void trash_input_buf(void);
 int read_from_input_buf(char_u *buf, long maxlen);
 void fill_input_buf(int exit_on_error);
@@ -66,5 +65,4 @@ win_T *mouse_find_win(int *rowp, int *colp);
 int get_fpos_of_mouse(pos_T *mpos);
 int vcol2col(win_T *wp, linenr_T lnum, int vcol);
 void ui_focus_change(int in_focus);
-void im_save_status(long *psave);
 /* vim: set ft=c : */

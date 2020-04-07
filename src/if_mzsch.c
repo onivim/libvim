@@ -800,25 +800,6 @@ static long range_end;
 /* MzScheme threads scheduling stuff */
 static int mz_threads_allow = 0;
 
-#if defined(VIMDLL) /* Win32 console and Unix */
-void mzvim_check_threads(void)
-{
-  /* Last time MzScheme threads were scheduled */
-  static time_t mz_last_time = 0;
-
-  if (mz_threads_allow && p_mzq > 0)
-  {
-    time_t now = time(NULL);
-
-    if ((now - mz_last_time) * 1000 > p_mzq)
-    {
-      mz_last_time = now;
-      scheme_check_threads();
-    }
-  }
-}
-#endif
-
 static void
 notify_multithread(int on)
 {

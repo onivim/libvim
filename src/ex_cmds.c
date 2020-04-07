@@ -292,7 +292,8 @@ static int sort_abort; /* flag to indicate if sorting has been interrupted */
 typedef struct
 {
   linenr_T lnum; // line number
-  union {
+  union
+  {
     struct
     {
       varnumber_T start_col_nr; // starting column number
@@ -1514,9 +1515,7 @@ void do_shell(
     int flags) /* may be SHELL_DOOUT when output is redirected */
 {
   buf_T *buf;
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
   int save_nwr;
-#endif
 #ifdef MSWIN
   int winstart = FALSE;
   int keep_termcap = FALSE;
@@ -1594,41 +1593,28 @@ void do_shell(
   }
   else
   {
-    /*
-	 * For ":sh" there is no need to call wait_return(), just redraw.
-	 * Also for the Win32 GUI (the output is in a console window).
-	 * Otherwise there is probably text on the screen that the user wants
-	 * to read before redrawing, so call wait_return().
-	 */
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
-#ifdef VIMDLL
-    if (!gui.in_use)
-#endif
-    {
-      if (cmd == NULL
+    if (cmd == NULL
 #ifdef MSWIN
-          || (keep_termcap && !need_wait_return)
+        || (keep_termcap && !need_wait_return)
 #endif
-      )
-      {
-        if (msg_silent == 0)
-          redraw_later_clear();
-        need_wait_return = FALSE;
-      }
-      else
-      {
-        /*
-		 * If we switch screens when starttermcap() is called, we
-		 * really want to wait for "hit return to continue".
-		 */
-        save_nwr = no_wait_return;
-        if (swapping_screen())
-          no_wait_return = FALSE;
-        wait_return(msg_silent == 0);
-        no_wait_return = save_nwr;
-      }
+    )
+    {
+      if (msg_silent == 0)
+        redraw_later_clear();
+      need_wait_return = FALSE;
     }
-#endif /* FEAT_GUI_MSWIN */
+    else
+    {
+      /*
+       * If we switch screens when starttermcap() is called, we
+       * really want to wait for "hit return to continue".
+       */
+      save_nwr = no_wait_return;
+      if (swapping_screen())
+        no_wait_return = FALSE;
+      wait_return(msg_silent == 0);
+      no_wait_return = save_nwr;
+    }
 
 #ifdef MSWIN
     if (!keep_termcap) // if keep_termcap is TRUE didn't stop termcap

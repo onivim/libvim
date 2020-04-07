@@ -23,12 +23,6 @@ static void msg_puts_attr_len(char *str, int maxlen, int attr);
 static int do_more_prompt(int typed_char);
 static int msg_check_screen(void);
 static void redir_write(char_u *s, int maxlen);
-#ifdef FEAT_CON_DIALOG
-static char_u *msg_show_console_dialog(char_u *message, char_u *buttons, int dfltbutton);
-static int confirm_msg_used = FALSE; /* displaying confirm_msg */
-static char_u *confirm_msg = NULL;   /* ":confirm" message */
-static char_u *confirm_msg_tail;     /* tail of confirm_msg */
-#endif
 #ifdef FEAT_JOB_CHANNEL
 static int emsg_to_channel_log = FALSE;
 #endif
@@ -946,7 +940,7 @@ void ex_messages(exarg_T *eap)
   msg_hist_off = FALSE;
 }
 
-#if defined(FEAT_CON_DIALOG) || defined(FIND_REPLACE_DIALOG) || defined(PROTO)
+#if defined(FIND_REPLACE_DIALOG) || defined(PROTO)
 /*
  * Call this after prompting the user.  This will avoid a hit-return message
  * and a delay.
@@ -1781,12 +1775,8 @@ void msg_sb_eol(void)
 int msg_use_printf(void)
 {
   return (!msg_check_screen()
-#if defined(MSWIN) && (!defined(FEAT_GUI_MSWIN) || defined(VIMDLL))
-#ifdef VIMDLL
-          || (!gui.in_use && !termcap_active)
-#else
+#if defined(MSWIN)
           || !termcap_active
-#endif
 #endif
           || (swapping_screen() && !termcap_active));
 }
@@ -1855,13 +1845,6 @@ void repeat_message(void)
     msg_moremsg(TRUE); /* display --more-- message again */
     msg_row = Rows - 1;
   }
-#ifdef FEAT_CON_DIALOG
-  else if (State == CONFIRM)
-  {
-    display_confirm_msg(); /* display ":confirm" message again */
-    msg_row = Rows - 1;
-  }
-#endif
   else if (State == EXTERNCMD)
   {
     windgoto(msg_row, msg_col); /* put cursor back */
@@ -2204,7 +2187,7 @@ void msg_advance(int col)
       msg_putchar(' ');
 }
 
-#if defined(FEAT_CON_DIALOG) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Used for "confirm()" function, and the :confirm command prefix.
  * Versions which haven't got flexible dialogs yet, and console
@@ -2244,23 +2227,6 @@ int do_dialog(
   /* Don't output anything in silent mode ("ex -s") */
   if (silent_mode)
     return dfltbutton; /* return default option */
-#endif
-
-#ifdef FEAT_GUI_DIALOG
-  /* When GUI is running and 'c' not in 'guioptions', use the GUI dialog */
-  if (gui.in_use && vim_strchr(p_go, GO_CONDIALOG) == NULL)
-  {
-    c = gui_mch_dialog(type, title, message, buttons, dfltbutton,
-                       textfield, ex_cmd);
-    /* avoid a hit-enter prompt without clearing the cmdline */
-    need_wait_return = FALSE;
-    emsg_on_display = FALSE;
-    cmdline_row = msg_row;
-
-    gui_mch_update();
-
-    return c;
-  }
 #endif
 
   oldState = State;
@@ -2545,68 +2511,7 @@ void display_confirm_msg(void)
   --confirm_msg_used;
 }
 
-#endif /* FEAT_CON_DIALOG */
-
-#if defined(FEAT_CON_DIALOG) || defined(FEAT_GUI_DIALOG)
-
-int vim_dialog_yesno(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  if (do_dialog(type,
-                title == NULL ? (char_u *)_("Question") : title,
-                message,
-                (char_u *)_("&Yes\n&No"), dflt, NULL, FALSE) == 1)
-    return VIM_YES;
-  return VIM_NO;
-}
-
-int vim_dialog_yesnocancel(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  switch (do_dialog(type,
-                    title == NULL ? (char_u *)_("Question") : title,
-                    message,
-                    (char_u *)_("&Yes\n&No\n&Cancel"), dflt, NULL, FALSE))
-  {
-  case 1:
-    return VIM_YES;
-  case 2:
-    return VIM_NO;
-  }
-  return VIM_CANCEL;
-}
-
-int vim_dialog_yesnoallcancel(
-    int type,
-    char_u *title,
-    char_u *message,
-    int dflt)
-{
-  switch (do_dialog(type,
-                    title == NULL ? (char_u *)"Question" : title,
-                    message,
-                    (char_u *)_("&Yes\n&No\nSave &All\n&Discard All\n&Cancel"),
-                    dflt, NULL, FALSE))
-  {
-  case 1:
-    return VIM_YES;
-  case 2:
-    return VIM_NO;
-  case 3:
-    return VIM_ALL;
-  case 4:
-    return VIM_DISCARDALL;
-  }
-  return VIM_CANCEL;
-}
-
-#endif /* FEAT_GUI_DIALOG || FEAT_CON_DIALOG */
+#endif
 
 #if defined(FEAT_BROWSE) || defined(PROTO)
 /*
@@ -2688,56 +2593,9 @@ do_browse(
 	 * default already, leave initdir empty. */
   }
 
-#ifdef FEAT_GUI
-  if (gui.in_use) /* when this changes, also adjust f_has()! */
-  {
-    if (filter == NULL
-#ifdef FEAT_EVAL
-        && (filter = get_var_value((char_u *)"b:browsefilter")) == NULL && (filter = get_var_value((char_u *)"g:browsefilter")) == NULL
-#endif
-    )
-      filter = BROWSE_FILTER_DEFAULT;
-    if (flags & BROWSE_DIR)
-    {
-#if defined(FEAT_GUI_GTK) || defined(MSWIN)
-      /* For systems that have a directory dialog. */
-      fname = gui_mch_browsedir(title, initdir);
-#else
-      /* Generic solution for selecting a directory: select a file and
-	     * remove the file name. */
-      fname = gui_mch_browse(0, title, dflt, ext, initdir, (char_u *)"");
-#endif
-#if !defined(FEAT_GUI_GTK)
-      /* Win32 adds a dummy file name, others return an arbitrary file
-	     * name.  GTK+ 2 returns only the directory, */
-      if (fname != NULL && *fname != NUL && !mch_isdir(fname))
-      {
-        /* Remove the file name. */
-        char_u *tail = gettail_sep(fname);
-
-        if (tail == fname)
-          *tail++ = '.'; /* use current dir */
-        *tail = NUL;
-      }
-#endif
-    }
-    else
-      fname = gui_mch_browse(flags & BROWSE_SAVE,
-                             title, dflt, ext, initdir, (char_u *)_(filter));
-
-    /* We hang around in the dialog for a while, the user might do some
-	 * things to our files.  The Win32 dialog allows deleting or renaming
-	 * a file, check timestamps. */
-    need_check_timestamps = TRUE;
-    did_check_timestamps = FALSE;
-  }
-  else
-#endif
-  {
-    /* TODO: non-GUI file selector here */
-    emsg(_("E338: Sorry, no file browser in console mode"));
-    fname = NULL;
-  }
+  /* TODO: non-GUI file selector here */
+  emsg(_("E338: Sorry, no file browser in console mode"));
+  fname = NULL;
 
   /* keep the directory for next time */
   if (fname != NULL)

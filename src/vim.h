@@ -89,22 +89,9 @@ Error : configure did not run properly.Check auto / config.log.
 /* Unless made through the Makefile enforce GUI on Mac */
 #if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
 #define UNIX
-#define FEAT_GUI_MAC
 #endif
 
-#if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MAC) || defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_PHOTON)
-#define FEAT_GUI_ENABLED /* also defined with NO_X11_INCLUDES */
-#if !defined(FEAT_GUI) && !defined(NO_X11_INCLUDES)
-#define FEAT_GUI
-#endif
-#endif
-
-/* Check support for rendering options */
-#ifdef FEAT_GUI
-#if defined(FEAT_DIRECTX)
-#define FEAT_RENDER_OPTIONS
-#endif
-#endif
+#undef FEAT_RENDER_OPTIONS
 
 /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
 #if _MSC_VER >= 1400
@@ -141,26 +128,11 @@ Error : configure did not run properly.Check auto / config.log.
 #ifdef FEAT_X11
 #undef FEAT_X11
 #endif
-#ifdef FEAT_GUI_X11
-#undef FEAT_GUI_X11
-#endif
 #ifdef FEAT_XCLIPBOARD
 #undef FEAT_XCLIPBOARD
 #endif
-#ifdef FEAT_GUI_MOTIF
-#undef FEAT_GUI_MOTIF
-#endif
-#ifdef FEAT_GUI_ATHENA
-#undef FEAT_GUI_ATHENA
-#endif
-#ifdef FEAT_GUI_GTK
-#undef FEAT_GUI_GTK
-#endif
 #ifdef FEAT_BEVAL_TIP
 #undef FEAT_BEVAL_TIP
-#endif
-#ifdef FEAT_XIM
-#undef FEAT_XIM
 #endif
 #endif
 
@@ -1421,6 +1393,7 @@ typedef UINT32_TYPEDEF UINT32_T;
                               character (OP_ADD conflicts with Perl) */
 #define OP_NR_SUB 29       /* "<C-X>" Subtract from the number or \ \ \
                               alphabetic character */
+#define OP_COMMENT 30      /* "gc" and "gcc" toggles commented lines */
 
 /*
  * Motion types, used for operators and for yank/delete registers.
@@ -1571,13 +1544,6 @@ typedef UINT32_TYPEDEF UINT32_T;
 #define OUT_STR(s) out_str((char_u *)(s))
 #define OUT_STR_NF(s) out_str_nf((char_u *)(s))
 
-#ifdef FEAT_GUI
-#define GUI_FUNCTION(f) gui_##f
-#define GUI_FUNCTION2(f, pixel) ((pixel) != INVALCOLOR  \
-                                     ? gui_##f((pixel)) \
-                                     : INVALCOLOR)
-#define USE_24BIT gui.in_use
-#endif
 #define IS_CTERM (t_colors > 1)
 #ifdef GUI_FUNCTION
 #define GUI_MCH_GET_RGB GUI_FUNCTION(mch_get_rgb)
@@ -1639,7 +1605,7 @@ typedef void *vim_acl_T; // dummy to pass an ACL to a function
 void *vim_memset(void *, int, size_t);
 #endif
 
-#if defined(UNIX) || defined(FEAT_GUI) || defined(VMS)
+#if defined(UNIX) || defined(VMS)
 #define USE_INPUT_BUF
 #endif
 
@@ -1891,19 +1857,6 @@ typedef enum
 
 #include "proto.h" /* function prototypes */
 
-#if defined(FEAT_EVAL) && (!defined(FEAT_GUI_MSWIN) || !(defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) && !(defined(FEAT_GUI_MAC) && defined(MACOS_CONVERT))
-/* Whether IME is supported by im_get_status() defined in mbyte.c.
- * For Win32 GUI it's in gui_w32.c when FEAT_MBYTE_IME or GLOBAL_IME is defined.
- * for Mac it is in gui_mac.c for the GUI or in os_mac_conv.c when
- * MACOS_CONVERT is defined. */
-#define IME_WITHOUT_XIM
-#endif
-
-#if defined(FEAT_XIM) || defined(IME_WITHOUT_XIM) || (defined(FEAT_GUI_MSWIN) && (defined(FEAT_MBYTE_IME) || defined(GLOBAL_IME))) || defined(FEAT_GUI_MAC)
-/* im_set_active() is available */
-#define HAVE_INPUT_METHOD
-#endif
-
 #ifndef FEAT_LINEBREAK
 /* Without the 'numberwidth' option line numbers are always 7 chars. */
 #define number_width(x) 7
@@ -1917,13 +1870,6 @@ typedef enum
 #endif
 
 #include "globals.h" /* global variables and messages */
-
-/*
- * If console dialog not supported, but GUI dialog is, use the GUI one.
- */
-#if defined(FEAT_GUI_DIALOG) && !defined(FEAT_CON_DIALOG)
-#define do_dialog gui_mch_dialog
-#endif
 
 /*
  * Default filters for gui_mch_browse().
@@ -2022,153 +1968,11 @@ typedef enum
 #define SIGN_BYTE 1 /* byte value used where sign is displayed; \ \ \
                        attribute value is sign type */
 
-#if defined(FEAT_GUI) && defined(FEAT_XCLIPBOARD)
-#ifdef FEAT_GUI_GTK
-/* Avoid using a global variable for the X display.  It's ugly
-    * and is likely to cause trouble in multihead environments. */
-#define X_DISPLAY ((gui.in_use) ? gui_mch_get_display() : xterm_dpy)
-#else
-#define X_DISPLAY (gui.in_use ? gui.dpy : xterm_dpy)
-#endif
-#else
-#ifdef FEAT_GUI
-#ifdef FEAT_GUI_GTK
-#define X_DISPLAY ((gui.in_use) ? gui_mch_get_display() : (Display *)NULL)
-#else
-#define X_DISPLAY gui.dpy
-#endif
-#else
 #define X_DISPLAY xterm_dpy
-#endif
-#endif
 
 #if defined(FEAT_BROWSE) && defined(GTK_CHECK_VERSION)
 #if GTK_CHECK_VERSION(2, 4, 0)
 #define USE_FILE_CHOOSER
-#endif
-#endif
-
-#ifdef FEAT_GUI_GTK
-#if !GTK_CHECK_VERSION(2, 14, 0)
-#define gtk_widget_get_window(wid) ((wid)->window)
-#define gtk_plug_get_socket_window(wid) ((wid)->socket_window)
-#define gtk_selection_data_get_data(sel) ((sel)->data)
-#define gtk_selection_data_get_data_type(sel) ((sel)->type)
-#define gtk_selection_data_get_format(sel) ((sel)->format)
-#define gtk_selection_data_get_length(sel) ((sel)->length)
-#define gtk_adjustment_set_lower(adj, low) \
-  do                                       \
-  {                                        \
-    (adj)->lower = low;                    \
-  } while (0)
-#define gtk_adjustment_set_upper(adj, up) \
-  do                                      \
-  {                                       \
-    (adj)->upper = up;                    \
-  } while (0)
-#define gtk_adjustment_set_page_size(adj, size) \
-  do                                            \
-  {                                             \
-    (adj)->page_size = size;                    \
-  } while (0)
-#define gtk_adjustment_set_page_increment(adj, inc) \
-  do                                                \
-  {                                                 \
-    (adj)->page_increment = inc;                    \
-  } while (0)
-#define gtk_adjustment_set_step_increment(adj, inc) \
-  do                                                \
-  {                                                 \
-    (adj)->step_increment = inc;                    \
-  } while (0)
-#endif
-#if !GTK_CHECK_VERSION(2, 16, 0)
-#define gtk_selection_data_get_selection(sel) ((sel)->selection)
-#endif
-#if !GTK_CHECK_VERSION(2, 18, 0)
-#define gtk_widget_get_allocation(wid, alloc) \
-  do                                          \
-  {                                           \
-    *(alloc) = (wid)->allocation;             \
-  } while (0)
-#define gtk_widget_set_allocation(wid, alloc) \
-  do                                          \
-  {                                           \
-    (wid)->allocation = *(alloc);             \
-  } while (0)
-#define gtk_widget_get_has_window(wid) !GTK_WIDGET_NO_WINDOW(wid)
-#define gtk_widget_get_sensitive(wid) GTK_WIDGET_SENSITIVE(wid)
-#define gtk_widget_get_visible(wid) GTK_WIDGET_VISIBLE(wid)
-#define gtk_widget_has_focus(wid) GTK_WIDGET_HAS_FOCUS(wid)
-#define gtk_widget_set_window(wid, win) \
-  do                                    \
-  {                                     \
-    (wid)->window = (win);              \
-  } while (0)
-#define gtk_widget_set_can_default(wid, can)        \
-  do                                                \
-  {                                                 \
-    if (can)                                        \
-    {                                               \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_DEFAULT);   \
-    }                                               \
-    else                                            \
-    {                                               \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_DEFAULT); \
-    }                                               \
-  } while (0)
-#define gtk_widget_set_can_focus(wid, can)        \
-  do                                              \
-  {                                               \
-    if (can)                                      \
-    {                                             \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_CAN_FOCUS);   \
-    }                                             \
-    else                                          \
-    {                                             \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_CAN_FOCUS); \
-    }                                             \
-  } while (0)
-#define gtk_widget_set_visible(wid, vis) \
-  do                                     \
-  {                                      \
-    if (vis)                             \
-    {                                    \
-      gtk_widget_show(wid);              \
-    }                                    \
-    else                                 \
-    {                                    \
-      gtk_widget_hide(wid);              \
-    }                                    \
-  } while (0)
-#endif
-#if !GTK_CHECK_VERSION(2, 20, 0)
-#define gtk_widget_get_mapped(wid) GTK_WIDGET_MAPPED(wid)
-#define gtk_widget_get_realized(wid) GTK_WIDGET_REALIZED(wid)
-#define gtk_widget_set_mapped(wid, map)        \
-  do                                           \
-  {                                            \
-    if (map)                                   \
-    {                                          \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_MAPPED);   \
-    }                                          \
-    else                                       \
-    {                                          \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_MAPPED); \
-    }                                          \
-  } while (0)
-#define gtk_widget_set_realized(wid, rea)        \
-  do                                             \
-  {                                              \
-    if (rea)                                     \
-    {                                            \
-      GTK_WIDGET_SET_FLAGS(wid, GTK_REALIZED);   \
-    }                                            \
-    else                                         \
-    {                                            \
-      GTK_WIDGET_UNSET_FLAGS(wid, GTK_REALIZED); \
-    }                                            \
-  } while (0)
 #endif
 #endif
 

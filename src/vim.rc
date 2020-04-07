@@ -19,7 +19,7 @@
 //
 IDR_VIM		ICON "vim.ico"
 
-#if (defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)) || defined(RCDLL)
+#ifdef RCDLL
 IDR_VIM_ERROR	ICON "vim_error.ico"
 IDR_VIM_ALERT	ICON "vim_alert.ico"
 IDR_VIM_INFO	ICON "vim_info.ico"
@@ -30,7 +30,7 @@ IDR_VIM_QUESTION ICON "vim_quest.ico"
 //
 IDB_TEAROFF	BITMAP  DISCARDABLE  "tearoff.bmp"
 IDR_TOOLBAR1	BITMAP  DISCARDABLE  "tools.bmp"
-#endif // FEAT_GUI_MSWIN
+#endif
 
 #ifndef RCDLL
 //
@@ -97,8 +97,6 @@ BEGIN
 	VALUE "LegalTrademarks",	"Vim\0"
 #ifdef VIMDLLBASE
 	VALUE "OriginalFilename",	VIMDLLBASE ".dll\0"
-#elif defined(FEAT_GUI_MSWIN)
-	VALUE "OriginalFilename",	"gvim.exe\0"
 #else
 	VALUE "OriginalFilename",	"vim.exe\0"
 #endif

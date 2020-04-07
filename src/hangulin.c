@@ -442,11 +442,6 @@ void hangul_input_state_toggle(void)
   else
     hangul_input_state_set(1);
 
-  if (showmode())
-  {
-    setcursor();
-  }
-
   gui_update_cursor(TRUE, FALSE);
 }
 

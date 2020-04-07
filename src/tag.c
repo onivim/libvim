@@ -3375,10 +3375,6 @@ jumpto_tag(
 
   ++RedrawingDisabled;
 
-#ifdef FEAT_GUI
-  need_mouse_correct = TRUE;
-#endif
-
 #if defined(FEAT_QUICKFIX)
   if (g_do_tagpreview != 0)
   {

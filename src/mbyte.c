@@ -83,7 +83,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD)
+#if defined(FEAT_XCLIPBOARD)
 #include <X11/Xwindows.h>
 #define WINBYTE wBYTE
 #else
@@ -4428,7 +4428,7 @@ theend:
   convert_setup(&vimconv, NULL, NULL);
 }
 
-#if defined(FEAT_GUI_GTK) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Return TRUE if string "s" is a valid utf-8 string.
  * When "end" is NULL stop at the first NUL.
@@ -4455,7 +4455,7 @@ int utf_valid_string(char_u *s, char_u *end)
 }
 #endif
 
-#if defined(FEAT_GUI) || defined(PROTO)
+#if defined(PROTO)
 /*
  * Special version of mb_tail_off() for use in ScreenLines[].
  */
@@ -4561,21 +4561,13 @@ mb_unescape(char_u **pp)
       buf[m++] = K_SPECIAL;
       n += 2;
     }
-    else if ((str[n] == K_SPECIAL
-#ifdef FEAT_GUI
-              || str[n] == CSI
-#endif
-              ) &&
+    else if ((str[n] == K_SPECIAL) &&
              str[n + 1] == KS_EXTRA && str[n + 2] == (int)KE_CSI)
     {
       buf[m++] = CSI;
       n += 2;
     }
-    else if (str[n] == K_SPECIAL
-#ifdef FEAT_GUI
-             || str[n] == CSI
-#endif
-    )
+    else if (str[n] == K_SPECIAL)
       break; /* a special key can't be a multibyte char */
     else
       buf[m++] = str[n];
@@ -4603,10 +4595,6 @@ mb_unescape(char_u **pp)
  */
 int mb_lefthalve(int row, int col)
 {
-#ifdef FEAT_HANGULIN
-  if (composing_hangul)
-    return TRUE;
-#endif
   return (*mb_off2cells)(LineOffset[row] + col,
                          LineOffset[row] + screen_Columns) > 1;
 }
@@ -4736,7 +4724,6 @@ enc_alias_search(char_u *name)
 #include <langinfo.h>
 #endif
 
-#if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 /*
  * Get the canonicalized encoding from the specified locale string "locale"
  * or from the environment variables LC_ALL, LC_CTYPE and LANG.
@@ -4793,7 +4780,6 @@ enc_locale_env(char *locale)
 
   return enc_canonize((char_u *)buf);
 }
-#endif
 
 /*
  * Get the canonicalized encoding of the current locale.
@@ -5253,7 +5239,7 @@ int convert_setup_ext(
   return OK;
 }
 
-#if defined(FEAT_GUI) || defined(MSWIN) || defined(PROTO)
+#if defined(MSWIN) || defined(PROTO)
 /*
  * Do conversion on typed input characters in-place.
  * The input and output are not NUL terminated!

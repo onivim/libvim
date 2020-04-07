@@ -290,12 +290,8 @@ EXTERN long p_aleph; /* 'aleph' */
 #ifdef FEAT_AUTOCHDIR
 EXTERN int p_acd; /* 'autochdir' */
 #endif
-EXTERN int p_acp;       /* 'autoclosingpairs' */
-EXTERN char_u *p_ambw;  /* 'ambiwidth' */
-EXTERN char_u *p_emoji; /* 'emoji' */
-#if defined(FEAT_GUI) && defined(MACOS_X)
-EXTERN int *p_antialias; /* 'antialias' */
-#endif
+EXTERN char_u *p_ambw;     /* 'ambiwidth' */
+EXTERN char_u *p_emoji;    /* 'emoji' */
 EXTERN int p_ar;           /* 'autoread' */
 EXTERN int p_aw;           /* 'autowrite' */
 EXTERN int p_awa;          /* 'autowriteall' */
@@ -348,9 +344,6 @@ static char *(p_bo_values[]) = {"all", "backspace", "cursor", "complete",
 #ifdef FEAT_WILDIGN
 EXTERN char_u *p_bsk; /* 'backupskip' */
 #endif
-#ifdef FEAT_CRYPT
-EXTERN char_u *p_cm; /* 'cryptmethod' */
-#endif
 #ifdef FEAT_BEVAL
 #ifdef FEAT_BEVAL_GUI
 EXTERN int p_beval; /* 'ballooneval' */
@@ -381,10 +374,7 @@ EXTERN int p_deco;    /* 'delcombine' */
 #ifdef FEAT_EVAL
 EXTERN char_u *p_ccv; /* 'charconvert' */
 #endif
-EXTERN long p_ch; /* 'cmdheight' */
-#if defined(FEAT_GUI_DIALOG) || defined(FEAT_CON_DIALOG)
-EXTERN int p_confirm; /* 'confirm' */
-#endif
+EXTERN long p_ch;       /* 'cmdheight' */
 EXTERN int p_cp;        /* 'compatible' */
 EXTERN char_u *p_cpo;   /* 'cpoptions' */
 EXTERN char_u *p_debug; /* 'debug' */
@@ -455,24 +445,6 @@ EXTERN int p_fs; /* 'fsync' */
 #endif
 EXTERN int p_gd;     /* 'gdefault' */
 EXTERN int p_prompt; /* 'prompt' */
-#ifdef FEAT_GUI
-EXTERN char_u *p_guifont; /* 'guifont' */
-#ifdef FEAT_XFONTSET
-EXTERN char_u *p_guifontset; /* 'guifontset' */
-#endif
-EXTERN char_u *p_guifontwide; /* 'guifontwide' */
-EXTERN int p_guipty;          /* 'guipty' */
-#endif
-#if defined(FEAT_GUI_GTK) || defined(FEAT_GUI_X11)
-EXTERN long p_ghr; /* 'guiheadroom' */
-#endif
-#if defined(FEAT_GUI)
-EXTERN char_u *p_go; /* 'guioptions' */
-#endif
-#if defined(FEAT_GUI_TABLINE)
-EXTERN char_u *p_gtl; /* 'guitablabel' */
-EXTERN char_u *p_gtt; /* 'guitabtooltip' */
-#endif
 EXTERN char_u *p_hf; /* 'helpfile' */
 EXTERN long p_hh;    /* 'helpheight' */
 #ifdef FEAT_MULTI_LANG
@@ -494,12 +466,6 @@ EXTERN int p_icon;           /* 'icon' */
 EXTERN char_u *p_iconstring; /* 'iconstring' */
 #endif
 EXTERN int p_ic; /* 'ignorecase' */
-#if defined(FEAT_XIM) && defined(FEAT_GUI_GTK)
-EXTERN char_u *p_imak; /* 'imactivatekey' */
-#define IM_ON_THE_SPOT 0L
-#define IM_OVER_THE_SPOT 1L
-EXTERN long p_imst; /* 'imstyle' */
-#endif
 #if defined(FEAT_EVAL)
 EXTERN char_u *p_imaf; /* 'imactivatefunc' */
 EXTERN char_u *p_imsf; /* 'imstatusfunc' */
@@ -519,9 +485,6 @@ EXTERN char_u *p_langmap; /* 'langmap'*/
 EXTERN int p_lnr;         /* 'langnoremap' */
 EXTERN int p_lrm;         /* 'langremap' */
 #endif
-#ifdef FEAT_GUI
-EXTERN long p_linespace; /* 'linespace' */
-#endif
 EXTERN long p_ls;     /* 'laststatus' */
 EXTERN long p_stal;   /* 'showtabline' */
 EXTERN char_u *p_lcs; /* 'listchars' */
@@ -530,9 +493,6 @@ EXTERN int p_lz;  /* 'lazyredraw' */
 EXTERN int p_lpl; /* 'loadplugins' */
 #if defined(DYNAMIC_LUA)
 EXTERN char_u *p_luadll; /* 'luadll' */
-#endif
-#ifdef FEAT_GUI_MAC
-EXTERN int p_macatsui; /* 'macatsui' */
 #endif
 EXTERN int p_magic;    /* 'magic' */
 EXTERN char_u *p_menc; /* 'makeencoding' */
@@ -548,17 +508,13 @@ EXTERN long p_mco; /* 'maxcombine' */
 #ifdef FEAT_EVAL
 EXTERN long p_mfd; /* 'maxfuncdepth' */
 #endif
-EXTERN long p_mmd;      /* 'maxmapdepth' */
-EXTERN long p_mm;       /* 'maxmem' */
-EXTERN long p_mmp;      /* 'maxmempattern' */
-EXTERN long p_mmt;      /* 'maxmemtot' */
-EXTERN long p_mle;      /* 'modelineexpr' */
-EXTERN long p_mls;      /* 'modelines' */
-EXTERN char_u *p_mouse; /* 'mouse' */
-#ifdef FEAT_GUI
-EXTERN int p_mousef; /* 'mousefocus' */
-EXTERN int p_mh;     /* 'mousehide' */
-#endif
+EXTERN long p_mmd;       /* 'maxmapdepth' */
+EXTERN long p_mm;        /* 'maxmem' */
+EXTERN long p_mmp;       /* 'maxmempattern' */
+EXTERN long p_mmt;       /* 'maxmemtot' */
+EXTERN long p_mle;       /* 'modelineexpr' */
+EXTERN long p_mls;       /* 'modelines' */
+EXTERN char_u *p_mouse;  /* 'mouse' */
 EXTERN char_u *p_mousem; /* 'mousemodel' */
 EXTERN long p_mouset;    /* 'mousetime' */
 EXTERN int p_more;       /* 'more' */
@@ -750,7 +706,7 @@ EXTERN int p_ttimeout; /* 'ttimeout' */
 EXTERN long p_ttm;     /* 'ttimeoutlen' */
 EXTERN int p_tbi;      /* 'ttybuiltin' */
 EXTERN int p_tf;       /* 'ttyfast' */
-#if defined(FEAT_TOOLBAR) && !defined(FEAT_GUI_MSWIN)
+#if defined(FEAT_TOOLBAR)
 EXTERN char_u *p_toolbar; /* 'toolbar' */
 EXTERN unsigned toolbar_flags;
 #ifdef IN_OPTION_C
@@ -760,19 +716,6 @@ static char *(p_toolbar_values[]) = {"text", "icons", "tooltips", "horiz", NULL}
 #define TOOLBAR_ICONS 0x02
 #define TOOLBAR_TOOLTIPS 0x04
 #define TOOLBAR_HORIZ 0x08
-#endif
-#if defined(FEAT_TOOLBAR) && defined(FEAT_GUI_GTK)
-EXTERN char_u *p_tbis; /* 'toolbariconsize' */
-EXTERN unsigned tbis_flags;
-#ifdef IN_OPTION_C
-static char *(p_tbis_values[]) = {"tiny", "small", "medium", "large", "huge", "giant", NULL};
-#endif
-#define TBIS_TINY 0x01
-#define TBIS_SMALL 0x02
-#define TBIS_MEDIUM 0x04
-#define TBIS_LARGE 0x08
-#define TBIS_HUGE 0x10
-#define TBIS_GIANT 0x20
 #endif
 EXTERN long p_ttyscroll; /* 'ttyscroll' */
 EXTERN char_u *p_udir;   /* 'undodir' */
@@ -811,7 +754,7 @@ EXTERN int p_warn; /* 'warn' */
 EXTERN char_u *p_wop; /* 'wildoptions' */
 #endif
 EXTERN long p_window; /* 'window' */
-#if defined(FEAT_GUI_MSWIN) || defined(FEAT_GUI_MOTIF) || defined(LINT) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_PHOTON)
+#if defined(LINT)
 #define FEAT_WAK
 EXTERN char_u *p_wak; /* 'winaltkeys' */
 #endif
@@ -913,10 +856,6 @@ enum
   ,
   BV_INF,
   BV_ISK
-#ifdef FEAT_CRYPT
-  ,
-  BV_KEY
-#endif
 #ifdef FEAT_KEYMAP
   ,
   BV_KMAP

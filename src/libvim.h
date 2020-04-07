@@ -42,7 +42,26 @@ int vimBufferGetId(buf_T *buf);
 long vimBufferGetLastChangedTick(buf_T *buf);
 char_u *vimBufferGetLine(buf_T *buf, linenr_T lnum);
 size_t vimBufferGetLineCount(buf_T *buf);
+
+/*
+ * vimBufferSetLines
+ *
+ * Set a range of lines from the one-based start line to one-based end, inclusive.
+ * 
+ * Examples:
+ * vimBufferSetLine(buf, 1, 1, ["abc"]); // Set line 1 to "abc""
+ * vimBufferSetLine(buf, 1, 2, ["abc"]); // Remove line 2, set line 1 to "abc"
+ * vimBufferSetLine(buf, 0, 0, ["def"]); // Insert "def" before the contents of the buffer
+ */
+void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count);
+
 int vimBufferGetModified(buf_T *buf);
+
+int vimBufferGetModifiable(buf_T *buf);
+void vimBufferSetModifiable(buf_T *buf, int modifiable);
+
+int vimBufferGetReadOnly(buf_T *buf);
+void vimBufferSetReadOnly(buf_T *buf, int modifiable);
 
 void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
 
@@ -132,6 +151,7 @@ void vimSetUnhandledEscapeCallback(VoidCallback callback);
 
 void vimOptionSetTabSize(int tabSize);
 void vimOptionSetInsertSpaces(int insertSpaces);
+void vimOptionSetLineComment(char_u *str);
 
 int vimOptionGetInsertSpaces(void);
 int vimOptionGetTabSize(void);
@@ -196,6 +216,12 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 char_u *vimSearchGetPattern();
 
 void vimSetStopSearchHighlightCallback(VoidCallback callback);
+
+/***
+ * Terminal
+ */
+
+void vimSetTerminalCallback(TerminalCallback callback);
 
 /***
  * Window

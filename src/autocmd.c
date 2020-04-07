@@ -1513,12 +1513,6 @@ void aucmd_restbuf(
       curwin->w_topfill = 0;
 #endif
     }
-#if defined(FEAT_GUI)
-    // Hide the scrollbars from the aucmd_win and update.
-    gui_mch_enable_scrollbar(&aucmd_win->w_scrollbars[SBAR_LEFT], FALSE);
-    gui_mch_enable_scrollbar(&aucmd_win->w_scrollbars[SBAR_RIGHT], FALSE);
-    gui_may_update_scrollbars();
-#endif
   }
   else
   {
@@ -2131,7 +2125,7 @@ void unblock_autocmds(void)
 #endif
 }
 
-#if defined(FEAT_EVAL) && (defined(FEAT_XIM) || defined(IME_WITHOUT_XIM)) || defined(PROTO)
+#if defined(FEAT_EVAL) || defined(PROTO)
 int is_autocmd_blocked(void)
 {
   return autocmd_blocked != 0;

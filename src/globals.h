@@ -56,6 +56,7 @@ EXTERN VoidCallback displayIntroCallback INIT(= NULL);
 EXTERN VoidCallback displayVersionCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN TerminalCallback terminalCallback INIT(= NULL);
 EXTERN VoidCallback stopSearchHighlightCallback INIT(= NULL);
 EXTERN VoidCallback unhandledEscapeCallback INIT(= NULL);
 EXTERN WindowSplitCallback windowSplitCallback INIT(= NULL);
@@ -119,7 +120,7 @@ EXTERN int redraw_mode INIT(= FALSE);         // mode must be redrawn
 EXTERN int clear_cmdline INIT(= FALSE);       // cmdline must be cleared
 EXTERN int mode_displayed INIT(= FALSE);      // mode is being displayed
 EXTERN int no_win_do_lines_ins INIT(= FALSE); // don't insert lines
-#if defined(FEAT_CRYPT) || defined(FEAT_EVAL)
+#ifdef FEAT_EVAL
 EXTERN int cmdline_star INIT(= FALSE); // cmdline is crypted
 #endif
 
@@ -712,11 +713,6 @@ EXTERN int (*iconvctl)(iconv_t cd, int request, void *argument);
 EXTERN int *(*iconv_errno)(void);
 #endif
 
-#ifdef FEAT_HANGULIN
-EXTERN int composing_hangul INIT(= 0);
-EXTERN char_u composing_hangul_buffer[5];
-#endif
-
 /*
  * "State" is the main state of Vim.
  * There are other variables that modify the state:
@@ -809,12 +805,8 @@ EXTERN int ignore_script INIT(= FALSE); /* ignore script input */
 #endif
 EXTERN int stop_insert_mode; /* for ":stopinsert" and 'insertmode' */
 
-EXTERN int KeyTyped;   /* TRUE if user typed current char */
-EXTERN int KeyStuffed; /* TRUE if current char from stuffbuf */
-#ifdef HAVE_INPUT_METHOD
-EXTERN int vgetc_im_active; /* Input Method was active for last
-					   character obtained from vgetc() */
-#endif
+EXTERN int KeyTyped;          /* TRUE if user typed current char */
+EXTERN int KeyStuffed;        /* TRUE if current char from stuffbuf */
 EXTERN int maptick INIT(= 0); /* tick for each non-mapped char */
 
 EXTERN int must_redraw INIT(= 0);     /* type of redraw necessary */
@@ -1194,10 +1186,6 @@ EXTERN char e_au_recursive[] INIT(= N_("E952: Autocommand caused recursive behav
 
 EXTERN char top_bot_msg[] INIT(= N_("search hit TOP, continuing at BOTTOM"));
 EXTERN char bot_top_msg[] INIT(= N_("search hit BOTTOM, continuing at TOP"));
-
-#ifdef FEAT_CRYPT
-EXTERN char need_key_msg[] INIT(= N_("Need encryption key for \"%s\""));
-#endif
 
 /*
  * Comms. with the session manager (XSMP)

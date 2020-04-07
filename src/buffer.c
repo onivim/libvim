@@ -1970,15 +1970,9 @@ void free_buf_options(
 #if defined(FEAT_BEVAL) && defined(FEAT_EVAL)
   clear_string_option(&buf->b_p_bexpr);
 #endif
-#if defined(FEAT_CRYPT)
-  clear_string_option(&buf->b_p_cm);
-#endif
   clear_string_option(&buf->b_p_fp);
 #if defined(FEAT_EVAL)
   clear_string_option(&buf->b_p_fex);
-#endif
-#ifdef FEAT_CRYPT
-  clear_string_option(&buf->b_p_key);
 #endif
   clear_string_option(&buf->b_p_kp);
   clear_string_option(&buf->b_p_mps);
@@ -3259,28 +3253,10 @@ void fileinfo(
   (void)append_arg_number(curwin, (char_u *)buffer, IOSIZE,
                           !shortmess(SHM_FILE));
 
-  if (dont_truncate)
-  {
-    /* Temporarily set msg_scroll to avoid the message being truncated.
-	 * First call msg_start() to get the message in the right place. */
-    msg_start();
-    n = msg_scroll;
-    msg_scroll = TRUE;
-    msg(buffer);
-    msg_scroll = n;
-  }
-  else
-  {
-    p = (char *)msg_trunc_attr(buffer, FALSE, 0);
-    if (restart_edit != 0 || (msg_scrolled && !need_wait_return))
-      /* Need to repeat the message after redrawing when:
-	     * - When restart_edit is set (otherwise there will be a delay
-	     *   before redrawing).
-	     * - When the screen was scrolled but there is no wait-return
-	     *   prompt. */
-      set_keep_msg((char_u *)p, 0);
-  }
-
+  msg_T *msg = msg2_create(MSG_INFO);
+  msg2_put(buffer, msg);
+  msg2_send(msg);
+  msg2_free(msg);
   vim_free(buffer);
 }
 
