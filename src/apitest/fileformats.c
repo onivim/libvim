@@ -7,11 +7,6 @@
 
 void test_setup(void)
 {
-  /*writeFailureCount = 0;
-  char_u *tmp = vim_tempname('t', FALSE);
-  strcpy(tempFile, tmp);
-  vim_free(tmp);*/
-
   vimInput("<esc>");
   vimInput("<esc>");
   vimExecute("e!");
@@ -40,12 +35,22 @@ MU_TEST(test_open_lf_file)
   printf("file format: %d\n", ff);
 }
 
+/*MU_TEST(test_open_cr_file)
+{
+  vimBufferOpen("collateral/test.cr", 1, 0);
+
+  int ff = get_fileformat(curbuf);
+  printf("file format: %d\n", ff);
+  mu_check(ff == EOL_MAC);
+}*/
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_open_crlf_file);
   MU_RUN_TEST(test_open_lf_file);
+  //MU_RUN_TEST(test_open_cr_file);
 }
 
 int main(int argc, char **argv)
