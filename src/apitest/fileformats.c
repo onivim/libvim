@@ -22,8 +22,8 @@ MU_TEST(test_open_crlf_file)
   vimBufferOpen("collateral/test.crlf", 1, 0);
 
   int ff = get_fileformat(curbuf);
-  mu_check(ff == EOL_DOS);
   printf("file format: %d\n", ff);
+  mu_check(ff == EOL_DOS);
 }
 
 MU_TEST(test_open_lf_file)
@@ -31,8 +31,8 @@ MU_TEST(test_open_lf_file)
   vimBufferOpen("collateral/test.lf", 1, 0);
 
   int ff = get_fileformat(curbuf);
-  mu_check(ff == EOL_UNIX);
   printf("file format: %d\n", ff);
+  mu_check(ff == EOL_UNIX);
 }
 
 /*MU_TEST(test_open_cr_file)
