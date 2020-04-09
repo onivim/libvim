@@ -6,9 +6,12 @@ static terminalRequest_t lastTerminalRequest;
 
 void onTerminal(terminalRequest_t *termRequest)
 {
-  if (termRequest->cmd != NULL) {
+  if (termRequest->cmd != NULL)
+  {
     lastTerminalRequest.cmd = strdup(termRequest->cmd);
-  } else {
+  }
+  else
+  {
     lastTerminalRequest.cmd = NULL;
   }
   lastTerminalRequest.curwin = termRequest->curwin;

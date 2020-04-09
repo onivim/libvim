@@ -10562,7 +10562,7 @@ void ex_terminal(exarg_T *eap)
     }
     cmd = skipwhite(p);
   }
-  
+
   if (opt.jo_term_finish == NUL)
   {
     /* default to close when the shell exits */
@@ -10585,7 +10585,6 @@ void ex_terminal(exarg_T *eap)
 
   if (terminalCallback)
   {
-    printf("hi2\n");
     terminalRequest_t *pRequest = malloc(sizeof(terminalRequest_t));
     pRequest->rows = opt.jo_term_rows;
     pRequest->cols = opt.jo_term_cols;
@@ -10593,15 +10592,17 @@ void ex_terminal(exarg_T *eap)
     pRequest->curwin = opt.jo_curwin;
     pRequest->hidden = opt.jo_hidden;
 
-    if (*cmd == NUL) {
+    if (*cmd == NUL)
+    {
       pRequest->cmd = NULL;
-    } else {
+    }
+    else
+    {
       pRequest->cmd = cmd;
     }
 
     terminalCallback(pRequest);
     free(pRequest);
-    printf("hi3\n");
   }
   vim_free(tofree);
 
