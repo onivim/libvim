@@ -10562,14 +10562,11 @@ void ex_terminal(exarg_T *eap)
     }
     cmd = skipwhite(p);
   }
-  if (*cmd == NUL)
+  
+  if (opt.jo_term_finish == NUL)
   {
-    /* Make a copy of 'shell', an autocommand may change the option. */
-    tofree = cmd = vim_strsave(p_sh);
-
     /* default to close when the shell exits */
-    if (opt.jo_term_finish == NUL)
-      opt.jo_term_finish = 'c';
+    opt.jo_term_finish = 'c';
   }
 
   if (eap->addr_count > 0)
@@ -10588,16 +10585,23 @@ void ex_terminal(exarg_T *eap)
 
   if (terminalCallback)
   {
+    printf("hi2\n");
     terminalRequest_t *pRequest = malloc(sizeof(terminalRequest_t));
     pRequest->rows = opt.jo_term_rows;
     pRequest->cols = opt.jo_term_cols;
     pRequest->finish = opt.jo_term_finish;
     pRequest->curwin = opt.jo_curwin;
     pRequest->hidden = opt.jo_hidden;
-    pRequest->cmd = cmd;
+
+    if (*cmd == NUL) {
+      pRequest->cmd = NULL;
+    } else {
+      pRequest->cmd = cmd;
+    }
 
     terminalCallback(pRequest);
     free(pRequest);
+    printf("hi3\n");
   }
   vim_free(tofree);
 
