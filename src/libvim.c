@@ -41,6 +41,9 @@ int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 int vimBufferGetModifiable(buf_T *buf) { return buf->b_p_ma; }
 void vimBufferSetModifiable(buf_T *buf, int modifiable) { buf->b_p_ma = modifiable; }
 
+int vimBufferGetFileFormat(buf_T *buf) { return get_fileformat(buf); }
+void vimBufferSetFileFormat(buf_T *buf, int fileformat) { return set_fileformat_buf(buf, fileformat, OPT_LOCAL); }
+
 int vimBufferGetReadOnly(buf_T *buf) { return buf->b_p_ro; }
 void vimBufferSetReadOnly(buf_T *buf, int readonly) { buf->b_p_ro = readonly; }
 
