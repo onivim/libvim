@@ -60,6 +60,9 @@ int vimBufferGetModified(buf_T *buf);
 int vimBufferGetModifiable(buf_T *buf);
 void vimBufferSetModifiable(buf_T *buf, int modifiable);
 
+int vimBufferGetFileFormat(buf_T *buf);
+void vimBufferSetFileFormat(buf_T *buf, int fileformat);
+
 int vimBufferGetReadOnly(buf_T *buf);
 void vimBufferSetReadOnly(buf_T *buf, int modifiable);
 

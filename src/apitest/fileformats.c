@@ -21,7 +21,7 @@ MU_TEST(test_open_crlf_file)
 {
   vimBufferOpen("collateral/test.crlf", 1, 0);
 
-  int ff = get_fileformat(curbuf);
+  int ff = vimBufferGetFileFormat(curbuf);
   printf("file format: %d\n", ff);
   mu_check(ff == EOL_DOS);
 }
@@ -30,7 +30,7 @@ MU_TEST(test_open_lf_file)
 {
   vimBufferOpen("collateral/test.lf", 1, 0);
 
-  int ff = get_fileformat(curbuf);
+  int ff = vimBufferGetFileFormat(curbuf);
   printf("file format: %d\n", ff);
   mu_check(ff == EOL_UNIX);
 }
@@ -79,6 +79,24 @@ MU_TEST(test_write_lf_file)
   vim_free(tmp);
 }
 
+MU_TEST(test_convert_crlf_to_lf)
+{
+  buf_T *buf = vimBufferOpen("collateral/test.crlf", 1, 0);
+  vimBufferSetFileFormat(buf, EOL_UNIX);
+
+  int ff = vimBufferGetFileFormat(buf);
+  mu_check(ff == EOL_UNIX);
+}
+
+MU_TEST(test_convert_lf_to_crlf)
+{
+  buf_T *buf = vimBufferOpen("collateral/test.lf", 1, 0);
+  vimBufferSetFileFormat(buf, EOL_DOS);
+
+  int ff = vimBufferGetFileFormat(buf);
+  mu_check(ff == EOL_DOS);
+}
+
 /*MU_TEST(test_open_cr_file)
 {
   vimBufferOpen("collateral/test.cr", 1, 0);
@@ -96,6 +114,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_open_lf_file);
   MU_RUN_TEST(test_write_crlf_file);
   MU_RUN_TEST(test_write_lf_file);
+  MU_RUN_TEST(test_convert_crlf_to_lf);
+  MU_RUN_TEST(test_convert_lf_to_crlf);
   //MU_RUN_TEST(test_open_cr_file);
 }
 
