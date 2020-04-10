@@ -461,6 +461,15 @@ void vimInit(int argc, char **argv)
   mch_early_init();
   common_init(&params);
 
+// Ported from mch_init_c on Windows
+// Is there anything else we need from there?
+#ifdef MSWIN
+#ifndef __MINGW32__
+  extern int _fmode;
+#endif
+  _fmode = O_BINARY; /* we do our own CR-LF translation */
+#endif
+
   // Don't load viminfofile, for now.
   p_viminfofile = "NONE";
 

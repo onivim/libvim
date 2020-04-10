@@ -1,0 +1,5 @@
+src/apitest/collateral/*.crlf text eol=crlf
+src/apitest/collateral/*.lf text eol=lf
+src/apitest/collateral/*.cr text eol=cr
+src/auto/configure text eol=lf
+src/configure text eol=lf
