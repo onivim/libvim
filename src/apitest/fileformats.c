@@ -35,6 +35,50 @@ MU_TEST(test_open_lf_file)
   mu_check(ff == EOL_UNIX);
 }
 
+MU_TEST(test_write_crlf_file) 
+{
+  vimBufferOpen("collateral/test.crlf", 1, 0);
+
+  char_u *tmp = vim_tempname('t', FALSE);
+
+  char_u cmd[8192];
+  sprintf(cmd, "w %s", tmp);
+
+  vimExecute(cmd);
+
+  // Verify file did get overwritten
+  char buff[255];
+  FILE* fp = fopen(tmp, "rb");
+  // Get first line
+  fgets(buff, 255, fp);
+  fclose(fp);
+
+  mu_check(strcmp(buff, "a\r\n") == 0);
+  
+  vim_free(tmp);
+}
+
+MU_TEST(test_write_lf_file) 
+{
+  vimBufferOpen("collateral/test.lf", 1, 0);
+  char_u *tmp = vim_tempname('t', FALSE);
+
+  char_u cmd[8192];
+  sprintf(cmd, "w %s", tmp);
+
+  vimExecute(cmd);
+
+  // Verify file did get overwritten
+  char buff[255];
+  FILE* fp = fopen(tmp, "rb");
+  // Get first line
+  fgets(buff, 255, fp);
+  fclose(fp);
+
+  mu_check(strcmp(buff, "a\n") == 0);
+  vim_free(tmp);
+}
+
 /*MU_TEST(test_open_cr_file)
 {
   vimBufferOpen("collateral/test.cr", 1, 0);
@@ -50,6 +94,8 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_open_crlf_file);
   MU_RUN_TEST(test_open_lf_file);
+  MU_RUN_TEST(test_write_crlf_file);
+  MU_RUN_TEST(test_write_lf_file);
   //MU_RUN_TEST(test_open_cr_file);
 }
 
