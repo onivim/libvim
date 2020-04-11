@@ -10562,14 +10562,11 @@ void ex_terminal(exarg_T *eap)
     }
     cmd = skipwhite(p);
   }
-  if (*cmd == NUL)
-  {
-    /* Make a copy of 'shell', an autocommand may change the option. */
-    tofree = cmd = vim_strsave(p_sh);
 
+  if (opt.jo_term_finish == NUL)
+  {
     /* default to close when the shell exits */
-    if (opt.jo_term_finish == NUL)
-      opt.jo_term_finish = 'c';
+    opt.jo_term_finish = 'c';
   }
 
   if (eap->addr_count > 0)
@@ -10594,7 +10591,15 @@ void ex_terminal(exarg_T *eap)
     pRequest->finish = opt.jo_term_finish;
     pRequest->curwin = opt.jo_curwin;
     pRequest->hidden = opt.jo_hidden;
-    pRequest->cmd = cmd;
+
+    if (*cmd == NUL)
+    {
+      pRequest->cmd = NULL;
+    }
+    else
+    {
+      pRequest->cmd = cmd;
+    }
 
     terminalCallback(pRequest);
     free(pRequest);
