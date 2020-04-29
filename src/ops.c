@@ -824,7 +824,7 @@ int get_yank_register(int regname, int writing)
     if (!writing && useExternalClipboard)
     {
       free_yank_all(); /* free register */
-      y_current->y_type = MLINE;
+      y_current->y_type = blockType;
       y_current->y_size = num_lines;
       y_current->y_array = lines;
 
