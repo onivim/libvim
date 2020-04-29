@@ -45,18 +45,21 @@ char_u *acopy(char_u *str)
   return sz;
 };
 
-int simpleClipboardTest(int regname, int *numlines, char_u ***lines)
+int simpleClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
+  
   printf("simpleClipboardTest called\n");
+  *blockType = MLINE;
   *numlines = 1;
   *lines = ALLOC_ONE(char_u *);
   (*lines)[0] = acopy("Hello, World");
   return TRUE;
 };
 
-int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines)
+int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
   printf("multipleLineClipboardTest called\n");
+  *blockType = MLINE;
   *numlines = 3;
   *lines = ALLOC_MULT(char_u *, 3);
   (*lines)[0] = acopy("Hello2");
@@ -66,7 +69,7 @@ int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines)
   return TRUE;
 };
 
-int falseClipboardTest(int regname, int *numlines, char_u ***lines)
+int falseClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
   return FALSE;
 }
