@@ -47,7 +47,7 @@ char_u *acopy(char_u *str)
 
 int simpleClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
-  
+
   printf("simpleClipboardTest called\n");
   *blockType = MLINE;
   *numlines = 1;
@@ -58,7 +58,7 @@ int simpleClipboardTest(int regname, int *numlines, char_u ***lines, int *blockT
 
 int charClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
-  
+
   printf("charClipboardTest called\n");
   *blockType = MCHAR;
   *numlines = 1;
