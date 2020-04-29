@@ -1048,7 +1048,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"hidden", "hid", P_BOOL | P_VI_DEF, (char_u *)&p_hid, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"hidden", "hid", P_BOOL | P_VI_DEF, (char_u *)&p_hid, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"highlight", "hl", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_hl, PV_NONE, {(char_u *)HIGHLIGHT_INIT, (char_u *)0L} SCTX_INIT},
         {"history", "hi", P_NUM | P_VIM, (char_u *)&p_hi, PV_NONE, {(char_u *)0L, (char_u *)50L} SCTX_INIT},
         {"hkmap", "hk", P_BOOL | P_VI_DEF | P_VIM,
