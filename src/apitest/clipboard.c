@@ -56,6 +56,17 @@ int simpleClipboardTest(int regname, int *numlines, char_u ***lines, int *blockT
   return TRUE;
 };
 
+int charClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
+{
+  
+  printf("charClipboardTest called\n");
+  *blockType = MCHAR;
+  *numlines = 1;
+  *lines = ALLOC_ONE(char_u *);
+  (*lines)[0] = acopy("abc");
+  return TRUE;
+};
+
 int multipleLineClipboardTest(int regname, int *numlines, char_u ***lines, int *blockType)
 {
   printf("multipleLineClipboardTest called\n");
@@ -87,6 +98,18 @@ MU_TEST(test_paste_from_clipboard)
 
   printf("LINE: |%s|\n", line);
   mu_check(strcmp(line, "Hello, World") == 0);
+}
+
+MU_TEST(test_paste_from_clipboard_mchar)
+{
+  vimSetClipboardGetCallback(&charClipboardTest);
+
+  vimInput("p");
+
+  char_u *line = vimBufferGetLine(curbuf, 1);
+
+  printf("LINE: |%s|\n", line);
+  mu_check(strcmp(line, "Tabchis is the first line of a test file") == 0);
 }
 
 MU_TEST(test_paste_multiple_lines_from_clipboard)
@@ -180,6 +203,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_clipboard_not_enabled_star);
   MU_RUN_TEST(test_paste_from_clipboard);
+  MU_RUN_TEST(test_paste_from_clipboard_mchar);
   MU_RUN_TEST(test_paste_multiple_lines_from_clipboard);
   MU_RUN_TEST(test_clipboard_returns_false);
   MU_RUN_TEST(test_paste_overrides_default_register);
