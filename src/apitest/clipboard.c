@@ -115,7 +115,7 @@ MU_TEST(test_paste_from_clipboard_mchar)
 MU_TEST(test_paste_from_clipboard_mchar_star_register)
 {
   vimSetClipboardGetCallback(&charClipboardTest);
-  
+
   vimInput("\"");
   vimInput("*");
   vimInput("p");
