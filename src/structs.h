@@ -97,7 +97,7 @@ typedef struct
   int hidden;
 } terminalRequest_t;
 
-typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
+typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines, int *blockType /* MLINE, MCHAR, MBLOCK */);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
