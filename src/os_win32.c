@@ -144,7 +144,6 @@ static HANDLE g_hConIn = INVALID_HANDLE_VALUE;
 static HANDLE g_hConOut = INVALID_HANDLE_VALUE;
 
 /* Win32 Screen buffer,coordinate,console I/O information */
-static SMALL_RECT g_srScrollRegion;
 static COORD g_coord; /* 0-based, but external coords are 1-based */
 
 /* The attribute of the screen when the editor was started */
@@ -170,7 +169,6 @@ static int vtp_working = 0;
 static void vtp_init();
 static void vtp_exit();
 static int vtp_printf(char *format, ...);
-static void vtp_sgr_bulks(int argc, int *argv);
 
 static guicolor_T save_console_bg_rgb;
 static guicolor_T save_console_fg_rgb;
@@ -1588,37 +1586,6 @@ bad_param_handler(const wchar_t *expression,
 #define SRHEIGHT(sr) ((sr).Bottom - (sr).Top + 1)
 
 /*
- * ClearConsoleBuffer()
- * Description:
- *  Clears the entire contents of the console screen buffer, using the
- *  specified attribute.
- * Returns:
- *  TRUE on success
- */
-static BOOL
-ClearConsoleBuffer(WORD wAttribute)
-{
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  COORD coord;
-  DWORD NumCells, dummy;
-
-  if (!GetConsoleScreenBufferInfo(g_hConOut, &csbi))
-    return FALSE;
-
-  NumCells = csbi.dwSize.X * csbi.dwSize.Y;
-  coord.X = 0;
-  coord.Y = 0;
-  if (!FillConsoleOutputCharacter(g_hConOut, ' ', NumCells,
-                                  coord, &dummy))
-    return FALSE;
-  if (!FillConsoleOutputAttribute(g_hConOut, wAttribute, NumCells,
-                                  coord, &dummy))
-    return FALSE;
-
-  return TRUE;
-}
-
-/*
  * FitConsoleWindow()
  * Description:
  *  Checks if the console window will fit within given buffer dimensions.
@@ -2919,7 +2886,8 @@ void mch_set_shellsize(void)
  */
 void mch_new_shellsize(void)
 {
-  set_scroll_region(0, 0, Columns - 1, Rows - 1);
+  // libvim - noop
+  return;
 }
 
 /*
@@ -4184,28 +4152,6 @@ void mch_clear_job(job_T *job)
 #endif
 
 /*
- * clear `n' chars, starting from `coord'
- */
-static void
-clear_chars(
-    COORD coord,
-    DWORD n)
-{
-  DWORD dwDummy;
-
-  FillConsoleOutputCharacter(g_hConOut, ' ', n, coord, &dwDummy);
-
-  if (!USE_VTP)
-    FillConsoleOutputAttribute(g_hConOut, g_attrCurrent, n, coord, &dwDummy);
-  else
-  {
-    set_console_color_rgb();
-    gotoxy(coord.X + 1, coord.Y + 1);
-    vtp_printf("\033[%dX", n);
-  }
-}
-
-/*
  * Set the cursor position
  */
 static void
@@ -5121,31 +5067,6 @@ vtp_printf(
   va_end(list);
   WriteConsoleA(g_hConOut, buf, (DWORD)STRLEN(buf), &result, NULL);
   return (int)result;
-}
-
-static void
-vtp_sgr_bulks(
-    int argc,
-    int *args)
-{
-  /* 2('\033[') + 4('255.') * 16 + NUL */
-  char_u buf[2 + (4 * 16) + 1];
-  char_u *p;
-  int i;
-
-  p = buf;
-  *p++ = '\033';
-  *p++ = '[';
-
-  for (i = 0; i < argc; ++i)
-  {
-    p += vim_snprintf((char *)p, 4, "%d", args[i] & 0xff);
-    *p++ = ';';
-  }
-  p--;
-  *p++ = 'm';
-  *p = NUL;
-  vtp_printf((char *)buf);
 }
 
 static void
