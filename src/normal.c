@@ -6327,6 +6327,7 @@ static void nv_g_cmd(cmdarg_T *cap)
     break;
 
   /*
+   * libvim: gh shows 'hover' UI
    * "gh":  start Select mode.
    * "gH":  start Select line mode.
    * "g^H": start Select block mode.
@@ -6337,15 +6338,14 @@ static void nv_g_cmd(cmdarg_T *cap)
   case 'h':
   case 'H':
   case Ctrl_H:
-#ifdef EBCDIC
-    /* EBCDIC: 'v'-'h' != '^v'-'^h' */
-    if (cap->nchar == Ctrl_H)
-      cap->cmdchar = Ctrl_V;
-    else
-#endif
-      cap->cmdchar = cap->nchar + ('v' - 'h');
-    cap->arg = TRUE;
-    nv_visual(cap);
+    if (gotoCallback != NULL)
+    {
+      gotoRequest_T gotoRequest;
+      gotoRequest.location = curwin->w_cursor;
+      gotoRequest.target = HOVER;
+
+      gotoCallback(gotoRequest);
+    }
     break;
 
   /* "gn", "gN" visually select next/previous search match
