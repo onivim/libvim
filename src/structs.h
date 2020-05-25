@@ -79,6 +79,7 @@ typedef enum
   DECLARATION,
   IMPLEMENTATION,
   TYPEDEFINITION,
+  HOVER,
 } gotoTarget_T;
 
 typedef struct

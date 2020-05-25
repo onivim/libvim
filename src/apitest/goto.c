@@ -66,6 +66,17 @@ MU_TEST(test_goto_declaration)
   mu_check(lastTarget == DECLARATION);
 }
 
+MU_TEST(test_goto_hover)
+{
+  vimInput("g");
+  vimInput("h");
+
+  mu_check(gotoCount == 1);
+  mu_check(lastLnum == 1);
+  mu_check(lastCol == 0);
+  mu_check(lastTarget == HOVER);
+}
+
 // TODO: Implement goto-implementation
 /*MU_TEST(test_goto_implementation)
 {
@@ -84,6 +95,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_goto_no_callback);
   MU_RUN_TEST(test_goto_definition);
   MU_RUN_TEST(test_goto_declaration);
+  MU_RUN_TEST(test_goto_hover);
   //MU_RUN_TEST(test_goto_implementation);
 }
 
