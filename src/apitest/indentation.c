@@ -38,6 +38,7 @@ void test_setup(void)
   // Reset formatexpr, formatprg, and equalprg to defaults
   vimExecute("set formatexpr&");
   vimExecute("set formatprg&");
+  vimExecute("setlocal formatprg&");
   vimExecute("set equalprg&");
 
   vimInput("<esc>");
@@ -87,7 +88,6 @@ MU_TEST(indent_line_range)
 
 MU_TEST(indent_line_equalprg)
 {
-  // i
   vimExecute("set equalprg=indent");
   vimInput("=");
   vimInput("2");
@@ -101,6 +101,78 @@ MU_TEST(indent_line_equalprg)
   mu_check(strcmp(lastCmd, "indent") == 0);
 }
 
+MU_TEST(format_gq)
+{
+  vimInput("g");
+  vimInput("q");
+  vimInput("2");
+  vimInput("j");
+
+  mu_check(callCount == 1);
+  mu_check(lastStartLine == 1);
+  mu_check(lastEndLine == 3);
+  mu_check(lastRequestType == FORMATTING);
+  mu_check(lastReturnCursor == 0);
+  mu_check(*lastCmd == NUL);
+}
+
+MU_TEST(format_gw)
+{
+  vimInput("g");
+  vimInput("w");
+  vimInput("j");
+
+  mu_check(callCount == 1);
+  mu_check(lastStartLine == 1);
+  mu_check(lastEndLine == 2);
+  mu_check(lastRequestType == FORMATTING);
+  mu_check(lastReturnCursor == 1);
+  mu_check(*lastCmd == NUL);
+}
+
+MU_TEST(format_gq_buflocal_formatprg)
+{
+  vimExecute("setlocal formatprg=format");
+  vimInput("g");
+  vimInput("w");
+  vimInput("j");
+
+  mu_check(callCount == 1);
+  mu_check(lastStartLine == 1);
+  mu_check(lastEndLine == 2);
+  mu_check(lastRequestType == FORMATTING);
+  mu_check(lastReturnCursor == 1);
+  printf("FORMATPRG: %s\n", lastCmd);
+  mu_check(strcmp(lastCmd, "format") == 0);
+}
+
+MU_TEST(format_gq_buflocal_and_global_formatprg)
+{
+  vimExecute("set formatprg=format1");
+  vimExecute("setlocal formatprg=format2");
+  vimInput("g");
+  vimInput("w");
+  vimInput("j");
+
+  mu_check(callCount == 1);
+  mu_check(lastStartLine == 1);
+  mu_check(lastEndLine == 2);
+  mu_check(lastRequestType == FORMATTING);
+  mu_check(lastReturnCursor == 1);
+  printf("FORMATPRG: %s\n", lastCmd);
+  mu_check(strcmp(lastCmd, "format2") == 0);
+}
+
+MU_TEST(formatexpr_overrides_callback)
+{
+  vimExecute("set formatexpr=noop");
+  vimInput("g");
+  vimInput("q");
+  vimInput("j");
+
+  mu_check(callCount == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -109,6 +181,12 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(indent_line);
   MU_RUN_TEST(indent_line_range);
   MU_RUN_TEST(indent_line_equalprg);
+
+  MU_RUN_TEST(format_gq);
+  MU_RUN_TEST(format_gw);
+  MU_RUN_TEST(format_gq_buflocal_formatprg);
+  MU_RUN_TEST(format_gq_buflocal_and_global_formatprg);
+  MU_RUN_TEST(formatexpr_overrides_callback);
 }
 
 int main(int argc, char **argv)
