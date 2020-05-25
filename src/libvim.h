@@ -121,6 +121,7 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  * Misc
  **/
 
+void vimSetFormatCallback(FormatCallback formatCallback);
 void vimSetGotoCallback(GotoCallback gotoCallback);
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
 
