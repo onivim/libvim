@@ -155,11 +155,7 @@ static int g_fCBrkPressed = FALSE;  /* set by ctrl-break interrupt */
 static int g_fCtrlCPressed = FALSE; /* set when ctrl-C or ctrl-break detected */
 static int g_fForceExit = FALSE;    /* set when forcefully exiting */
 
-static void set_scroll_region(unsigned left, unsigned top,
-                              unsigned right, unsigned bottom);
-static void delete_lines(unsigned cLines);
 static void gotoxy(unsigned x, unsigned y);
-static int s_cursor_visible = TRUE;
 static int did_create_conin = FALSE;
 
 static int win32_getattrs(char_u *name);
@@ -174,7 +170,6 @@ static int vtp_working = 0;
 static void vtp_init();
 static void vtp_exit();
 static int vtp_printf(char *format, ...);
-static void vtp_sgr_bulk(int arg);
 static void vtp_sgr_bulks(int argc, int *argv);
 
 static guicolor_T save_console_bg_rgb;
@@ -1791,81 +1786,10 @@ SaveConsoleBuffer(
   return TRUE;
 }
 
-/*
- * RestoreConsoleBuffer()
- * Description:
- *  Restores important information about the console buffer, including the
- *  actual buffer contents, if desired.  The information to restore is in
- *  the same format used by SaveConsoleBuffer().
- * Returns:
- *  TRUE on success
- */
-static BOOL
-RestoreConsoleBuffer(
-    ConsoleBuffer *cb,
-    BOOL RestoreScreen)
-{
-  COORD BufferCoord;
-  SMALL_RECT WriteRegion;
-  int i;
-
-  if (cb == NULL || !cb->IsValid)
-    return FALSE;
-
-  /*
-     * Before restoring the buffer contents, clear the current buffer, and
-     * restore the cursor position and window information.  Doing this now
-     * prevents old buffer contents from "flashing" onto the screen.
-     */
-  if (RestoreScreen)
-    ClearConsoleBuffer(cb->Info.wAttributes);
-
-  FitConsoleWindow(cb->Info.dwSize, TRUE);
-  if (!SetConsoleScreenBufferSize(g_hConOut, cb->Info.dwSize))
-    return FALSE;
-  if (!SetConsoleTextAttribute(g_hConOut, cb->Info.wAttributes))
-    return FALSE;
-
-  if (!RestoreScreen)
-  {
-    /*
-	 * No need to restore the screen buffer contents, so we're done.
-	 */
-    return TRUE;
-  }
-
-  if (!SetConsoleCursorPosition(g_hConOut, cb->Info.dwCursorPosition))
-    return FALSE;
-  if (!SetConsoleWindowInfo(g_hConOut, TRUE, &cb->Info.srWindow))
-    return FALSE;
-
-  /*
-     * Restore the screen buffer contents.
-     */
-  if (cb->Buffer != NULL)
-  {
-    for (i = 0; i < cb->NumRegions; i++)
-    {
-      BufferCoord.X = cb->Regions[i].Left;
-      BufferCoord.Y = cb->Regions[i].Top;
-      WriteRegion = cb->Regions[i];
-      if (!WriteConsoleOutputW(g_hConOut,      /* output handle */
-                               cb->Buffer,     /* our buffer */
-                               cb->BufferSize, /* dimensions of our buffer */
-                               BufferCoord,    /* offset in our buffer */
-                               &WriteRegion))  /* region to restore */
-        return FALSE;
-    }
-  }
-
-  return TRUE;
-}
-
 #define FEAT_RESTORE_ORIG_SCREEN
 #ifdef FEAT_RESTORE_ORIG_SCREEN
 static ConsoleBuffer g_cbOrig = {0};
 #endif
-static ConsoleBuffer g_cbNonTermcap = {0};
 static ConsoleBuffer g_cbTermcap = {0};
 
 static int g_fWindInitCalled = FALSE;
@@ -4282,61 +4206,6 @@ clear_chars(
 }
 
 /*
- * Delete `cLines' lines at the current cursor position
- */
-static void
-delete_lines(unsigned cLines)
-{
-  SMALL_RECT source, clip;
-  COORD dest;
-  CHAR_INFO fill;
-  int nb;
-
-  gotoxy(g_srScrollRegion.Left + 1, g_srScrollRegion.Top + 1);
-
-  dest.X = g_srScrollRegion.Left;
-  dest.Y = g_coord.Y;
-
-  source.Left = g_srScrollRegion.Left;
-  source.Top = g_coord.Y + cLines;
-  source.Right = g_srScrollRegion.Right;
-  source.Bottom = g_srScrollRegion.Bottom;
-
-  clip.Left = g_srScrollRegion.Left;
-  clip.Top = g_coord.Y;
-  clip.Right = g_srScrollRegion.Right;
-  clip.Bottom = g_srScrollRegion.Bottom;
-
-  fill.Char.AsciiChar = ' ';
-  if (!USE_VTP)
-    fill.Attributes = g_attrCurrent;
-  else
-    fill.Attributes = g_attrDefault;
-
-  set_console_color_rgb();
-
-  ScrollConsoleScreenBuffer(g_hConOut, &source, &clip, dest, &fill);
-
-  // Here we have to deal with a win32 console flake; See insert_lines()
-  // above.
-
-  nb = dest.Y + (source.Bottom - source.Top) + 1;
-
-  if (nb < source.Top)
-  {
-    COORD coord;
-    int i;
-
-    coord.X = source.Left;
-    for (i = nb; i < clip.Bottom; ++i)
-    {
-      coord.Y = i;
-      clear_chars(coord, source.Right - source.Left + 1);
-    }
-  }
-}
-
-/*
  * Set the cursor position
  */
 static void
@@ -4356,20 +4225,6 @@ gotoxy(
   else
     vtp_printf("\033[%d;%dH", y, x);
 }
-
-/*
- * Set the current text attribute = (foreground | background)
- * See ../runtime/doc/os_win32.txt for the numbers.
- */
-static void
-textattr(WORD wAttr)
-{
-  g_attrCurrent = wAttr & 0xff;
-
-  SetConsoleTextAttribute(g_hConOut, wAttr);
-}
-
-static WORD g_attrPreStandout = 0;
 
 /*
  * Set normal fg/bg color, based on T_ME.  Called when t_me has been set.
@@ -5266,16 +5121,6 @@ vtp_printf(
   va_end(list);
   WriteConsoleA(g_hConOut, buf, (DWORD)STRLEN(buf), &result, NULL);
   return (int)result;
-}
-
-static void
-vtp_sgr_bulk(
-    int arg)
-{
-  int args[1];
-
-  args[0] = arg;
-  vtp_sgr_bulks(1, args);
 }
 
 static void
