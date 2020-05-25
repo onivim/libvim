@@ -2169,6 +2169,19 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
                          /* FALLTHROUGH */
 
     case OP_INDENT:
+      if (formatCallback != NULL)
+      {
+        formatRequest_T formatRequest;
+        formatRequest.formatType = INDENTATION;
+        formatRequest.returnCursor = 0;
+        formatRequest.start = oap->start;
+        formatRequest.end = oap->end;
+        formatRequest.buf = curbuf;
+        formatRequest.cmd = get_equalprg();
+
+        formatCallback(&formatRequest);
+      }
+      break;
     case OP_COLON:
       op_colon(oap);
       break;
@@ -2193,14 +2206,46 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
         op_formatexpr(oap); /* use expression */
       else
 #endif
-          if (*p_fp != NUL || *curbuf->b_p_fp != NUL)
-        op_colon(oap); /* use external command */
-      else
-        op_format(oap, FALSE); /* use internal function */
+          if (formatCallback != NULL)
+      {
+
+        char_u *cmd = curbuf->b_p_fp;
+        if (*cmd == NUL)
+        {
+          cmd = p_fp;
+        }
+
+        formatRequest_T formatRequest;
+        formatRequest.formatType = FORMATTING;
+        formatRequest.returnCursor = 0;
+        formatRequest.start = oap->start;
+        formatRequest.end = oap->end;
+        formatRequest.buf = curbuf;
+        formatRequest.cmd = cmd;
+
+        formatCallback(&formatRequest);
+      }
       break;
 
     case OP_FORMAT2:
-      op_format(oap, TRUE); /* use internal function */
+      if (formatCallback != NULL)
+      {
+        char_u *cmd = curbuf->b_p_fp;
+        if (*cmd == NUL)
+        {
+          cmd = p_fp;
+        }
+
+        formatRequest_T formatRequest;
+        formatRequest.formatType = FORMATTING;
+        formatRequest.returnCursor = 1;
+        formatRequest.start = oap->start;
+        formatRequest.end = oap->end;
+        formatRequest.buf = curbuf;
+        formatRequest.cmd = cmd;
+
+        formatCallback(&formatRequest);
+      }
       break;
 
     case OP_FUNCTION:

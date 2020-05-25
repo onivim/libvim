@@ -427,6 +427,11 @@ void vimSetClipboardGetCallback(ClipboardGetCallback callback)
 
 int vimGetMode(void) { return get_real_state(); }
 
+void vimSetFormatCallback(FormatCallback callback)
+{
+  formatCallback = callback;
+}
+
 void vimSetGotoCallback(GotoCallback callback)
 {
   gotoCallback = callback;
