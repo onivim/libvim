@@ -154,7 +154,6 @@ static int g_fCBrkPressed = FALSE;  /* set by ctrl-break interrupt */
 static int g_fCtrlCPressed = FALSE; /* set when ctrl-C or ctrl-break detected */
 static int g_fForceExit = FALSE;    /* set when forcefully exiting */
 
-static void gotoxy(unsigned x, unsigned y);
 static int did_create_conin = FALSE;
 
 static int win32_getattrs(char_u *name);
@@ -1584,59 +1583,6 @@ bad_param_handler(const wchar_t *expression,
 
 #define SRWIDTH(sr) ((sr).Right - (sr).Left + 1)
 #define SRHEIGHT(sr) ((sr).Bottom - (sr).Top + 1)
-
-/*
- * FitConsoleWindow()
- * Description:
- *  Checks if the console window will fit within given buffer dimensions.
- *  Also, if requested, will shrink the window to fit.
- * Returns:
- *  TRUE on success
- */
-static BOOL
-FitConsoleWindow(
-    COORD dwBufferSize,
-    BOOL WantAdjust)
-{
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  COORD dwWindowSize;
-  BOOL NeedAdjust = FALSE;
-
-  if (GetConsoleScreenBufferInfo(g_hConOut, &csbi))
-  {
-    /*
-	 * A buffer resize will fail if the current console window does
-	 * not lie completely within that buffer.  To avoid this, we might
-	 * have to move and possibly shrink the window.
-	 */
-    if (csbi.srWindow.Right >= dwBufferSize.X)
-    {
-      dwWindowSize.X = SRWIDTH(csbi.srWindow);
-      if (dwWindowSize.X > dwBufferSize.X)
-        dwWindowSize.X = dwBufferSize.X;
-      csbi.srWindow.Right = dwBufferSize.X - 1;
-      csbi.srWindow.Left = dwBufferSize.X - dwWindowSize.X;
-      NeedAdjust = TRUE;
-    }
-    if (csbi.srWindow.Bottom >= dwBufferSize.Y)
-    {
-      dwWindowSize.Y = SRHEIGHT(csbi.srWindow);
-      if (dwWindowSize.Y > dwBufferSize.Y)
-        dwWindowSize.Y = dwBufferSize.Y;
-      csbi.srWindow.Bottom = dwBufferSize.Y - 1;
-      csbi.srWindow.Top = dwBufferSize.Y - dwWindowSize.Y;
-      NeedAdjust = TRUE;
-    }
-    if (NeedAdjust && WantAdjust)
-    {
-      if (!SetConsoleWindowInfo(g_hConOut, TRUE, &csbi.srWindow))
-        return FALSE;
-    }
-    return TRUE;
-  }
-
-  return FALSE;
-}
 
 typedef struct ConsoleBufferStruct
 {
@@ -4150,27 +4096,6 @@ void mch_clear_job(job_T *job)
   }
 }
 #endif
-
-/*
- * Set the cursor position
- */
-static void
-gotoxy(
-    unsigned x,
-    unsigned y)
-{
-  if (x < 1 || x > (unsigned)Columns || y < 1 || y > (unsigned)Rows)
-    return;
-
-  /* external cursor coords are 1-based; internal are 0-based */
-  g_coord.X = x - 1;
-  g_coord.Y = y - 1;
-
-  if (!USE_VTP)
-    SetConsoleCursorPosition(g_hConOut, g_coord);
-  else
-    vtp_printf("\033[%d;%dH", y, x);
-}
 
 /*
  * Set normal fg/bg color, based on T_ME.  Called when t_me has been set.
