@@ -26,30 +26,7 @@
 
 void ui_write(char_u *s, int len)
 {
-#ifndef NO_CONSOLE
-  /* Don't output anything in silent mode ("ex -s") unless 'verbose' set */
-  if (!(silent_mode && p_verbose == 0))
-  {
-#if !defined(MSWIN)
-    char_u *tofree = NULL;
-
-    if (output_conv.vc_type != CONV_NONE)
-    {
-      /* Convert characters from 'encoding' to 'termencoding'. */
-      tofree = string_convert(&output_conv, s, &len);
-      if (tofree != NULL)
-        s = tofree;
-    }
-#endif
-
-    mch_write(s, len);
-
-#if !defined(MSWIN)
-    if (output_conv.vc_type != CONV_NONE)
-      vim_free(tofree);
-#endif
-  }
-#endif
+  // libvim: no-op
 }
 
 #if defined(UNIX) || defined(VMS) || defined(PROTO) || defined(MSWIN)
@@ -123,11 +100,6 @@ int ui_inchar(
   {
     static int count = 0;
 
-#ifndef NO_CONSOLE
-    retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
-    if (retval > 0 || typebuf_changed(tb_change_cnt) || wtime >= 0)
-      goto theend;
-#endif
     if (wtime == -1 && ++count == 1000)
       read_error_exit();
     buf[0] = CAR;
@@ -189,10 +161,6 @@ int ui_inchar(
      * }
      *
      */
-
-#ifndef NO_CONSOLE
-  retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
-#endif
 
   if (wtime == -1 || wtime > 100L)
     /* block SIGHUP et al. */
@@ -446,15 +414,8 @@ int ui_wait_for_chars_or_timer(
  */
 int ui_char_avail(void)
 {
-#ifndef NO_CONSOLE
-#ifdef NO_CONSOLE_INPUT
-  if (no_console_input())
-    return 0;
-#endif
-  return mch_char_avail();
-#else
+  // libvim - no-op
   return 0;
-#endif
 }
 
 /*
