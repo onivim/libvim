@@ -2169,6 +2169,19 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
                          /* FALLTHROUGH */
 
     case OP_INDENT:
+      if (formatCallback != NULL)
+      {
+        formatRequest_T formatRequest;
+        formatRequest.formatType = INDENTATION;
+        formatRequest.returnCursor = 0;
+        formatRequest.start = oap->start;
+        formatRequest.end = oap->end;
+        formatRequest.buf = curbuf;
+        formatRequest.cmd = get_equalprg();
+
+        formatCallback(&formatRequest);
+      }
+      break;
     case OP_COLON:
       op_colon(oap);
       break;

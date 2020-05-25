@@ -99,23 +99,24 @@ typedef struct
   int hidden;
 } terminalRequest_t;
 
-typedef enum 
+typedef enum
 {
   INDENTATION, // Indentation, ie, '=' operator
-  FORMATTING, // Formatting, ie, 'gq' operator
-} formatRequestType_t;
+  FORMATTING,  // Formatting, ie, 'gq' operator
+} formatRequestType_T;
 
 typedef struct
 {
-  formatRequestType_t formatType;
+  formatRequestType_T formatType;
   int returnCursor;
   pos_T start;
   pos_T end;
-  buf_T* buf;
-} formatRequest_t;
+  buf_T *buf;
+  char_u *cmd; // If [cmd] is specified, should delegate to external command.
+} formatRequest_T;
 
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines, int *blockType /* MLINE, MCHAR, MBLOCK */);
-typedef void (*FormatCallback)(formatRequest_t *formatRequest);
+typedef void (*FormatCallback)(formatRequest_T *formatRequest);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
@@ -189,7 +190,7 @@ typedef struct growarray
 typedef struct window_S win_T;
 typedef struct wininfo_S wininfo_T;
 typedef struct frame_S frame_T;
-typedef int scid_T;               /* script ID */
+typedef int scid_T; /* script ID */
 typedef struct terminal_S term_T;
 
 typedef void (*AutoCommandCallback)(event_T, buf_T *buf);
