@@ -143,9 +143,6 @@ typedef int LPSECURITY_ATTRIBUTES;
 static HANDLE g_hConIn = INVALID_HANDLE_VALUE;
 static HANDLE g_hConOut = INVALID_HANDLE_VALUE;
 
-/* Win32 Screen buffer,coordinate,console I/O information */
-static COORD g_coord; /* 0-based, but external coords are 1-based */
-
 /* The attribute of the screen when the editor was started */
 static WORD g_attrDefault = 7; /* lightgray text on black background */
 static WORD g_attrCurrent;
@@ -167,7 +164,6 @@ static void vtp_flag_init();
 static int vtp_working = 0;
 static void vtp_init();
 static void vtp_exit();
-static int vtp_printf(char *format, ...);
 
 static guicolor_T save_console_bg_rgb;
 static guicolor_T save_console_fg_rgb;
@@ -4976,22 +4972,6 @@ static void
 vtp_exit(void)
 {
   reset_console_color_rgb();
-}
-
-static int
-vtp_printf(
-    char *format,
-    ...)
-{
-  char_u buf[100];
-  va_list list;
-  DWORD result;
-
-  va_start(list, format);
-  vim_vsnprintf((char *)buf, 100, (char *)format, list);
-  va_end(list);
-  WriteConsoleA(g_hConOut, buf, (DWORD)STRLEN(buf), &result, NULL);
-  return (int)result;
 }
 
 static void
