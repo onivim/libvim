@@ -6991,7 +6991,6 @@ highlight-start	syntax.txt	/*highlight-start*
 highlight-stop	syntax.txt	/*highlight-stop*
 highlight-term	syntax.txt	/*highlight-term*
 highlightID()	eval.txt	/*highlightID()*
-highlight_exists()	eval.txt	/*highlight_exists()*
 highlighting-functions	usr_41.txt	/*highlighting-functions*
 hist-names	eval.txt	/*hist-names*
 histadd()	eval.txt	/*histadd()*
@@ -7065,7 +7064,6 @@ hl-WildMenu	syntax.txt	/*hl-WildMenu*
 hl-debugBreakpoint	terminal.txt	/*hl-debugBreakpoint*
 hl-debugPC	terminal.txt	/*hl-debugPC*
 hlID()	eval.txt	/*hlID()*
-hlexists()	eval.txt	/*hlexists()*
 hlsearch-variable	eval.txt	/*hlsearch-variable*
 holy-grail	index.txt	/*holy-grail*
 home	intro.txt	/*home*

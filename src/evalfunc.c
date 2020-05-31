@@ -208,7 +208,6 @@ static void f_histdel(typval_T *argvars, typval_T *rettv);
 static void f_histget(typval_T *argvars, typval_T *rettv);
 static void f_histnr(typval_T *argvars, typval_T *rettv);
 static void f_hlID(typval_T *argvars, typval_T *rettv);
-static void f_hlexists(typval_T *argvars, typval_T *rettv);
 static void f_hostname(typval_T *argvars, typval_T *rettv);
 static void f_iconv(typval_T *argvars, typval_T *rettv);
 static void f_indent(typval_T *argvars, typval_T *rettv);
@@ -673,14 +672,12 @@ static struct fst
         {"has_key", 2, 2, f_has_key},
         {"haslocaldir", 0, 2, f_haslocaldir},
         {"hasmapto", 1, 3, f_hasmapto},
-        {"highlightID", 1, 1, f_hlID},          /* obsolete */
-        {"highlight_exists", 1, 1, f_hlexists}, /* obsolete */
+        {"highlightID", 1, 1, f_hlID}, /* obsolete */
         {"histadd", 2, 2, f_histadd},
         {"histdel", 1, 2, f_histdel},
         {"histget", 1, 2, f_histget},
         {"histnr", 1, 1, f_histnr},
         {"hlID", 1, 1, f_hlID},
-        {"hlexists", 1, 1, f_hlexists},
         {"hostname", 0, 0, f_hostname},
         {"iconv", 3, 3, f_iconv},
         {"indent", 1, 1, f_indent},
@@ -6480,15 +6477,6 @@ static void
 f_hlID(typval_T *argvars, typval_T *rettv)
 {
   rettv->vval.v_number = syn_name2id(tv_get_string(&argvars[0]));
-}
-
-/*
- * "highlight_exists()" function
- */
-static void
-f_hlexists(typval_T *argvars, typval_T *rettv)
-{
-  rettv->vval.v_number = highlight_exists(tv_get_string(&argvars[0]));
 }
 
 /*

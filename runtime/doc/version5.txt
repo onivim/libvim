@@ -2262,7 +2262,6 @@ Renamed functions:
 		buffer_name()      -> bufname()
 		buffer_number()    -> bufnr()
 		file_readable()    -> filereadable()
-		highlight_exists() -> hlexists()
 		highlightID()      -> hlID()
 		last_buffer_nr()   -> bufnr("$")
 The old ones are still there, for backwards compatibility.
