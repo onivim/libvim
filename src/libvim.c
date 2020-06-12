@@ -234,6 +234,11 @@ int vimUndoSaveRegion(linenr_T start_lnum, linenr_T end_lnum)
   return u_save(start_lnum, end_lnum);
 }
 
+void vimUndoSync(int force)
+{
+  u_sync(force);
+}
+
 int vimVisualGetType(void) { return VIsual_mode; }
 
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos)

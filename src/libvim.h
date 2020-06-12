@@ -172,6 +172,14 @@ void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines);
 int vimUndoSaveCursor(void);
 int vimUndoSaveRegion(linenr_T start_lnum, linenr_T end_lnum);
 
+/*
+ * vimUndoSync(force)
+ *
+ * Create a sync point (a new undo level) - stop adding to current
+ * undo entry, and start a new one.
+ */
+void vimUndoSync(int force);
+
 /***
  * Visual Mode
  ***/
