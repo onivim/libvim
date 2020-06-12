@@ -84,6 +84,7 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
   changed_lines_buf(buf, start, end, (end - start) - count);
 
   ++CHANGEDTICK(buf);
+  buf->b_changed = TRUE;
 
   if (bufferUpdateCallback != NULL)
   {
