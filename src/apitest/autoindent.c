@@ -1,14 +1,20 @@
 #include "libvim.h"
 #include "minunit.h"
 
-static int indentSize = 0;
-
-int onIndent(int tabSize, int prevIndent, char_u *prevLine, char_u *line)
+int alwaysIndent(int bufferid, char_u *prevLine, char_u *line)
 {
-  printf("onIndent: ts: %d prevIndent: %d prev |%s| line: |%s|", tabSize, prevIndent, prevLine, line);
+  return 1;
+}
 
-  return indentSize;
-};
+int alwaysUnindent(int bufferId, char_u *prevLine, char_u *line)
+{
+  return -1;
+}
+
+int neverIndent(int bufferId, char_u *prevLine, char_u *line)
+{
+  return 0;
+}
 
 void test_setup(void)
 {
@@ -36,47 +42,90 @@ void test_teardown(void) {}
  */
 /* } */
 
-MU_TEST(test_autoindent_normal_o)
+MU_TEST(test_autoindent_tab_normal_o)
 {
-  indentSize = 3;
+  vimOptionSetInsertSpaces(false);
+  vimSetAutoIndentCallback(&alwaysIndent);
   vimInput("o");
   vimInput("a");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: |%s|\n", line);
-  char_u *line2 = "\t  a";
-  printf("c0: %d", line[0]);
-  printf("c1: %d", line[1]);
-  printf("c2: %d", line[2]);
-  printf("c3: %d", line[3]);
+  char_u *line2 = "\ta";
   mu_check(strcmp(line, line2) == 0);
 }
 
-MU_TEST(test_autoindent_insert_cr)
+MU_TEST(test_autoindent_spaces_normal_o)
 {
-  indentSize = 3;
+  vimOptionSetInsertSpaces(true);
+  vimOptionSetTabSize(7);
+  vimSetAutoIndentCallback(&alwaysIndent);
+  vimInput("o");
+  vimInput("a");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line2 = "       a";
+  mu_check(strcmp(line, line2) == 0);
+}
+
+MU_TEST(test_autounindent_spaces_normal_o)
+{
+  vimOptionSetInsertSpaces(true);
+  vimOptionSetTabSize(2);
+  vimSetAutoIndentCallback(&alwaysUnindent);
+  vimInput("o");
+  vimInput("  a");
+  vimInput("<cr>");
+  vimInput("b");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line2 = "b";
+  mu_check(strcmp(line, line2) == 0);
+}
+
+MU_TEST(test_autounindent_spaces_no_indent)
+{
+  vimOptionSetInsertSpaces(true);
+  vimOptionSetTabSize(2);
+  vimSetAutoIndentCallback(&alwaysUnindent);
   vimInput("A");
+  vimInput("<cr>");
+  vimInput("b");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line2 = "b";
+  mu_check(strcmp(line, line2) == 0);
+}
+
+MU_TEST(test_autoindent_tab_insert_cr)
+{
+  vimOptionSetInsertSpaces(false);
+  vimSetAutoIndentCallback(&alwaysIndent);
+  vimInput("A");
+  vimInput("<cr>");
+  vimInput("a");
   vimInput("<cr>");
   vimInput("a");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   printf("LINE: |%s|\n", line);
-  char_u *line2 = "\t  a";
-  mu_check(strcmp(line, line2) == 0);
+  char_u *line3 = "\t\ta";
+  mu_check(strcmp(line, line3) == 0);
 }
 
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  MU_RUN_TEST(test_autoindent_normal_o);
-  MU_RUN_TEST(test_autoindent_insert_cr);
+  MU_RUN_TEST(test_autoindent_tab_normal_o);
+  MU_RUN_TEST(test_autoindent_spaces_normal_o);
+  MU_RUN_TEST(test_autoindent_tab_insert_cr);
+  MU_RUN_TEST(test_autounindent_spaces_normal_o);
+  MU_RUN_TEST(test_autounindent_spaces_no_indent);
 }
 
 int main(int argc, char **argv)
 {
   vimInit(argc, argv);
-  //vimSetIndentationCallback(&onIndent);
 
   win_setwidth(5);
   win_setheight(100);

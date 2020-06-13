@@ -1334,7 +1334,6 @@ int open_line(
     int flags,
     int second_line_indent)
 {
-  printf("open_line - 1\n");
   char_u *saved_line;       // copy of the original line
   char_u *next_line = NULL; // copy of the next line
   char_u *p_extra = NULL;   // what goes to next line
@@ -2096,11 +2095,9 @@ int open_line(
     did_append = FALSE;
   }
 
-  int sw = (int)get_sw_value(curbuf);
-  printf("shiftwidtH: %d\n", sw);
-
   if (autoIndentCallback != NULL)
   {
+    int sw = (int)get_sw_value(curbuf);
     int indentOption = autoIndentCallback(
         curbuf->b_fnum,
         saved_line,
