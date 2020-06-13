@@ -1,17 +1,17 @@
 #include "libvim.h"
 #include "minunit.h"
 
-int alwaysIndent(int bufferid, char_u *prevLine, char_u *line)
+int alwaysIndent(buf_T *buf, char_u *prevLine, char_u *line)
 {
   return 1;
 }
 
-int alwaysUnindent(int bufferId, char_u *prevLine, char_u *line)
+int alwaysUnindent(buf_T *buf, char_u *prevLine, char_u *line)
 {
   return -1;
 }
 
-int neverIndent(int bufferId, char_u *prevLine, char_u *line)
+int neverIndent(buf_T *buf, char_u *prevLine, char_u *line)
 {
   return 0;
 }

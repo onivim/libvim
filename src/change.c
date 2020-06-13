@@ -2099,7 +2099,7 @@ int open_line(
   {
     int sw = (int)get_sw_value(curbuf);
     int indentOption = autoIndentCallback(
-        curbuf->b_fnum,
+        curbuf,
         saved_line,
         next_line);
 
