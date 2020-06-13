@@ -44,7 +44,7 @@ void test_teardown(void) {}
 
 MU_TEST(test_autoindent_tab_normal_o)
 {
-  vimOptionSetInsertSpaces(false);
+  vimOptionSetInsertSpaces(FALSE);
   vimSetAutoIndentCallback(&alwaysIndent);
   vimInput("o");
   vimInput("a");
@@ -56,7 +56,7 @@ MU_TEST(test_autoindent_tab_normal_o)
 
 MU_TEST(test_autoindent_spaces_normal_o)
 {
-  vimOptionSetInsertSpaces(true);
+  vimOptionSetInsertSpaces(TRUE);
   vimOptionSetTabSize(7);
   vimSetAutoIndentCallback(&alwaysIndent);
   vimInput("o");
@@ -69,7 +69,7 @@ MU_TEST(test_autoindent_spaces_normal_o)
 
 MU_TEST(test_autounindent_spaces_normal_o)
 {
-  vimOptionSetInsertSpaces(true);
+  vimOptionSetInsertSpaces(TRUE);
   vimOptionSetTabSize(2);
   vimSetAutoIndentCallback(&alwaysUnindent);
   vimInput("o");
@@ -84,7 +84,7 @@ MU_TEST(test_autounindent_spaces_normal_o)
 
 MU_TEST(test_autounindent_spaces_no_indent)
 {
-  vimOptionSetInsertSpaces(true);
+  vimOptionSetInsertSpaces(TRUE);
   vimOptionSetTabSize(2);
   vimSetAutoIndentCallback(&alwaysUnindent);
   vimInput("A");
@@ -98,7 +98,7 @@ MU_TEST(test_autounindent_spaces_no_indent)
 
 MU_TEST(test_autoindent_tab_insert_cr)
 {
-  vimOptionSetInsertSpaces(false);
+  vimOptionSetInsertSpaces(FALSE);
   vimSetAutoIndentCallback(&alwaysIndent);
   vimInput("A");
   vimInput("<cr>");
