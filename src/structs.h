@@ -118,6 +118,8 @@ typedef struct
 
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines, int *blockType /* MLINE, MCHAR, MBLOCK */);
 typedef void (*FormatCallback)(formatRequest_T *formatRequest);
+typedef int (*AutoIndentCallback)(buf_T *buf,
+                                  char_u *prevLine, char_u *currentLine);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);

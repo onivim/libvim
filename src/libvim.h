@@ -112,6 +112,12 @@ void vimInput(char_u *input);
 void vimExecute(char_u *cmd);
 
 /***
+ * Auto-indent
+ ***/
+
+int vimSetAutoIndentCallback(AutoIndentCallback callback);
+
+/***
  * Messages
  ***/
 

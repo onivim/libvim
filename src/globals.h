@@ -54,6 +54,7 @@ EXTERN FormatCallback formatCallback INIT(= NULL);
 EXTERN GotoCallback gotoCallback INIT(= NULL);
 EXTERN VoidCallback displayIntroCallback INIT(= NULL);
 EXTERN VoidCallback displayVersionCallback INIT(= NULL);
+EXTERN AutoIndentCallback autoIndentCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
 EXTERN TerminalCallback terminalCallback INIT(= NULL);
