@@ -117,6 +117,11 @@ void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
   fileWriteFailureCallback = f;
 }
 
+void vimSetAutoIndentCallback(AutoIndentCallback f)
+{
+  autoIndentCallback = f;
+}
+
 void vimSetMessageCallback(MessageCallback f)
 {
   messageCallback = f;
