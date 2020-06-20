@@ -2099,6 +2099,7 @@ int open_line(
   {
     int sw = (int)get_sw_value(curbuf);
     int indentOption = autoIndentCallback(
+        curwin->w_cursor.lnum + 1,
         curbuf,
         saved_line,
         next_line);
