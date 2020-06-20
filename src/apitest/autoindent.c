@@ -1,18 +1,26 @@
 #include "libvim.h"
 #include "minunit.h"
 
-int alwaysIndent(buf_T *buf, char_u *prevLine, char_u *line)
+static int lastLnum = -1;
+
+int alwaysIndent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
 {
+  printf("alwaysIndent - lnum: %d\n", lnum);
+  lastLnum = lnum;
   return 1;
 }
 
-int alwaysUnindent(buf_T *buf, char_u *prevLine, char_u *line)
+int alwaysUnindent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
 {
+  printf("alwaysUnindent - lnum: %d\n", lnum);
+  lastLnum = lnum;
   return -1;
 }
 
-int neverIndent(buf_T *buf, char_u *prevLine, char_u *line)
+int neverIndent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
 {
+  printf("neverIndent - lnum: %d\n", lnum);
+  lastLnum = lnum;
   return 0;
 }
 
@@ -52,6 +60,7 @@ MU_TEST(test_autoindent_tab_normal_o)
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   char_u *line2 = "\ta";
   mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 2);
 }
 
 MU_TEST(test_autoindent_spaces_normal_o)
@@ -65,6 +74,7 @@ MU_TEST(test_autoindent_spaces_normal_o)
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   char_u *line2 = "       a";
   mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 2);
 }
 
 MU_TEST(test_autounindent_spaces_normal_o)
@@ -80,6 +90,7 @@ MU_TEST(test_autounindent_spaces_normal_o)
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   char_u *line2 = "b";
   mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 3);
 }
 
 MU_TEST(test_autounindent_spaces_no_indent)
@@ -94,6 +105,7 @@ MU_TEST(test_autounindent_spaces_no_indent)
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   char_u *line2 = "b";
   mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 2);
 }
 
 MU_TEST(test_autoindent_tab_insert_cr)
@@ -110,6 +122,7 @@ MU_TEST(test_autoindent_tab_insert_cr)
   printf("LINE: |%s|\n", line);
   char_u *line3 = "\t\ta";
   mu_check(strcmp(line, line3) == 0);
+  mu_check(lastLnum == 3);
 }
 
 MU_TEST_SUITE(test_suite)
