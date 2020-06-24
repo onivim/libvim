@@ -10,11 +10,25 @@ int alwaysIndent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
   return 1;
 }
 
+int alwaysIndentDouble(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
+{
+  printf("alwaysIndentDouble - lnum: %d\n", lnum);
+  lastLnum = lnum;
+  return 2;
+}
+
 int alwaysUnindent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
 {
   printf("alwaysUnindent - lnum: %d\n", lnum);
   lastLnum = lnum;
   return -1;
+}
+
+int alwaysUnindentDouble(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
+{
+  printf("alwaysUnindentDouble - lnum: %d\n", lnum);
+  lastLnum = lnum;
+  return -2;
 }
 
 int neverIndent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
@@ -93,6 +107,38 @@ MU_TEST(test_autounindent_spaces_normal_o)
   mu_check(lastLnum == 3);
 }
 
+MU_TEST(test_autounindent_double_spaces_overflow_normal_o)
+{
+  vimOptionSetInsertSpaces(TRUE);
+  vimOptionSetTabSize(2);
+  vimSetAutoIndentCallback(&alwaysUnindentDouble);
+  vimInput("o");
+  vimInput("  a");
+  vimInput("<cr>");
+  vimInput("b");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line2 = "b";
+  mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 3);
+}
+
+MU_TEST(test_autounindent_double_spaces_normal_o)
+{
+  vimOptionSetInsertSpaces(TRUE);
+  vimOptionSetTabSize(2);
+  vimSetAutoIndentCallback(&alwaysUnindentDouble);
+  vimInput("o");
+  vimInput("    a");
+  vimInput("<cr>");
+  vimInput("b");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  char_u *line2 = "b";
+  mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 3);
+}
+
 MU_TEST(test_autounindent_spaces_no_indent)
 {
   vimOptionSetInsertSpaces(TRUE);
@@ -104,6 +150,21 @@ MU_TEST(test_autounindent_spaces_no_indent)
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   char_u *line2 = "b";
+  mu_check(strcmp(line, line2) == 0);
+  mu_check(lastLnum == 2);
+}
+
+MU_TEST(test_autoindent_double_tab)
+{
+  vimOptionSetInsertSpaces(FALSE);
+  vimSetAutoIndentCallback(&alwaysIndentDouble);
+  vimInput("A");
+  vimInput("<cr>");
+  vimInput("a");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: |%s|\n", line);
+  char_u *line2 = "\t\ta";
   mu_check(strcmp(line, line2) == 0);
   mu_check(lastLnum == 2);
 }
@@ -134,6 +195,10 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_autoindent_tab_insert_cr);
   MU_RUN_TEST(test_autounindent_spaces_normal_o);
   MU_RUN_TEST(test_autounindent_spaces_no_indent);
+  MU_RUN_TEST(test_autoindent_double_tab);
+
+  MU_RUN_TEST(test_autounindent_double_spaces_overflow_normal_o);
+  MU_RUN_TEST(test_autounindent_double_spaces_normal_o);
 }
 
 int main(int argc, char **argv)

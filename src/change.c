@@ -2104,13 +2104,10 @@ int open_line(
         saved_line,
         next_line);
 
-    if (indentOption < 0 && newindent >= sw)
+    newindent += (indentOption * sw);
+    if (newindent < 0)
     {
-      newindent -= sw;
-    }
-    else if (indentOption > 0)
-    {
-      newindent += sw;
+      newindent = 0;
     }
   }
 
