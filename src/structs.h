@@ -82,12 +82,14 @@ typedef enum
   IMPLEMENTATION,
   TYPEDEFINITION,
   HOVER,
+  TABPAGE,
 } gotoTarget_T;
 
 typedef struct
 {
   pos_T location;
   gotoTarget_T target;
+  int count;
 } gotoRequest_T;
 
 typedef struct
