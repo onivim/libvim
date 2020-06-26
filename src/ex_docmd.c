@@ -5822,31 +5822,44 @@ ex_tabonly(exarg_T *eap)
   tabpage_T *tp;
   int done;
   int tab_number;
+  tabPageRequest_T tabPageRequest;
 
-  if (first_tabpage->tp_next == NULL)
-    msg(_("Already only one tab page"));
-  else
+  int handled = 0;
+
+  if (tabPageCallback != NULL)
   {
-    tab_number = get_tabpage_arg(eap);
-    if (eap->errmsg == NULL)
+    tabPageRequest.kind = CLOSE_OTHER;
+    tabPageRequest.arg = get_tabpage_arg(eap);
+    handled = tabPageCallback(tabPageRequest);
+  }
+
+  if (!handled)
+  {
+    if (first_tabpage->tp_next == NULL)
+      msg(_("Already only one tab page"));
+    else
     {
-      goto_tabpage(tab_number);
-      /* Repeat this up to a 1000 times, because autocommands may
-		 * mess up the lists. */
-      for (done = 0; done < 1000; ++done)
+      tab_number = get_tabpage_arg(eap);
+      if (eap->errmsg == NULL)
       {
-        FOR_ALL_TABPAGES(tp)
-        if (tp->tp_topframe != topframe)
+        goto_tabpage(tab_number);
+        /* Repeat this up to a 1000 times, because autocommands may
+       * mess up the lists. */
+        for (done = 0; done < 1000; ++done)
         {
-          tabpage_close_other(tp, eap->forceit);
-          /* if we failed to close it quit */
-          if (valid_tabpage(tp))
-            done = 1000;
-          /* start over, "tp" is now invalid */
-          break;
+          FOR_ALL_TABPAGES(tp)
+          if (tp->tp_topframe != topframe)
+          {
+            tabpage_close_other(tp, eap->forceit);
+            /* if we failed to close it quit */
+            if (valid_tabpage(tp))
+              done = 1000;
+            /* start over, "tp" is now invalid */
+            break;
+          }
+          if (first_tabpage->tp_next == NULL)
+            break;
         }
-        if (first_tabpage->tp_next == NULL)
-          break;
       }
     }
   }

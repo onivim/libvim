@@ -97,6 +97,7 @@ typedef enum
   NEXT,
   MOVE,
   CLOSE,
+  CLOSE_OTHER,
 } tabPageKind_T;
 
 typedef struct
