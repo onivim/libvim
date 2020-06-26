@@ -5775,27 +5775,40 @@ ex_tabclose(exarg_T *eap)
 {
   tabpage_T *tp;
   int tab_number;
+  tabPageRequest_T tabPageRequest;
 
-  if (first_tabpage->tp_next == NULL)
-    emsg(_("E784: Cannot close last tab page"));
-  else
+  int handled = 0;
+
+  if (tabPageCallback != NULL)
   {
-    tab_number = get_tabpage_arg(eap);
-    if (eap->errmsg == NULL)
+    tabPageRequest.kind = CLOSE;
+    tabPageRequest.arg = get_tabpage_arg(eap);
+    handled = tabPageCallback(tabPageRequest);
+  }
+
+  if (!handled)
+  {
+    if (first_tabpage->tp_next == NULL)
+      emsg(_("E784: Cannot close last tab page"));
+    else
     {
-      tp = find_tabpage(tab_number);
-      if (tp == NULL)
+      tab_number = get_tabpage_arg(eap);
+      if (eap->errmsg == NULL)
       {
-        beep_flush();
-        return;
+        tp = find_tabpage(tab_number);
+        if (tp == NULL)
+        {
+          beep_flush();
+          return;
+        }
+        if (tp != curtab)
+        {
+          tabpage_close_other(tp, eap->forceit);
+          return;
+        }
+        else if (!text_locked() && !curbuf_locked())
+          tabpage_close(eap->forceit);
       }
-      if (tp != curtab)
-      {
-        tabpage_close_other(tp, eap->forceit);
-        return;
-      }
-      else if (!text_locked() && !curbuf_locked())
-        tabpage_close(eap->forceit);
     }
   }
 }
