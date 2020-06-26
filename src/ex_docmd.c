@@ -5777,38 +5777,37 @@ ex_tabclose(exarg_T *eap)
   int tab_number;
   tabPageRequest_T tabPageRequest;
 
-  int handled = 0;
-
   if (tabPageCallback != NULL)
   {
     tabPageRequest.kind = CLOSE;
     tabPageRequest.arg = get_tabpage_arg(eap);
-    handled = tabPageCallback(tabPageRequest);
+    
+    if (tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
   }
 
-  if (!handled)
+  if (first_tabpage->tp_next == NULL)
+    emsg(_("E784: Cannot close last tab page"));
+  else
   {
-    if (first_tabpage->tp_next == NULL)
-      emsg(_("E784: Cannot close last tab page"));
-    else
+    tab_number = get_tabpage_arg(eap);
+    if (eap->errmsg == NULL)
     {
-      tab_number = get_tabpage_arg(eap);
-      if (eap->errmsg == NULL)
+      tp = find_tabpage(tab_number);
+      if (tp == NULL)
       {
-        tp = find_tabpage(tab_number);
-        if (tp == NULL)
-        {
-          beep_flush();
-          return;
-        }
-        if (tp != curtab)
-        {
-          tabpage_close_other(tp, eap->forceit);
-          return;
-        }
-        else if (!text_locked() && !curbuf_locked())
-          tabpage_close(eap->forceit);
+        beep_flush();
+        return;
       }
+      if (tp != curtab)
+      {
+        tabpage_close_other(tp, eap->forceit);
+        return;
+      }
+      else if (!text_locked() && !curbuf_locked())
+        tabpage_close(eap->forceit);
     }
   }
 }
@@ -5824,42 +5823,41 @@ ex_tabonly(exarg_T *eap)
   int tab_number;
   tabPageRequest_T tabPageRequest;
 
-  int handled = 0;
-
   if (tabPageCallback != NULL)
   {
     tabPageRequest.kind = CLOSE_OTHER;
     tabPageRequest.arg = get_tabpage_arg(eap);
-    handled = tabPageCallback(tabPageRequest);
+    
+    if (tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
   }
 
-  if (!handled)
+  if (first_tabpage->tp_next == NULL)
+    msg(_("Already only one tab page"));
+  else
   {
-    if (first_tabpage->tp_next == NULL)
-      msg(_("Already only one tab page"));
-    else
+    tab_number = get_tabpage_arg(eap);
+    if (eap->errmsg == NULL)
     {
-      tab_number = get_tabpage_arg(eap);
-      if (eap->errmsg == NULL)
+      goto_tabpage(tab_number);
+      /* Repeat this up to a 1000 times, because autocommands may
+     * mess up the lists. */
+      for (done = 0; done < 1000; ++done)
       {
-        goto_tabpage(tab_number);
-        /* Repeat this up to a 1000 times, because autocommands may
-       * mess up the lists. */
-        for (done = 0; done < 1000; ++done)
+        FOR_ALL_TABPAGES(tp)
+        if (tp->tp_topframe != topframe)
         {
-          FOR_ALL_TABPAGES(tp)
-          if (tp->tp_topframe != topframe)
-          {
-            tabpage_close_other(tp, eap->forceit);
-            /* if we failed to close it quit */
-            if (valid_tabpage(tp))
-              done = 1000;
-            /* start over, "tp" is now invalid */
-            break;
-          }
-          if (first_tabpage->tp_next == NULL)
-            break;
+          tabpage_close_other(tp, eap->forceit);
+          /* if we failed to close it quit */
+          if (valid_tabpage(tp))
+            done = 1000;
+          /* start over, "tp" is now invalid */
+          break;
         }
+        if (first_tabpage->tp_next == NULL)
+          break;
       }
     }
   }
@@ -6641,16 +6639,19 @@ ex_tabmove(exarg_T *eap)
 {
   int tab_number = get_tabpage_arg(eap);
   tabPageRequest_T tabPageRequest;
-  int handled = 0;
 
   if (tabPageCallback != NULL)
   {
     tabPageRequest.kind = MOVE;
     tabPageRequest.arg = tab_number;
-    handled = tabPageCallback(tabPageRequest);
+    
+    if (tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
   }
 
-  if (!handled && eap->errmsg == NULL)
+  if (eap->errmsg == NULL)
     tabpage_move(tab_number);
 }
 
