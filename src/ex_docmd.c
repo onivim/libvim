@@ -6639,10 +6639,18 @@ ex_tabnext(exarg_T *eap)
 static void
 ex_tabmove(exarg_T *eap)
 {
-  int tab_number;
+  int tab_number = get_tabpage_arg(eap);
+  tabPageRequest_T tabPageRequest;
+  int handled = 0;
 
-  tab_number = get_tabpage_arg(eap);
-  if (eap->errmsg == NULL)
+  if (tabPageCallback != NULL)
+  {
+    tabPageRequest.kind = MOVE;
+    tabPageRequest.arg = tab_number;
+    handled = tabPageCallback(tabPageRequest);
+  }
+
+  if (!handled && eap->errmsg == NULL)
     tabpage_move(tab_number);
 }
 
