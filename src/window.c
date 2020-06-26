@@ -3921,16 +3921,23 @@ void goto_tabpage(int n)
   tabpage_T *tp = NULL; // shut up compiler
   tabpage_T *ttp;
   int i;
-  gotoRequest_T gotoRequest;
+  tabPageRequest_T tabPageRequest;
 
-  gotoRequest.location = curwin->w_cursor;
-  gotoRequest.target = TABPAGE;
-  gotoRequest.count = n;
   int handled = 0;
 
-  if (gotoCallback != NULL)
+  if (tabPageCallback != NULL)
   {
-    handled = gotoCallback(gotoRequest);
+    if (n == 0) {
+      tabPageRequest.kind = NEXT;
+    } else if (n < 0) {
+      tabPageRequest.kind = PREVIOUS;
+      tabPageRequest.arg = -n;
+    } else {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.arg = n;
+    }
+
+    handled = tabPageCallback(tabPageRequest);
   }
 
   if (!handled)

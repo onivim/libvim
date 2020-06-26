@@ -82,15 +82,28 @@ typedef enum
   IMPLEMENTATION,
   TYPEDEFINITION,
   HOVER,
-  TABPAGE,
 } gotoTarget_T;
 
 typedef struct
 {
   pos_T location;
   gotoTarget_T target;
-  int count;
 } gotoRequest_T;
+
+typedef enum
+{
+  GOTO,
+  PREVIOUS,
+  NEXT,
+  MOVE,
+  CLOSE,
+} tabPageKind_T;
+
+typedef struct
+{
+  tabPageKind_T kind;
+  int arg;
+} tabPageRequest_T;
 
 typedef struct
 {
@@ -128,6 +141,7 @@ typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count)
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
+typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
 typedef struct
 {
