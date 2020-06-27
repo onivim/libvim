@@ -5784,6 +5784,7 @@ ex_tabclose(exarg_T *eap)
     
     if (tabPageCallback(tabPageRequest))
     {
+      eap->errmsg = NULL;
       return;
     }
   }
@@ -5830,6 +5831,7 @@ ex_tabonly(exarg_T *eap)
     
     if (tabPageCallback(tabPageRequest))
     {
+      eap->errmsg = NULL;
       return;
     }
   }
@@ -6638,6 +6640,7 @@ ex_tabnext(exarg_T *eap)
       
       if (tabPageCallback(tabPageRequest))
       {
+        eap->errmsg = NULL;
         return;
       }
     }
@@ -6664,6 +6667,7 @@ ex_tabmove(exarg_T *eap)
     
     if (tabPageCallback(tabPageRequest))
     {
+      eap->errmsg = NULL;
       return;
     }
   }
