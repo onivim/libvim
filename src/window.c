@@ -3925,12 +3925,17 @@ void goto_tabpage(int n)
 
   if (tabPageCallback != NULL)
   {
-    if (n == 0) {
+    if (n == 0)
+    {
       tabPageRequest.kind = NEXT;
-    } else if (n < 0) {
+    }
+    else if (n < 0)
+    {
       tabPageRequest.kind = PREVIOUS;
       tabPageRequest.arg = -n;
-    } else {
+    }
+    else
+    {
       tabPageRequest.kind = GOTO;
       tabPageRequest.arg = n;
     }

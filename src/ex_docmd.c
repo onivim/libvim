@@ -5781,7 +5781,7 @@ ex_tabclose(exarg_T *eap)
   {
     tabPageRequest.kind = CLOSE;
     tabPageRequest.arg = get_tabpage_arg(eap);
-    
+
     if (tabPageCallback(tabPageRequest))
     {
       eap->errmsg = NULL;
@@ -5828,7 +5828,7 @@ ex_tabonly(exarg_T *eap)
   {
     tabPageRequest.kind = CLOSE_OTHER;
     tabPageRequest.arg = get_tabpage_arg(eap);
-    
+
     if (tabPageCallback(tabPageRequest))
     {
       eap->errmsg = NULL;
@@ -6628,16 +6628,19 @@ ex_tabnext(exarg_T *eap)
     break;
   default: /* CMD_tabnext */
     tab_number = get_tabpage_arg(eap);
-    
+
     if (tabPageCallback != NULL)
     {
-      if (tab_number == 0) {
+      if (tab_number == 0)
+      {
         tabPageRequest.kind = NEXT;
-      } else {
+      }
+      else
+      {
         tabPageRequest.kind = GOTO;
         tabPageRequest.arg = tab_number;
       }
-      
+
       if (tabPageCallback(tabPageRequest))
       {
         eap->errmsg = NULL;
@@ -6664,7 +6667,7 @@ ex_tabmove(exarg_T *eap)
   {
     tabPageRequest.kind = MOVE;
     tabPageRequest.arg = tab_number;
-    
+
     if (tabPageCallback(tabPageRequest))
     {
       eap->errmsg = NULL;
