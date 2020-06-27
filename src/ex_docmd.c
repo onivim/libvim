@@ -5767,6 +5767,93 @@ theend:
 }
 
 /*
+ * Handle the argument for a tabpage related ex command.
+ * Returns a tabpage request.
+ * When an error is encountered then eap->errmsg is set.
+ */
+static tabPageRequest_T
+oni_create_tabpage_request(tabPageKind_T kind, exarg_T *eap)
+{
+  tabPageRequest_T tabPageRequest;
+
+  tabPageRequest.kind = kind;
+
+  if (eap->arg && *eap->arg != NUL)
+  {
+    char_u *p = eap->arg;
+    char_u *p_save;
+    tabPageRequest.relative = 0; /* argument +N/-N means: go to N places to the
+			      * right/left relative to the current position. */
+
+    if (*p == '-')
+    {
+      tabPageRequest.relative = -1;
+      p++;
+    }
+    else if (*p == '+')
+    {
+      tabPageRequest.relative = 1;
+      p++;
+    }
+
+    p_save = p;
+    tabPageRequest.arg = getdigits(&p);
+
+    if (tabPageRequest.relative == 0)
+    {
+      if (STRCMP(p, "$") == 0)
+        tabPageRequest.arg = 9999; // magic number: last tab
+      else if (p == p_save || *p_save == '-' || *p != NUL)
+      {
+        /* No numbers as argument. */
+        eap->errmsg = e_invarg;
+        return tabPageRequest;
+      }
+    }
+    else
+    {
+      if (*p_save == NUL)
+        tabPageRequest.arg = 1;
+      else if (p == p_save || *p_save == '-' || *p != NUL || tabPageRequest.arg == 0)
+      {
+        /* No numbers as argument. */
+        eap->errmsg = e_invarg;
+        return tabPageRequest;
+      }
+    }
+  }
+  else if (eap->addr_count > 0)
+  {
+    if (eap->line2 == 0)
+    {
+      eap->errmsg = e_invrange;
+      tabPageRequest.arg = 0;
+    }
+    else
+    {
+      tabPageRequest.arg = eap->line2;
+    }
+  }
+  else
+  {
+    switch (eap->cmdidx)
+    {
+    case CMD_tabnext:
+      tabPageRequest.relative = 1;
+      tabPageRequest.arg = 1;
+      break;
+    case CMD_tabmove:
+      tabPageRequest.arg = 9999; // magic number: last tab
+      break;
+    default:
+      tabPageRequest.arg = 0;
+    }
+  }
+
+  return tabPageRequest;
+}
+
+/*
  * ":tabclose": close current tab page, unless it is the last one.
  * ":tabclose N": close tab page N.
  */
@@ -5775,16 +5862,13 @@ ex_tabclose(exarg_T *eap)
 {
   tabpage_T *tp;
   int tab_number;
-  tabPageRequest_T tabPageRequest;
 
   if (tabPageCallback != NULL)
   {
-    tabPageRequest.kind = CLOSE;
-    tabPageRequest.arg = get_tabpage_arg(eap);
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(CLOSE, eap);
 
-    if (tabPageCallback(tabPageRequest))
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
     {
-      eap->errmsg = NULL;
       return;
     }
   }
@@ -5822,16 +5906,13 @@ ex_tabonly(exarg_T *eap)
   tabpage_T *tp;
   int done;
   int tab_number;
-  tabPageRequest_T tabPageRequest;
 
   if (tabPageCallback != NULL)
   {
-    tabPageRequest.kind = CLOSE_OTHER;
-    tabPageRequest.arg = get_tabpage_arg(eap);
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(ONLY, eap);
 
-    if (tabPageCallback(tabPageRequest))
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
     {
-      eap->errmsg = NULL;
       return;
     }
   }
@@ -6582,7 +6663,6 @@ static void
 ex_tabnext(exarg_T *eap)
 {
   int tab_number;
-  tabPageRequest_T tabPageRequest;
 
   if (NOT_IN_POPUP_WINDOW)
     return;
@@ -6627,27 +6707,17 @@ ex_tabnext(exarg_T *eap)
     goto_tabpage(-tab_number);
     break;
   default: /* CMD_tabnext */
-    tab_number = get_tabpage_arg(eap);
-
     if (tabPageCallback != NULL)
     {
-      if (tab_number == 0)
-      {
-        tabPageRequest.kind = NEXT;
-      }
-      else
-      {
-        tabPageRequest.kind = GOTO;
-        tabPageRequest.arg = tab_number;
-      }
+      tabPageRequest_T tabPageRequest = oni_create_tabpage_request(GOTO, eap);
 
-      if (tabPageCallback(tabPageRequest))
+      if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
       {
-        eap->errmsg = NULL;
         return;
       }
     }
 
+    tab_number = get_tabpage_arg(eap);
     if (eap->errmsg == NULL)
       goto_tabpage(tab_number);
     break;
@@ -6660,21 +6730,17 @@ ex_tabnext(exarg_T *eap)
 static void
 ex_tabmove(exarg_T *eap)
 {
-  int tab_number = get_tabpage_arg(eap);
-  tabPageRequest_T tabPageRequest;
-
   if (tabPageCallback != NULL)
   {
-    tabPageRequest.kind = MOVE;
-    tabPageRequest.arg = tab_number;
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(MOVE, eap);
 
-    if (tabPageCallback(tabPageRequest))
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
     {
-      eap->errmsg = NULL;
       return;
     }
   }
 
+  int tab_number = get_tabpage_arg(eap);
   if (eap->errmsg == NULL)
     tabpage_move(tab_number);
 }

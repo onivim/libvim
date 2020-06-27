@@ -93,17 +93,16 @@ typedef struct
 typedef enum
 {
   GOTO,
-  PREVIOUS,
-  NEXT,
   MOVE,
   CLOSE,
-  CLOSE_OTHER,
+  ONLY,
 } tabPageKind_T;
 
 typedef struct
 {
   tabPageKind_T kind;
-  int arg;
+  int arg;      // 0 means none, otherwise interpretation depends on [kind] and [relative]
+  int relative; // 0 means [arg] is absolute, otherwise [relative * arg] yields the actual relative position
 } tabPageRequest_T;
 
 typedef struct

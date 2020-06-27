@@ -3927,16 +3927,20 @@ void goto_tabpage(int n)
   {
     if (n == 0)
     {
-      tabPageRequest.kind = NEXT;
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 1;
+      tabPageRequest.arg = 1;
     }
     else if (n < 0)
     {
-      tabPageRequest.kind = PREVIOUS;
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = -1;
       tabPageRequest.arg = -n;
     }
     else
     {
       tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 0;
       tabPageRequest.arg = n;
     }
 
