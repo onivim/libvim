@@ -3926,13 +3926,11 @@ void goto_tabpage(int n)
   if (tabPageCallback != NULL)
   {
     if (n == 0) {
-      printf("!! NEXT\n");
       tabPageRequest.kind = NEXT;
     } else if (n < 0) {
       tabPageRequest.kind = PREVIOUS;
       tabPageRequest.arg = -n;
     } else {
-      printf("!! GOTO\n");
       tabPageRequest.kind = GOTO;
       tabPageRequest.arg = n;
     }

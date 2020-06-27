@@ -6580,6 +6580,7 @@ static void
 ex_tabnext(exarg_T *eap)
 {
   int tab_number;
+  tabPageRequest_T tabPageRequest;
 
   if (NOT_IN_POPUP_WINDOW)
     return;
@@ -6625,6 +6626,22 @@ ex_tabnext(exarg_T *eap)
     break;
   default: /* CMD_tabnext */
     tab_number = get_tabpage_arg(eap);
+    
+    if (tabPageCallback != NULL)
+    {
+      if (tab_number == 0) {
+        tabPageRequest.kind = NEXT;
+      } else {
+        tabPageRequest.kind = GOTO;
+        tabPageRequest.arg = tab_number;
+      }
+      
+      if (tabPageCallback(tabPageRequest))
+      {
+        return;
+      }
+    }
+
     if (eap->errmsg == NULL)
       goto_tabpage(tab_number);
     break;
