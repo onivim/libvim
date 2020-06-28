@@ -448,6 +448,11 @@ void vimSetGotoCallback(GotoCallback callback)
   gotoCallback = callback;
 }
 
+void vimSetTabPageCallback(TabPageCallback callback)
+{
+  tabPageCallback = callback;
+}
+
 void vimSetDisplayIntroCallback(VoidCallback callback)
 {
   displayIntroCallback = callback;

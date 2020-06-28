@@ -3921,6 +3921,34 @@ void goto_tabpage(int n)
   tabpage_T *tp = NULL; // shut up compiler
   tabpage_T *ttp;
   int i;
+  tabPageRequest_T tabPageRequest;
+
+  if (tabPageCallback != NULL)
+  {
+    if (n == 0)
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 1;
+      tabPageRequest.arg = 1;
+    }
+    else if (n < 0)
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = -1;
+      tabPageRequest.arg = -n;
+    }
+    else
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 0;
+      tabPageRequest.arg = n;
+    }
+
+    if (tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
+  }
 
   if (text_locked())
   {
@@ -3948,7 +3976,7 @@ void goto_tabpage(int n)
   else if (n < 0)
   {
     /* "gT": go to previous tab page, wrap around end.  "N gT" repeats
-	 * this N times. */
+   * this N times. */
     ttp = curtab;
     for (i = n; i < 0; ++i)
     {

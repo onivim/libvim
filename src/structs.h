@@ -90,6 +90,21 @@ typedef struct
   gotoTarget_T target;
 } gotoRequest_T;
 
+typedef enum
+{
+  GOTO,
+  MOVE,
+  CLOSE,
+  ONLY,
+} tabPageKind_T;
+
+typedef struct
+{
+  tabPageKind_T kind;
+  int arg;      // 0 means none, otherwise interpretation depends on [kind] and [relative]
+  int relative; // 0 means [arg] is absolute, otherwise [relative * arg] yields the actual relative position
+} tabPageRequest_T;
+
 typedef struct
 {
   char_u *cmd;
@@ -126,6 +141,7 @@ typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count)
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
+typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
 typedef struct
 {
