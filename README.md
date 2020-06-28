@@ -70,6 +70,30 @@ npm install -g esy@0.5.7
 
 - `esy '@test' build`
 
+## Development
+
+The `esy` workflow works great for one-off builds, but will rebuild the world every time, so during development it's better to have an incremental workflow.
+
+### Building & running tests incrementally
+
+- `cd src` 
+- `make apitest/autoindent.test.exe`
+- `cd apitest`
+- `./autoindent.test.exe`
+
+### Testing changes against Onivim 2
+
+You can test a locally-built `libvim` against a locally-built Onivim 2 by adding a resolution in the Onivim 2 `package.json`, like:
+```json
+"resolutions": {
+	...
+	"libvim": "link:../libvim/src"
+}
+```
+Just make sure it points to the `libvim/src` folder.
+
+> NOTE: We've seen issues with this workflow where the binaries can be out-of-date in Onivim 2, so we recommend running `rm -rf _esy && esy i` after each change to rebuild the dependency.
+
 ## FAQ
 
 ### Why is `libvim` based on Vim and not Neovim?
