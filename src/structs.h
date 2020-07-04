@@ -92,10 +92,6 @@ typedef struct
 
 typedef enum
 {
-  SCROLL_DOWN,
-  SCROLL_LEFT,
-  SCROLL_RIGHT,
-  SCROLL_UP,
   SCROLL_CURSORCENTERV, // Center Vertically
   SCROLL_CURSORCENTERH, // Center Horizontally
   SCROLL_CURSORTOP,
