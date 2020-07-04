@@ -92,6 +92,26 @@ typedef struct
 
 typedef enum
 {
+  SCROLL_DOWN,
+  SCROLL_LEFT,
+  SCROLL_RIGHT,
+  SCROLL_UP,
+  SCROLL_CURSORCENTERV, // Center Vertically
+  SCROLL_CURSORCENTERH, // Center Horizontally
+  SCROLL_CURSORTOP,
+  SCROLL_CURSORBOTTOM,
+  SCROLL_CURSORLEFT,
+  SCROLL_CURSORRIGHT
+} scrollDirection_T;
+
+typedef struct
+{
+  scrollDirection_T dir;
+  long count;
+} scrollRequest_T;
+
+typedef enum
+{
   GOTO,
   MOVE,
   CLOSE,
@@ -141,6 +161,7 @@ typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count)
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
+typedef void (*ScrollCallback)(scrollRequest_T scrollRequest);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
 typedef struct

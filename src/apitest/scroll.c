@@ -1,6 +1,15 @@
 #include "libvim.h"
 #include "minunit.h"
 
+static scrollRequest_T lastScrollRequest;
+static int scrollRequestCount = 0;
+
+void onScroll(scrollRequest_T request)
+{
+  lastScrollRequest = request;
+  scrollRequestCount++;
+}
+
 void test_setup(void)
 {
   vimExecute("e!");
@@ -12,6 +21,7 @@ void test_setup(void)
   vimInput("5");
   vimInput("0");
   vimInput("<cr>");
+  scrollRequestCount = 0;
 }
 
 void test_teardown(void) {}
@@ -102,34 +112,6 @@ MU_TEST(test_h_m_l)
 
   vimInput("M");
   mu_check(vimCursorGetLine() == 50);
-}
-
-MU_TEST(test_only_scroll_at_boundary)
-{
-
-  vimWindowSetWidth(80);
-  vimWindowSetHeight(63);
-
-  vimInput("g");
-  vimInput("g");
-  vimInput("z");
-  vimInput("t");
-
-  mu_check(vimWindowGetTopLine() == 1);
-
-  // Verify viewport doesn't scroll even when cursor moves down
-  vimInput("6");
-  vimInput("2");
-  vimInput("j");
-  mu_check(vimWindowGetTopLine() == 1);
-
-  // Should scroll now
-  vimInput("j");
-  mu_check(vimWindowGetTopLine() == 2);
-
-  // Shouldn't scroll moving a single line up
-  vimInput("k");
-  mu_check(vimWindowGetTopLine() == 2);
 }
 
 MU_TEST(test_no_scroll_after_setting_topline)
@@ -248,6 +230,44 @@ MU_TEST(test_ctrl_f)
   mu_check(vimWindowGetTopLine() == 94);
 }
 
+MU_TEST(test_ctrl_e)
+{
+  vimWindowSetHeight(49);
+  vimInput("g");
+  vimInput("g");
+  printf("topline: %d\n", 1);
+
+  vimInput("<c-e>");
+
+  mu_check(scrollRequestCount == 1);
+  mu_check(lastScrollRequest.dir == SCROLL_UP);
+  mu_check(lastScrollRequest.count == 1);
+
+  vimInput("5<c-e>");
+
+  mu_check(scrollRequestCount == 2);
+  mu_check(lastScrollRequest.dir == SCROLL_UP);
+  mu_check(lastScrollRequest.count == 5);
+}
+
+MU_TEST(test_ctrl_y)
+{
+  vimWindowSetHeight(49);
+  printf("topline: %d\n", 1);
+
+  vimInput("<c-y>");
+
+  mu_check(scrollRequestCount == 1);
+  mu_check(lastScrollRequest.dir == SCROLL_DOWN);
+  mu_check(lastScrollRequest.count == 1);
+
+  vimInput("5<c-y>");
+
+  mu_check(scrollRequestCount == 2);
+  mu_check(lastScrollRequest.dir == SCROLL_DOWN);
+  mu_check(lastScrollRequest.count == 5);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -256,17 +276,20 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_simple_scroll);
   MU_RUN_TEST(test_small_screen_scroll);
   MU_RUN_TEST(test_h_m_l);
-  MU_RUN_TEST(test_only_scroll_at_boundary);
   MU_RUN_TEST(test_no_scroll_after_setting_topline);
   MU_RUN_TEST(test_scroll_left_at_boundary);
   MU_RUN_TEST(test_no_scroll_after_setting_left);
   MU_RUN_TEST(test_ctrl_d);
   MU_RUN_TEST(test_ctrl_f);
+  MU_RUN_TEST(test_ctrl_e);
+  MU_RUN_TEST(test_ctrl_y);
 }
 
 int main(int argc, char **argv)
 {
   vimInit(argc, argv);
+
+  vimSetScrollCallback(&onScroll);
 
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
 

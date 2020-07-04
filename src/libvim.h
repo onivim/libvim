@@ -145,6 +145,14 @@ void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
 void vimSetQuitCallback(QuitCallback callback);
 
 /*
+ * vimSetScrollCallback
+ *
+ * Called when the window should be scrolled (ie, `C-Y`, `zz`, etc).
+ * 
+ */
+void vimSetScrollCallback(ScrollCallback callback);
+
+/*
  * vimSetUnhandledEscapeCallback
  *
  * Called when <esc> is pressed in normal mode, but there is no
