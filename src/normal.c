@@ -3568,46 +3568,47 @@ static void nv_zet(cmdarg_T *cap)
 #endif
   long siso = get_sidescrolloff_value();
 
-  if (VIM_ISDIGIT(nchar))
-  {
-    /*
-     * "z123{nchar}": edit the count before obtaining {nchar}
-     */
-    if (checkclearop(cap->oap))
-      return;
-    n = nchar - '0';
-    for (;;)
-    {
-      ++no_mapping;
-      ++allow_keys; /* no mapping for nchar, but allow key codes */
-      nchar = plain_vgetc();
-      LANGMAP_ADJUST(nchar, TRUE);
-      --no_mapping;
-      --allow_keys;
-      if (nchar == K_DEL || nchar == K_KDEL)
-        n /= 10;
-      else if (VIM_ISDIGIT(nchar))
-        n = n * 10 + (nchar - '0');
-      else if (nchar == CAR)
-      {
-        win_setheight((int)n);
-        break;
-      }
-      else if (nchar == 'l' || nchar == 'h' || nchar == K_LEFT ||
-               nchar == K_RIGHT)
-      {
-        cap->count1 = n ? n * cap->count1 : cap->count1;
-        goto dozet;
-      }
-      else
-      {
-        clearopbeep(cap->oap);
-        break;
-      }
-    }
-    cap->oap->op_type = OP_NOP;
-    return;
-  }
+// TODO: Libvim - refactor this to a non-blocking strategy.
+//  if (VIM_ISDIGIT(nchar))
+//  {
+//    /*
+//     * "z123{nchar}": edit the count before obtaining {nchar}
+//     */
+//    if (checkclearop(cap->oap))
+//      return;
+//    n = nchar - '0';
+//    for (;;)
+//    {
+//      ++no_mapping;
+//      ++allow_keys; /* no mapping for nchar, but allow key codes */
+//      nchar = plain_vgetc();
+//      LANGMAP_ADJUST(nchar, TRUE);
+//      --no_mapping;
+//      --allow_keys;
+//      if (nchar == K_DEL || nchar == K_KDEL)
+//        n /= 10;
+//      else if (VIM_ISDIGIT(nchar))
+//        n = n * 10 + (nchar - '0');
+//      else if (nchar == CAR)
+//      {
+//        win_setheight((int)n);
+//        break;
+//      }
+//      else if (nchar == 'l' || nchar == 'h' || nchar == K_LEFT ||
+//               nchar == K_RIGHT)
+//      {
+//        cap->count1 = n ? n * cap->count1 : cap->count1;
+//        goto dozet;
+//      }
+//      else
+//      {
+//        clearopbeep(cap->oap);
+//        break;
+//      }
+//    }
+//    cap->oap->op_type = OP_NOP;
+//    return;
+//  }
 
 dozet:
   if (
