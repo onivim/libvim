@@ -1604,64 +1604,6 @@ getcmdline_int(
 					   putting it in history */
       goto returncmd; /* back to cmd mode */
 
-    case Ctrl_R: /* insert register */
-      putcmdline('"', TRUE);
-      ++no_mapping;
-      i = c = plain_vgetc(); /* CTRL-R <char> */
-      if (i == Ctrl_O)
-        i = Ctrl_R; /* CTRL-R CTRL-O == CTRL-R CTRL-R */
-      if (i == Ctrl_R)
-        c = plain_vgetc(); /* CTRL-R CTRL-R <char> */
-      extra_char = NUL;
-      --no_mapping;
-#ifdef FEAT_EVAL
-      /*
-		 * Insert the result of an expression.
-		 * Need to save the current command line, to be able to enter
-		 * a new one...
-		 */
-      new_cmdpos = -1;
-      if (c == '=')
-      {
-        if (ccline.cmdfirstc == '=' // can't do this recursively
-            || cmdline_star > 0)    // or when typing a password
-        {
-          beep_flush();
-          c = ESC;
-        }
-        else
-          c = get_expr_register();
-      }
-#endif
-      if (c != ESC) /* use ESC to cancel inserting register */
-      {
-        cmdline_paste(c, i == Ctrl_R, FALSE);
-
-#ifdef FEAT_EVAL
-        /* When there was a serious error abort getting the
-		     * command line. */
-        if (aborting())
-        {
-          gotesc = TRUE;  /* will free ccline.cmdbuff after
-					   putting it in history */
-          goto returncmd; /* back to cmd mode */
-        }
-#endif
-        KeyTyped = FALSE; /* Don't do p_wc completion. */
-#ifdef FEAT_EVAL
-        if (new_cmdpos >= 0)
-        {
-          /* set_cmdline_pos() was used */
-          if (new_cmdpos > ccline.cmdlen)
-            ccline.cmdpos = ccline.cmdlen;
-          else
-            ccline.cmdpos = new_cmdpos;
-        }
-#endif
-      }
-      redrawcmd();
-      goto cmdline_changed;
-
     case Ctrl_D:
       if (showmatches(&xpc, FALSE) == EXPAND_NOTHING)
         break; /* Use ^D as normal char instead */
@@ -2986,63 +2928,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
     context->gotesc = TRUE; /* will free ccline.cmdbuff after
 					   putting it in history */
     goto returncmd;         /* back to cmd mode */
-
-  case Ctrl_R: /* insert register */
-    putcmdline('"', TRUE);
-    ++no_mapping;
-    context->i = c = plain_vgetc(); /* CTRL-R <char> */
-    if (context->i == Ctrl_O)
-      context->i = Ctrl_R; /* CTRL-R CTRL-O == CTRL-R CTRL-R */
-    if (context->i == Ctrl_R)
-      c = plain_vgetc(); /* CTRL-R CTRL-R <char> */
-    extra_char = NUL;
-    --no_mapping;
-#ifdef FEAT_EVAL
-    /*
-		 * Insert the result of an expression.
-		 * Need to save the current command line, to be able to enter
-		 * a new one...
-		 */
-    new_cmdpos = -1;
-    if (c == '=')
-    {
-      if (ccline.cmdfirstc == '=' // can't do this recursively
-          || cmdline_star > 0)    // or when typing a password
-      {
-        beep_flush();
-        c = ESC;
-      }
-      else
-        c = get_expr_register();
-    }
-#endif
-    if (c != ESC) /* use ESC to cancel inserting register */
-    {
-      cmdline_paste(c, context->i == Ctrl_R, FALSE);
-
-#ifdef FEAT_EVAL
-      /* When there was a serious error abort getting the
-		     * command line. */
-      if (aborting())
-      {
-        context->gotesc = TRUE; /* will free ccline.cmdbuff after
-					   putting it in history */
-        goto returncmd;         /* back to cmd mode */
-      }
-#endif
-      KeyTyped = FALSE; /* Don't do p_wc completion. */
-#ifdef FEAT_EVAL
-      if (new_cmdpos >= 0)
-      {
-        /* set_cmdline_pos() was used */
-        if (new_cmdpos > ccline.cmdlen)
-          ccline.cmdpos = ccline.cmdlen;
-        else
-          ccline.cmdpos = new_cmdpos;
-      }
-#endif
-    }
-    goto cmdline_changed;
 
   case Ctrl_D:
     if (showmatches(&context->xpc, FALSE) == EXPAND_NOTHING)
