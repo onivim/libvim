@@ -59,7 +59,6 @@ static int realloc_cmdbuff(int len);
 static void draw_cmdline(int start, int len);
 static void save_cmdline(struct cmdline_info *ccp);
 static void restore_cmdline(struct cmdline_info *ccp);
-static int cmdline_paste(int regname, int literally, int remcr);
 #ifdef FEAT_WILDMENU
 static void cmdline_del(int from);
 #endif
@@ -1604,64 +1603,6 @@ getcmdline_int(
 					   putting it in history */
       goto returncmd; /* back to cmd mode */
 
-    case Ctrl_R: /* insert register */
-      putcmdline('"', TRUE);
-      ++no_mapping;
-      i = c = plain_vgetc(); /* CTRL-R <char> */
-      if (i == Ctrl_O)
-        i = Ctrl_R; /* CTRL-R CTRL-O == CTRL-R CTRL-R */
-      if (i == Ctrl_R)
-        c = plain_vgetc(); /* CTRL-R CTRL-R <char> */
-      extra_char = NUL;
-      --no_mapping;
-#ifdef FEAT_EVAL
-      /*
-		 * Insert the result of an expression.
-		 * Need to save the current command line, to be able to enter
-		 * a new one...
-		 */
-      new_cmdpos = -1;
-      if (c == '=')
-      {
-        if (ccline.cmdfirstc == '=' // can't do this recursively
-            || cmdline_star > 0)    // or when typing a password
-        {
-          beep_flush();
-          c = ESC;
-        }
-        else
-          c = get_expr_register();
-      }
-#endif
-      if (c != ESC) /* use ESC to cancel inserting register */
-      {
-        cmdline_paste(c, i == Ctrl_R, FALSE);
-
-#ifdef FEAT_EVAL
-        /* When there was a serious error abort getting the
-		     * command line. */
-        if (aborting())
-        {
-          gotesc = TRUE;  /* will free ccline.cmdbuff after
-					   putting it in history */
-          goto returncmd; /* back to cmd mode */
-        }
-#endif
-        KeyTyped = FALSE; /* Don't do p_wc completion. */
-#ifdef FEAT_EVAL
-        if (new_cmdpos >= 0)
-        {
-          /* set_cmdline_pos() was used */
-          if (new_cmdpos > ccline.cmdlen)
-            ccline.cmdpos = ccline.cmdlen;
-          else
-            ccline.cmdpos = new_cmdpos;
-        }
-#endif
-      }
-      redrawcmd();
-      goto cmdline_changed;
-
     case Ctrl_D:
       if (showmatches(&xpc, FALSE) == EXPAND_NOTHING)
         break; /* Use ^D as normal char instead */
@@ -2987,63 +2928,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
 					   putting it in history */
     goto returncmd;         /* back to cmd mode */
 
-  case Ctrl_R: /* insert register */
-    putcmdline('"', TRUE);
-    ++no_mapping;
-    context->i = c = plain_vgetc(); /* CTRL-R <char> */
-    if (context->i == Ctrl_O)
-      context->i = Ctrl_R; /* CTRL-R CTRL-O == CTRL-R CTRL-R */
-    if (context->i == Ctrl_R)
-      c = plain_vgetc(); /* CTRL-R CTRL-R <char> */
-    extra_char = NUL;
-    --no_mapping;
-#ifdef FEAT_EVAL
-    /*
-		 * Insert the result of an expression.
-		 * Need to save the current command line, to be able to enter
-		 * a new one...
-		 */
-    new_cmdpos = -1;
-    if (c == '=')
-    {
-      if (ccline.cmdfirstc == '=' // can't do this recursively
-          || cmdline_star > 0)    // or when typing a password
-      {
-        beep_flush();
-        c = ESC;
-      }
-      else
-        c = get_expr_register();
-    }
-#endif
-    if (c != ESC) /* use ESC to cancel inserting register */
-    {
-      cmdline_paste(c, context->i == Ctrl_R, FALSE);
-
-#ifdef FEAT_EVAL
-      /* When there was a serious error abort getting the
-		     * command line. */
-      if (aborting())
-      {
-        context->gotesc = TRUE; /* will free ccline.cmdbuff after
-					   putting it in history */
-        goto returncmd;         /* back to cmd mode */
-      }
-#endif
-      KeyTyped = FALSE; /* Don't do p_wc completion. */
-#ifdef FEAT_EVAL
-      if (new_cmdpos >= 0)
-      {
-        /* set_cmdline_pos() was used */
-        if (new_cmdpos > ccline.cmdlen)
-          ccline.cmdpos = ccline.cmdlen;
-        else
-          ccline.cmdpos = new_cmdpos;
-      }
-#endif
-    }
-    goto cmdline_changed;
-
   case Ctrl_D:
     if (showmatches(&context->xpc, FALSE) == EXPAND_NOTHING)
       break; /* Use ^D as normal char instead */
@@ -4162,87 +4046,6 @@ restore_cmdline(struct cmdline_info *ccp)
 {
   ccline = prev_ccline;
   prev_ccline = *ccp;
-}
-
-/*
- * Paste a yank register into the command line.
- * Used by CTRL-R command in command-line mode.
- * insert_reg() can't be used here, because special characters from the
- * register contents will be interpreted as commands.
- *
- * Return FAIL for failure, OK otherwise.
- */
-static int
-cmdline_paste(
-    int regname,
-    int literally, /* Insert text literally instead of "as typed" */
-    int remcr)     /* remove trailing CR */
-{
-  long i;
-  char_u *arg;
-  char_u *p;
-  int allocated;
-
-  /* check for valid regname; also accept special characters for CTRL-R in
-     * the command line */
-  if (regname != Ctrl_F && regname != Ctrl_P && regname != Ctrl_W && regname != Ctrl_A && regname != Ctrl_L && !valid_yank_reg(regname, FALSE))
-    return FAIL;
-
-  /* A register containing CTRL-R can cause an endless loop.  Allow using
-     * CTRL-C to break the loop. */
-  line_breakcheck();
-  if (got_int)
-    return FAIL;
-
-  // Need to  set "textlock" to avoid nasty things like going to another
-  // buffer when evaluating an expression.
-  ++textlock;
-  i = get_spec_reg(regname, &arg, &allocated, TRUE);
-  --textlock;
-
-  if (i)
-  {
-    /* Got the value of a special register in "arg". */
-    if (arg == NULL)
-      return FAIL;
-
-    /* When 'incsearch' is set and CTRL-R CTRL-W used: skip the duplicate
-	 * part of the word. */
-    p = arg;
-    if (p_is && regname == Ctrl_W)
-    {
-      char_u *w;
-      int len;
-
-      /* Locate start of last word in the cmd buffer. */
-      for (w = ccline.cmdbuff + ccline.cmdpos; w > ccline.cmdbuff;)
-      {
-        if (has_mbyte)
-        {
-          len = (*mb_head_off)(ccline.cmdbuff, w - 1) + 1;
-          if (!vim_iswordc(mb_ptr2char(w - len)))
-            break;
-          w -= len;
-        }
-        else
-        {
-          if (!vim_iswordc(w[-1]))
-            break;
-          --w;
-        }
-      }
-      len = (int)((ccline.cmdbuff + ccline.cmdpos) - w);
-      if (p_ic ? STRNICMP(w, arg, len) == 0 : STRNCMP(w, arg, len) == 0)
-        p += len;
-    }
-
-    cmdline_paste_str(p, literally);
-    if (allocated)
-      vim_free(arg);
-    return OK;
-  }
-
-  return cmdline_paste_reg(regname, literally, remcr);
 }
 
 /*

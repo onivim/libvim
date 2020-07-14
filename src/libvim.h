@@ -83,6 +83,18 @@ char_u *vimCommandLineGetText(void);
 int vimCommandLineGetPosition(void);
 void vimCommandLineGetCompletions(char_u ***completions, int *count);
 
+/**
+* Eval
+***/
+
+/***
+ * vimEval
+ * 
+ * Evaluate a string as vim script, and return the result as string.
+ * Callee is responsible for freeing the command as well as the result.
+ */
+char_u *vimEval(char_u *str);
+
 /***
  * Cursor Methods
  ***/
