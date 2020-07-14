@@ -463,6 +463,14 @@ void vimSetDisplayVersionCallback(VoidCallback callback)
   displayVersionCallback = callback;
 }
 
+char_u *vimEval(char_u *str)
+{
+  char_u *copy = vim_strsave(str);
+  char_u *ret = eval_to_string(copy, NULL, TRUE);
+  vim_free(copy);
+  return ret;
+}
+
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
   get_yank_register_value(reg_name, num_lines, lines);
