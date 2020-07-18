@@ -103,6 +103,68 @@ MU_TEST(test_insert_block_mode)
   vimInput("c");
 }
 
+/**
+ * This test case does a visual block select and then an "I" insert
+ * which should insert at the start of each line.
+ * this test fails and will be commented out.
+ */
+
+/*
+MU_TEST(test_insert_block_mode_change)
+{
+  char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
+  vimBufferSetLines(curbuf, 0, 3, lines, 5);
+
+  vimInput("<c-v>");
+  vimInput("j");
+  vimInput("j");
+  vimInput("j");
+
+  vimInput("I");
+
+  vimInput("a");
+  vimInput("b");
+  vimInput("c");
+
+  vimInput("<esc>");
+
+  char_u *line = vimBufferGetLine(curbuf, 1);
+  mu_check(strcmp(line, "abcline1") == 0);
+  line = vimBufferGetLine(curbuf, 3);
+  mu_check(strcmp(line, "abcline3") == 0);
+}
+*/
+
+/**
+ * This test case does a visual block select and then an "c" insert
+ * which should insert "abc" at the start of each line, replacing the l
+ */
+
+MU_TEST(test_change_block_mode_change)
+{
+  char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
+  vimBufferSetLines(curbuf, 0, 3, lines, 5);
+
+  vimInput("<c-v>");
+  vimInput("j");
+  vimInput("j");
+  vimInput("j");
+
+  vimInput("c");
+
+  vimInput("a");
+  vimInput("b");
+  vimInput("c");
+
+  vimInput("<esc>");
+
+  char_u *line = vimBufferGetLine(curbuf, 1);
+  mu_check(strcmp(line, "abcine1") == 0);
+
+  line = vimBufferGetLine(curbuf, 3);
+  mu_check(strcmp(line, "abcine3") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -112,6 +174,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_ctrl_q);
   MU_RUN_TEST(test_ctrl_Q);
   MU_RUN_TEST(test_insert_block_mode);
+  // MU_RUN_TEST(test_insert_block_mode_change);
+  MU_RUN_TEST(test_change_block_mode_change);
 }
 
 int main(int argc, char **argv)
