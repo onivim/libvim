@@ -51,9 +51,6 @@ static int cmd_hkmap = 0; /* Hebrew mapping during command line */
 
 static char_u *getcmdline_int(int firstc, long count, int indent, int init_ccline);
 static int cmdline_charsize(int idx);
-static void set_cmdspos(void);
-static void set_cmdspos_cursor(void);
-static void correct_cmdspos(int idx, int cells);
 static void alloc_cmdbuff(int len);
 static int realloc_cmdbuff(int len);
 static void draw_cmdline(int start, int len);
@@ -838,7 +835,7 @@ getcmdline_int(
     vim_memset(ccline.cmdbuff, ' ', indent);
     ccline.cmdbuff[indent] = NUL;
     ccline.cmdpos = indent;
-    ccline.cmdspos = indent;
+    //    ccline.cmdspos = indent;
     ccline.cmdlen = indent;
   }
 
@@ -860,7 +857,7 @@ getcmdline_int(
     gotocmdline(TRUE);
     msg_scrolled += i;
     redrawcmdprompt(); /* draw prompt or indent */
-    set_cmdspos();
+                       //    set_cmdspos();
   }
   xpc.xp_context = EXPAND_NOTHING;
   xpc.xp_backslash = XP_BS_NONE;
@@ -937,7 +934,7 @@ getcmdline_int(
 				   that occurs while typing a command should
 				   cause the command not to be executed. */
 
-    cursorcmd(); /* set the cursor on the right spot */
+    //    cursorcmd(); /* set the cursor on the right spot */
 
     /* Get a character.  Ignore K_IGNORE and K_NOP, they should not do
 	 * anything, such as stop completion. */
@@ -1012,19 +1009,19 @@ getcmdline_int(
     if (c != p_wc && c == K_S_TAB && xpc.xp_numfiles > 0)
       c = Ctrl_P;
 
-#ifdef FEAT_WILDMENU
-    /* Special translations for 'wildmenu' */
-    if (did_wild_list && p_wmnu)
-    {
-      if (c == K_LEFT)
-        c = Ctrl_P;
-      else if (c == K_RIGHT)
-        c = Ctrl_N;
-    }
-    /* Hitting CR after "emenu Name.": complete submenu */
-    if (xpc.xp_context == EXPAND_MENUNAMES && p_wmnu && ccline.cmdpos > 1 && ccline.cmdbuff[ccline.cmdpos - 1] == '.' && ccline.cmdbuff[ccline.cmdpos - 2] != '\\' && (c == '\n' || c == '\r' || c == K_KENTER))
-      c = K_DOWN;
-#endif
+    //#ifdef FEAT_WILDMENU
+    //    /* Special translations for 'wildmenu' */
+    //    if (did_wild_list && p_wmnu)
+    //    {
+    //      if (c == K_LEFT)
+    //        c = Ctrl_P;
+    //      else if (c == K_RIGHT)
+    //        c = Ctrl_N;
+    //    }
+    //    /* Hitting CR after "emenu Name.": complete submenu */
+    //    if (xpc.xp_context == EXPAND_MENUNAMES && p_wmnu && ccline.cmdpos > 1 && ccline.cmdbuff[ccline.cmdpos - 1] == '.' && ccline.cmdbuff[ccline.cmdpos - 2] != '\\' && (c == '\n' || c == '\r' || c == K_KENTER))
+    //      c = K_DOWN;
+    //#endif
 
     /* free expanded names when finished walking through matches */
     if (xpc.xp_numfiles != -1 && !(c == p_wc && KeyTyped) && c != p_wcm && c != Ctrl_N && c != Ctrl_P && c != Ctrl_A && c != Ctrl_L)
@@ -1315,6 +1312,7 @@ getcmdline_int(
           goto cmdline_changed;
         if (!cmd_silent)
         {
+          printf("windgoto from ex_getln: 1\n");
           windgoto(msg_row, 0);
         }
         break;
@@ -1613,26 +1611,28 @@ getcmdline_int(
     case K_RIGHT:
     case K_S_RIGHT:
     case K_C_RIGHT:
+      printf("ex_getln: At K_RIGHT case!\n");
       do
       {
         if (ccline.cmdpos >= ccline.cmdlen)
           break;
         i = cmdline_charsize(ccline.cmdpos);
-        if (KeyTyped && ccline.cmdspos + i >= Columns * Rows)
-          break;
-        ccline.cmdspos += i;
+        //        if (KeyTyped && ccline.cmdspos + i >= Columns * Rows)
+        //          break;
+        //        ccline.cmdspos += i;
         if (has_mbyte)
           ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
         else
           ++ccline.cmdpos;
       } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
-      if (has_mbyte)
-        set_cmdspos_cursor();
+      //      if (has_mbyte)
+      //        set_cmdspos_cursor();
       goto cmdline_not_changed;
 
     case K_LEFT:
     case K_S_LEFT:
     case K_C_LEFT:
+      printf("ex_getln: At K_LEFT case!\n");
       if (ccline.cmdpos == 0)
         goto cmdline_not_changed;
       do
@@ -1641,11 +1641,11 @@ getcmdline_int(
         if (has_mbyte) /* move to first byte of char */
           ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
                                           ccline.cmdbuff + ccline.cmdpos);
-        ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
+        //        ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
       } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
       if (has_mbyte)
-        set_cmdspos_cursor();
-      goto cmdline_not_changed;
+        //        set_cmdspos_cursor();
+        goto cmdline_not_changed;
 
     case K_IGNORE:
       /* Ignore mouse event or open_cmdwin() result. */
@@ -1660,7 +1660,7 @@ getcmdline_int(
     case K_S_HOME:
     case K_C_HOME:
       ccline.cmdpos = 0;
-      set_cmdspos();
+      //      set_cmdspos();
       goto cmdline_not_changed;
 
     case Ctrl_E: /* end of command line */
@@ -1669,7 +1669,7 @@ getcmdline_int(
     case K_S_END:
     case K_C_END:
       ccline.cmdpos = ccline.cmdlen;
-      set_cmdspos_cursor();
+      //      set_cmdspos_cursor();
       goto cmdline_not_changed;
 
     case Ctrl_A: /* all matches */
@@ -2143,60 +2143,60 @@ cmdline_charsize(int idx)
  * Compute the offset of the cursor on the command line for the prompt and
  * indent.
  */
-static void
-set_cmdspos(void)
-{
-  if (ccline.cmdfirstc != NUL)
-    ccline.cmdspos = 1 + ccline.cmdindent;
-  else
-    ccline.cmdspos = 0 + ccline.cmdindent;
-}
+//static void
+//set_cmdspos(void)
+//{
+//  if (ccline.cmdfirstc != NUL)
+//    ccline.cmdspos = 1 + ccline.cmdindent;
+//  else
+//    ccline.cmdspos = 0 + ccline.cmdindent;
+//}
 
 /*
  * Compute the screen position for the cursor on the command line.
  */
-static void
-set_cmdspos_cursor(void)
-{
-  int i, m, c;
-
-  set_cmdspos();
-  if (KeyTyped)
-  {
-    m = Columns * Rows;
-    if (m < 0) /* overflow, Columns or Rows at weird value */
-      m = MAXCOL;
-  }
-  else
-    m = MAXCOL;
-  for (i = 0; i < ccline.cmdlen && i < ccline.cmdpos; ++i)
-  {
-    c = cmdline_charsize(i);
-    /* Count ">" for double-wide multi-byte char that doesn't fit. */
-    if (has_mbyte)
-      correct_cmdspos(i, c);
-    /* If the cmdline doesn't fit, show cursor on last visible char.
-	 * Don't move the cursor itself, so we can still append. */
-    if ((ccline.cmdspos += c) >= m)
-    {
-      ccline.cmdspos -= c;
-      break;
-    }
-    if (has_mbyte)
-      i += (*mb_ptr2len)(ccline.cmdbuff + i) - 1;
-  }
-}
+//static void
+//set_cmdspos_cursor(void)
+//{
+//  int i, m, c;
+//
+//  set_cmdspos();
+//  if (KeyTyped)
+//  {
+//    m = Columns * Rows;
+//    if (m < 0) /* overflow, Columns or Rows at weird value */
+//      m = MAXCOL;
+//  }
+//  else
+//    m = MAXCOL;
+//  for (i = 0; i < ccline.cmdlen && i < ccline.cmdpos; ++i)
+//  {
+//    c = cmdline_charsize(i);
+//    /* Count ">" for double-wide multi-byte char that doesn't fit. */
+//    if (has_mbyte)
+//      correct_cmdspos(i, c);
+//    /* If the cmdline doesn't fit, show cursor on last visible char.
+//	 * Don't move the cursor itself, so we can still append. */
+//    if ((ccline.cmdspos += c) >= m)
+//    {
+//      ccline.cmdspos -= c;
+//      break;
+//    }
+//    if (has_mbyte)
+//      i += (*mb_ptr2len)(ccline.cmdbuff + i) - 1;
+//  }
+//}
 
 /*
  * Check if the character at "idx", which is "cells" wide, is a multi-byte
  * character that doesn't fit, so that a ">" must be displayed.
  */
-static void
-correct_cmdspos(int idx, int cells)
-{
-  if ((*mb_ptr2len)(ccline.cmdbuff + idx) > 1 && (*mb_ptr2cells)(ccline.cmdbuff + idx) > 1 && ccline.cmdspos % Columns + cells > Columns)
-    ccline.cmdspos++;
-}
+//static void
+//correct_cmdspos(int idx, int cells)
+//{
+//  if ((*mb_ptr2len)(ccline.cmdbuff + idx) > 1 && (*mb_ptr2cells)(ccline.cmdbuff + idx) > 1 && ccline.cmdspos % Columns + cells > Columns)
+//    ccline.cmdspos++;
+//}
 
 typedef struct
 {
@@ -2236,6 +2236,7 @@ typedef struct
 
 void *state_cmdline_initialize(int c, long count UNUSED, int indent)
 {
+  printf("state_cmdline_initialize: %d\n", c);
   cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
   context->firstc = c;
   context->count = count;
@@ -2308,7 +2309,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
     vim_memset(ccline.cmdbuff, ' ', context->indent);
     ccline.cmdbuff[context->indent] = NUL;
     ccline.cmdpos = context->indent;
-    ccline.cmdspos = context->indent;
+    //    ccline.cmdspos = context->indent;
     ccline.cmdlen = context->indent;
   }
 
@@ -2373,6 +2374,7 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
 
 executionStatus_T state_cmdline_execute(void *ctx, int c)
 {
+  printf("state_cmdline_execute: %d\n", c);
   cmdlineState_T *context = (cmdlineState_T *)ctx;
 
   if (context->bail_immediately == TRUE)
@@ -2389,7 +2391,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
 				   that occurs while typing a command should
 				   cause the command not to be executed. */
 
-  cursorcmd(); /* set the cursor on the right spot */
+  //  cursorcmd(); /* set the cursor on the right spot */
 
   /* Get a character.  Ignore K_IGNORE and K_NOP, they should not do
 	 * anything, such as stop completion. */
@@ -2750,6 +2752,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
         goto cmdline_changed;
       if (!cmd_silent)
       {
+        printf("windgoto from ex_getln: 2\n");
         windgoto(msg_row, 0);
       }
       goto returncmd;
@@ -2937,26 +2940,41 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_RIGHT:
   case K_S_RIGHT:
   case K_C_RIGHT:
+    printf("ex_getln: handling K_RIGHT 4\n");
+    printf("-- cmdpos: %d cmdlen: %d\n", ccline.cmdpos, ccline.cmdlen);
     do
     {
       if (ccline.cmdpos >= ccline.cmdlen)
         break;
       context->i = cmdline_charsize(ccline.cmdpos);
-      if (KeyTyped && ccline.cmdspos + context->i >= Columns * Rows)
-        break;
-      ccline.cmdspos += context->i;
+      printf("KeyTyped? %d\n", KeyTyped);
+      printf("context->i? %d\n", context->i);
+      printf("Columns * Rows: %ld\n", Columns * Rows);
+      //      printf("ccline.cmdspos? %d", ccline.cmdspos);
+      //      if (KeyTyped && ccline.cmdspos + context->i >= Columns * Rows)
+      //      if (KeyTyped)
+      //        break;
+      //ccline.cmdspos += context->i;
       if (has_mbyte)
         ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
       else
         ++ccline.cmdpos;
+
+      printf("new ccline.cmdpos: %d\n", ccline.cmdpos);
     } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
-    if (has_mbyte)
-      set_cmdspos_cursor();
+    //    if (has_mbyte) {
+    //      printf("set_cmdspos_cursor...\n");
+    //      printf("ccline.cmdpos before: %d\n", ccline.cmdpos);
+    //      set_cmdspos_cursor();
+    //      printf("ccline.cmdpos before: %d\n", ccline.cmdpos);
+    //    }
     goto cmdline_not_changed;
 
   case K_LEFT:
   case K_S_LEFT:
   case K_C_LEFT:
+    printf("ex_getln: handling K_LEFT 4\n");
+    printf("-- cmdpos: %d cmdlen: %d\n", ccline.cmdpos, ccline.cmdlen);
     if (ccline.cmdpos == 0)
       goto cmdline_not_changed;
     do
@@ -2965,10 +2983,10 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
       if (has_mbyte) /* move to first byte of char */
         ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
                                         ccline.cmdbuff + ccline.cmdpos);
-      ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
+      //      ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
     } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
-    if (has_mbyte)
-      set_cmdspos_cursor();
+    //    if (has_mbyte)
+    //      set_cmdspos_cursor();
     goto cmdline_not_changed;
 
   case K_IGNORE:
@@ -2984,7 +3002,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_S_HOME:
   case K_C_HOME:
     ccline.cmdpos = 0;
-    set_cmdspos();
+    //    set_cmdspos();
     goto cmdline_not_changed;
 
   case Ctrl_E: /* end of command line */
@@ -2993,7 +3011,7 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_S_END:
   case K_C_END:
     ccline.cmdpos = ccline.cmdlen;
-    set_cmdspos_cursor();
+    //    set_cmdspos_cursor();
     goto cmdline_not_changed;
 
   case Ctrl_A: /* all matches */
@@ -3493,6 +3511,7 @@ getexmodeline(
           }
         }
         msg_clr_eos();
+        printf("windgoto from ex_getln: 3\n");
         windgoto(msg_row, msg_col);
         continue;
       }
@@ -3566,6 +3585,7 @@ getexmodeline(
     line_ga.ga_len += len;
     escaped = FALSE;
 
+    printf("windgoto from ex_getln: 4\n");
     windgoto(msg_row, msg_col);
     pend = (char_u *)(line_ga.ga_data) + line_ga.ga_len;
 
@@ -3697,12 +3717,12 @@ realloc_cmdbuff(int len)
 }
 
 #if defined(FEAT_ARABIC) || defined(PROTO)
-static char_u *arshape_buf = NULL;
+//static char_u *arshape_buf = NULL;
 
 #if defined(EXITFREE) || defined(PROTO)
 void free_cmdline_buf(void)
 {
-  vim_free(arshape_buf);
+  //vim_free(arshape_buf);
 }
 #endif
 #endif
@@ -3714,115 +3734,7 @@ void free_cmdline_buf(void)
 static void
 draw_cmdline(int start, int len)
 {
-#ifdef FEAT_EVAL
-  int i;
-
-  if (cmdline_star > 0)
-    for (i = 0; i < len; ++i)
-    {
-      msg_putchar('*');
-      if (has_mbyte)
-        i += (*mb_ptr2len)(ccline.cmdbuff + start + i) - 1;
-    }
-  else
-#endif
-#ifdef FEAT_ARABIC
-      if (p_arshape && !p_tbidi && enc_utf8 && len > 0)
-  {
-    static int buflen = 0;
-    char_u *p;
-    int j;
-    int newlen = 0;
-    int mb_l;
-    int pc, pc1 = 0;
-    int prev_c = 0;
-    int prev_c1 = 0;
-    int u8c;
-    int u8cc[MAX_MCO];
-    int nc = 0;
-
-    /*
-	 * Do arabic shaping into a temporary buffer.  This is very
-	 * inefficient!
-	 */
-    if (len * 2 + 2 > buflen)
-    {
-      /* Re-allocate the buffer.  We keep it around to avoid a lot of
-	     * alloc()/free() calls. */
-      vim_free(arshape_buf);
-      buflen = len * 2 + 2;
-      arshape_buf = alloc(buflen);
-      if (arshape_buf == NULL)
-        return; /* out of memory */
-    }
-
-    if (utf_iscomposing(utf_ptr2char(ccline.cmdbuff + start)))
-    {
-      /* Prepend a space to draw the leading composing char on. */
-      arshape_buf[0] = ' ';
-      newlen = 1;
-    }
-
-    for (j = start; j < start + len; j += mb_l)
-    {
-      p = ccline.cmdbuff + j;
-      u8c = utfc_ptr2char_len(p, u8cc, start + len - j);
-      mb_l = utfc_ptr2len_len(p, start + len - j);
-      if (ARABIC_CHAR(u8c))
-      {
-        /* Do Arabic shaping. */
-        if (cmdmsg_rl)
-        {
-          /* displaying from right to left */
-          pc = prev_c;
-          pc1 = prev_c1;
-          prev_c1 = u8cc[0];
-          if (j + mb_l >= start + len)
-            nc = NUL;
-          else
-            nc = utf_ptr2char(p + mb_l);
-        }
-        else
-        {
-          /* displaying from left to right */
-          if (j + mb_l >= start + len)
-            pc = NUL;
-          else
-          {
-            int pcc[MAX_MCO];
-
-            pc = utfc_ptr2char_len(p + mb_l, pcc,
-                                   start + len - j - mb_l);
-            pc1 = pcc[0];
-          }
-          nc = prev_c;
-        }
-        prev_c = u8c;
-
-        u8c = arabic_shape(u8c, NULL, &u8cc[0], pc, pc1, nc);
-
-        newlen += (*mb_char2bytes)(u8c, arshape_buf + newlen);
-        if (u8cc[0] != 0)
-        {
-          newlen += (*mb_char2bytes)(u8cc[0], arshape_buf + newlen);
-          if (u8cc[1] != 0)
-            newlen += (*mb_char2bytes)(u8cc[1],
-                                       arshape_buf + newlen);
-        }
-      }
-      else
-      {
-        prev_c = u8c;
-        mch_memmove(arshape_buf + newlen, p, mb_l);
-        newlen += mb_l;
-      }
-    }
-
-    msg_outtrans_len(arshape_buf, newlen);
-  }
-  else
-#endif
-    msg_outtrans_len(ccline.cmdbuff + start, len);
+  // libvim: no-op
 }
 
 /*
@@ -3834,12 +3746,12 @@ void putcmdline(int c, int shift)
 {
   if (cmd_silent)
     return;
-  msg_no_more = TRUE;
-  msg_putchar(c);
+  //  msg_no_more = TRUE;
+  //  msg_putchar(c);
   if (shift)
     draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
   msg_no_more = FALSE;
-  cursorcmd();
+  //  cursorcmd();
   extra_char = c;
   extra_char_shift = shift;
 }
@@ -3960,7 +3872,7 @@ int put_on_cmdline(char_u *str, int len, int redraw)
       {
         /* Also backup the cursor position. */
         i = ptr2cells(ccline.cmdbuff + ccline.cmdpos);
-        ccline.cmdspos -= i;
+        //        ccline.cmdspos -= i;
         msg_col -= i;
         if (msg_col < 0)
         {
@@ -3993,13 +3905,13 @@ int put_on_cmdline(char_u *str, int len, int redraw)
     {
       c = cmdline_charsize(ccline.cmdpos);
       /* count ">" for a double-wide char that doesn't fit. */
-      if (has_mbyte)
-        correct_cmdspos(ccline.cmdpos, c);
+      //      if (has_mbyte)
+      //        correct_cmdspos(ccline.cmdpos, c);
       /* Stop cursor at the end of the screen, but do increment the
 	     * insert position, so that entering a very long command
 	     * works, even though you can't see it. */
-      if (ccline.cmdspos + c < m)
-        ccline.cmdspos += c;
+      //      if (ccline.cmdspos + c < m)
+      //        ccline.cmdspos += c;
 
       if (has_mbyte)
       {
@@ -4135,27 +4047,7 @@ void compute_cmdrow(void)
 static void
 cursorcmd(void)
 {
-  if (cmd_silent)
-    return;
-
-#ifdef FEAT_RIGHTLEFT
-  if (cmdmsg_rl)
-  {
-    msg_row = cmdline_row + (ccline.cmdspos / (int)(Columns - 1));
-    msg_col = (int)Columns - (ccline.cmdspos % (int)(Columns - 1)) - 1;
-    if (msg_row <= 0)
-      msg_row = Rows - 1;
-  }
-  else
-#endif
-  {
-    msg_row = cmdline_row + (ccline.cmdspos / (int)Columns);
-    msg_col = ccline.cmdspos % (int)Columns;
-    if (msg_row >= Rows)
-      msg_row = Rows - 1;
-  }
-
-  windgoto(msg_row, msg_col);
+  // libvim: no-op
 }
 
 void gotocmdline(int clr)
@@ -4169,6 +4061,7 @@ void gotocmdline(int clr)
     msg_col = 0;   /* always start in column 0 */
   if (clr)         /* clear the bottom line(s) */
     msg_clr_eos(); /* will reset clear_cmdline */
+  printf("windgoto from ex_getln: 6\n");
   windgoto(cmdline_row, 0);
 }
 
@@ -4317,8 +4210,8 @@ nextwild(
   }
   vim_free(p2);
 
-  redrawcmd();
-  cursorcmd();
+  //  redrawcmd();
+  //  cursorcmd();
 
   /* When expanding a ":map" command and no matches are found, assume that
      * the key is supposed to be inserted literally */

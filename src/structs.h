@@ -706,7 +706,8 @@ struct cmdline_info
   int cmdbufflen;    /* length of cmdbuff */
   int cmdlen;        /* number of chars in command line */
   int cmdpos;        /* current cursor position */
-  int cmdspos;       /* cursor column on screen */
+                     // Screen position not needed for libvim:
+                     //  int cmdspos;       /* cursor column on screen */
   int cmdfirstc;     /* ':', '/', '?', '=', '>' or NUL */
   int cmdindent;     /* number of spaces before cmdline */
   char_u *cmdprompt; /* message in front of cmdline */

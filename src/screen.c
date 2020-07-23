@@ -6783,6 +6783,7 @@ void screen_start(void)
  */
 void windgoto(int row, int col)
 {
+  printf("windgoto: 1\n");
   sattr_T *p;
   int i;
   int plan;
@@ -6803,6 +6804,7 @@ void windgoto(int row, int col)
   /* Can't use ScreenLines unless initialized */
   if (ScreenLines == NULL)
     return;
+  printf("windgoto: 2\n");
 
   if (col != screen_cur_col || row != screen_cur_row)
   {
@@ -6820,6 +6822,7 @@ void windgoto(int row, int col)
     else
       noinvcurs = 0;
     goto_cost = GOTO_COST + noinvcurs;
+    printf("windgoto: 3\n");
 
     /*
 	 * Plan how to do the positioning:
@@ -6840,10 +6843,12 @@ void windgoto(int row, int col)
 	     * If the cursor is in the same row, bigger col, we can use CR
 	     * or T_LE.
 	     */
+      printf("windgoto: 3.1\n");
       bs = NULL; /* init for GCC */
       attr = screen_attr;
       if (row == screen_cur_row && col < screen_cur_col)
       {
+        printf("windgoto: 3.2\n");
         /* "le" is preferred over "bc", because "bc" is obsolete */
         if (*T_LE)
           bs = T_LE; /* "cursor left" */
@@ -6896,6 +6901,7 @@ void windgoto(int row, int col)
         cost = 0;
       }
 
+      printf("windgoto: 3.4\n");
       /*
 	     * Check if any characters that need to be written have the
 	     * correct attributes.  Also avoid UTF-8 characters.
@@ -6909,7 +6915,9 @@ void windgoto(int row, int col)
 		 * Check if the attributes are correct without additionally
 		 * stopping highlighting.
 		 */
+        printf("windgoto: 3.5\n");
         p = ScreenAttrs + LineOffset[row] + wouldbe_col;
+        printf("windgoto: 3.6\n");
         while (i && *p++ == attr)
           --i;
         if (i != 0)
@@ -6928,6 +6936,7 @@ void windgoto(int row, int col)
         }
         if (enc_utf8)
         {
+          printf("windgoto: 3.7\n");
           /* Don't use an UTF-8 char for positioning, it's slow. */
           for (i = wouldbe_col; i < col; ++i)
             if (ScreenLinesUC[LineOffset[row] + i] != 0)
@@ -6936,8 +6945,10 @@ void windgoto(int row, int col)
               break;
             }
         }
+        printf("windgoto: 3.8\n");
       }
 
+      printf("windgoto: 4\n");
       /*
 	     * We can do it without term_windgoto()!
 	     */
@@ -6997,6 +7008,7 @@ void windgoto(int row, int col)
     else
       cost = 999;
 
+    printf("windgoto: 5\n");
     if (cost >= goto_cost)
     {
       if (noinvcurs)

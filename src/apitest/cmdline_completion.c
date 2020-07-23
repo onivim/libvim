@@ -154,8 +154,29 @@ MU_TEST(test_cmdline_completion_crash)
   vimInput("<LEFT>");
   vimInput("<LEFT>");
 
+  printf("test - 1\n");
   vimCommandLineGetCompletions(&completions, &count);
-  mu_check(count == 0);
+  mu_check(count > -1);
+
+  printf("test - 2\n");
+  vimInput("<LEFT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count > -1);
+
+  printf("test - 3\n");
+  vimInput("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count > -1);
+
+  printf("test - 4\n");
+  vimInput("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count > -1);
+
+  printf("test - 5\n");
+  vimInput("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count > -1);
 }
 
 MU_TEST_SUITE(test_suite)
