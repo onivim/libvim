@@ -69,7 +69,6 @@ static void set_expand_context(expand_T *xp);
 static int ExpandFromContext(expand_T *xp, char_u *, int *, char_u ***, int);
 static int expand_showtail(expand_T *xp);
 #ifdef FEAT_CMDL_COMPL
-//static int expand_shellcmd(char_u *filepat, int *num_file, char_u ***file, int flagsarg);
 static int ExpandRTDir(char_u *pat, int flags, int *num_file, char_u ***file, char *dirname[]);
 static int ExpandPackAddDir(char_u *pat, int *num_file, char_u ***file);
 #ifdef FEAT_CMDHIST
@@ -542,8 +541,6 @@ may_do_incsearch_highlighting(
   else if (found != 0)
     curwin->w_cursor = end_pos;
 
-  // libvim - redrawing is not necessary
-  // redrawcmdline();
   is_state->did_incsearch = TRUE;
 }
 
@@ -835,7 +832,6 @@ getcmdline_int(
     vim_memset(ccline.cmdbuff, ' ', indent);
     ccline.cmdbuff[indent] = NUL;
     ccline.cmdpos = indent;
-    //    ccline.cmdspos = indent;
     ccline.cmdlen = indent;
   }
 
@@ -857,7 +853,6 @@ getcmdline_int(
     gotocmdline(TRUE);
     msg_scrolled += i;
     redrawcmdprompt(); /* draw prompt or indent */
-                       //    set_cmdspos();
   }
   xpc.xp_context = EXPAND_NOTHING;
   xpc.xp_backslash = XP_BS_NONE;
@@ -1009,19 +1004,19 @@ getcmdline_int(
     if (c != p_wc && c == K_S_TAB && xpc.xp_numfiles > 0)
       c = Ctrl_P;
 
-    //#ifdef FEAT_WILDMENU
-    //    /* Special translations for 'wildmenu' */
-    //    if (did_wild_list && p_wmnu)
-    //    {
-    //      if (c == K_LEFT)
-    //        c = Ctrl_P;
-    //      else if (c == K_RIGHT)
-    //        c = Ctrl_N;
-    //    }
-    //    /* Hitting CR after "emenu Name.": complete submenu */
-    //    if (xpc.xp_context == EXPAND_MENUNAMES && p_wmnu && ccline.cmdpos > 1 && ccline.cmdbuff[ccline.cmdpos - 1] == '.' && ccline.cmdbuff[ccline.cmdpos - 2] != '\\' && (c == '\n' || c == '\r' || c == K_KENTER))
-    //      c = K_DOWN;
-    //#endif
+#ifdef FEAT_WILDMENU
+    /* Special translations for 'wildmenu' */
+    if (did_wild_list && p_wmnu)
+    {
+      if (c == K_LEFT)
+        c = Ctrl_P;
+      else if (c == K_RIGHT)
+        c = Ctrl_N;
+    }
+    /* Hitting CR after "emenu Name.": complete submenu */
+    if (xpc.xp_context == EXPAND_MENUNAMES && p_wmnu && ccline.cmdpos > 1 && ccline.cmdbuff[ccline.cmdpos - 1] == '.' && ccline.cmdbuff[ccline.cmdpos - 2] != '\\' && (c == '\n' || c == '\r' || c == K_KENTER))
+      c = K_DOWN;
+#endif
 
     /* free expanded names when finished walking through matches */
     if (xpc.xp_numfiles != -1 && !(c == p_wc && KeyTyped) && c != p_wcm && c != Ctrl_N && c != Ctrl_P && c != Ctrl_A && c != Ctrl_L)
@@ -1615,16 +1610,12 @@ getcmdline_int(
         if (ccline.cmdpos >= ccline.cmdlen)
           break;
         i = cmdline_charsize(ccline.cmdpos);
-        //        if (KeyTyped && ccline.cmdspos + i >= Columns * Rows)
-        //          break;
-        //        ccline.cmdspos += i;
         if (has_mbyte)
           ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
         else
           ++ccline.cmdpos;
       } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
-      //      if (has_mbyte)
-      //        set_cmdspos_cursor();
+
       goto cmdline_not_changed;
 
     case K_LEFT:
@@ -1638,10 +1629,8 @@ getcmdline_int(
         if (has_mbyte) /* move to first byte of char */
           ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
                                           ccline.cmdbuff + ccline.cmdpos);
-        //        ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
       } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
       if (has_mbyte)
-        //        set_cmdspos_cursor();
         goto cmdline_not_changed;
 
     case K_IGNORE:
@@ -1657,7 +1646,6 @@ getcmdline_int(
     case K_S_HOME:
     case K_C_HOME:
       ccline.cmdpos = 0;
-      //      set_cmdspos();
       goto cmdline_not_changed;
 
     case Ctrl_E: /* end of command line */
@@ -1666,7 +1654,6 @@ getcmdline_int(
     case K_S_END:
     case K_C_END:
       ccline.cmdpos = ccline.cmdlen;
-      //      set_cmdspos_cursor();
       goto cmdline_not_changed;
 
     case Ctrl_A: /* all matches */
@@ -2136,65 +2123,6 @@ cmdline_charsize(int idx)
   return ptr2cells(ccline.cmdbuff + idx);
 }
 
-/*
- * Compute the offset of the cursor on the command line for the prompt and
- * indent.
- */
-//static void
-//set_cmdspos(void)
-//{
-//  if (ccline.cmdfirstc != NUL)
-//    ccline.cmdspos = 1 + ccline.cmdindent;
-//  else
-//    ccline.cmdspos = 0 + ccline.cmdindent;
-//}
-
-/*
- * Compute the screen position for the cursor on the command line.
- */
-//static void
-//set_cmdspos_cursor(void)
-//{
-//  int i, m, c;
-//
-//  set_cmdspos();
-//  if (KeyTyped)
-//  {
-//    m = Columns * Rows;
-//    if (m < 0) /* overflow, Columns or Rows at weird value */
-//      m = MAXCOL;
-//  }
-//  else
-//    m = MAXCOL;
-//  for (i = 0; i < ccline.cmdlen && i < ccline.cmdpos; ++i)
-//  {
-//    c = cmdline_charsize(i);
-//    /* Count ">" for double-wide multi-byte char that doesn't fit. */
-//    if (has_mbyte)
-//      correct_cmdspos(i, c);
-//    /* If the cmdline doesn't fit, show cursor on last visible char.
-//	 * Don't move the cursor itself, so we can still append. */
-//    if ((ccline.cmdspos += c) >= m)
-//    {
-//      ccline.cmdspos -= c;
-//      break;
-//    }
-//    if (has_mbyte)
-//      i += (*mb_ptr2len)(ccline.cmdbuff + i) - 1;
-//  }
-//}
-
-/*
- * Check if the character at "idx", which is "cells" wide, is a multi-byte
- * character that doesn't fit, so that a ">" must be displayed.
- */
-//static void
-//correct_cmdspos(int idx, int cells)
-//{
-//  if ((*mb_ptr2len)(ccline.cmdbuff + idx) > 1 && (*mb_ptr2cells)(ccline.cmdbuff + idx) > 1 && ccline.cmdspos % Columns + cells > Columns)
-//    ccline.cmdspos++;
-//}
-
 typedef struct
 {
   int firstc;
@@ -2305,7 +2233,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
     vim_memset(ccline.cmdbuff, ' ', context->indent);
     ccline.cmdbuff[context->indent] = NUL;
     ccline.cmdpos = context->indent;
-    //    ccline.cmdspos = context->indent;
     ccline.cmdlen = context->indent;
   }
 
@@ -2939,23 +2866,14 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
       if (ccline.cmdpos >= ccline.cmdlen)
         break;
       context->i = cmdline_charsize(ccline.cmdpos);
-      //      printf("ccline.cmdspos? %d", ccline.cmdspos);
-      //      if (KeyTyped && ccline.cmdspos + context->i >= Columns * Rows)
-      //      if (KeyTyped)
-      //        break;
-      //ccline.cmdspos += context->i;
+
       if (has_mbyte)
         ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
       else
         ++ccline.cmdpos;
 
     } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
-    //    if (has_mbyte) {
-    //      printf("set_cmdspos_cursor...\n");
-    //      printf("ccline.cmdpos before: %d\n", ccline.cmdpos);
-    //      set_cmdspos_cursor();
-    //      printf("ccline.cmdpos before: %d\n", ccline.cmdpos);
-    //    }
+
     goto cmdline_not_changed;
 
   case K_LEFT:
@@ -2969,10 +2887,8 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
       if (has_mbyte) /* move to first byte of char */
         ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
                                         ccline.cmdbuff + ccline.cmdpos);
-      //      ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
     } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
-    //    if (has_mbyte)
-    //      set_cmdspos_cursor();
+
     goto cmdline_not_changed;
 
   case K_IGNORE:
@@ -2988,7 +2904,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_S_HOME:
   case K_C_HOME:
     ccline.cmdpos = 0;
-    //    set_cmdspos();
     goto cmdline_not_changed;
 
   case Ctrl_E: /* end of command line */
@@ -2997,7 +2912,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_S_END:
   case K_C_END:
     ccline.cmdpos = ccline.cmdlen;
-    //    set_cmdspos_cursor();
     goto cmdline_not_changed;
 
   case Ctrl_A: /* all matches */
@@ -3856,7 +3770,6 @@ int put_on_cmdline(char_u *str, int len, int redraw)
       {
         /* Also backup the cursor position. */
         i = ptr2cells(ccline.cmdbuff + ccline.cmdpos);
-        //        ccline.cmdspos -= i;
         msg_col -= i;
         if (msg_col < 0)
         {
@@ -3888,14 +3801,6 @@ int put_on_cmdline(char_u *str, int len, int redraw)
     for (i = 0; i < len; ++i)
     {
       c = cmdline_charsize(ccline.cmdpos);
-      /* count ">" for a double-wide char that doesn't fit. */
-      //      if (has_mbyte)
-      //        correct_cmdspos(ccline.cmdpos, c);
-      /* Stop cursor at the end of the screen, but do increment the
-	     * insert position, so that entering a very long command
-	     * works, even though you can't see it. */
-      //      if (ccline.cmdspos + c < m)
-      //        ccline.cmdspos += c;
 
       if (has_mbyte)
       {
@@ -4192,9 +4097,6 @@ nextwild(
     }
   }
   vim_free(p2);
-
-  //  redrawcmd();
-  //  cursorcmd();
 
   /* When expanding a ":map" command and no matches are found, assume that
      * the key is supposed to be inserted literally */
