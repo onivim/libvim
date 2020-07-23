@@ -1312,7 +1312,6 @@ getcmdline_int(
           goto cmdline_changed;
         if (!cmd_silent)
         {
-          printf("windgoto from ex_getln: 1\n");
           windgoto(msg_row, 0);
         }
         break;
@@ -1611,7 +1610,6 @@ getcmdline_int(
     case K_RIGHT:
     case K_S_RIGHT:
     case K_C_RIGHT:
-      printf("ex_getln: At K_RIGHT case!\n");
       do
       {
         if (ccline.cmdpos >= ccline.cmdlen)
@@ -1632,7 +1630,6 @@ getcmdline_int(
     case K_LEFT:
     case K_S_LEFT:
     case K_C_LEFT:
-      printf("ex_getln: At K_LEFT case!\n");
       if (ccline.cmdpos == 0)
         goto cmdline_not_changed;
       do
@@ -2236,7 +2233,6 @@ typedef struct
 
 void *state_cmdline_initialize(int c, long count UNUSED, int indent)
 {
-  printf("state_cmdline_initialize: %d\n", c);
   cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
   context->firstc = c;
   context->count = count;
@@ -2374,7 +2370,6 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
 
 executionStatus_T state_cmdline_execute(void *ctx, int c)
 {
-  printf("state_cmdline_execute: %d\n", c);
   cmdlineState_T *context = (cmdlineState_T *)ctx;
 
   if (context->bail_immediately == TRUE)
@@ -2752,7 +2747,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
         goto cmdline_changed;
       if (!cmd_silent)
       {
-        printf("windgoto from ex_getln: 2\n");
         windgoto(msg_row, 0);
       }
       goto returncmd;
@@ -2940,16 +2934,11 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_RIGHT:
   case K_S_RIGHT:
   case K_C_RIGHT:
-    printf("ex_getln: handling K_RIGHT 4\n");
-    printf("-- cmdpos: %d cmdlen: %d\n", ccline.cmdpos, ccline.cmdlen);
     do
     {
       if (ccline.cmdpos >= ccline.cmdlen)
         break;
       context->i = cmdline_charsize(ccline.cmdpos);
-      printf("KeyTyped? %d\n", KeyTyped);
-      printf("context->i? %d\n", context->i);
-      printf("Columns * Rows: %ld\n", Columns * Rows);
       //      printf("ccline.cmdspos? %d", ccline.cmdspos);
       //      if (KeyTyped && ccline.cmdspos + context->i >= Columns * Rows)
       //      if (KeyTyped)
@@ -2960,7 +2949,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
       else
         ++ccline.cmdpos;
 
-      printf("new ccline.cmdpos: %d\n", ccline.cmdpos);
     } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
     //    if (has_mbyte) {
     //      printf("set_cmdspos_cursor...\n");
@@ -2973,8 +2961,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   case K_LEFT:
   case K_S_LEFT:
   case K_C_LEFT:
-    printf("ex_getln: handling K_LEFT 4\n");
-    printf("-- cmdpos: %d cmdlen: %d\n", ccline.cmdpos, ccline.cmdlen);
     if (ccline.cmdpos == 0)
       goto cmdline_not_changed;
     do
@@ -3511,7 +3497,6 @@ getexmodeline(
           }
         }
         msg_clr_eos();
-        printf("windgoto from ex_getln: 3\n");
         windgoto(msg_row, msg_col);
         continue;
       }
@@ -3585,7 +3570,6 @@ getexmodeline(
     line_ga.ga_len += len;
     escaped = FALSE;
 
-    printf("windgoto from ex_getln: 4\n");
     windgoto(msg_row, msg_col);
     pend = (char_u *)(line_ga.ga_data) + line_ga.ga_len;
 
@@ -4061,7 +4045,6 @@ void gotocmdline(int clr)
     msg_col = 0;   /* always start in column 0 */
   if (clr)         /* clear the bottom line(s) */
     msg_clr_eos(); /* will reset clear_cmdline */
-  printf("windgoto from ex_getln: 6\n");
   windgoto(cmdline_row, 0);
 }
 
