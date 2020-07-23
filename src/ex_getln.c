@@ -1630,8 +1630,8 @@ getcmdline_int(
           ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
                                           ccline.cmdbuff + ccline.cmdpos);
       } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
-      if (has_mbyte)
-        goto cmdline_not_changed;
+
+      goto cmdline_not_changed;
 
     case K_IGNORE:
       /* Ignore mouse event or open_cmdwin() result. */
@@ -2312,8 +2312,6 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
   did_emsg = FALSE; /* There can't really be a reason why an error
 				   that occurs while typing a command should
 				   cause the command not to be executed. */
-
-  //  cursorcmd(); /* set the cursor on the right spot */
 
   /* Get a character.  Ignore K_IGNORE and K_NOP, they should not do
 	 * anything, such as stop completion. */
@@ -3644,12 +3642,9 @@ void putcmdline(int c, int shift)
 {
   if (cmd_silent)
     return;
-  //  msg_no_more = TRUE;
-  //  msg_putchar(c);
   if (shift)
     draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
   msg_no_more = FALSE;
-  //  cursorcmd();
   extra_char = c;
   extra_char_shift = shift;
 }
