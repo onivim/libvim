@@ -169,11 +169,15 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   *count = 0;
   *completions = NULL;
 
-  /* set_expand_context(&ccline.xpc); */
   if (!ccline.xpc)
   {
     return;
   }
+  set_cmd_context(ccline.xpc,
+                  ccline.cmdbuff,
+                  strlen(ccline.cmdbuff),
+                  ccline.cmdpos,
+                  0);
   expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 
@@ -213,6 +217,7 @@ void vimInput(char_u *input)
     sm_execute_normal(input);
     vim_free((char_u *)ptr);
   }
+
   /* Trigger CursorMoved if the cursor moved. */
   if (!finish_op && (has_cursormoved()) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor))
