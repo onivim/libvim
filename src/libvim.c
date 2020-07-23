@@ -169,11 +169,15 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   *count = 0;
   *completions = NULL;
 
-  /* set_expand_context(&ccline.xpc); */
   if (!ccline.xpc)
   {
     return;
   }
+  set_cmd_context(ccline.xpc,
+                  ccline.cmdbuff,
+                  strlen(ccline.cmdbuff),
+                  ccline.cmdpos,
+                  0);
   expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 

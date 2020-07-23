@@ -142,6 +142,22 @@ MU_TEST(test_cmdline_completions_abs)
   mu_check(count == 0);
 }
 
+MU_TEST(test_cmdline_completion_crash)
+{
+  char_u **completions;
+  int count = -1;
+
+  vimInput(":");
+  vimInput("!m");
+  vimInput(" ");
+  vimInput("h");
+  vimInput("<LEFT>");
+  vimInput("<LEFT>");
+
+  vimCommandLineGetCompletions(&completions, &count);
+  mu_check(count == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -153,6 +169,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_cmdline_completions_empty_space);
   MU_RUN_TEST(test_cmdline_completions_eh);
   MU_RUN_TEST(test_cmdline_completions_abs);
+  MU_RUN_TEST(test_cmdline_completion_crash);
 }
 
 int main(int argc, char **argv)
