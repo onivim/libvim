@@ -72,7 +72,7 @@ static void set_expand_context(expand_T *xp);
 static int ExpandFromContext(expand_T *xp, char_u *, int *, char_u ***, int);
 static int expand_showtail(expand_T *xp);
 #ifdef FEAT_CMDL_COMPL
-static int expand_shellcmd(char_u *filepat, int *num_file, char_u ***file, int flagsarg);
+//static int expand_shellcmd(char_u *filepat, int *num_file, char_u ***file, int flagsarg);
 static int ExpandRTDir(char_u *pat, int flags, int *num_file, char_u ***file, char *dirname[]);
 static int ExpandPackAddDir(char_u *pat, int *num_file, char_u ***file);
 #ifdef FEAT_CMDHIST
@@ -5449,7 +5449,11 @@ ExpandFromContext(
   return FAIL;
 #else
   if (xp->xp_context == EXPAND_SHELLCMD)
-    return expand_shellcmd(pat, num_file, file, flags);
+  {
+    //return expand_shellcmd(pat, num_file, file, flags);
+    //shellcmd can freeze / block onivim
+    return FAIL;
+  }
   if (xp->xp_context == EXPAND_OLD_SETTING)
     return ExpandOldSetting(num_file, file);
   if (xp->xp_context == EXPAND_BUFFERS)
@@ -5645,142 +5649,6 @@ int ExpandGeneric(
       sort_strings(*file, *num_file);
   }
 
-  return OK;
-}
-
-/*
- * Complete a shell command.
- * Returns FAIL or OK;
- */
-static int
-expand_shellcmd(
-    char_u *filepat, /* pattern to match with command names */
-    int *num_file,   /* return: number of matches */
-    char_u ***file,  /* return: array with matches */
-    int flagsarg)    /* EW_ flags */
-{
-  char_u *pat;
-  int i;
-  char_u *path = NULL;
-  int mustfree = FALSE;
-  garray_T ga;
-  char_u *buf = alloc(MAXPATHL);
-  size_t l;
-  char_u *s, *e;
-  int flags = flagsarg;
-  int ret;
-  int did_curdir = FALSE;
-  hashtab_T found_ht;
-  hashitem_T *hi;
-  hash_T hash;
-
-  if (buf == NULL)
-    return FAIL;
-
-  /* for ":set path=" and ":set tags=" halve backslashes for escaped
-     * space */
-  pat = vim_strsave(filepat);
-  for (i = 0; pat[i]; ++i)
-    if (pat[i] == '\\' && pat[i + 1] == ' ')
-      STRMOVE(pat + i, pat + i + 1);
-
-  flags |= EW_FILE | EW_EXEC | EW_SHELLCMD;
-
-  if (pat[0] == '.' && (vim_ispathsep(pat[1]) || (pat[1] == '.' && vim_ispathsep(pat[2]))))
-    path = (char_u *)".";
-  else
-  {
-    /* For an absolute name we don't use $PATH. */
-    if (!mch_isFullName(pat))
-      path = vim_getenv((char_u *)"PATH", &mustfree);
-    if (path == NULL)
-      path = (char_u *)"";
-  }
-
-  /*
-     * Go over all directories in $PATH.  Expand matches in that directory and
-     * collect them in "ga".  When "." is not in $PATH also expand for the
-     * current directory, to find "subdir/cmd".
-     */
-  ga_init2(&ga, (int)sizeof(char *), 10);
-  hash_init(&found_ht);
-  for (s = path;; s = e)
-  {
-#if defined(MSWIN)
-    e = vim_strchr(s, ';');
-#else
-    e = vim_strchr(s, ':');
-#endif
-    if (e == NULL)
-      e = s + STRLEN(s);
-
-    if (*s == NUL)
-    {
-      if (did_curdir)
-        break;
-      // Find directories in the current directory, path is empty.
-      did_curdir = TRUE;
-      flags |= EW_DIR;
-    }
-    else if (STRNCMP(s, ".", (int)(e - s)) == 0)
-    {
-      did_curdir = TRUE;
-      flags |= EW_DIR;
-    }
-    else
-      // Do not match directories inside a $PATH item.
-      flags &= ~EW_DIR;
-
-    l = e - s;
-    if (l > MAXPATHL - 5)
-      break;
-    vim_strncpy(buf, s, l);
-    add_pathsep(buf);
-    l = STRLEN(buf);
-    vim_strncpy(buf + l, pat, MAXPATHL - 1 - l);
-
-    /* Expand matches in one directory of $PATH. */
-    ret = expand_wildcards(1, &buf, num_file, file, flags);
-    if (ret == OK)
-    {
-      if (ga_grow(&ga, *num_file) == FAIL)
-        FreeWild(*num_file, *file);
-      else
-      {
-        for (i = 0; i < *num_file; ++i)
-        {
-          char_u *name = (*file)[i];
-
-          if (STRLEN(name) > l)
-          {
-            // Check if this name was already found.
-            hash = hash_hash(name + l);
-            hi = hash_lookup(&found_ht, name + l, hash);
-            if (HASHITEM_EMPTY(hi))
-            {
-              // Remove the path that was prepended.
-              STRMOVE(name, name + l);
-              ((char_u **)ga.ga_data)[ga.ga_len++] = name;
-              hash_add_item(&found_ht, hi, name, hash);
-              name = NULL;
-            }
-          }
-          vim_free(name);
-        }
-        vim_free(*file);
-      }
-    }
-    if (*e != NUL)
-      ++e;
-  }
-  *file = ga.ga_data;
-  *num_file = ga.ga_len;
-
-  vim_free(buf);
-  vim_free(pat);
-  if (mustfree)
-    vim_free(path);
-  hash_clear(&found_ht);
   return OK;
 }
 
