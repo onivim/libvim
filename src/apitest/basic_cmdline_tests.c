@@ -74,7 +74,7 @@ MU_TEST(test_cmdline_autocmds)
   vimInput("c");
   mu_check(cmdLineChangedCount == 3);
   mu_check(cmdLineLeaveCount == 0);
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check(cmdLineLeaveCount == 1);
 
   mu_check((vimGetMode() & NORMAL) == NORMAL);
