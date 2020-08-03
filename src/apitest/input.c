@@ -82,7 +82,7 @@ MU_TEST(test_control_bracket)
 
   mu_check((vimGetMode() & INSERT) == INSERT);
 
-  vimInput("<c-[>");
+  vimKey("<c-[>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
