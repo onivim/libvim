@@ -205,14 +205,14 @@ MU_TEST(test_ctrl_d)
   vimInput("g");
   printf("topline: %d\n", 1);
 
-  vimInput("<c-d>");
+  vimKey("<c-d>");
 
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 26);
 
   vimWindowSetHeight(12);
 
-  vimInput("<c-u>");
+  vimKey("<c-u>");
   mu_check(vimWindowGetTopLine() == 20);
 }
 
@@ -223,7 +223,7 @@ MU_TEST(test_ctrl_f)
   vimInput("g");
   printf("topline: %d\n", 1);
 
-  vimInput("<c-f>");
+  vimKey("<c-f>");
 
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 49);
@@ -232,18 +232,18 @@ MU_TEST(test_ctrl_f)
   // so the next <c-f> will be a partial scroll
   vimWindowSetHeight(20);
 
-  vimInput("<c-f>");
+  vimKey("<c-f>");
   // Partial scroll after resize
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 58);
 
   // Full scroll
-  vimInput("<c-f>");
+  vimKey("<c-f>");
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 76);
 
   // Full scroll
-  vimInput("<c-f>");
+  vimKey("<c-f>");
   printf("topline: %d\n", vimWindowGetTopLine());
   mu_check(vimWindowGetTopLine() == 94);
 }
