@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -20,7 +20,7 @@ MU_TEST(test_digraph_doesnt_hang)
 
   // Start inserting digraph... should be no-op right now
   // until we bring the feature back
-  vimInput("<c-k>");
+  vimKey("<c-k>");
 }
 
 MU_TEST_SUITE(test_suite)

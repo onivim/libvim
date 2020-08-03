@@ -23,8 +23,8 @@ void test_setup(void)
 {
   vimSetMessageCallback(&onMessage);
 
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 
@@ -36,7 +36,7 @@ void test_teardown(void) {}
 
 MU_TEST(test_fileinfo)
 {
-  vimInput("<c-g>");
+  vimKey("<c-g>");
 
   char_u *expected = "\"collateral/testfile.txt\" line 1 of 3 --33\%-- col 1";
   mu_check(strcmp(lastMessage, expected) == 0);

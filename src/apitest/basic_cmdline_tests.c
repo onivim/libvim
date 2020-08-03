@@ -25,8 +25,8 @@ void onAutoCommand(event_T command, buf_T *buf)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 }
@@ -42,7 +42,7 @@ MU_TEST(test_cmdline_esc)
 {
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
@@ -50,7 +50,7 @@ MU_TEST(test_cmdline_enter)
 {
   vimInput(":");
   mu_check((vimGetMode() & CMDLINE) == CMDLINE);
-  vimInput("<cr>");
+  vimKey("<cr>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
@@ -91,7 +91,7 @@ MU_TEST(test_cmdline_no_execute_with_esc)
   vimInput(",");
   vimInput("2");
   vimInput("d");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 
   lc = vimBufferGetLineCount(buffer);
@@ -109,7 +109,7 @@ MU_TEST(test_cmdline_execute)
   vimInput(",");
   vimInput("2");
   vimInput("d");
-  vimInput("<cr>");
+  vimKey("<cr>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 
   lc = vimBufferGetLineCount(buffer);
@@ -130,7 +130,7 @@ MU_TEST(test_cmdline_substitution)
   vimInput("A");
   vimInput("!");
   vimInput("g");
-  vimInput("<cr>");
+  vimKey("<cr>");
 
   mu_check(strcmp(vimBufferGetLine(buffer, 1),
                   "Ahis is the first line of a test file") == 0);
@@ -140,15 +140,15 @@ MU_TEST(test_cmdline_get_type)
 {
   vimInput(":");
   mu_check(vimCommandLineGetType() == ':');
-  vimInput("<esc>");
+  vimKey("<esc>");
 
   vimInput("/");
   mu_check(vimCommandLineGetType() == '/');
-  vimInput("<esc>");
+  vimKey("<esc>");
 
   vimInput("?");
   mu_check(vimCommandLineGetType() == '?');
-  vimInput("<esc>");
+  vimKey("<esc>");
 }
 
 MU_TEST_SUITE(test_suite)

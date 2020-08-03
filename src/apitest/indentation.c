@@ -41,8 +41,8 @@ void test_setup(void)
   vimExecute("setlocal formatprg&");
   vimExecute("set equalprg&");
 
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");

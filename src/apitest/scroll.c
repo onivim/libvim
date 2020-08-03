@@ -11,7 +11,7 @@ void test_setup(void)
   vimInput(":");
   vimInput("5");
   vimInput("0");
-  vimInput("<cr>");
+  vimKey("<cr>");
 }
 
 void test_teardown(void) {}

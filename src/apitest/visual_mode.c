@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimInput("g");
   vimInput("g");
@@ -22,16 +22,16 @@ MU_TEST(test_visual_is_active)
   mu_check(vimVisualIsActive() == 1);
   mu_check((vimGetMode() & VISUAL) == VISUAL);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 
-  vimInput("<c-v>");
+  vimKey("<c-v>");
   mu_check(vimVisualGetType() == Ctrl_V);
   mu_check(vimVisualIsActive() == 1);
   mu_check((vimGetMode() & VISUAL) == VISUAL);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 

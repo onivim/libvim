@@ -22,8 +22,8 @@ void onTerminal(terminalRequest_t *termRequest)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 }
@@ -38,12 +38,8 @@ void test_teardown(void)
 
 MU_TEST(test_term_noargs)
 {
-  vimInput(":");
-  vimInput("t");
-  vimInput("e");
-  vimInput("r");
-  vimInput("m");
-  vimInput("<cr>");
+  vimInput(":term");
+  vimKey("<cr>");
 
   mu_check(terminalCallCount == 1);
   mu_check(lastTerminalRequest.curwin == 0);
@@ -53,22 +49,8 @@ MU_TEST(test_term_noargs)
 
 MU_TEST(test_term_noclose)
 {
-  vimInput(":");
-  vimInput("t");
-  vimInput("e");
-  vimInput("r");
-  vimInput("m");
-  vimInput(" ");
-  vimInput("+");
-  vimInput("+");
-  vimInput("n");
-  vimInput("o");
-  vimInput("c");
-  vimInput("l");
-  vimInput("o");
-  vimInput("s");
-  vimInput("e");
-  vimInput("<cr>");
+  vimInput(":term ++noclose");
+  vimKey("<cr>");
 
   mu_check(terminalCallCount == 1);
   mu_check(lastTerminalRequest.curwin == 0);
@@ -78,17 +60,8 @@ MU_TEST(test_term_noclose)
 
 MU_TEST(test_term_bash)
 {
-  vimInput(":");
-  vimInput("t");
-  vimInput("e");
-  vimInput("r");
-  vimInput("m");
-  vimInput(" ");
-  vimInput("b");
-  vimInput("a");
-  vimInput("s");
-  vimInput("h");
-  vimInput("<cr>");
+  vimInput(":term bash");
+  vimKey("<cr>");
 
   mu_check(terminalCallCount == 1);
   mu_check(lastTerminalRequest.curwin == 0);
@@ -99,21 +72,8 @@ MU_TEST(test_term_bash)
 
 MU_TEST(test_term_curwin)
 {
-  vimInput(":");
-  vimInput("t");
-  vimInput("e");
-  vimInput("r");
-  vimInput("m");
-  vimInput(" ");
-  vimInput("+");
-  vimInput("+");
-  vimInput("c");
-  vimInput("u");
-  vimInput("r");
-  vimInput("w");
-  vimInput("i");
-  vimInput("n");
-  vimInput("<cr>");
+  vimInput(":term ++curwin");
+  vimKey("<cr>");
 
   mu_check(terminalCallCount == 1);
   mu_check(lastTerminalRequest.curwin == 1);

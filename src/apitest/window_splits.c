@@ -30,8 +30,8 @@ void onWindowMovement(windowMovement_T movementType, int count)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -60,7 +60,7 @@ MU_TEST(test_vsplit_ctrl_w)
 {
   vimBufferOpen("collateral/testfile.txt", 1, 0);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("v");
 
   mu_check(lastSplitType == VERTICAL_SPLIT);
@@ -71,7 +71,7 @@ MU_TEST(test_hsplit_ctrl_w)
 {
   vimBufferOpen("collateral/testfile.txt", 1, 0);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("s");
 
   mu_check(lastSplitType == HORIZONTAL_SPLIT);
@@ -90,44 +90,44 @@ MU_TEST(test_win_movements)
 {
 
   printf("Entering <c-w>\n");
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   printf("Entering <c-j>\n");
-  vimInput("<c-j>");
+  vimKey("<c-j>");
 
   mu_check(lastMovement == WIN_CURSOR_DOWN);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("k");
 
   mu_check(lastMovement == WIN_CURSOR_UP);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("h");
 
   mu_check(lastMovement == WIN_CURSOR_LEFT);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("l");
 
   mu_check(lastMovement == WIN_CURSOR_RIGHT);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("t");
 
   mu_check(lastMovement == WIN_CURSOR_TOP_LEFT);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("b");
 
   mu_check(lastMovement == WIN_CURSOR_BOTTOM_RIGHT);
   mu_check(lastMovementCount == 1);
 
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("p");
 
   mu_check(lastMovement == WIN_CURSOR_PREVIOUS);
@@ -137,7 +137,7 @@ MU_TEST(test_win_movements)
 MU_TEST(test_win_move_count_before)
 {
   vimInput("2");
-  vimInput("<c-w>");
+  vimKey("<c-w>");
   vimInput("k");
 
   mu_check(lastMovement == WIN_CURSOR_UP);

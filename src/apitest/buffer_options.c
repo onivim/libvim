@@ -42,8 +42,8 @@ void test_setup(void)
   vimBufferSetModifiable(curbuf, TRUE);
   vimBufferSetReadOnly(curbuf, FALSE);
 
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 

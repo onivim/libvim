@@ -62,13 +62,13 @@ MU_TEST(test_multiple_undo_redo)
   vimInput("u");
 
   // Redo the last change
-  vimInput("<C-r>");
+  vimKey("<C-r>");
 
   count = vimBufferGetLineCount(cur);
   mu_check(count == 2);
 
   // Redo again
-  vimInput("<C-r>");
+  vimKey("<C-r>");
 
   count = vimBufferGetLineCount(cur);
   mu_check(count == 1);

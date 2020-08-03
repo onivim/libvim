@@ -16,8 +16,8 @@ void onBufferUpdate(bufferUpdate_T update)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");

@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 }
@@ -51,11 +51,11 @@ MU_TEST(test_cmdline_get_text)
   mu_check(strcmp(vimCommandLineGetText(), "abc") == 0);
   mu_check(vimCommandLineGetPosition() == 3);
 
-  vimInput("<c-h>");
+  vimKey("<c-h>");
   mu_check(strcmp(vimCommandLineGetText(), "ab") == 0);
   mu_check(vimCommandLineGetPosition() == 2);
 
-  vimInput("<cr>");
+  vimKey("<cr>");
 }
 
 MU_TEST(test_cmdline_completions)
@@ -151,29 +151,29 @@ MU_TEST(test_cmdline_completion_crash)
   vimInput("!m");
   vimInput(" ");
   vimInput("h");
-  vimInput("<LEFT>");
-  vimInput("<LEFT>");
+  vimKey("<LEFT>");
+  vimKey("<LEFT>");
 
   vimCommandLineGetCompletions(&completions, &count);
   FreeWild(count, completions);
   mu_check(count > -1);
 
-  vimInput("<LEFT>");
+  vimKey("<LEFT>");
   vimCommandLineGetCompletions(&completions, &count);
   FreeWild(count, completions);
   mu_check(count > -1);
 
-  vimInput("<RIGHT>");
+  vimKey("<RIGHT>");
   vimCommandLineGetCompletions(&completions, &count);
   FreeWild(count, completions);
   mu_check(count > -1);
 
-  vimInput("<RIGHT>");
+  vimKey("<RIGHT>");
   vimCommandLineGetCompletions(&completions, &count);
   FreeWild(count, completions);
   mu_check(count > -1);
 
-  vimInput("<RIGHT>");
+  vimKey("<RIGHT>");
   vimCommandLineGetCompletions(&completions, &count);
   FreeWild(count, completions);
   mu_check(count > -1);
