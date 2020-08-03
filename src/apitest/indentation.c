@@ -54,7 +54,8 @@ void test_teardown(void) {}
 
 MU_TEST(regression_test_no_crash_after_set_si)
 {
-  vimInput(":set si<CR>");
+  vimInput(":set si");
+  vimKey("<CR>");
   vimInput("o");
 
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "") == 0);
