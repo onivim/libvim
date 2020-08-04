@@ -119,8 +119,32 @@ void vimSetFileWriteFailureCallback(FileWriteFailureCallback fileWriteFailureCal
 /***
  * User Input
  ***/
+
+/***
+ * vimInput
+ *
+ * vimInput(input) passes the string, verbatim, to vim to be processed,
+ * without replacing term-codes. This means strings like "<LEFT>" are 
+ * handled literally. This function handles Unicode text correctly.
+ */
 void vimInput(char_u *input);
 
+/***
+ * vimKey
+ *
+ * vimKey(input) passes a string and escapes termcodes - so a 
+ * a string like "<LEFT>" will first be replaced with the appropriate
+ * term-code, and handled.
+ */
+void vimKey(char_u *key);
+
+/***
+ * vimExecute
+ *
+ * vimExecute(cmd) executes a command as if it was typed at the command-line.
+ *
+ * Example: vimExecute("echo 'hello!');
+ */
 void vimExecute(char_u *cmd);
 
 /***

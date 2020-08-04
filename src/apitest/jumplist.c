@@ -21,10 +21,10 @@ MU_TEST(test_jumplist_openfile)
 
   mu_check(curbuf == secondBuf);
 
-  vimInput("<c-o>");
+  vimKey("<c-o>");
   mu_check(curbuf == firstBuf);
 
-  vimInput("<c-i>");
+  vimKey("<c-i>");
   mu_check(curbuf == secondBuf);
 }
 
@@ -38,10 +38,10 @@ MU_TEST(test_jumplist_editnew)
   mu_check(firstBuf != secondBuf);
   mu_check(curbuf == secondBuf);
 
-  vimInput("<c-o>");
+  vimKey("<c-o>");
   mu_check(curbuf == firstBuf);
 
-  vimInput("<c-i>");
+  vimKey("<c-i>");
   mu_check(curbuf == secondBuf);
 }
 

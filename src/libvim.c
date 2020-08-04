@@ -196,26 +196,33 @@ void vimCursorSetPosition(pos_T pos)
   curs_columns(TRUE);
 }
 
-void vimInput(char_u *input)
+void vimInputCore(int should_replace_termcodes, char_u *input)
 {
-  char_u *ptr = NULL;
-  char_u *cpo_save = p_cpo;
+  if (should_replace_termcodes)
+  {
+    char_u *ptr = NULL;
+    char_u *cpo_save = p_cpo;
 
-  /* Set 'cpoptions' the way we want it.
-   *    B set - backslashes are *not* treated specially
-   *    k set - keycodes are *not* reverse-engineered
-   *    < unset - <Key> sequences *are* interpreted
-   *  The last but one parameter of replace_termcodes() is TRUE so that the
-   *  <lt> sequence is recognised - needed for a real backslash.
-   */
-  p_cpo = (char_u *)"Bk";
-  input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
-  p_cpo = cpo_save;
+    /* Set 'cpoptions' the way we want it.
+     *    B set - backslashes are *not* treated specially
+     *    k set - keycodes are *not* reverse-engineered
+     *    < unset - <Key> sequences *are* interpreted
+     *  The last but one parameter of replace_termcodes() is TRUE so that the
+     *  <lt> sequence is recognised - needed for a real backslash.
+     */
+    p_cpo = (char_u *)"Bk";
+    input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
+    p_cpo = cpo_save;
 
-  if (*ptr != NUL) /* trailing CTRL-V results in nothing */
+    if (*ptr != NUL) /* trailing CTRL-V results in nothing */
+    {
+      sm_execute_normal(input);
+      vim_free((char_u *)ptr);
+    }
+  }
+  else
   {
     sm_execute_normal(input);
-    vim_free((char_u *)ptr);
   }
 
   /* Trigger CursorMoved if the cursor moved. */
@@ -229,6 +236,16 @@ void vimInput(char_u *input)
 
   update_curswant();
   curs_columns(TRUE);
+}
+
+void vimInput(char_u *input)
+{
+  vimInputCore(0 /*should_replace_termcodes*/, input);
+}
+
+void vimKey(char_u *key)
+{
+  vimInputCore(1 /*should_replace_termcodes*/, key);
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }

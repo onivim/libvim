@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -35,23 +35,23 @@ MU_TEST(test_insert_spaces)
   vimOptionSetInsertSpaces(TRUE);
 
   vimInput("I");
-  vimInput("<tab>");
+  vimKey("<tab>");
 
   char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "   Line 1") == 0);
 
-  vimInput("<bs>");
+  vimKey("<bs>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "Line 1") == 0);
 
   vimOptionSetTabSize(4);
 
-  vimInput("<tab>");
-  vimInput("<tab>");
+  vimKey("<tab>");
+  vimKey("<tab>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "        Line 1") == 0);
 
-  vimInput("<bs>");
+  vimKey("<bs>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "    Line 1") == 0);
 }
@@ -62,23 +62,23 @@ MU_TEST(test_insert_tabs)
   vimOptionSetInsertSpaces(FALSE);
 
   vimInput("I");
-  vimInput("<tab>");
+  vimKey("<tab>");
 
   char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "\tLine 1") == 0);
 
-  vimInput("<bs>");
+  vimKey("<bs>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "Line 1") == 0);
 
   vimOptionSetTabSize(4);
 
-  vimInput("<tab>");
-  vimInput("<tab>");
+  vimKey("<tab>");
+  vimKey("<tab>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "\t\tLine 1") == 0);
 
-  vimInput("<bs>");
+  vimKey("<bs>");
   line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "\tLine 1") == 0);
 }

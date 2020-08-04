@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimInput("g");
   vimInput("g");
@@ -22,16 +22,16 @@ MU_TEST(test_visual_is_active)
   mu_check(vimVisualIsActive() == 1);
   mu_check((vimGetMode() & VISUAL) == VISUAL);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 
-  vimInput("<c-v>");
+  vimKey("<c-v>");
   mu_check(vimVisualGetType() == Ctrl_V);
   mu_check(vimVisualIsActive() == 1);
   mu_check((vimGetMode() & VISUAL) == VISUAL);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
   mu_check(vimVisualIsActive() == 0);
 
@@ -58,7 +58,7 @@ MU_TEST(test_characterwise_range)
   mu_check(end.lnum == 1);
   mu_check(end.col == 2);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   vimInput("j");
 
   // Validate we still get previous range
@@ -71,7 +71,7 @@ MU_TEST(test_characterwise_range)
 
 MU_TEST(test_ctrl_q)
 {
-  vimInput("<c-q>");
+  vimKey("<c-q>");
 
   mu_check((vimGetMode() & VISUAL) == VISUAL);
   mu_check(vimVisualGetType() == Ctrl_V);
@@ -80,7 +80,7 @@ MU_TEST(test_ctrl_q)
 
 MU_TEST(test_ctrl_Q)
 {
-  vimInput("<c-Q>");
+  vimKey("<c-Q>");
 
   mu_check((vimGetMode() & VISUAL) == VISUAL);
   mu_check(vimVisualGetType() == Ctrl_V);
@@ -89,7 +89,7 @@ MU_TEST(test_ctrl_Q)
 
 MU_TEST(test_insert_block_mode)
 {
-  vimInput("<c-v>");
+  vimKey("<c-v>");
   vimInput("j");
   vimInput("j");
   vimInput("j");
@@ -145,7 +145,7 @@ MU_TEST(test_change_block_mode_change)
   char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
   vimBufferSetLines(curbuf, 0, 3, lines, 5);
 
-  vimInput("<c-v>");
+  vimKey("<c-v>");
   vimInput("j");
   vimInput("j");
   vimInput("j");
@@ -156,7 +156,7 @@ MU_TEST(test_change_block_mode_change)
   vimInput("b");
   vimInput("c");
 
-  vimInput("<esc>");
+  vimKey("<esc>");
 
   char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(line, "abcine1") == 0);

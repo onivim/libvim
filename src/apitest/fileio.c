@@ -40,8 +40,8 @@ void test_setup(void)
   strcpy(tempFile, tmp);
   vim_free(tmp);
 
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimBufferOpen(tempFile, 1, 0);
   vimExecute("e!");
 
@@ -119,7 +119,7 @@ MU_TEST(test_modify_file_externally)
 {
   vimInput("i");
   vimInput("a");
-  vimInput("<esc>");
+  vimKey("<esc>");
   vimExecute("w");
 
   // HACK: This sleep is required to get different 'mtimes'
@@ -168,7 +168,7 @@ MU_TEST(test_checkifchanged_updates_buffer)
   mu_check(vimBufferCheckIfChanged(curbuf) == 0);
   vimInput("i");
   vimInput("a");
-  vimInput("<esc>");
+  vimKey("<esc>");
   vimExecute("w");
 
   // HACK: This sleep is required to get different 'mtimes'
@@ -197,7 +197,7 @@ MU_TEST(test_checkifchanged_with_unsaved_changes)
   mu_check(vimBufferCheckIfChanged(curbuf) == 0);
   vimInput("i");
   vimInput("a");
-  vimInput("<esc>");
+  vimKey("<esc>");
   vimExecute("w");
 
   vimInput("i");

@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
   vimInput("g");
@@ -26,7 +26,7 @@ MU_TEST(test_search_forward_esc)
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 17);
   mu_check(strcmp(vimSearchGetPattern(), "st") == 0);
-  vimInput("<cr>");
+  vimKey("<cr>");
 
   // Note - while in `incsearch`, the positions
   // returned match the END of the match.
@@ -81,12 +81,12 @@ MU_TEST(test_cancel_n)
   vimInput("/");
   vimInput("e");
   vimInput("s");
-  vimInput("<cr>");
+  vimKey("<cr>");
 
   // Create a new query, then cancel
   vimInput("/");
   vimInput("a");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
 
   // n / N should use the previous query
   vimInput("n");
