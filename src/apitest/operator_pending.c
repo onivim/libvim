@@ -107,6 +107,18 @@ MU_TEST(test_pending_operator_comment)
   mu_check(pendingOp.op_type == OP_COMMENT);
 }
 
+MU_TEST(test_pending_operator_register)
+{
+  vimInput("\"");
+  vimInput("a");
+  vimInput("y");
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == TRUE);
+  mu_check(pendingOp.op_type == OP_YANK);
+  mu_check(pendingOp.regname == 'a');
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -119,6 +131,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_pending_operator_delete_count);
   MU_RUN_TEST(test_pending_operator_change);
   MU_RUN_TEST(test_pending_operator_comment);
+  MU_RUN_TEST(test_pending_operator_register);
 }
 
 int main(int argc, char **argv)
