@@ -619,6 +619,32 @@ void *state_normal_cmd_initialize()
   return context;
 }
 
+int state_normal_pending_operator(void *ctx, pendingOp_T *pendingOp)
+{
+  if (ctx == NULL)
+  {
+    return FALSE;
+  }
+
+  normalCmd_T *context = (normalCmd_T *)ctx;
+
+  if (context->oap == NULL)
+  {
+    return FALSE;
+  }
+
+  if (context->oap->op_type == OP_NOP)
+  {
+    return FALSE;
+  }
+
+  pendingOp->op_type = context->oap->op_type;
+  pendingOp->regname = context->oap->regname;
+  pendingOp->count = context->ca.opcount;
+
+  return TRUE;
+}
+
 void state_normal_cmd_cleanup(void *ctx)
 {
   normalCmd_T *context = (normalCmd_T *)ctx;

@@ -13,7 +13,13 @@ sm_T *sm_get_current() { return state_current; }
 
 int sm_get_current_mode() { return state_current->mode; }
 
+int no_pending_operator(void *ctx, pendingOp_T *cmdarg)
+{
+  return FALSE;
+}
+
 void sm_push(int mode, void *context, state_execute executeFn,
+             state_pending_operator pendingOperatorFn,
              state_cleanup cleanupFn)
 {
   sm_T *lastState = state_current;
@@ -23,38 +29,51 @@ void sm_push(int mode, void *context, state_execute executeFn,
   newState->prev = (sm_T *)lastState;
   newState->execute_fn = executeFn;
   newState->cleanup_fn = cleanupFn;
+  newState->pending_operator_fn = pendingOperatorFn;
   newState->context = context;
   newState->mode = mode;
 
   state_current = newState;
 }
 
+int sm_get_pending_operator(pendingOp_T *pendingOp)
+{
+  if (state_current == NULL)
+  {
+    return FALSE;
+  }
+
+  return state_current->pending_operator_fn(state_current->context, pendingOp);
+}
+
 void sm_push_normal()
 {
   sm_push(NORMAL, state_normal_cmd_initialize(), state_normal_cmd_execute,
+          state_normal_pending_operator,
           state_normal_cmd_cleanup);
 }
 
 void sm_push_insert(int cmdchar, int startln, long count)
 {
   sm_push(INSERT, state_edit_initialize(cmdchar, startln, count),
-          state_edit_execute, state_edit_cleanup);
+          state_edit_execute, no_pending_operator, state_edit_cleanup);
 }
 
 void sm_push_insert_literal(int *ret)
 {
-  sm_push(INSERT, state_insert_literal_initialize(ret), state_insert_literal_execute, state_insert_literal_cleanup);
+  sm_push(INSERT, state_insert_literal_initialize(ret), state_insert_literal_execute, no_pending_operator, state_insert_literal_cleanup);
 }
 
 void sm_push_cmdline(int cmdchar, long count, int indent)
 {
   sm_push(CMDLINE, state_cmdline_initialize(cmdchar, count, indent),
-          state_cmdline_execute, state_cmdline_cleanup);
+          state_cmdline_execute, no_pending_operator, state_cmdline_cleanup);
 }
 
 void sm_push_change(oparg_T *oap)
 {
   sm_push(INSERT, state_change_initialize(oap), state_change_execute,
+          no_pending_operator,
           state_change_cleanup);
 }
 

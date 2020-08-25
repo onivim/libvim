@@ -33,11 +33,92 @@ MU_TEST(test_delete_operator_pending)
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
+MU_TEST(test_pending_operator_insert)
+{
+  vimInput("i");
+
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == FALSE);
+}
+
+MU_TEST(test_pending_operator_cmdline)
+{
+  vimInput(":");
+
+  mu_check((vimGetMode() & CMDLINE) == CMDLINE);
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == FALSE);
+}
+
+MU_TEST(test_pending_operator_visual)
+{
+  vimInput("v");
+
+  mu_check((vimGetMode() & VISUAL) == VISUAL);
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == FALSE);
+}
+
+MU_TEST(test_pending_operator_delete)
+{
+  vimInput("d");
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == TRUE);
+  mu_check(pendingOp.op_type == OP_DELETE);
+  mu_check(pendingOp.count == 0);
+}
+
+MU_TEST(test_pending_operator_delete_count)
+{
+  vimInput("5");
+  vimInput("d");
+
+  //mu_check((vimGetMode() & VISUAL) == VISUAL);
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == TRUE);
+  mu_check(pendingOp.op_type == OP_DELETE);
+  mu_check(pendingOp.count == 5);
+}
+
+MU_TEST(test_pending_operator_change)
+{
+  vimInput("2");
+  vimInput("c");
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == TRUE);
+  mu_check(pendingOp.op_type == OP_CHANGE);
+  mu_check(pendingOp.count == 2);
+}
+
+MU_TEST(test_pending_operator_comment)
+{
+  vimInput("g");
+  vimInput("c");
+
+  pendingOp_T pendingOp;
+  mu_check(vimGetPendingOperator(&pendingOp) == TRUE);
+  mu_check(pendingOp.op_type == OP_COMMENT);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_delete_operator_pending);
+  MU_RUN_TEST(test_pending_operator_insert);
+  MU_RUN_TEST(test_pending_operator_cmdline);
+  MU_RUN_TEST(test_pending_operator_visual);
+  MU_RUN_TEST(test_pending_operator_delete);
+  MU_RUN_TEST(test_pending_operator_delete_count);
+  MU_RUN_TEST(test_pending_operator_change);
+  MU_RUN_TEST(test_pending_operator_comment);
 }
 
 int main(int argc, char **argv)
