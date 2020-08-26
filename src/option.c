@@ -1336,6 +1336,7 @@ static struct vimoption options[] =
         {"maxmemtot", "mmt", P_NUM | P_VI_DEF, (char_u *)&p_mmt, PV_NONE, {(char_u *)DFLT_MAXMEMTOT, (char_u *)0L} SCTX_INIT},
         {"menuitems", "mis", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)25L, (char_u *)0L} SCTX_INIT},
         {"mesg", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"minimap", NULL, P_BOOL | P_VI_DEF, (char_u *)&p_minimap, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"mkspellmem", "msm", P_STRING | P_VI_DEF | P_EXPAND | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"modeline", "ml", P_BOOL | P_VIM, (char_u *)&p_ml, PV_ML, {(char_u *)FALSE, (char_u *)TRUE} SCTX_INIT},
         {"modelineexpr", "mle", P_BOOL | P_VI_DEF | P_SECURE, (char_u *)&p_mle, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1799,6 +1800,7 @@ static struct vimoption options[] =
 #endif
          {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"smarttab", "sta", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_sta, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"smoothscroll", NULL, P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_smoothscroll, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"softtabstop", "sts", P_NUM | P_VI_DEF | P_VIM, (char_u *)&p_sts, PV_STS, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"sourceany", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"spell", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -4046,6 +4048,57 @@ did_set_option(
                        // P_INSECURE flag.
 {
   long_u *p;
+
+  printf("!did_set_option - idx: %d opt_flags: %d\n", opt_idx, opt_flags);
+  char_u *fullname = options[opt_idx].fullname;
+  char_u *shortname = options[opt_idx].shortname;
+  long numval;
+  char_u *stringval;
+  printf("--1\n");
+  int optionType = get_option_value(fullname,
+                                    &numval,
+                                    &stringval,
+                                    opt_flags);
+  if (optionType == 0 || optionType == 1 || optionType == -1 || optionType == -2)
+  {
+    int hidden = optionType < 0;
+    int type = optionType;
+    if (optionType == -1)
+    {
+      type = 0;
+    }
+    else if (optionType == -2)
+    {
+      type = 1;
+    }
+
+    if (optionSetCallback != NULL)
+    {
+      optionSet_T optionSetInfo;
+      optionSetInfo.fullname = fullname;
+      optionSetInfo.shortname = shortname;
+      optionSetInfo.type = type;
+      optionSetInfo.numval = numval;
+      optionSetInfo.stringval = stringval;
+      optionSetInfo.opt_flags = opt_flags;
+      optionSetInfo.hidden = hidden;
+
+      optionSetCallback(&optionSetInfo);
+    }
+  }
+
+  printf("--2\n");
+
+  if (optionType == 1)
+  {
+    printf(" -- option -name: %s val: %ld\n", fullname, numval);
+  }
+  else
+  {
+    printf(" -- option -name: %s val: %s\n", fullname, stringval);
+  }
+
+  //printf(" -- option - name: %s value: %s\n", options[opt_idx].fullname, options[opt_idx].var);
 
   options[opt_idx].flags |= P_WAS_SET;
 

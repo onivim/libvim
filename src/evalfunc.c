@@ -6042,6 +6042,7 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_LIBCALL
     "libcall",
 #endif
+    "libvim",
 #ifdef FEAT_LINEBREAK
     "linebreak",
 #endif
@@ -6078,6 +6079,10 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_OLE
     "ole",
 #endif
+    "oni",
+    "oni2",
+    "onivim",
+    "onivim2",
 #ifdef FEAT_EVAL
     "packages",
 #endif
