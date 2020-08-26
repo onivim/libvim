@@ -163,21 +163,6 @@ typedef enum
   COMPLETED_UNHANDLED,
 } executionStatus_T;
 
-typedef executionStatus_T (*state_execute)(void *context, int key);
-typedef void (*state_cleanup)(void *context);
-
-typedef const char *sname;
-
-/* State machine information */
-typedef struct
-{
-  void *context;
-  int mode;
-  state_execute execute_fn;
-  state_cleanup cleanup_fn;
-  void *prev;
-} sm_T;
-
 /*
  * Same, but without coladd.
  */
@@ -2966,6 +2951,30 @@ typedef struct cmdarg_S
   int retval;        /* return: CA_* values */
   char_u *searchbuf; /* return: pointer to search pattern or NULL */
 } cmdarg_T;
+
+typedef struct pendingOp_S
+{
+  int op_type;
+  int regname;
+  long count;
+} pendingOp_T;
+
+typedef executionStatus_T (*state_execute)(void *context, int key);
+typedef void (*state_cleanup)(void *context);
+typedef int (*state_pending_operator)(void *context, pendingOp_T *pendingOp);
+
+typedef const char *sname;
+
+/* State machine information */
+typedef struct
+{
+  void *context;
+  int mode;
+  state_execute execute_fn;
+  state_cleanup cleanup_fn;
+  state_pending_operator pending_operator_fn;
+  void *prev;
+} sm_T;
 
 /* values for retval: */
 #define CA_COMMAND_BUSY 1  /* skip restarting edit() once */

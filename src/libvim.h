@@ -300,6 +300,7 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
 void vimSetClipboardGetCallback(ClipboardGetCallback callback);
 
 int vimGetMode(void);
+int vimGetPendingOperator(pendingOp_T *pendingOp);
 
 void vimSetYankCallback(YankCallback callback);
 
