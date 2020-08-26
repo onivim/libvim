@@ -465,6 +465,11 @@ void vimSetClipboardGetCallback(ClipboardGetCallback callback)
 
 int vimGetMode(void) { return get_real_state(); }
 
+int vimGetPendingOperator(pendingOp_T *pendingOp)
+{
+  return sm_get_pending_operator(pendingOp);
+}
+
 void vimSetFormatCallback(FormatCallback callback)
 {
   formatCallback = callback;
