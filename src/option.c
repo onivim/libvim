@@ -4049,12 +4049,10 @@ did_set_option(
 {
   long_u *p;
 
-  printf("!did_set_option - idx: %d opt_flags: %d\n", opt_idx, opt_flags);
   char_u *fullname = options[opt_idx].fullname;
   char_u *shortname = options[opt_idx].shortname;
   long numval;
   char_u *stringval;
-  printf("--1\n");
   int optionType = get_option_value(fullname,
                                     &numval,
                                     &stringval,
@@ -4086,19 +4084,6 @@ did_set_option(
       optionSetCallback(&optionSetInfo);
     }
   }
-
-  printf("--2\n");
-
-  if (optionType == 1)
-  {
-    printf(" -- option -name: %s val: %ld\n", fullname, numval);
-  }
-  else
-  {
-    printf(" -- option -name: %s val: %s\n", fullname, stringval);
-  }
-
-  //printf(" -- option - name: %s value: %s\n", options[opt_idx].fullname, options[opt_idx].var);
 
   options[opt_idx].flags |= P_WAS_SET;
 
