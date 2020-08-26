@@ -46,16 +46,6 @@ jobs:
     parameters:
         testRunner: run-tests.sh
 
-- job: Linux
-  displayName: "Linux - Ubuntu 16.04"
-  pool:
-    vmImage: 'Ubuntu 16.04'
-  steps:
-  - template: .ci/esy-build-steps.yml
-  - template: .ci/libvim-test.yml
-    parameters:
-        testRunner: run-tests.sh
-
 - job: MacOS14
   displayName: "MacOS Mojave"
   pool:
