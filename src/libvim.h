@@ -167,6 +167,7 @@ void vimSetFormatCallback(FormatCallback formatCallback);
 void vimSetGotoCallback(GotoCallback gotoCallback);
 void vimSetTabPageCallback(TabPageCallback tabPageCallback);
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
+void vimSetOptionSetCallback(OptionSetCallback callback);
 
 /*
  * vimSetQuitCallback

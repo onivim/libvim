@@ -512,6 +512,7 @@ EXTERN long p_mmd;       /* 'maxmapdepth' */
 EXTERN long p_mm;        /* 'maxmem' */
 EXTERN long p_mmp;       /* 'maxmempattern' */
 EXTERN long p_mmt;       /* 'maxmemtot' */
+EXTERN int p_minimap;    /* 'minimap' */
 EXTERN long p_mle;       /* 'modelineexpr' */
 EXTERN long p_mls;       /* 'modelines' */
 EXTERN char_u *p_mouse;  /* 'mouse' */
@@ -640,15 +641,16 @@ EXTERN char_u *p_shm; /* 'shortmess' */
 #ifdef FEAT_LINEBREAK
 EXTERN char_u *p_sbr; /* 'showbreak' */
 #endif
-EXTERN int p_sft;   /* 'showfulltag' */
-EXTERN int p_sm;    /* 'showmatch' */
-EXTERN int p_smd;   /* 'showmode' */
-EXTERN long p_ss;   /* 'sidescroll' */
-EXTERN long p_siso; /* 'sidescrolloff' */
-EXTERN int p_scs;   /* 'smartcase' */
-EXTERN int p_sta;   /* 'smarttab' */
-EXTERN int p_sb;    /* 'splitbelow' */
-EXTERN long p_tpm;  /* 'tabpagemax' */
+EXTERN int p_sft;          /* 'showfulltag' */
+EXTERN int p_sm;           /* 'showmatch' */
+EXTERN int p_smd;          /* 'showmode' */
+EXTERN long p_ss;          /* 'sidescroll' */
+EXTERN long p_siso;        /* 'sidescrolloff' */
+EXTERN int p_scs;          /* 'smartcase' */
+EXTERN int p_sta;          /* 'smarttab' */
+EXTERN int p_smoothscroll; /* 'smoothscroll' */
+EXTERN int p_sb;           /* 'splitbelow' */
+EXTERN long p_tpm;         /* 'tabpagemax' */
 #if defined(FEAT_STL_OPT)
 EXTERN char_u *p_tal; /* 'tabline' */
 #endif

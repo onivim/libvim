@@ -1,6 +1,32 @@
 #include "libvim.h"
 #include "minunit.h"
 
+int optionSetCount = 0;
+optionSet_T lastOptionSet;
+
+void onOptionSet(optionSet_T *options)
+{
+  if (lastOptionSet.stringval != NULL)
+  {
+    vim_free(lastOptionSet.stringval);
+  }
+
+  lastOptionSet.fullname = options->fullname;
+  lastOptionSet.shortname = options->shortname;
+  lastOptionSet.type = options->type;
+  lastOptionSet.numval = options->numval;
+  if (options->stringval != NULL)
+  {
+    lastOptionSet.stringval = vim_strsave(options->stringval);
+  }
+  else
+  {
+    lastOptionSet.stringval = NULL;
+  }
+  lastOptionSet.hidden = options->hidden;
+  optionSetCount++;
+}
+
 void test_setup(void)
 {
   vimKey("<esc>");
@@ -10,6 +36,7 @@ void test_setup(void)
   vimInput("g");
   vimInput("g");
   vimInput("0");
+  optionSetCount = 0;
 }
 
 void test_teardown(void) {}
@@ -102,6 +129,67 @@ MU_TEST(test_encoding_cannot_change)
   mu_check(strcmp(p_enc, "utf-8") == 0);
 }
 
+MU_TEST(test_opt_relative_number)
+{
+  vimExecute("set rnu");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "relativenumber") == 0);
+  mu_check(strcmp(lastOptionSet.shortname, "rnu") == 0);
+  mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
+
+  vimExecute("set nornu");
+  mu_check(optionSetCount == 2);
+  mu_check(strcmp(lastOptionSet.fullname, "relativenumber") == 0);
+  mu_check(strcmp(lastOptionSet.shortname, "rnu") == 0);
+  mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
+}
+
+MU_TEST(test_opt_minimap)
+{
+  vimExecute("set minimap");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "minimap") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
+
+  vimExecute("set nominimap");
+  mu_check(optionSetCount == 2);
+  mu_check(strcmp(lastOptionSet.fullname, "minimap") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
+}
+
+MU_TEST(test_opt_smoothscroll)
+{
+  vimExecute("set smoothscroll");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "smoothscroll") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
+
+  vimExecute("set nosmoothscroll");
+  mu_check(optionSetCount == 2);
+  mu_check(strcmp(lastOptionSet.fullname, "smoothscroll") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
+}
+
+MU_TEST(test_opt_runtimepath)
+{
+  vimExecute("set runtimepath=abc");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "runtimepath") == 0);
+  mu_check(strcmp(lastOptionSet.shortname, "rtp") == 0);
+  mu_check(strcmp(lastOptionSet.stringval, "abc") == 0);
+  mu_check(lastOptionSet.type == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -111,12 +199,17 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_insert_tabs);
   MU_RUN_TEST(test_tab_size);
   MU_RUN_TEST(test_encoding_cannot_change);
+  MU_RUN_TEST(test_opt_relative_number);
+  MU_RUN_TEST(test_opt_minimap);
+  MU_RUN_TEST(test_opt_smoothscroll);
+  MU_RUN_TEST(test_opt_runtimepath);
 }
 
 int main(int argc, char **argv)
 {
   vimInit(argc, argv);
 
+  vimSetOptionSetCallback(&onOptionSet);
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);

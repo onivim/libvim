@@ -147,6 +147,11 @@ void vimSetDirectoryChangedCallback(DirectoryChangedCallback f)
   directoryChangedCallback = f;
 }
 
+void vimSetOptionSetCallback(OptionSetCallback f)
+{
+  optionSetCallback = f;
+}
+
 void vimSetQuitCallback(QuitCallback f)
 {
   quitCallback = f;

@@ -2415,11 +2415,28 @@ typedef enum
   FILE_CHANGED,
 } writeFailureReason_T;
 
+typedef struct
+{
+  char_u *fullname;
+  char_u *shortname;
+
+  // Type can be:
+  // Number or toggle: 1 -> value is in numval
+  // String: 0 -> value is in stringval
+  int type;
+
+  long numval;
+  char_u *stringval;
+  int opt_flags; // [ OPT_FREE | OPT_LOCAL | OPT_GLOBAL ]
+  int hidden;
+} optionSet_T;
+
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 typedef void (*FileWriteFailureCallback)(writeFailureReason_T failureReason, buf_T *buf);
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
+typedef void (*OptionSetCallback)(optionSet_T *optionSet);
 
 #ifdef FEAT_DIFF
 /*
