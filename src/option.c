@@ -4049,29 +4049,29 @@ did_set_option(
 {
   long_u *p;
 
-  char_u *fullname = options[opt_idx].fullname;
-  char_u *shortname = options[opt_idx].shortname;
-  long numval = -1;
-  char_u *stringval = NULL;
-  int optionType = get_option_value(fullname,
-                                    &numval,
-                                    &stringval,
-                                    opt_flags);
-  if (optionType == 0 || optionType == 1 || optionType == -1 || optionType == -2)
+  if (optionSetCallback != NULL)
   {
-    int hidden = optionType < 0;
-    int type = optionType;
-    if (optionType == -1)
+    char_u *fullname = options[opt_idx].fullname;
+    char_u *shortname = options[opt_idx].shortname;
+    long numval = -1;
+    char_u *stringval = NULL;
+    int optionType = get_option_value(fullname,
+                                      &numval,
+                                      &stringval,
+                                      opt_flags);
+    if (optionType == 0 || optionType == 1 || optionType == -1 || optionType == -2)
     {
-      type = 1;
-    }
-    else if (optionType == -2)
-    {
-      type = 0;
-    }
+      int hidden = optionType < 0;
+      int type = optionType;
+      if (optionType == -1)
+      {
+        type = 1;
+      }
+      else if (optionType == -2)
+      {
+        type = 0;
+      }
 
-    if (optionSetCallback != NULL)
-    {
       optionSet_T optionSetInfo;
       optionSetInfo.fullname = fullname;
       optionSetInfo.shortname = shortname;
@@ -4082,6 +4082,10 @@ did_set_option(
       optionSetInfo.hidden = hidden;
 
       optionSetCallback(&optionSetInfo);
+      if (stringval != NULL)
+      {
+        vim_free(stringval);
+      }
     }
   }
 

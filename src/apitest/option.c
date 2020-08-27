@@ -6,11 +6,23 @@ optionSet_T lastOptionSet;
 
 void onOptionSet(optionSet_T *options)
 {
+  if (lastOptionSet.stringval != NULL)
+  {
+    vim_free(lastOptionSet.stringval);
+  }
+
   lastOptionSet.fullname = options->fullname;
   lastOptionSet.shortname = options->shortname;
   lastOptionSet.type = options->type;
   lastOptionSet.numval = options->numval;
-  lastOptionSet.stringval = options->stringval;
+  if (options->stringval != NULL)
+  {
+    lastOptionSet.stringval = vim_strsave(options->stringval);
+  }
+  else
+  {
+    lastOptionSet.stringval = NULL;
+  }
   lastOptionSet.hidden = options->hidden;
   optionSetCount++;
 }
