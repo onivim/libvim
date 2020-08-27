@@ -124,12 +124,14 @@ MU_TEST(test_opt_relative_number)
   mu_check(strcmp(lastOptionSet.fullname, "relativenumber") == 0);
   mu_check(strcmp(lastOptionSet.shortname, "rnu") == 0);
   mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
 
   vimExecute("set nornu");
   mu_check(optionSetCount == 2);
   mu_check(strcmp(lastOptionSet.fullname, "relativenumber") == 0);
   mu_check(strcmp(lastOptionSet.shortname, "rnu") == 0);
   mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
 }
 
 MU_TEST(test_opt_minimap)
@@ -139,12 +141,14 @@ MU_TEST(test_opt_minimap)
   mu_check(strcmp(lastOptionSet.fullname, "minimap") == 0);
   mu_check(lastOptionSet.shortname == NULL);
   mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
 
   vimExecute("set nominimap");
   mu_check(optionSetCount == 2);
   mu_check(strcmp(lastOptionSet.fullname, "minimap") == 0);
   mu_check(lastOptionSet.shortname == NULL);
   mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
 }
 
 MU_TEST(test_opt_smoothscroll)
@@ -154,12 +158,24 @@ MU_TEST(test_opt_smoothscroll)
   mu_check(strcmp(lastOptionSet.fullname, "smoothscroll") == 0);
   mu_check(lastOptionSet.shortname == NULL);
   mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
 
   vimExecute("set nosmoothscroll");
   mu_check(optionSetCount == 2);
   mu_check(strcmp(lastOptionSet.fullname, "smoothscroll") == 0);
   mu_check(lastOptionSet.shortname == NULL);
   mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
+}
+
+MU_TEST(test_opt_runtimepath)
+{
+  vimExecute("set runtimepath=abc");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "runtimepath") == 0);
+  mu_check(strcmp(lastOptionSet.shortname, "rtp") == 0);
+  mu_check(strcmp(lastOptionSet.stringval, "abc") == 0);
+  mu_check(lastOptionSet.type == 0);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -174,6 +190,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_opt_relative_number);
   MU_RUN_TEST(test_opt_minimap);
   MU_RUN_TEST(test_opt_smoothscroll);
+  MU_RUN_TEST(test_opt_runtimepath);
 }
 
 int main(int argc, char **argv)

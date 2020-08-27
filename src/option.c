@@ -4051,8 +4051,8 @@ did_set_option(
 
   char_u *fullname = options[opt_idx].fullname;
   char_u *shortname = options[opt_idx].shortname;
-  long numval;
-  char_u *stringval;
+  long numval = -1;
+  char_u *stringval = "";
   int optionType = get_option_value(fullname,
                                     &numval,
                                     &stringval,
@@ -4063,11 +4063,11 @@ did_set_option(
     int type = optionType;
     if (optionType == -1)
     {
-      type = 0;
+      type = 1;
     }
     else if (optionType == -2)
     {
-      type = 1;
+      type = 0;
     }
 
     if (optionSetCallback != NULL)
