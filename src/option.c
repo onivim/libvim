@@ -4052,7 +4052,7 @@ did_set_option(
   char_u *fullname = options[opt_idx].fullname;
   char_u *shortname = options[opt_idx].shortname;
   long numval = -1;
-  char_u *stringval = "";
+  char_u *stringval = NULL;
   int optionType = get_option_value(fullname,
                                     &numval,
                                     &stringval,
