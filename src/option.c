@@ -1197,6 +1197,7 @@ static struct vimoption options[] =
                                                                                                             (char_u *)0L} SCTX_INIT},
         {"joinspaces", "js", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_js, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"key", NULL, P_STRING | P_ALLOCED | P_VI_DEF | P_NO_MKRC, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
+        {"keydisplay", "kdp", P_BOOL | P_VI_DEF, (char_u *)&p_keydisplay, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"keymap", "kmp", P_STRING | P_ALLOCED | P_VI_DEF | P_RBUF | P_RSTAT | P_NFNAME | P_PRI_MKRC,
 #ifdef FEAT_KEYMAP
          (char_u *)&p_keymap,

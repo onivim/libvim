@@ -479,8 +479,9 @@ EXTERN char_u *p_isf;   /* 'isfname' */
 EXTERN char_u *p_isi;   /* 'isident' */
 EXTERN char_u *p_isp;   /* 'isprint' */
 EXTERN int p_js;        /* 'joinspaces' */
-EXTERN char_u *p_kp;    /* 'keywordprg' */
-EXTERN char_u *p_km;    /* 'keymodel' */
+EXTERN int p_keydisplay;
+EXTERN char_u *p_kp; /* 'keywordprg' */
+EXTERN char_u *p_km; /* 'keymodel' */
 #ifdef FEAT_LANGMAP
 EXTERN char_u *p_langmap; /* 'langmap'*/
 EXTERN int p_lnr;         /* 'langnoremap' */
