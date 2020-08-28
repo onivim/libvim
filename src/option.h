@@ -443,10 +443,11 @@ EXTERN char_u *p_fp; /* 'formatprg' */
 #ifdef HAVE_FSYNC
 EXTERN int p_fs; /* 'fsync' */
 #endif
-EXTERN int p_gd;     /* 'gdefault' */
-EXTERN int p_prompt; /* 'prompt' */
-EXTERN char_u *p_hf; /* 'helpfile' */
-EXTERN long p_hh;    /* 'helpheight' */
+EXTERN int p_gd;          /* 'gdefault' */
+EXTERN char_u *p_guifont; /* 'guifont' */
+EXTERN int p_prompt;      /* 'prompt' */
+EXTERN char_u *p_hf;      /* 'helpfile' */
+EXTERN long p_hh;         /* 'helpheight' */
 #ifdef FEAT_MULTI_LANG
 EXTERN char_u *p_hlg; /* 'helplang' */
 #endif
@@ -478,16 +479,18 @@ EXTERN char_u *p_isf;   /* 'isfname' */
 EXTERN char_u *p_isi;   /* 'isident' */
 EXTERN char_u *p_isp;   /* 'isprint' */
 EXTERN int p_js;        /* 'joinspaces' */
-EXTERN char_u *p_kp;    /* 'keywordprg' */
-EXTERN char_u *p_km;    /* 'keymodel' */
+EXTERN int p_keydisplay;
+EXTERN char_u *p_kp; /* 'keywordprg' */
+EXTERN char_u *p_km; /* 'keymodel' */
 #ifdef FEAT_LANGMAP
 EXTERN char_u *p_langmap; /* 'langmap'*/
 EXTERN int p_lnr;         /* 'langnoremap' */
 EXTERN int p_lrm;         /* 'langremap' */
 #endif
-EXTERN long p_ls;     /* 'laststatus' */
-EXTERN long p_stal;   /* 'showtabline' */
-EXTERN char_u *p_lcs; /* 'listchars' */
+EXTERN long p_ls;        /* 'laststatus' */
+EXTERN long p_stal;      /* 'showtabline' */
+EXTERN long p_linespace; /* 'linespace' */
+EXTERN char_u *p_lcs;    /* 'listchars' */
 
 EXTERN int p_lz;  /* 'lazyredraw' */
 EXTERN int p_lpl; /* 'loadplugins' */
@@ -512,7 +515,7 @@ EXTERN long p_mmd;       /* 'maxmapdepth' */
 EXTERN long p_mm;        /* 'maxmem' */
 EXTERN long p_mmp;       /* 'maxmempattern' */
 EXTERN long p_mmt;       /* 'maxmemtot' */
-EXTERN int p_minimap;    /* 'minimap' */
+EXTERN int p_minimap;    /* 'minimap' (Onivim) */
 EXTERN long p_mle;       /* 'modelineexpr' */
 EXTERN long p_mls;       /* 'modelines' */
 EXTERN char_u *p_mouse;  /* 'mouse' */
@@ -648,7 +651,7 @@ EXTERN long p_ss;          /* 'sidescroll' */
 EXTERN long p_siso;        /* 'sidescrolloff' */
 EXTERN int p_scs;          /* 'smartcase' */
 EXTERN int p_sta;          /* 'smarttab' */
-EXTERN int p_smoothscroll; /* 'smoothscroll' */
+EXTERN int p_smoothscroll; /* 'smoothscroll' (Onivim) */
 EXTERN int p_sb;           /* 'splitbelow' */
 EXTERN long p_tpm;         /* 'tabpagemax' */
 #if defined(FEAT_STL_OPT)
@@ -689,7 +692,8 @@ EXTERN char_u *p_tcldll; /* 'tcldll' */
 #ifdef FEAT_ARABIC
 EXTERN int p_tbidi; /* 'termbidi' */
 #endif
-EXTERN char_u *p_tenc; /* 'termencoding' */
+EXTERN char_u *p_tenc;     /* 'termencoding' */
+EXTERN char_u *p_termfont; /* 'termfont' (Onivim) */
 #if defined(MSWIN) && defined(FEAT_TERMINAL)
 EXTERN char_u *p_twt; // 'termwintype'
 #endif
@@ -726,6 +730,7 @@ EXTERN long p_ur;        /* 'undoreload' */
 EXTERN long p_uc;        /* 'updatecount' */
 EXTERN long p_ut;        /* 'updatetime' */
 EXTERN char_u *p_fcs;    /* 'fillchar' */
+EXTERN int p_vcp;        /* 'vimcompatible' (Onivim) */
 #ifdef FEAT_VIMINFO
 EXTERN char_u *p_viminfo;     /* 'viminfo' */
 EXTERN char_u *p_viminfofile; /* 'viminfofile' */
