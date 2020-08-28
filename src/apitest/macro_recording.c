@@ -6,6 +6,31 @@ static int lastLnum = 0;
 static int lastLnume = 0;
 static long lastXtra = 0;
 
+static int macroStartCallbackCount = 0;
+static int macroStopCallbackCount = 0;
+
+static int lastStartRegname = -1;
+static int lastStopRegname = -1;
+static char_u *lastRegvalue = NULL;
+
+void onMacroStartRecord(int regname)
+{
+  macroStartCallbackCount++;
+  lastStartRegname = regname;
+}
+
+void onMacroStopRecord(int regname, char_u *regvalue)
+{
+  macroStopCallbackCount++;
+  lastStopRegname = regname;
+  if (lastRegvalue != NULL)
+  {
+    vim_free(lastRegvalue);
+  }
+
+  lastRegvalue = vim_strsave(regvalue);
+}
+
 void onBufferUpdate(bufferUpdate_T update)
 {
   lastLnum = update.lnum;
@@ -27,15 +52,35 @@ void test_setup(void)
   lastLnum = 0;
   lastLnume = 0;
   lastXtra = 0;
+
+  macroStartCallbackCount = 0;
+  macroStopCallbackCount = 0;
+  lastStartRegname = -1;
+  lastStopRegname = -1;
+
+  if (lastRegvalue != NULL)
+  {
+    vim_free(lastRegvalue);
+  }
+  lastRegvalue = NULL;
 }
 
-void test_teardown(void) {}
+void test_teardown(void)
+{
+  if (lastRegvalue != NULL)
+  {
+    vim_free(lastRegvalue);
+  }
+}
 
 MU_TEST(test_macro_saves_register)
 {
   /* Record a macro into the 'a' register */
   vimInput("q");
   vimInput("a");
+
+  mu_check(macroStartCallbackCount == 1);
+  mu_check(lastStartRegname == 'a');
 
   vimInput("j");
   vimInput("j");
@@ -44,7 +89,11 @@ MU_TEST(test_macro_saves_register)
   vimInput("k");
 
   /* Stop recording */
+
   vimInput("q");
+  mu_check(macroStopCallbackCount == 1);
+  mu_check(lastStopRegname == 'a');
+  mu_check(strcmp(lastRegvalue, "jjjkk") == 0);
 
   /* Validate register */
 
@@ -69,6 +118,8 @@ int main(int argc, char **argv)
   vimInit(argc, argv);
 
   vimSetBufferUpdateCallback(&onBufferUpdate);
+  vimMacroSetStartRecordCallback(&onMacroStartRecord);
+  vimMacroSetStopRecordCallback(&onMacroStopRecord);
 
   win_setwidth(5);
   win_setheight(100);

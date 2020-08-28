@@ -397,6 +397,16 @@ void vimOptionSetTabSize(int tabSize)
   curbuf->b_p_sw = tabSize;
 }
 
+void vimMacroSetStartRecordCallback(MacroStartRecordCallback callback)
+{
+  macroStartRecordCallback = callback;
+}
+
+void vimMacroSetStopRecordCallback(MacroStopRecordCallback callback)
+{
+  macroStopRecordCallback = callback;
+}
+
 void vimOptionSetInsertSpaces(int insertSpaces)
 {
   curbuf->b_p_et = insertSpaces;

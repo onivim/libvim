@@ -193,6 +193,13 @@ void vimSetQuitCallback(QuitCallback callback);
 void vimSetUnhandledEscapeCallback(VoidCallback callback);
 
 /***
+ * Macros
+ */
+
+void vimMacroSetStartRecordCallback(MacroStartRecordCallback callback);
+void vimMacroSetStopRecordCallback(MacroStopRecordCallback callback);
+
+/***
  * Options
  **/
 
