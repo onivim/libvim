@@ -135,6 +135,8 @@ typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines
 typedef void (*FormatCallback)(formatRequest_T *formatRequest);
 typedef int (*AutoIndentCallback)(int lnum, buf_T *buf,
                                   char_u *prevLine, char_u *currentLine);
+typedef void (*MacroStartRecordCallback)(int regname);
+typedef void (*MacroStopRecordCallback)(int regname, char_u *regvalue);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);

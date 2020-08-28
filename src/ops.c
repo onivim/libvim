@@ -917,6 +917,11 @@ int do_record(int c)
       reg_recording = c;
       regname = c;
       retval = OK;
+
+      if (macroStartRecordCallback != NULL)
+      {
+        macroStartRecordCallback(regname);
+      }
     }
   }
   else /* stop recording */
@@ -935,6 +940,11 @@ int do_record(int c)
     {
       /* Remove escaping for CSI and K_SPECIAL in multi-byte chars. */
       vim_unescape_csi(p);
+
+      if (macroStopRecordCallback != NULL)
+      {
+        macroStopRecordCallback(regname, p);
+      }
 
       /*
        * We don't want to change the default register here, so save and
