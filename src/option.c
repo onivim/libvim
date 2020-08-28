@@ -1026,7 +1026,7 @@ static struct vimoption options[] =
 #endif
          SCTX_INIT},
         {"guicursor", "gcr", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
-        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_guifont, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"guifontset", "gfs", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guifontwide", "gfw", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guiheadroom", "ghr", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)50L, (char_u *)0L} SCTX_INIT},
@@ -1272,7 +1272,7 @@ static struct vimoption options[] =
                                                                                                            (char_u *)24L,
 #endif
                                                                                                            (char_u *)0L} SCTX_INIT},
-        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
+        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)&p_linespace, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"lisp", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"lispwords", "lw", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"list", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)VAR_WIN, PV_LIST, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1883,6 +1883,7 @@ static struct vimoption options[] =
 #endif
          {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"termencoding", "tenc", P_STRING | P_VI_DEF | P_RCLR, (char_u *)&p_tenc, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
+        {"termfont", "tfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_termfont, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"termguicolors", "tgc", P_BOOL | P_VI_DEF | P_VIM | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"termwinkey", "twk", P_STRING | P_ALLOCED | P_RWIN | P_VI_DEF,
 #ifdef FEAT_TERMINAL
@@ -2041,6 +2042,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
+        {"vimcompatible", "vcp", P_BOOL | P_RALL, (char_u *)&p_vcp, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"viminfo", "vi", P_STRING | P_ONECOMMA | P_NODUP | P_SECURE,
 #ifdef FEAT_VIMINFO
          (char_u *)&p_viminfo,
