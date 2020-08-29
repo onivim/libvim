@@ -5235,9 +5235,12 @@ ExpandFromContext(
     return expand_tags(xp->xp_context == EXPAND_TAGS, pat, num_file, file);
   if (xp->xp_context == EXPAND_COLORS)
   {
-    char *directories[] = {"colors", NULL};
-    return ExpandRTDir(pat, DIP_START + DIP_OPT, num_file, file,
-                       directories);
+    if (colorSchemeCompletionCallback == NULL)
+    {
+      return FAIL;
+    }
+
+    return colorSchemeCompletionCallback(pat, num_file, file);
   }
   if (xp->xp_context == EXPAND_COMPILER)
   {

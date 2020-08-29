@@ -154,6 +154,12 @@ void vimExecute(char_u *cmd);
 int vimSetAutoIndentCallback(AutoIndentCallback callback);
 
 /***
+ * Colorschemes
+ */
+void vimColorSchemeSetChangedCallback(ColorSchemeChangedCallback callback);
+void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback);
+
+/***
  * Messages
  ***/
 

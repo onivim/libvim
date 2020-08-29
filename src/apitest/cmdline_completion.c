@@ -79,7 +79,8 @@ MU_TEST(test_cmdline_completions)
   vimInput(".");
   vimInput("/");
   vimInput("c");
-  vimInput("o");
+  vimInput("h");
+  vimInput("a");
   vimCommandLineGetCompletions(&completions, &count);
   mu_check(count == 1);
   FreeWild(count, completions);

@@ -329,7 +329,6 @@ void init_highlight(
  */
 int load_colors(char_u *name)
 {
-  char_u *buf;
   int retval = FAIL;
   static int recursive = FALSE;
 
@@ -339,18 +338,15 @@ int load_colors(char_u *name)
   if (recursive)
     return OK;
 
-  recursive = TRUE;
-  buf = alloc(STRLEN(name) + 12);
-  if (buf != NULL)
+  if (colorSchemeChangedCallback != NULL)
   {
+    recursive = TRUE;
     apply_autocmds(EVENT_COLORSCHEMEPRE, name,
                    curbuf->b_fname, FALSE, curbuf);
-    sprintf((char *)buf, "colors/%s.vim", name);
-    retval = source_runtime(buf, DIP_START + DIP_OPT);
-    vim_free(buf);
+    retval = colorSchemeChangedCallback(name);
     apply_autocmds(EVENT_COLORSCHEME, name, curbuf->b_fname, FALSE, curbuf);
+    recursive = FALSE;
   }
-  recursive = FALSE;
 
   return retval;
 }
