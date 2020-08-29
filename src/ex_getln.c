@@ -5240,7 +5240,7 @@ ExpandFromContext(
       return FAIL;
     }
 
-    return colorSchemeCompletionCallback(num_file, file);
+    return colorSchemeCompletionCallback(pat, num_file, file);
   }
   if (xp->xp_context == EXPAND_COMPILER)
   {
