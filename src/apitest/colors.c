@@ -27,7 +27,7 @@ char_u *acopy(char_u *str)
   return sz;
 };
 
-int onColorSchemeCompletion(char_u * pat, int *numSchemes, char_u ***schemes)
+int onColorSchemeCompletion(char_u *pat, int *numSchemes, char_u ***schemes)
 {
   *numSchemes = 3;
 
