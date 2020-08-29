@@ -136,7 +136,9 @@ typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines
 // Return OK for success, FAIL for failure
 typedef int (*ColorSchemeChangedCallback)(char_u *colorScheme);
 
-typedef void (*ColorSchemeCompletionCallback)(int *num_colorschemes, char_u ***colorschemes);
+// Return OK for success, FAIL for failure
+typedef int (*ColorSchemeCompletionCallback)(int *num_colorschemes, char_u ***colorschemes);
+
 typedef void (*FormatCallback)(formatRequest_T *formatRequest);
 typedef int (*AutoIndentCallback)(int lnum, buf_T *buf,
                                   char_u *prevLine, char_u *currentLine);

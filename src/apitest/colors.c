@@ -14,9 +14,29 @@ int onColorSchemeChanged(char_u *colorScheme)
   return OK;
 };
 
+char_u *acopy(char_u *str)
+{
+  char_u *sz = malloc(sizeof(char_u) * (strlen(str) + 1));
+  strcpy(sz, str);
+  sz[strlen(str)] = 0;
+  return sz;
+};
+
+int onColorSchemeCompletion(int *numSchemes, char_u ***schemes) {
+  *numSchemes = 3;
+
+  *schemes = ALLOC_MULT(char_u *, 3);
+  (*schemes)[0] = acopy("scheme1");
+  (*schemes)[1] = acopy("scheme2");
+  (*schemes)[2] = acopy("scheme3");
+
+  return OK;
+}
+
 void test_setup(void)
 {
   vimColorSchemeSetChangedCallback(&onColorSchemeChanged);
+  vimColorSchemeSetCompletionCallback(&onColorSchemeCompletion);
   if (lastColorScheme != NULL) {
     vim_free(lastColorScheme);
     lastColorScheme = NULL;
@@ -68,12 +88,38 @@ MU_TEST(test_colorscheme_changed_no_callback)
   mu_check(colorSchemeChangedCount == 0);
 }
 
+MU_TEST(test_colorscheme_get_completions) 
+{
+  char_u *pat;
+  expand_T xpc;
+  ExpandInit(&xpc);
+  xpc.xp_pattern = "";
+  xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+  xpc.xp_context = EXPAND_COLORS;
+
+  pat = addstar(xpc.xp_pattern, xpc.xp_pattern_len, xpc.xp_context);
+
+  mu_check(pat != NULL);
+
+  int options = WILD_SILENT | WILD_USE_NL | WILD_ADD_SLASH | WILD_NO_BEEP;
+  ExpandOne(&xpc, pat, NULL, options, WILD_ALL_KEEP);
+
+  mu_check(xpc.xp_numfiles == 3);
+  mu_check(strcmp(xpc.xp_files[0], "scheme1") == 0);
+  mu_check(strcmp(xpc.xp_files[1], "scheme2") == 0);
+  mu_check(strcmp(xpc.xp_files[2], "scheme3") == 0);
+
+  vim_free(pat);
+  ExpandCleanup(&xpc);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_colorscheme_changed);
   MU_RUN_TEST(test_colorscheme_changed_no_callback);
+  MU_RUN_TEST(test_colorscheme_get_completions);
 }
 
 int main(int argc, char **argv)
