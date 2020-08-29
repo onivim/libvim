@@ -102,6 +102,16 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
   }
 }
 
+void vimColorSchemeSetChangedCallback(ColorSchemeChangedCallback callback)
+{
+  colorSchemeChangedCallback = callback;
+}
+
+void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback)
+{
+  colorSchemeCompletionCallback = callback;
+}
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback f)
 {
   bufferUpdateCallback = f;
