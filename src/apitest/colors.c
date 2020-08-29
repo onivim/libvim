@@ -11,7 +11,11 @@ int onColorSchemeChanged(char_u *colorScheme)
   {
     vim_free(lastColorScheme);
   }
-  lastColorScheme = vim_strsave(colorScheme);
+  lastColorScheme = NULL;
+  if (colorScheme != NULL)
+  {
+    lastColorScheme = vim_strsave(colorScheme);
+  }
   return OK;
 };
 
@@ -78,7 +82,8 @@ MU_TEST(test_colorscheme_changed)
   mu_check(strcmp(lastColorScheme, "Multi Word Scheme") == 0);
 
   vimExecute("colorscheme");
-  mu_check(colorSchemeChangedCount == 2);
+  mu_check(colorSchemeChangedCount == 3);
+  mu_check(lastColorScheme == NULL);
 }
 
 MU_TEST(test_colorscheme_changed_no_callback)
