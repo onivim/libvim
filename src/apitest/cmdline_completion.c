@@ -82,7 +82,6 @@ MU_TEST(test_cmdline_completions)
   vimInput("h");
   vimInput("a");
   vimCommandLineGetCompletions(&completions, &count);
-  printf("COUNT: %d", count);
   mu_check(count == 1);
   FreeWild(count, completions);
 }
