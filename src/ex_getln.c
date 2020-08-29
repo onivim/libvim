@@ -5235,7 +5235,8 @@ ExpandFromContext(
     return expand_tags(xp->xp_context == EXPAND_TAGS, pat, num_file, file);
   if (xp->xp_context == EXPAND_COLORS)
   {
-    if (colorSchemeCompletionCallback == NULL) {
+    if (colorSchemeCompletionCallback == NULL)
+    {
       return FAIL;
     }
 
