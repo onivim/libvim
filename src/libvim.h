@@ -46,12 +46,16 @@ size_t vimBufferGetLineCount(buf_T *buf);
 /*
  * vimBufferSetLines
  *
- * Set a range of lines from the one-based start line to one-based end, inclusive.
- * 
+ * Set a range of lines into the buffer. The start parameter is zero based and inclusive.
+ * The end parameter is exclusive. This means you can either replace existing lines, or
+ * splice in new lines in-between existing lines. 
+ *
  * Examples:
- * vimBufferSetLine(buf, 1, 1, ["abc"]); // Set line 1 to "abc""
- * vimBufferSetLine(buf, 1, 2, ["abc"]); // Remove line 2, set line 1 to "abc"
- * vimBufferSetLine(buf, 0, 0, ["def"]); // Insert "def" before the contents of the buffer
+ * vimBufferSetLines(buf, 0, 1, ["abc"], 1); // Set line 1 to "abc"
+ * vimBufferSetLines(buf, 0, 2, ["abc"], 2); // Set line 1 to "abc", make line 2 empty
+ * vimBufferSetLines(buf, 0, 0, ["abc"], 1); // Insert "abc" above the current fist line, pushing down all existing lines
+ * vimBufferSetLines(buf, 2, 2, ["abc"], 1); // Splice "abc" after the second line, pushing the existing lines from 3 on down
+ *
  */
 void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines, int count);
 
@@ -73,7 +77,6 @@ void vimSetBufferUpdateCallback(BufferUpdateCallback bufferUpdate);
  ***/
 
 void vimSetAutoCommandCallback(AutoCommandCallback autoCommandDispatch);
-
 /**
  * Commandline
  ***/
