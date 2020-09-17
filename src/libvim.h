@@ -51,9 +51,9 @@ size_t vimBufferGetLineCount(buf_T *buf);
  * splice in new lines in-between existing lines. 
  *
  * Examples:
+ * vimBufferSetLines(buf, 0, 0, ["abc"], 1); // Insert "abc" above the current first line, pushing down all existing lines
  * vimBufferSetLines(buf, 0, 1, ["abc"], 1); // Set line 1 to "abc"
  * vimBufferSetLines(buf, 0, 2, ["abc"], 2); // Set line 1 to "abc", make line 2 empty
- * vimBufferSetLines(buf, 0, 0, ["abc"], 1); // Insert "abc" above the current fist line, pushing down all existing lines
  * vimBufferSetLines(buf, 2, 2, ["abc"], 1); // Splice "abc" after the second line, pushing the existing lines from 3 on down
  *
  */
