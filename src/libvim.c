@@ -11,9 +11,15 @@
 
 #include "vim.h"
 
-buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
+buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags)
 {
   buf_T *buffer = buflist_new(ffname_arg, NULL, lnum, flags);
+  return buffer;
+}
+
+buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
+{
+  buf_T *buffer = vimBufferLoad(ffname_arg, lnum, flags);
   set_curbuf(buffer, DOBUF_SPLIT);
   return buffer;
 }
