@@ -23,6 +23,15 @@ void vimInit(int argc, char **argv);
  */
 
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
+
+/*
+ * vimBufferOpen
+ *
+ * Load a buffer, but do not change current buffer.
+ */
+
+buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags);
+
 /*
  * vimBufferCheckIfChanged
  *
