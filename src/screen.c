@@ -1788,7 +1788,7 @@ screen_fill_end(
   }
   else
 #endif
-  return nn;
+    return nn;
 }
 
 /*
