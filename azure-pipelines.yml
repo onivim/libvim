@@ -46,6 +46,16 @@ jobs:
     parameters:
         testRunner: run-tests.sh
 
+- job: UbuntuValgrind
+  displayName: "Linux - Ubuntu 18.04"
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  steps:
+  - template: .ci/esy-build-steps.yml
+  - template: .ci/libvim-test.yml
+    parameters:
+        testRunner: run-valgrind-tests.sh
+
 - job: MacOS14
   displayName: "MacOS Mojave"
   pool:

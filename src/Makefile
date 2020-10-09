@@ -1963,6 +1963,7 @@ installvim: installvimbin installtutorbin \
 TEST_SRC = $(wildcard apitest/*.c)
 TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
+TEST_VALGRIND_EXE = $(TEST_SRC:.c=.test-valgrind.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
 	mkdir $(DEST_BIN)/collateral
@@ -1971,12 +1972,20 @@ copy-apitest-collateral: $(TEST_COLLATERAL)
 	ls $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
-	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address -fsanitize=undefined -fsanitize=memory -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
+	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address fsanitize-undefined -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
+	echo "Copying $@ to $(DEST_BIN)"
+	$(INSTALL_PROG) $@ $(DEST_BIN)
+	
+apitest/%.test-valgrind.exe: apitest/%.c libvim.a
+	$(CC) -I. $(ALL_CFLAGS) -g -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
 
 installapitest:  copy-apitest-collateral $(TEST_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
+
+installvalgrindtest:  copy-apitest-collateral $(TEST_VALGRIND_EXE)
+	$(INSTALL_PROG) build/run-valgrind-tests.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	mkdir -p $(DEST_INCLUDE)

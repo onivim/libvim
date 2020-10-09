@@ -4,7 +4,8 @@
   "description": "Standalone vim library",
   "license": "MIT",
   "scripts": {
-      "test": "esy x run-tests.sh"
+      "test": "esy x run-tests.sh",
+      "test-valgrind": "esy x run-valgrind-tests.sh"
   },
   "esy": {
     "build": [

@@ -1663,9 +1663,6 @@ win_update(win_T *wp)
 	     */
       screen_puts_len((char_u *)"@@", 2, scr_row, wp->w_wincol,
                       HL_ATTR(HLF_AT));
-      screen_fill(scr_row, scr_row + 1,
-                  (int)wp->w_wincol + 2, (int)W_ENDCOL(wp),
-                  '@', ' ', HL_ATTR(HLF_AT));
       set_empty_rows(wp, srow);
       wp->w_botline = lnum;
     }
@@ -1674,10 +1671,6 @@ win_update(win_T *wp)
       /*
 	     * Last line isn't finished: Display "@@@" at the end.
 	     */
-      screen_fill(W_WINROW(wp) + wp->w_height - 1,
-                  W_WINROW(wp) + wp->w_height,
-                  (int)W_ENDCOL(wp) - 3, (int)W_ENDCOL(wp),
-                  '@', '@', HL_ATTR(HLF_AT));
       set_empty_rows(wp, srow);
       wp->w_botline = lnum;
     }
@@ -1792,15 +1785,9 @@ screen_fill_end(
 #ifdef FEAT_RIGHTLEFT
   if (wp->w_p_rl)
   {
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
-                W_ENDCOL(wp) - nn, (int)W_ENDCOL(wp) - off,
-                c1, c2, attr);
   }
   else
 #endif
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
-                wp->w_wincol + off, (int)wp->w_wincol + nn,
-                c1, c2, attr);
   return nn;
 }
 
@@ -1845,24 +1832,6 @@ win_draw_end(
       // draw the number column
       n = screen_fill_end(wp, ' ', ' ', n, number_width(wp) + 1,
                           row, endrow, hl_combine_attr(wcr_attr, HL_ATTR(HLF_N)));
-  }
-
-#ifdef FEAT_RIGHTLEFT
-  if (wp->w_p_rl)
-  {
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
-                wp->w_wincol, W_ENDCOL(wp) - 1 - n,
-                c2, c2, attr);
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
-                W_ENDCOL(wp) - 1 - n, W_ENDCOL(wp) - n,
-                c1, c2, attr);
-  }
-  else
-#endif
-  {
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
-                wp->w_wincol + n, (int)W_ENDCOL(wp),
-                c1, c2, attr);
   }
 
   set_empty_rows(wp, row);
@@ -4440,9 +4409,6 @@ void screen_line(
         ++off_to;
         ++col;
       }
-      if (col <= endcol)
-        screen_fill(row, row + 1, col + coloff,
-                    endcol + coloff + 1, ' ', ' ', 0);
     }
     col = endcol + 1;
     off_to = LineOffset[row] + col + coloff;
@@ -4619,8 +4585,6 @@ void screen_line(
     }
     if (col < clear_width)
     {
-      screen_fill(row, row + 1, col + coloff, clear_width + coloff,
-                  ' ', ' ', 0);
       off_to += clear_width - col;
       col = clear_width;
     }
@@ -4749,17 +4713,7 @@ void win_redraw_last_status(frame_T *frp)
 static void
 draw_vsep_win(win_T *wp, int row)
 {
-  int hl;
-  int c;
-
-  if (wp->w_vsep_width)
-  {
-    /* draw the vertical separator right of this window */
-    c = fillchar_vsep(&hl);
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + wp->w_height,
-                W_ENDCOL(wp), W_ENDCOL(wp) + 1,
-                c, ' ', hl);
-  }
+  // libvim: noop
 }
 
 #ifdef FEAT_WILDMENU
@@ -4992,8 +4946,6 @@ void win_redr_status_matches(
       *selend = NUL;
       screen_puts(selstart, row, selstart_col, HL_ATTR(HLF_WM));
     }
-
-    screen_fill(row, row + 1, clen, (int)Columns, fillchar, fillchar, attr);
   }
 
   win_redraw_last_status(topframe);
@@ -5114,8 +5066,6 @@ win_redr_status(win_T *wp, int ignore_pum UNUSED)
 
     row = W_WINROW(wp) + wp->w_height;
     screen_puts(p, row, wp->w_wincol, attr);
-    screen_fill(row, row + 1, len + wp->w_wincol,
-                this_ru_col + wp->w_wincol, fillchar, fillchar, attr);
 
     if (get_keymap_str(wp, (char_u *)"<%s>", NameBuff, MAXPATHL) && (int)(this_ru_col - len) > (int)(STRLEN(NameBuff) + 1))
       screen_puts(NameBuff, row, (int)(this_ru_col - STRLEN(NameBuff) - 1 + wp->w_wincol), attr);
@@ -6206,163 +6156,6 @@ redraw_block(int row, int end, win_T *wp)
   screen_draw_rectangle(row, col, end - row, width, FALSE);
 }
 
-static void
-space_to_screenline(int off, int attr)
-{
-  ScreenLines[off] = ' ';
-  ScreenAttrs[off] = attr;
-  if (enc_utf8)
-    ScreenLinesUC[off] = 0;
-}
-
-/*
- * Fill the screen from 'start_row' to 'end_row', from 'start_col' to 'end_col'
- * with character 'c1' in first column followed by 'c2' in the other columns.
- * Use attributes 'attr'.
- */
-void screen_fill(
-    int start_row,
-    int end_row,
-    int start_col,
-    int end_col,
-    int c1,
-    int c2,
-    int attr)
-{
-  int row;
-  int col;
-  int off;
-  int end_off;
-  int did_delete;
-  int c;
-  int norm_term;
-#if defined(UNIX)
-  int force_next = FALSE;
-#endif
-
-  if (end_row > screen_Rows) /* safety check */
-    end_row = screen_Rows;
-  if (end_col > screen_Columns) /* safety check */
-    end_col = screen_Columns;
-  if (ScreenLines == NULL || start_row >= end_row || start_col >= end_col) /* nothing to do */
-    return;
-
-  /* it's a "normal" terminal when not in a cterm */
-  norm_term = !IS_CTERM;
-  for (row = start_row; row < end_row; ++row)
-  {
-    if (has_mbyte)
-    {
-      /* When drawing over the right halve of a double-wide char clear
-	     * out the left halve.  When drawing over the left halve of a
-	     * double wide-char clear out the right halve.  Only needed in a
-	     * terminal. */
-      if (start_col > 0 && mb_fix_col(start_col, row) != start_col)
-        screen_puts_len((char_u *)" ", 1, row, start_col - 1, 0);
-      if (end_col < screen_Columns && mb_fix_col(end_col, row) != end_col)
-        screen_puts_len((char_u *)" ", 1, row, end_col, 0);
-    }
-    /*
-	 * Try to use delete-line termcap code, when no attributes or in a
-	 * "normal" terminal, where a bold/italic space is just a
-	 * space.
-	 */
-    did_delete = FALSE;
-    if (c2 == ' ' && end_col == Columns && can_clear(T_CE) && (attr == 0 || (norm_term && attr <= HL_ALL && ((attr & ~(HL_BOLD | HL_ITALIC)) == 0))))
-    {
-      /*
-	     * check if we really need to clear something
-	     */
-      col = start_col;
-      if (c1 != ' ') /* don't clear first char */
-        ++col;
-
-      off = LineOffset[row] + col;
-      end_off = LineOffset[row] + end_col;
-
-      /* skip blanks (used often, keep it fast!) */
-      if (enc_utf8)
-        while (off < end_off && ScreenLines[off] == ' ' && ScreenAttrs[off] == 0 && ScreenLinesUC[off] == 0)
-          ++off;
-      else
-        while (off < end_off && ScreenLines[off] == ' ' && ScreenAttrs[off] == 0)
-          ++off;
-      if (off < end_off) /* something to be cleared */
-      {
-        col = off - LineOffset[row];
-        screen_stop_highlight();
-        term_windgoto(row, col); /* clear rest of this screen line */
-        out_str(T_CE);
-        screen_start(); /* don't know where cursor is now */
-        col = end_col - col;
-        while (col--) /* clear chars in ScreenLines */
-        {
-          space_to_screenline(off, 0);
-          ++off;
-        }
-      }
-      did_delete = TRUE; /* the chars are cleared now */
-    }
-
-    off = LineOffset[row] + start_col;
-    c = c1;
-    for (col = start_col; col < end_col; ++col)
-    {
-      if (ScreenLines[off] != c || (enc_utf8 && (int)ScreenLinesUC[off] != (c >= 0x80 ? c : 0)) || ScreenAttrs[off] != attr
-#ifdef UNIX
-          || force_next
-#endif
-      )
-      {
-#if defined(UNIX)
-        /* The bold trick may make a single row of pixels appear in
-		 * the next character.  When a bold character is removed, the
-		 * next character should be redrawn too.  This happens for our
-		 * own GUI and for some xterms.  */
-        if (term_is_xterm)
-        {
-          if (ScreenLines[off] != ' ' && (ScreenAttrs[off] > HL_ALL || ScreenAttrs[off] & HL_BOLD))
-            force_next = TRUE;
-          else
-            force_next = FALSE;
-        }
-#endif
-        ScreenLines[off] = c;
-        if (enc_utf8)
-        {
-          if (c >= 0x80)
-          {
-            ScreenLinesUC[off] = c;
-            ScreenLinesC[0][off] = 0;
-          }
-          else
-            ScreenLinesUC[off] = 0;
-        }
-        ScreenAttrs[off] = attr;
-        if (!did_delete || c != ' ')
-          screen_char(off, row, col);
-      }
-      ++off;
-      if (col == start_col)
-      {
-        if (did_delete)
-          break;
-        c = c2;
-      }
-    }
-    if (end_col == Columns)
-      LineWraps[row] = FALSE;
-    if (row == Rows - 1) /* overwritten the command line */
-    {
-      redraw_cmdline = TRUE;
-      if (start_col == 0 && end_col == Columns && c1 == ' ' && c2 == ' ' && attr == 0)
-        clear_cmdline = FALSE; /* command line has been cleared */
-      if (start_col == 0)
-        mode_displayed = FALSE; /* mode cleared or overwritten */
-    }
-  }
-}
-
 /*
  * Check if there should be a delay.  Used before clearing or redrawing the
  * screen or the command line.
@@ -7097,9 +6890,6 @@ int win_ins_lines(
     lastrow = nextrow + line_count;
     if (lastrow > Rows)
       lastrow = Rows;
-    screen_fill(nextrow - line_count, lastrow - line_count,
-                wp->w_wincol, (int)W_ENDCOL(wp),
-                ' ', ' ', 0);
   }
 
   if (screen_ins_lines(0, W_WINROW(wp) + row, line_count, (int)Rows, 0, NULL) == FAIL)
@@ -7206,9 +6996,6 @@ win_do_lines(
      */
   if (row + line_count >= wp->w_height)
   {
-    screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + wp->w_height,
-                wp->w_wincol, (int)W_ENDCOL(wp),
-                ' ', ' ', 0);
     return OK;
   }
 
@@ -7773,11 +7560,9 @@ void draw_tabline(void)
   win_T *cwp;
   int wincount;
   int modified;
-  int c;
   int len;
   int attr_sel = HL_ATTR(HLF_TPS);
   int attr_nosel = HL_ATTR(HLF_TP);
-  int attr_fill = HL_ATTR(HLF_TPF);
   char_u *p;
   int room;
   int use_sep_chars = t_colors < 8;
@@ -7879,12 +7664,6 @@ void draw_tabline(void)
       while (scol < col)
         TabPageIdxs[scol++] = tabcount;
     }
-
-    if (use_sep_chars)
-      c = '_';
-    else
-      c = ' ';
-    screen_fill(0, 1, col, (int)Columns, c, c, attr_fill);
 
     /* Put an "X" for closing the current tab if there are several. */
     if (first_tabpage->tp_next != NULL)
