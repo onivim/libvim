@@ -51,9 +51,9 @@ jobs:
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:
-  - script: apt-get update
+  - script: sudo apt-get update
     displayName: "apt-get update"
-  - script: apt-get --yes install valgrind
+  - script: sudo apt-get --yes install valgrind
     displayName: "apt-get install valgrind"
   - script: valgrind --version
     displayName: "valgrind --version"
