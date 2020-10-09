@@ -47,7 +47,7 @@ jobs:
         testRunner: run-tests.sh
 
 - job: UbuntuValgrind
-  displayName: "Linux - Ubuntu 18.04"
+  displayName: "Linux - Ubuntu 18.04 (VALGRIND)"
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:
