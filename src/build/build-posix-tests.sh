@@ -7,4 +7,3 @@ esac
 
 ./configure ${CFLAGS}
 make installapitest DESTDIR=$cur__install
-make installvalgrindtest DESTDIR=$cur__install

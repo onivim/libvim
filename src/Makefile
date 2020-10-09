@@ -1981,10 +1981,8 @@ apitest/%.test-valgrind.exe: apitest/%.c libvim.a
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
 
-installapitest:  copy-apitest-collateral $(TEST_EXE)
+installapitest:  copy-apitest-collateral $(TEST_EXE) $(TEST_VALGRIND_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
-
-installvalgrindtest:  copy-apitest-collateral $(TEST_VALGRIND_EXE)
 	$(INSTALL_PROG) build/run-tests-valgrind.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
