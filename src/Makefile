@@ -1971,7 +1971,7 @@ copy-apitest-collateral: $(TEST_COLLATERAL)
 	ls $(DEST_BIN)/collateral
 
 apitest/%.test.exe: apitest/%.c libvim.a
-	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
+	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address -fsanitize=undefined -fsanitize=memory -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
 
