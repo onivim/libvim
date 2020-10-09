@@ -1966,7 +1966,7 @@ TEST_EXE = $(TEST_SRC:.c=.test.exe)
 TEST_VALGRIND_EXE = $(TEST_SRC:.c=.test-valgrind.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
-	mkdir $(DEST_BIN)/collateral
+	mkdir -p $(DEST_BIN)/collateral
 	$(INSTALL_PROG) apitest/collateral/* $(DEST_BIN)/collateral
 	echo "--- collateral folder ---"
 	ls $(DEST_BIN)/collateral
