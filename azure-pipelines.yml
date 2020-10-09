@@ -54,7 +54,7 @@ jobs:
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
     parameters:
-        testRunner: run-valgrind-tests.sh
+        testRunner: run-tests-valgrind.sh
 
 - job: MacOS14
   displayName: "MacOS Mojave"
