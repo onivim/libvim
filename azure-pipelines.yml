@@ -51,6 +51,12 @@ jobs:
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:
+  - script: apt-get update
+    displayName: "apt-get update"
+  - script: apt-get --yes install valgrind
+    displayName: "apt-get install valgrind"
+  - script: valgrind --version
+    displayName: "valgrind --version"
   - template: .ci/esy-build-steps.yml
   - template: .ci/libvim-test.yml
     parameters:
