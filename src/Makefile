@@ -1985,7 +1985,7 @@ installapitest:  copy-apitest-collateral $(TEST_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
 
 installvalgrindtest:  copy-apitest-collateral $(TEST_VALGRIND_EXE)
-	$(INSTALL_PROG) build/run-valgrind-tests.sh $(DEST_BIN)
+	$(INSTALL_PROG) build/run-tests-valgrind.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	mkdir -p $(DEST_INCLUDE)
