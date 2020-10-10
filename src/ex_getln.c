@@ -2164,6 +2164,16 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
   cmdlineState_T *context = (cmdlineState_T *)alloc(sizeof(cmdlineState_T));
   context->firstc = c;
   context->count = count;
+  context->indent = 0;
+  context->init_ccline = FALSE;
+  context->c = 0;
+  context->i = 0;
+  context->j = 0;
+  context->do_abbr = FALSE;
+  context->bail_immediately = FALSE;
+  context->lookfor = NULL;
+  context->hiscnt = 0;
+  context->histype = 0;
   context->gotesc = FALSE;
   context->lookfor = NULL;
   context->did_wild_list = FALSE;

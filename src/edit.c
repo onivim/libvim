@@ -133,6 +133,7 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
   context->lastc = 0;
   context->old_topline = 0;
   context->old_topfill = -1;
+  context->nomove = FALSE;
   context->is_ctrlv = FALSE;
   context->ctrlv_ret = 0;
 

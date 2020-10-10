@@ -46,6 +46,22 @@ jobs:
     parameters:
         testRunner: run-tests.sh
 
+- job: UbuntuValgrind
+  displayName: "Linux - Ubuntu 18.04 (VALGRIND)"
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  steps:
+  - script: sudo apt-get update
+    displayName: "apt-get update"
+  - script: sudo apt-get --yes install valgrind
+    displayName: "apt-get install valgrind"
+  - script: valgrind --version
+    displayName: "valgrind --version"
+  - template: .ci/esy-build-steps.yml
+  - template: .ci/libvim-test.yml
+    parameters:
+        testRunner: run-tests-valgrind.sh
+
 - job: MacOS14
   displayName: "MacOS Mojave"
   pool:
