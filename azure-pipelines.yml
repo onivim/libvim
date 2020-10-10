@@ -65,6 +65,18 @@ jobs:
   - template: .ci/libvim-test.yml
     parameters:
         testRunner: run-tests.sh
+    
+- job: MacOS15XCode12
+  displayName: "MacOS Catalina + XCode 12.2"
+  pool:
+    vmImage: 'macOS-10.15'
+  steps:
+  - script: sudo xcode-select -s /Applications/Xcode_12.2.app
+  - script: xcodebuild -version
+  - template: .ci/esy-build-steps.yml
+  - template: .ci/libvim-test.yml
+    parameters:
+        testRunner: run-tests.sh
 
 - job: Windows
   pool:
