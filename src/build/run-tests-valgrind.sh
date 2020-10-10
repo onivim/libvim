@@ -11,7 +11,7 @@ echo "- Starting API tests"
 for file in ./*.test-valgrind.exe;
 do
       echo "-- Running test $file"
-      valgrind "$file"
+      valgrind --error-exitcode=1 "$file"
       echo "-- Test complete"
 done
 echo "- API tests complete!"
