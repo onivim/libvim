@@ -619,6 +619,32 @@ void *state_normal_cmd_initialize()
   return context;
 }
 
+int state_normal_pending_operator(void *ctx, pendingOp_T *pendingOp)
+{
+  if (ctx == NULL)
+  {
+    return FALSE;
+  }
+
+  normalCmd_T *context = (normalCmd_T *)ctx;
+
+  if (context->oap == NULL)
+  {
+    return FALSE;
+  }
+
+  if (context->oap->op_type == OP_NOP)
+  {
+    return FALSE;
+  }
+
+  pendingOp->op_type = context->oap->op_type;
+  pendingOp->regname = context->oap->regname;
+  pendingOp->count = context->ca.opcount;
+
+  return TRUE;
+}
+
 void state_normal_cmd_cleanup(void *ctx)
 {
   normalCmd_T *context = (normalCmd_T *)ctx;
@@ -3505,53 +3531,11 @@ static void nv_scroll_line(cmdarg_T *cap)
  */
 void scroll_redraw(int up, long count)
 {
-  linenr_T prev_topline = curwin->w_topline;
-#ifdef FEAT_DIFF
-  int prev_topfill = curwin->w_topfill;
-#endif
-  linenr_T prev_lnum = curwin->w_cursor.lnum;
-
+  printf("-- SCROLL_REDRAW\n");
   if (up)
     scrollup(count, TRUE);
   else
     scrolldown(count, TRUE);
-  if (get_scrolloff_value())
-  {
-    /* Adjust the cursor position for 'scrolloff'.  Mark w_topline as
-     * valid, otherwise the screen jumps back at the end of the file. */
-    cursor_correct();
-    check_cursor_moved(curwin);
-    curwin->w_valid |= VALID_TOPLINE;
-
-    /* If moved back to where we were, at least move the cursor, otherwise
-     * we get stuck at one position.  Don't move the cursor up if the
-     * first line of the buffer is already on the screen */
-    while (curwin->w_topline == prev_topline
-#ifdef FEAT_DIFF
-           && curwin->w_topfill == prev_topfill
-#endif
-    )
-    {
-      if (up)
-      {
-        if (curwin->w_cursor.lnum > prev_lnum || cursor_down(1L, FALSE) == FAIL)
-          break;
-      }
-      else
-      {
-        if (curwin->w_cursor.lnum < prev_lnum || prev_topline == 1L ||
-            cursor_up(1L, FALSE) == FAIL)
-          break;
-      }
-      /* Mark w_topline as valid, otherwise the screen jumps back at the
-       * end of the file. */
-      check_cursor_moved(curwin);
-      curwin->w_valid |= VALID_TOPLINE;
-    }
-  }
-  if (curwin->w_cursor.lnum != prev_lnum)
-    coladvance(curwin->w_curswant);
-  redraw_later(VALID);
 }
 
 /*
@@ -3568,49 +3552,6 @@ static void nv_zet(cmdarg_T *cap)
 #endif
   long siso = get_sidescrolloff_value();
 
-// TODO: Libvim - refactor this to a non-blocking strategy.
-//  if (VIM_ISDIGIT(nchar))
-//  {
-//    /*
-//     * "z123{nchar}": edit the count before obtaining {nchar}
-//     */
-//    if (checkclearop(cap->oap))
-//      return;
-//    n = nchar - '0';
-//    for (;;)
-//    {
-//      ++no_mapping;
-//      ++allow_keys; /* no mapping for nchar, but allow key codes */
-//      nchar = plain_vgetc();
-//      LANGMAP_ADJUST(nchar, TRUE);
-//      --no_mapping;
-//      --allow_keys;
-//      if (nchar == K_DEL || nchar == K_KDEL)
-//        n /= 10;
-//      else if (VIM_ISDIGIT(nchar))
-//        n = n * 10 + (nchar - '0');
-//      else if (nchar == CAR)
-//      {
-//        win_setheight((int)n);
-//        break;
-//      }
-//      else if (nchar == 'l' || nchar == 'h' || nchar == K_LEFT ||
-//               nchar == K_RIGHT)
-//      {
-//        cap->count1 = n ? n * cap->count1 : cap->count1;
-//        goto dozet;
-//      }
-//      else
-//      {
-//        clearopbeep(cap->oap);
-//        break;
-//      }
-//    }
-//    cap->oap->op_type = OP_NOP;
-//    return;
-//  }
-
-dozet:
   if (
 #ifdef FEAT_FOLDING
       /* "zf" and "zF" are always an operator, "zd", "zo", "zO", "zc"
@@ -3667,8 +3608,8 @@ dozet:
     /* "z." and "zz": put cursor in middle of screen */
   case '.':
     beginline(BL_WHITE | BL_FIX);
-    /* FALLTHROUGH */
 
+    /* FALLTHROUGH */
   case 'z':
     scroll_cursor_halfway(TRUE);
     redraw_later(VALID);

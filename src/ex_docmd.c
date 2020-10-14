@@ -5465,7 +5465,12 @@ ex_colorscheme(exarg_T *eap)
       vim_free(p);
     }
     else
-      msg("default");
+    {
+      if (colorSchemeChangedCallback != NULL)
+      {
+        colorSchemeChangedCallback(NULL);
+      }
+    }
 #else
     msg(_("unknown"));
 #endif

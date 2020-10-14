@@ -97,14 +97,14 @@ typedef enum
   SCROLL_CURSORTOP,
   SCROLL_CURSORBOTTOM,
   SCROLL_CURSORLEFT,
-  SCROLL_CURSORRIGHT
+  SCROLL_CURSORRIGHT,
+  SCROLL_LINE_UP,
+  SCROLL_LINE_DOWN,
+  SCROLL_HALFPAGE_DOWN,
+  SCROLL_HALFPAGE_UP,
+  SCROLL_PAGE_DOWN,
+  SCROLL_PAGE_UP
 } scrollDirection_T;
-
-typedef struct
-{
-  scrollDirection_T dir;
-  long count;
-} scrollRequest_T;
 
 typedef enum
 {
@@ -148,16 +148,25 @@ typedef struct
 } formatRequest_T;
 
 typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines, int *blockType /* MLINE, MCHAR, MBLOCK */);
+
+// Return OK for success, FAIL for failure
+typedef int (*ColorSchemeChangedCallback)(char_u *colorScheme);
+
+// Return OK for success, FAIL for failure
+typedef int (*ColorSchemeCompletionCallback)(char_u *filter, int *num_colorschemes, char_u ***colorschemes);
+
 typedef void (*FormatCallback)(formatRequest_T *formatRequest);
 typedef int (*AutoIndentCallback)(int lnum, buf_T *buf,
                                   char_u *prevLine, char_u *currentLine);
+typedef void (*MacroStartRecordCallback)(int regname);
+typedef void (*MacroStopRecordCallback)(int regname, char_u *regvalue);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
-typedef void (*ScrollCallback)(scrollRequest_T scrollRequest);
+typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
 typedef struct
@@ -179,21 +188,6 @@ typedef enum
   UNHANDLED,
   COMPLETED_UNHANDLED,
 } executionStatus_T;
-
-typedef executionStatus_T (*state_execute)(void *context, int key);
-typedef void (*state_cleanup)(void *context);
-
-typedef const char *sname;
-
-/* State machine information */
-typedef struct
-{
-  void *context;
-  int mode;
-  state_execute execute_fn;
-  state_cleanup cleanup_fn;
-  void *prev;
-} sm_T;
 
 /*
  * Same, but without coladd.
@@ -723,7 +717,8 @@ struct cmdline_info
   int cmdbufflen;    /* length of cmdbuff */
   int cmdlen;        /* number of chars in command line */
   int cmdpos;        /* current cursor position */
-  int cmdspos;       /* cursor column on screen */
+                     // Screen position not needed for libvim:
+                     //  int cmdspos;       /* cursor column on screen */
   int cmdfirstc;     /* ':', '/', '?', '=', '>' or NUL */
   int cmdindent;     /* number of spaces before cmdline */
   char_u *cmdprompt; /* message in front of cmdline */
@@ -2446,11 +2441,28 @@ typedef enum
   FILE_CHANGED,
 } writeFailureReason_T;
 
+typedef struct
+{
+  char_u *fullname;
+  char_u *shortname;
+
+  // Type can be:
+  // Number or toggle: 1 -> value is in numval
+  // String: 0 -> value is in stringval
+  int type;
+
+  long numval;
+  char_u *stringval;
+  int opt_flags; // [ OPT_FREE | OPT_LOCAL | OPT_GLOBAL ]
+  int hidden;
+} optionSet_T;
+
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 typedef void (*FileWriteFailureCallback)(writeFailureReason_T failureReason, buf_T *buf);
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
+typedef void (*OptionSetCallback)(optionSet_T *optionSet);
 
 #ifdef FEAT_DIFF
 /*
@@ -2982,6 +2994,30 @@ typedef struct cmdarg_S
   int retval;        /* return: CA_* values */
   char_u *searchbuf; /* return: pointer to search pattern or NULL */
 } cmdarg_T;
+
+typedef struct pendingOp_S
+{
+  int op_type;
+  int regname;
+  long count;
+} pendingOp_T;
+
+typedef executionStatus_T (*state_execute)(void *context, int key);
+typedef void (*state_cleanup)(void *context);
+typedef int (*state_pending_operator)(void *context, pendingOp_T *pendingOp);
+
+typedef const char *sname;
+
+/* State machine information */
+typedef struct
+{
+  void *context;
+  int mode;
+  state_execute execute_fn;
+  state_cleanup cleanup_fn;
+  state_pending_operator pending_operator_fn;
+  void *prev;
+} sm_T;
 
 /* values for retval: */
 #define CA_COMMAND_BUSY 1  /* skip restarting edit() once */

@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<Esc>");
-  vimInput("<Esc>");
+  vimKey("<Esc>");
+  vimKey("<Esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -45,7 +45,7 @@ MU_TEST(insert_cr)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<CR>");
+  vimKey("<CR>");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   mu_check(strcmp(line, "This is the first line of a test file") == 0);
@@ -126,7 +126,7 @@ MU_TEST(insert_mode_ctrlv)
   vimInput("O");
 
   // Character literal mode
-  vimInput("<c-v>");
+  vimKey("<c-v>");
 
   vimInput("1");
   vimInput("2");
@@ -143,7 +143,7 @@ MU_TEST(insert_mode_ctrlv_no_digit)
   vimInput("O");
 
   // Character literal mode
-  vimInput("<c-v>");
+  vimKey("<c-v>");
 
   // Jump out of character literal mode by entering a non-digit character
   vimInput("a");
@@ -159,13 +159,43 @@ MU_TEST(insert_mode_ctrlv_newline)
   vimInput("O");
 
   // Character literal mode
-  vimInput("<c-v>");
+  vimKey("<c-v>");
 
   // Jump out of character literal mode by entering a non-digit character
-  vimInput("<cr>");
+  vimKey("<cr>");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   mu_check(line[0] == 13);
+}
+
+MU_TEST(insert_mode_utf8)
+{
+  vimInput("O");
+
+  // Character literal mode
+  vimInput("κόσμε");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "κόσμε") == 0);
+}
+
+// Regression test for onivim/oni2#1720
+MU_TEST(insert_mode_utf8_special_byte)
+{
+  vimInput("O");
+
+  u_char input[4];
+  input[0] = 232;
+  input[1] = 128;
+  input[2] = 133;
+  input[3] = 0;
+
+  vimInput(input);
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, input) == 0);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -182,6 +212,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_ctrlv);
   MU_RUN_TEST(insert_mode_ctrlv_no_digit);
   MU_RUN_TEST(insert_mode_ctrlv_newline);
+  MU_RUN_TEST(insert_mode_utf8);
+  MU_RUN_TEST(insert_mode_utf8_special_byte);
 }
 
 int main(int argc, char **argv)

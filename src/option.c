@@ -1026,7 +1026,7 @@ static struct vimoption options[] =
 #endif
          SCTX_INIT},
         {"guicursor", "gcr", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
-        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"guifont", "gfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_guifont, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"guifontset", "gfs", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guifontwide", "gfw", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"guiheadroom", "ghr", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)50L, (char_u *)0L} SCTX_INIT},
@@ -1197,6 +1197,7 @@ static struct vimoption options[] =
                                                                                                             (char_u *)0L} SCTX_INIT},
         {"joinspaces", "js", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_js, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"key", NULL, P_STRING | P_ALLOCED | P_VI_DEF | P_NO_MKRC, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
+        {"keydisplay", "kdp", P_BOOL | P_VI_DEF, (char_u *)&p_keydisplay, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"keymap", "kmp", P_STRING | P_ALLOCED | P_VI_DEF | P_RBUF | P_RSTAT | P_NFNAME | P_PRI_MKRC,
 #ifdef FEAT_KEYMAP
          (char_u *)&p_keymap,
@@ -1272,7 +1273,7 @@ static struct vimoption options[] =
                                                                                                            (char_u *)24L,
 #endif
                                                                                                            (char_u *)0L} SCTX_INIT},
-        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
+        {"linespace", "lsp", P_NUM | P_VI_DEF | P_RCLR, (char_u *)&p_linespace, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"lisp", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"lispwords", "lw", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"list", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)VAR_WIN, PV_LIST, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1336,6 +1337,7 @@ static struct vimoption options[] =
         {"maxmemtot", "mmt", P_NUM | P_VI_DEF, (char_u *)&p_mmt, PV_NONE, {(char_u *)DFLT_MAXMEMTOT, (char_u *)0L} SCTX_INIT},
         {"menuitems", "mis", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)25L, (char_u *)0L} SCTX_INIT},
         {"mesg", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"minimap", NULL, P_BOOL | P_VI_DEF, (char_u *)&p_minimap, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
         {"mkspellmem", "msm", P_STRING | P_VI_DEF | P_EXPAND | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"modeline", "ml", P_BOOL | P_VIM, (char_u *)&p_ml, PV_ML, {(char_u *)FALSE, (char_u *)TRUE} SCTX_INIT},
         {"modelineexpr", "mle", P_BOOL | P_VI_DEF | P_SECURE, (char_u *)&p_mle, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1799,6 +1801,7 @@ static struct vimoption options[] =
 #endif
          {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"smarttab", "sta", P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_sta, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
+        {"smoothscroll", NULL, P_BOOL | P_VI_DEF | P_VIM, (char_u *)&p_smoothscroll, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"softtabstop", "sts", P_NUM | P_VI_DEF | P_VIM, (char_u *)&p_sts, PV_STS, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"sourceany", NULL, P_BOOL | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"spell", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
@@ -1881,6 +1884,7 @@ static struct vimoption options[] =
 #endif
          {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"termencoding", "tenc", P_STRING | P_VI_DEF | P_RCLR, (char_u *)&p_tenc, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
+        {"termfont", "tfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_termfont, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"termguicolors", "tgc", P_BOOL | P_VI_DEF | P_VIM | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"termwinkey", "twk", P_STRING | P_ALLOCED | P_RWIN | P_VI_DEF,
 #ifdef FEAT_TERMINAL
@@ -2039,6 +2043,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
+        {"vimcompatible", "vcp", P_BOOL | P_RALL, (char_u *)&p_vcp, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"viminfo", "vi", P_STRING | P_ONECOMMA | P_NODUP | P_SECURE,
 #ifdef FEAT_VIMINFO
          (char_u *)&p_viminfo,
@@ -4046,6 +4051,46 @@ did_set_option(
                        // P_INSECURE flag.
 {
   long_u *p;
+
+  if (optionSetCallback != NULL)
+  {
+    char_u *fullname = options[opt_idx].fullname;
+    char_u *shortname = options[opt_idx].shortname;
+    long numval = -1;
+    char_u *stringval = NULL;
+    int optionType = get_option_value(fullname,
+                                      &numval,
+                                      &stringval,
+                                      opt_flags);
+    if (optionType == 0 || optionType == 1 || optionType == -1 || optionType == -2)
+    {
+      int hidden = optionType < 0;
+      int type = optionType;
+      if (optionType == -1)
+      {
+        type = 1;
+      }
+      else if (optionType == -2)
+      {
+        type = 0;
+      }
+
+      optionSet_T optionSetInfo;
+      optionSetInfo.fullname = fullname;
+      optionSetInfo.shortname = shortname;
+      optionSetInfo.type = type;
+      optionSetInfo.numval = numval;
+      optionSetInfo.stringval = stringval;
+      optionSetInfo.opt_flags = opt_flags;
+      optionSetInfo.hidden = hidden;
+
+      optionSetCallback(&optionSetInfo);
+      if (stringval != NULL)
+      {
+        vim_free(stringval);
+      }
+    }
+  }
 
   options[opt_idx].flags |= P_WAS_SET;
 

@@ -19,8 +19,8 @@ void onBufferUpdate(bufferUpdate_T update)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 
@@ -194,11 +194,11 @@ MU_TEST(test_reset_modified_after_undo)
   vimInput("a");
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   vimInput("u");
   mu_check(vimBufferGetModified(curbuf) == FALSE);
 
-  vimInput("<c-r>");
+  vimKey("<c-r>");
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "a") == 0);
   mu_check(vimBufferGetModified(curbuf) == TRUE);
 }

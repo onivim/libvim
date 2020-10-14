@@ -27,8 +27,8 @@ int didEvent(event_T evt)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   reset();
@@ -41,7 +41,7 @@ MU_TEST(test_insertenter_insertleave)
   vimInput("i");
   mu_check(didEvent(EVENT_INSERTENTER));
 
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check(didEvent(EVENT_INSERTLEAVE));
 }
 

@@ -40,8 +40,8 @@ int neverIndent(int lnum, buf_T *buf, char_u *prevLine, char_u *line)
 
 void test_setup(void)
 {
-  vimInput("<Esc>");
-  vimInput("<Esc>");
+  vimKey("<Esc>");
+  vimKey("<Esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -98,7 +98,7 @@ MU_TEST(test_autounindent_spaces_normal_o)
   vimSetAutoIndentCallback(&alwaysUnindent);
   vimInput("o");
   vimInput("  a");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("b");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
@@ -114,7 +114,7 @@ MU_TEST(test_autounindent_double_spaces_overflow_normal_o)
   vimSetAutoIndentCallback(&alwaysUnindentDouble);
   vimInput("o");
   vimInput("  a");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("b");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
@@ -130,7 +130,7 @@ MU_TEST(test_autounindent_double_spaces_normal_o)
   vimSetAutoIndentCallback(&alwaysUnindentDouble);
   vimInput("o");
   vimInput("    a");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("b");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
@@ -145,7 +145,7 @@ MU_TEST(test_autounindent_spaces_no_indent)
   vimOptionSetTabSize(2);
   vimSetAutoIndentCallback(&alwaysUnindent);
   vimInput("A");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("b");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
@@ -159,7 +159,7 @@ MU_TEST(test_autoindent_double_tab)
   vimOptionSetInsertSpaces(FALSE);
   vimSetAutoIndentCallback(&alwaysIndentDouble);
   vimInput("A");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("a");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
@@ -174,9 +174,9 @@ MU_TEST(test_autoindent_tab_insert_cr)
   vimOptionSetInsertSpaces(FALSE);
   vimSetAutoIndentCallback(&alwaysIndent);
   vimInput("A");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("a");
-  vimInput("<cr>");
+  vimKey("<cr>");
   vimInput("a");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());

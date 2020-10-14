@@ -23,8 +23,8 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 void test_setup(void)
 {
   printf("a\n");
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   printf("b\n");
   vimExecute("e!");
   printf("e\n");

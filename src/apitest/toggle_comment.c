@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<Esc>");
-  vimInput("<Esc>");
+  vimKey("<Esc>");
+  vimKey("<Esc>");
   vimExecute("e!");
 
   vimInput("g");

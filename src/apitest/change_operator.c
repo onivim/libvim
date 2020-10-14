@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 
@@ -22,7 +22,7 @@ MU_TEST(test_change_word)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
 
   printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1),
@@ -35,7 +35,7 @@ MU_TEST(test_change_line_C)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
 
   printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
@@ -48,7 +48,7 @@ MU_TEST(test_change_line_c$)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
 
   printf("LINE: %s\n", vimBufferGetLine(curbuf, 1));
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
@@ -61,7 +61,7 @@ MU_TEST(test_change_redo)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
   vimInput("j");
   vimInput("_");
   vimInput(".");
@@ -81,7 +81,7 @@ MU_TEST(test_change_macro)
   vimInput("1");
   vimInput("2");
   vimInput("3");
-  vimInput("<c-c>");
+  vimKey("<c-c>");
   vimInput("q");
 
   vimInput("j");

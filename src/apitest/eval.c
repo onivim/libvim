@@ -1,3 +1,4 @@
+
 #include "libvim.h"
 #include "minunit.h"
 
@@ -14,27 +15,27 @@ void test_setup(void)
 
 void test_teardown(void) {}
 
-MU_TEST(test_search_in_large_file)
+MU_TEST(test_simple_addition)
 {
+  char_u *result = vimEval("2+2");
 
-  vimInput("/");
-  printf("Typing e...\n");
-  vimInput("e");
-  printf("Typed e! \n");
+  mu_check(strcmp(result, "4") == 0);
+  vim_free(result);
+}
 
-  int num;
-  searchHighlight_T *highlights;
-  vimSearchGetHighlights(0, 0, &num, &highlights);
-  printf("Got %d highlights\n", num);
-  vim_free(highlights);
-  mu_check(num == 15420);
+MU_TEST(test_empty)
+{
+  char_u *result = vimEval("");
+
+  mu_check(result == NULL);
 }
 
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  MU_RUN_TEST(test_search_in_large_file);
+  MU_RUN_TEST(test_simple_addition);
+  MU_RUN_TEST(test_empty);
 }
 
 int main(int argc, char **argv)
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
   win_setwidth(5);
   win_setheight(100);
 
-  vimBufferOpen("collateral/large-c-file.c", 1, 0);
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   MU_RUN_SUITE(test_suite);
   MU_REPORT();

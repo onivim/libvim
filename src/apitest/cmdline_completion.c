@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 }
@@ -51,11 +51,11 @@ MU_TEST(test_cmdline_get_text)
   mu_check(strcmp(vimCommandLineGetText(), "abc") == 0);
   mu_check(vimCommandLineGetPosition() == 3);
 
-  vimInput("<c-h>");
+  vimKey("<c-h>");
   mu_check(strcmp(vimCommandLineGetText(), "ab") == 0);
   mu_check(vimCommandLineGetPosition() == 2);
 
-  vimInput("<cr>");
+  vimKey("<cr>");
 }
 
 MU_TEST(test_cmdline_completions)
@@ -79,9 +79,10 @@ MU_TEST(test_cmdline_completions)
   vimInput(".");
   vimInput("/");
   vimInput("c");
-  vimInput("o");
+  vimInput("h");
+  vimInput("a");
   vimCommandLineGetCompletions(&completions, &count);
-  mu_check(count == 1);
+  mu_check(count >= 1);
   FreeWild(count, completions);
 }
 
@@ -142,6 +143,43 @@ MU_TEST(test_cmdline_completions_abs)
   mu_check(count == 0);
 }
 
+MU_TEST(test_cmdline_completion_crash)
+{
+  char_u **completions;
+  int count = -1;
+
+  vimInput(":");
+  vimInput("!m");
+  vimInput(" ");
+  vimInput("h");
+  vimKey("<LEFT>");
+  vimKey("<LEFT>");
+
+  vimCommandLineGetCompletions(&completions, &count);
+  FreeWild(count, completions);
+  mu_check(count > -1);
+
+  vimKey("<LEFT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  FreeWild(count, completions);
+  mu_check(count > -1);
+
+  vimKey("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  FreeWild(count, completions);
+  mu_check(count > -1);
+
+  vimKey("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  FreeWild(count, completions);
+  mu_check(count > -1);
+
+  vimKey("<RIGHT>");
+  vimCommandLineGetCompletions(&completions, &count);
+  FreeWild(count, completions);
+  mu_check(count > -1);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -153,6 +191,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_cmdline_completions_empty_space);
   MU_RUN_TEST(test_cmdline_completions_eh);
   MU_RUN_TEST(test_cmdline_completions_abs);
+  MU_RUN_TEST(test_cmdline_completion_crash);
 }
 
 int main(int argc, char **argv)

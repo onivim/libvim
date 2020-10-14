@@ -19,8 +19,8 @@ void test_setup(void)
 {
   vimSetGotoCallback(&onGoto);
 
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 

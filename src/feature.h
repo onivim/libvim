@@ -794,6 +794,8 @@
 #undef FEAT_SMARTINDENT
 #undef FEAT_TERMINAL
 
+#undef FEAT_WILDMENU
+
 /*
  * +footer		Motif only: Add a message area at the bottom of the
  *			main window area.
