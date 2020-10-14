@@ -73,6 +73,20 @@ void SameLinePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcC
   }
 }
 
+void ErroneousPositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, linenr_T *destLine, colnr_T *destColumn)
+{
+  if (dir == BACKWARD)
+  {
+    *destLine = srcLine;
+    *destColumn = -1;
+  }
+  else
+  {
+    *destLine = srcLine;
+    *destColumn = 10000;
+  }
+}
+
 MU_TEST(test_no_callback)
 {
   // When no callback is set, the cursor should not move at all.
@@ -160,12 +174,10 @@ MU_TEST(test_gj_gk_motion)
 
   vimInput("gj");
 
-  printf("LINE: %ld\n", vimCursorGetLine());
   mu_check(vimCursorGetLine() == 100);
   mu_check(vimCursorGetColumn() == 0);
 
   vimInput("gk");
-  printf("LINE: %ld\n", vimCursorGetLine());
 
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
@@ -180,9 +192,6 @@ MU_TEST(test_gk_motion_same_line)
   vimInput("d");
   vimInput("gk");
 
-  printf("LINE: %ld\n", vimCursorGetLine());
-  printf("CONTENTS: %s\n", vimBufferGetLine(curbuf, 1));
-
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "e 1") == 0);
@@ -194,15 +203,30 @@ MU_TEST(test_gj_motion_same_line)
   vimSetCursorMoveScreenPositionCallback(&SameLinePositionCallback);
 
   vimInput("3l");
+  mu_check(vimCursorGetColumn() == 3);
+
   vimInput("d");
   vimInput("gj");
 
-  printf("LINE: %ld\n", vimCursorGetLine());
-  printf("CONTENTS: %s\n", vimBufferGetLine(curbuf, 1));
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 3);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "Lin 1") == 0);
+}
+
+MU_TEST(test_erroneous_position_callback)
+{
+  // When no callback is set, the cursor should not move at all.
+  vimSetCursorMoveScreenPositionCallback(&ErroneousPositionCallback);
+
+  vimInput("gk");
 
   mu_check(vimCursorGetLine() == 1);
-  mu_check(vimCursorGetColumn() == 2);
-  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "Lin 1") == 0);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("gj");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 5);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -215,6 +239,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_gj_gk_motion);
   MU_RUN_TEST(test_gk_motion_same_line);
   MU_RUN_TEST(test_gj_motion_same_line);
+  MU_RUN_TEST(test_erroneous_position_callback);
 }
 
 int main(int argc, char **argv)

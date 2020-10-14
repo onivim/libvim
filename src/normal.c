@@ -3392,7 +3392,7 @@ static int nv_screengo(oparg_T *oap, int dir, long dist)
         &destinationLnum,
         &destColumn);
     curwin->w_cursor.lnum = destinationLnum;
-    curwin->w_cursor.col = destColumn;
+    coladvance(destColumn);
   }
   else
   {
