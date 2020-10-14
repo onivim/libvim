@@ -134,6 +134,12 @@ void vimSetCursorMoveScreenLineCallback(
   cursorMoveScreenLineCallback = f;
 }
 
+void vimSetCursorMoveScreenPositionCallback(
+    CursorMoveScreenPositionCallback f)
+{
+  cursorMoveScreenPositionCallback = f;
+}
+
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
 {
   fileWriteFailureCallback = f;

@@ -134,6 +134,16 @@ void vimSetCursorMoveScreenLineCallback(
     CursorMoveScreenLineCallback cursorMoveScreenLineCallback);
 
 /***
+ * vimSetCursorMoveScreenLineCallback
+ *
+ * Callback when the cursor will be moved via screen position (gj, gk).
+ * Because the libvim-consumer is responsible for managing the view,
+ * libvim needs information about the view to correctly handle these motions.
+ */
+void vimSetCursorMoveScreenPositionCallback(
+    CursorMoveScreenPositionCallback cursorMoveScreenPositionCallback);
+
+/***
  * File I/O
  ***/
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback fileWriteFailureCallback);
