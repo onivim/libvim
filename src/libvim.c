@@ -128,6 +128,12 @@ void vimSetAutoCommandCallback(AutoCommandCallback f)
   autoCommandCallback = f;
 }
 
+void vimSetCursorMoveScreenLineCallback(
+    CursorMoveScreenLineCallback f)
+{
+  cursorMoveScreenLineCallback = f;
+}
+
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
 {
   fileWriteFailureCallback = f;

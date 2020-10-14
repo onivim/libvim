@@ -124,6 +124,16 @@ void vimCursorSetPosition(pos_T pos);
 colnr_T vimCursorGetDesiredColumn(void);
 
 /***
+ * vimSetCursorMoveScreenLineCallback
+ *
+ * Callback when the cursor will be moved via screen lines (H, M, L).
+ * Because the libvim-consumer is responsible for managing the view,
+ * libvim needs information about the view to correctly handle these motions.
+ */
+void vimSetCursorMoveScreenLineCallback(
+    CursorMoveScreenLineCallback cursorMoveScreenLineCallback);
+
+/***
  * File I/O
  ***/
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback fileWriteFailureCallback);
