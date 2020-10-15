@@ -229,6 +229,16 @@ void vimCursorSetPosition(pos_T pos)
   curs_columns(TRUE);
 }
 
+void vimCursorSetColumnWant(colnr_T curswant)
+{
+  curwin->w_curswant = curswant;
+}
+
+colnr_T vimCursorGetColumnWant(void)
+{
+  return curwin->w_curswant;
+}
+
 void vimInputCore(int should_replace_termcodes, char_u *input)
 {
   if (should_replace_termcodes)

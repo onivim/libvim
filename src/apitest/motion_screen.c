@@ -3,6 +3,7 @@
 
 void test_setup(void)
 {
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
   vimKey("<Esc>");
   vimKey("<Esc>");
   vimExecute("e!");
@@ -45,7 +46,7 @@ void ErroneousScreenLineCallback(screenLineMotion_T motion, int count, linenr_T 
   }
 }
 
-void SimplePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, linenr_T *destLine, colnr_T *destColumn)
+void SimplePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, colnr_T curswant, linenr_T *destLine, colnr_T *destColumn)
 {
   if (dir == BACKWARD)
   {
@@ -59,7 +60,7 @@ void SimplePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcCol
   }
 }
 
-void SameLinePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, linenr_T *destLine, colnr_T *destColumn)
+void SameLinePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, colnr_T curswant, linenr_T *destLine, colnr_T *destColumn)
 {
   if (dir == BACKWARD)
   {
@@ -73,7 +74,21 @@ void SameLinePositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcC
   }
 }
 
-void ErroneousPositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, linenr_T *destLine, colnr_T *destColumn)
+void MaxColPositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, colnr_T curswant, linenr_T *destLine, colnr_T *destColumn)
+{
+  if (dir == BACKWARD)
+  {
+    *destLine = srcLine - 1;
+    *destColumn = MAXCOL;
+  }
+  else
+  {
+    *destLine = srcLine + 1;
+    *destColumn = MAXCOL;
+  }
+}
+
+void ErroneousPositionCallback(int dir, int count, linenr_T srcLine, colnr_T srcColumn, colnr_T curswant, linenr_T *destLine, colnr_T *destColumn)
 {
   if (dir == BACKWARD)
   {
@@ -229,6 +244,27 @@ MU_TEST(test_erroneous_position_callback)
   mu_check(vimCursorGetColumn() == 5);
 }
 
+MU_TEST(test_curswant)
+{
+  vimBufferOpen("collateral/curswant.txt", 1, 0);
+  // When no callback is set, the cursor should not move at all.
+  vimSetCursorMoveScreenPositionCallback(&MaxColPositionCallback);
+
+  vimInput("$");
+  vimInput("gj");
+
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 1);
+
+  vimInput("gj");
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 0);
+
+  vimInput("gj");
+  mu_check(vimCursorGetLine() == 4);
+  mu_check(vimCursorGetColumn() == 3);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -240,6 +276,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_gk_motion_same_line);
   MU_RUN_TEST(test_gj_motion_same_line);
   MU_RUN_TEST(test_erroneous_position_callback);
+  MU_RUN_TEST(test_curswant);
 }
 
 int main(int argc, char **argv)

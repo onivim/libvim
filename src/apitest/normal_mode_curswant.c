@@ -68,6 +68,7 @@ MU_TEST(test_curswant_reset)
 
   mu_check(vimCursorGetColumn() == 1);
   mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumnWant() == 1);
 
   // Move three characters down
   vimInput("j");
@@ -78,6 +79,21 @@ MU_TEST(test_curswant_reset)
   mu_check(vimCursorGetLine() == 4);
 }
 
+MU_TEST(test_setting_curswant_explicitly)
+{
+  mu_check(vimCursorGetLine() == 1);
+
+  vimCursorSetColumnWant(MAXCOL);
+
+  // Move three characters down
+  vimInput("j");
+  vimInput("j");
+  vimInput("j");
+
+  mu_check(vimCursorGetColumn() == 3);
+  mu_check(vimCursorGetLine() == 4);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -85,6 +101,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_curswant_column2);
   MU_RUN_TEST(test_curswant_maxcolumn);
   MU_RUN_TEST(test_curswant_reset);
+  MU_RUN_TEST(test_setting_curswant_explicitly);
 }
 
 int main(int argc, char **argv)

@@ -162,6 +162,7 @@ typedef void (*CursorMoveScreenLineCallback)(screenLineMotion_T motion, int coun
 
 typedef void (*CursorMoveScreenPositionCallback)(
     int direction, int count, linenr_T lnum, colnr_T cursor,
+    colnr_T curswant,
     linenr_T *destLnum, colnr_T *destCol);
 
 typedef struct

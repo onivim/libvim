@@ -3375,9 +3375,15 @@ int find_decl(char_u *ptr, int len, int locally, int thisblock,
 static int nv_screengo(oparg_T *oap, int dir, long dist)
 {
   int retval = OK;
+  int atend = FALSE;
 
   oap->motion_type = MCHAR;
   oap->inclusive = (curwin->w_curswant == MAXCOL);
+
+  if (curwin->w_curswant == MAXCOL)
+  {
+    atend = TRUE;
+  }
 
   linenr_T destinationLnum = curwin->w_cursor.lnum;
   colnr_T destColumn = curwin->w_curswant;
@@ -3389,10 +3395,17 @@ static int nv_screengo(oparg_T *oap, int dir, long dist)
         dist,
         curwin->w_cursor.lnum,
         curwin->w_cursor.col,
+        curwin->w_curswant,
         &destinationLnum,
         &destColumn);
     curwin->w_cursor.lnum = destinationLnum;
-    coladvance(destColumn);
+    curwin->w_curswant = destColumn;
+    coladvance(curwin->w_curswant);
+
+    if (atend)
+    {
+      curwin->w_curswant = MAXCOL;
+    }
   }
   else
   {

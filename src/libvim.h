@@ -111,6 +111,8 @@ char_u *vimEval(char_u *str);
  * Cursor Methods
  ***/
 colnr_T vimCursorGetColumn(void);
+colnr_T vimCursorGetColumnWant(void);
+void vimCursorSetColumnWant(colnr_T curswant);
 linenr_T vimCursorGetLine(void);
 pos_T vimCursorGetPosition(void);
 void vimCursorSetPosition(pos_T pos);
