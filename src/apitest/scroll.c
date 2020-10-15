@@ -54,11 +54,6 @@ MU_TEST(test_set_get_metrics)
 
 MU_TEST(test_zz_zb_zt)
 {
-  vimWindowSetWidth(80);
-  vimWindowSetHeight(40);
-
-  mu_check(vimCursorGetLine() == 50);
-
   vimInput("z");
   vimInput("z");
 
@@ -199,7 +194,6 @@ MU_TEST(test_ctrl_d)
 
 MU_TEST(test_ctrl_e)
 {
-  vimWindowSetHeight(49);
   vimInput("g");
   vimInput("g");
 
