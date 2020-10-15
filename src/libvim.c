@@ -128,6 +128,18 @@ void vimSetAutoCommandCallback(AutoCommandCallback f)
   autoCommandCallback = f;
 }
 
+void vimSetCursorMoveScreenLineCallback(
+    CursorMoveScreenLineCallback f)
+{
+  cursorMoveScreenLineCallback = f;
+}
+
+void vimSetCursorMoveScreenPositionCallback(
+    CursorMoveScreenPositionCallback f)
+{
+  cursorMoveScreenPositionCallback = f;
+}
+
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
 {
   fileWriteFailureCallback = f;
@@ -215,6 +227,16 @@ void vimCursorSetPosition(pos_T pos)
   check_cursor();
   // We also need to adjust the topline, potentially, if the cursor moved off-screen
   curs_columns(TRUE);
+}
+
+void vimCursorSetColumnWant(colnr_T curswant)
+{
+  curwin->w_curswant = curswant;
+}
+
+colnr_T vimCursorGetColumnWant(void)
+{
+  return curwin->w_curswant;
 }
 
 void vimInputCore(int should_replace_termcodes, char_u *input)

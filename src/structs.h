@@ -152,6 +152,19 @@ typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
+typedef enum
+{
+  MOTION_H,
+  MOTION_L,
+  MOTION_M,
+} screenLineMotion_T;
+typedef void (*CursorMoveScreenLineCallback)(screenLineMotion_T motion, int count, linenr_T startLine, linenr_T *destLine);
+
+typedef void (*CursorMoveScreenPositionCallback)(
+    int direction, int count, linenr_T lnum, colnr_T cursor,
+    colnr_T curswant,
+    linenr_T *destLnum, colnr_T *destCol);
+
 typedef struct
 {
   sds contents;

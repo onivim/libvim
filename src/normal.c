@@ -3374,144 +3374,43 @@ int find_decl(char_u *ptr, int len, int locally, int thisblock,
  */
 static int nv_screengo(oparg_T *oap, int dir, long dist)
 {
-  int linelen = linetabsize(ml_get_curline());
   int retval = OK;
   int atend = FALSE;
-  int n;
-  int col_off1; /* margin offset for first screen line */
-  int col_off2; /* margin offset for wrapped screen line */
-  int width1;   /* text width for first screen line */
-  int width2;   /* test width for wrapped screen line */
 
   oap->motion_type = MCHAR;
   oap->inclusive = (curwin->w_curswant == MAXCOL);
 
-  col_off1 = curwin_col_off();
-  col_off2 = col_off1 - curwin_col_off2();
-  width1 = curwin->w_width - col_off1;
-  width2 = curwin->w_width - col_off2;
-  if (width2 == 0)
-    width2 = 1; /* avoid divide by zero */
-
-  if (curwin->w_width != 0)
+  if (curwin->w_curswant == MAXCOL)
   {
-    /*
-     * Instead of sticking at the last character of the buffer line we
-     * try to stick in the last column of the screen.
-     */
-    if (curwin->w_curswant == MAXCOL)
-    {
-      atend = TRUE;
-      validate_virtcol();
-      if (width1 <= 0)
-        curwin->w_curswant = 0;
-      else
-      {
-        curwin->w_curswant = width1 - 1;
-        if (curwin->w_virtcol > curwin->w_curswant)
-          curwin->w_curswant +=
-              ((curwin->w_virtcol - curwin->w_curswant - 1) / width2 + 1) *
-              width2;
-      }
-    }
-    else
-    {
-      if (linelen > width1)
-        n = ((linelen - width1 - 1) / width2 + 1) * width2 + width1;
-      else
-        n = width1;
-      if (curwin->w_curswant > (colnr_T)n + 1)
-        curwin->w_curswant -= ((curwin->w_curswant - n) / width2 + 1) * width2;
-    }
-
-    while (dist--)
-    {
-      if (dir == BACKWARD)
-      {
-        if ((long)curwin->w_curswant >= width2)
-          /* move back within line */
-          curwin->w_curswant -= width2;
-        else
-        {
-          /* to previous line */
-          if (curwin->w_cursor.lnum == 1)
-          {
-            retval = FAIL;
-            break;
-          }
-          --curwin->w_cursor.lnum;
-#ifdef FEAT_FOLDING
-          /* Move to the start of a closed fold.  Don't do that when
-           * 'foldopen' contains "all": it will open in a moment. */
-          if (!(fdo_flags & FDO_ALL))
-            (void)hasFolding(curwin->w_cursor.lnum, &curwin->w_cursor.lnum,
-                             NULL);
-#endif
-          linelen = linetabsize(ml_get_curline());
-          if (linelen > width1)
-            curwin->w_curswant +=
-                (((linelen - width1 - 1) / width2) + 1) * width2;
-        }
-      }
-      else /* dir == FORWARD */
-      {
-        if (linelen > width1)
-          n = ((linelen - width1 - 1) / width2 + 1) * width2 + width1;
-        else
-          n = width1;
-        if (curwin->w_curswant + width2 < (colnr_T)n)
-          /* move forward within line */
-          curwin->w_curswant += width2;
-        else
-        {
-          /* to next line */
-#ifdef FEAT_FOLDING
-          /* Move to the end of a closed fold. */
-          (void)hasFolding(curwin->w_cursor.lnum, NULL, &curwin->w_cursor.lnum);
-#endif
-          if (curwin->w_cursor.lnum == curbuf->b_ml.ml_line_count)
-          {
-            retval = FAIL;
-            break;
-          }
-          curwin->w_cursor.lnum++;
-          curwin->w_curswant %= width2;
-          linelen = linetabsize(ml_get_curline());
-        }
-      }
-    }
+    atend = TRUE;
   }
 
-  if (virtual_active() && atend)
-    coladvance(MAXCOL);
-  else
+  linenr_T destinationLnum = curwin->w_cursor.lnum;
+  colnr_T destColumn = curwin->w_curswant;
+
+  if (cursorMoveScreenPositionCallback != NULL)
+  {
+    cursorMoveScreenPositionCallback(
+        dir,
+        dist,
+        curwin->w_cursor.lnum,
+        curwin->w_cursor.col,
+        curwin->w_curswant,
+        &destinationLnum,
+        &destColumn);
+    curwin->w_cursor.lnum = destinationLnum;
+    curwin->w_curswant = destColumn;
     coladvance(curwin->w_curswant);
 
-  if (curwin->w_cursor.col > 0 && curwin->w_p_wrap)
-  {
-    colnr_T virtcol;
-
-    /*
-     * Check for landing on a character that got split at the end of the
-     * last line.  We want to advance a screenline, not end up in the same
-     * screenline or move two screenlines.
-     */
-    validate_virtcol();
-    virtcol = curwin->w_virtcol;
-#if defined(FEAT_LINEBREAK)
-    if (virtcol > (colnr_T)width1 && *p_sbr != NUL)
-      virtcol -= vim_strsize(p_sbr);
-#endif
-
-    if (virtcol > curwin->w_curswant &&
-        (curwin->w_curswant < (colnr_T)width1
-             ? (curwin->w_curswant > (colnr_T)width1 / 2)
-             : ((curwin->w_curswant - width1) % width2 > (colnr_T)width2 / 2)))
-      --curwin->w_cursor.col;
+    if (atend)
+    {
+      curwin->w_curswant = MAXCOL;
+    }
   }
-
-  if (atend)
-    curwin->w_curswant = MAXCOL; /* stick in the last column */
+  else
+  {
+    retval = FAIL;
+  }
 
   return retval;
 }
@@ -4488,98 +4387,65 @@ static void nv_tagpop(cmdarg_T *cap)
  */
 static void nv_scroll(cmdarg_T *cap)
 {
-  int used = 0;
-  long n;
-#ifdef FEAT_FOLDING
-  linenr_T lnum;
-#endif
-  int half;
+  //  int used = 0;
+  //  long n;
+  //  int half;
 
   cap->oap->motion_type = MLINE;
   setpcmark();
+  linenr_T destinationCursor = curwin->w_cursor.lnum;
 
   if (cap->cmdchar == 'L')
   {
-    validate_botline(); /* make sure curwin->w_botline is valid */
-    curwin->w_cursor.lnum = curwin->w_botline - 1;
-    if (cap->count1 - 1 >= curwin->w_cursor.lnum)
-      curwin->w_cursor.lnum = 1;
-    else
+    if (cursorMoveScreenLineCallback != NULL)
     {
-#ifdef FEAT_FOLDING
-      if (hasAnyFolding(curwin))
-      {
-        /* Count a fold for one screen line. */
-        for (n = cap->count1 - 1;
-             n > 0 && curwin->w_cursor.lnum > curwin->w_topline; --n)
-        {
-          (void)hasFolding(curwin->w_cursor.lnum, &curwin->w_cursor.lnum, NULL);
-          --curwin->w_cursor.lnum;
-        }
-      }
-      else
-#endif
-        curwin->w_cursor.lnum -= cap->count1 - 1;
+      cursorMoveScreenLineCallback(
+          MOTION_L,
+          cap->count1,
+          curwin->w_cursor.lnum,
+          &destinationCursor);
     }
   }
   else
   {
     if (cap->cmdchar == 'M')
     {
-#ifdef FEAT_DIFF
-      /* Don't count filler lines above the window. */
-      used -= diff_check_fill(curwin, curwin->w_topline) - curwin->w_topfill;
-#endif
-      validate_botline(); /* make sure w_empty_rows is valid */
-      half = (curwin->w_height - curwin->w_empty_rows + 1) / 2;
-      for (n = 0; curwin->w_topline + n < curbuf->b_ml.ml_line_count; ++n)
+      if (cursorMoveScreenLineCallback != NULL)
       {
-#ifdef FEAT_DIFF
-        /* Count half he number of filler lines to be "below this
-         * line" and half to be "above the next line". */
-        if (n > 0 &&
-            used + diff_check_fill(curwin, curwin->w_topline + n) / 2 >= half)
-        {
-          --n;
-          break;
-        }
-#endif
-        used += plines(curwin->w_topline + n);
-        if (used >= half)
-          break;
-#ifdef FEAT_FOLDING
-        if (hasFolding(curwin->w_topline + n, NULL, &lnum))
-          n = lnum - curwin->w_topline;
-#endif
+        cursorMoveScreenLineCallback(
+            MOTION_M,
+            cap->count1,
+            curwin->w_cursor.lnum,
+            &destinationCursor);
       }
-      if (n > 0 && used > curwin->w_height)
-        --n;
     }
     else /* (cap->cmdchar == 'H') */
     {
-      n = cap->count1 - 1;
-#ifdef FEAT_FOLDING
-      if (hasAnyFolding(curwin))
+      if (cursorMoveScreenLineCallback != NULL)
       {
-        /* Count a fold for one screen line. */
-        lnum = curwin->w_topline;
-        while (n-- > 0 && lnum < curwin->w_botline - 1)
-        {
-          (void)hasFolding(lnum, NULL, &lnum);
-          ++lnum;
-        }
-        n = lnum - curwin->w_topline;
+        cursorMoveScreenLineCallback(
+            MOTION_H,
+            cap->count1,
+            curwin->w_cursor.lnum,
+            &destinationCursor);
       }
-#endif
     }
-    curwin->w_cursor.lnum = curwin->w_topline + n;
-    if (curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
-      curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
   }
 
+  if (destinationCursor < 1)
+  {
+    destinationCursor = 1;
+  }
+  else if (destinationCursor > curbuf->b_ml.ml_line_count)
+  {
+    destinationCursor = curbuf->b_ml.ml_line_count;
+  }
+
+  curwin->w_cursor.lnum = destinationCursor;
   /* Correct for 'so', except when an operator is pending. */
-  if (cap->oap->op_type == OP_NOP)
-    cursor_correct();
+  // LIBVIM: Todo - where should this be handled?
+  //  if (cap->oap->op_type == OP_NOP)
+  //    cursor_correct();
   beginline(BL_SOL | BL_FIX);
 }
 
@@ -6390,38 +6256,14 @@ static void nv_g_cmd(cmdarg_T *cap)
    */
   case 'j':
   case K_DOWN:
-    /* with 'nowrap' it works just like the normal "j" command; also when
-     * in a closed fold */
-    if (!curwin->w_p_wrap
-#ifdef FEAT_FOLDING
-        || hasFolding(curwin->w_cursor.lnum, NULL, NULL)
-#endif
-    )
-    {
-      oap->motion_type = MLINE;
-      i = cursor_down(cap->count1, oap->op_type == OP_NOP);
-    }
-    else
-      i = nv_screengo(oap, FORWARD, cap->count1);
+    i = nv_screengo(oap, FORWARD, cap->count1);
     if (i == FAIL)
       clearopbeep(oap);
     break;
 
   case 'k':
   case K_UP:
-    /* with 'nowrap' it works just like the normal "k" command; also when
-     * in a closed fold */
-    if (!curwin->w_p_wrap
-#ifdef FEAT_FOLDING
-        || hasFolding(curwin->w_cursor.lnum, NULL, NULL)
-#endif
-    )
-    {
-      oap->motion_type = MLINE;
-      i = cursor_up(cap->count1, oap->op_type == OP_NOP);
-    }
-    else
-      i = nv_screengo(oap, BACKWARD, cap->count1);
+    i = nv_screengo(oap, BACKWARD, cap->count1);
     if (i == FAIL)
       clearopbeep(oap);
     break;

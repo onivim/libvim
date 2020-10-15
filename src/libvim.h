@@ -111,6 +111,8 @@ char_u *vimEval(char_u *str);
  * Cursor Methods
  ***/
 colnr_T vimCursorGetColumn(void);
+colnr_T vimCursorGetColumnWant(void);
+void vimCursorSetColumnWant(colnr_T curswant);
 linenr_T vimCursorGetLine(void);
 pos_T vimCursorGetPosition(void);
 void vimCursorSetPosition(pos_T pos);
@@ -122,6 +124,26 @@ void vimCursorSetPosition(pos_T pos);
  * column for up/down cursor motions.
  */
 colnr_T vimCursorGetDesiredColumn(void);
+
+/***
+ * vimSetCursorMoveScreenLineCallback
+ *
+ * Callback when the cursor will be moved via screen lines (H, M, L).
+ * Because the libvim-consumer is responsible for managing the view,
+ * libvim needs information about the view to correctly handle these motions.
+ */
+void vimSetCursorMoveScreenLineCallback(
+    CursorMoveScreenLineCallback cursorMoveScreenLineCallback);
+
+/***
+ * vimSetCursorMoveScreenLineCallback
+ *
+ * Callback when the cursor will be moved via screen position (gj, gk).
+ * Because the libvim-consumer is responsible for managing the view,
+ * libvim needs information about the view to correctly handle these motions.
+ */
+void vimSetCursorMoveScreenPositionCallback(
+    CursorMoveScreenPositionCallback cursorMoveScreenPositionCallback);
 
 /***
  * File I/O
