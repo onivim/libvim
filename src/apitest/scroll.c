@@ -84,26 +84,6 @@ MU_TEST(test_small_screen_scroll)
   mu_check(vimCursorGetLine() == 50);
 }
 
-MU_TEST(test_h_m_l)
-{
-  vimWindowSetWidth(80);
-  vimWindowSetHeight(40);
-
-  mu_check(vimCursorGetLine() == 50);
-
-  vimInput("z");
-  vimInput("z");
-
-  vimInput("H");
-  mu_check(vimCursorGetLine() == 31);
-
-  vimInput("L");
-  mu_check(vimCursorGetLine() == 70);
-
-  vimInput("M");
-  mu_check(vimCursorGetLine() == 50);
-}
-
 MU_TEST(test_only_scroll_at_boundary)
 {
 
@@ -255,7 +235,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_set_get_metrics);
   MU_RUN_TEST(test_simple_scroll);
   MU_RUN_TEST(test_small_screen_scroll);
-  MU_RUN_TEST(test_h_m_l);
   MU_RUN_TEST(test_only_scroll_at_boundary);
   MU_RUN_TEST(test_no_scroll_after_setting_topline);
   MU_RUN_TEST(test_scroll_left_at_boundary);
