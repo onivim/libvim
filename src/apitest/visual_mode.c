@@ -5,6 +5,7 @@ void test_setup(void)
 {
   vimKey("<esc>");
   vimKey("<esc>");
+  vimExecute("e!");
 
   vimInput("g");
   vimInput("g");
@@ -186,6 +187,89 @@ MU_TEST(test_in_parentheses)
   mu_check(end.col == 6);
 }
 
+MU_TEST(test_adjust_start_visual_line)
+{
+  char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
+  vimBufferSetLines(curbuf, 0, 3, lines, 5);
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
+
+  vimInput("j");
+  vimInput("j");
+  vimInput("V");
+
+  pos_T start;
+  pos_T end;
+
+  // Get current range, validate coordinates
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 3);
+  mu_check(start.col == 0);
+  mu_check(end.lnum == 3);
+  mu_check(end.col == 0);
+
+  pos_T newStart;
+  newStart.lnum = 1;
+  newStart.col = 0;
+  vimVisualSetStart(newStart);
+
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 1);
+  mu_check(start.col == 0);
+  mu_check(end.lnum == 3);
+  mu_check(end.col == 0);
+
+  // Delete the lines - 1 through 3
+  vimInput("d");
+
+  // 3 lines should've been deleted
+  mu_check(vimBufferGetLineCount(curbuf) == 2);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "line4") == 0);
+}
+
+MU_TEST(test_adjust_start_select_character)
+{
+  char_u *lines[] = {"line1", "line2", "line3", "line4", "line5"};
+  vimBufferSetLines(curbuf, 0, 3, lines, 5);
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
+
+  // Move two characters to the right - cursor on 'n' in line1
+  vimInput("l");
+  vimInput("l");
+  // Switch to visual
+  vimInput("v");
+  // and then select
+  vimKey("<C-g>");
+
+  mu_check(vimSelectIsActive() == 1);
+  pos_T start;
+  pos_T end;
+
+  // Get current range, validate coordinates
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 1);
+  mu_check(start.col == 2);
+  mu_check(end.lnum == 1);
+  mu_check(end.col == 2);
+
+  pos_T newStart;
+  newStart.lnum = 1;
+  newStart.col = 3;
+  vimVisualSetStart(newStart);
+
+  vimVisualGetRange(&start, &end);
+  mu_check(start.lnum == 1);
+  mu_check(start.col == 3);
+  mu_check(end.lnum == 1);
+  mu_check(end.col == 2);
+
+  // Delete the lines - 1 through 3
+  vimInput("t");
+
+  // 3 lines should've been deleted
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "lit1") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -198,6 +282,8 @@ MU_TEST_SUITE(test_suite)
   // MU_RUN_TEST(test_insert_block_mode_change);
   MU_RUN_TEST(test_change_block_mode_change);
   MU_RUN_TEST(test_in_parentheses);
+  MU_RUN_TEST(test_adjust_start_visual_line);
+  MU_RUN_TEST(test_adjust_start_select_character);
 }
 
 int main(int argc, char **argv)

@@ -287,6 +287,16 @@ int vimSelectIsActive(void);
  */
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
 
+/*
+ * vimVisualSetStart
+ *
+ * If in visual mode or select mode, set the visual start position.
+ * The visual range is the range from this start position to the cursor position
+ *
+ * Only has an effect in visual or select modes.
+ */
+void vimVisualSetStart(pos_T startPos);
+
 /***
  * Search
  ***/
