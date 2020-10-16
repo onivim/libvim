@@ -284,6 +284,7 @@ void vimUndoSync(int force);
  ***/
 
 int vimVisualGetType(void);
+void vimVisualSetType(int);
 int vimVisualIsActive(void);
 int vimSelectIsActive(void);
 
@@ -294,6 +295,16 @@ int vimSelectIsActive(void);
  * If not in visual or select mode, returns the last visual range.
  */
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos);
+
+/*
+ * vimVisualSetStart
+ *
+ * If in visual mode or select mode, set the visual start position.
+ * The visual range is the range from this start position to the cursor position
+ *
+ * Only has an effect in visual or select modes.
+ */
+void vimVisualSetStart(pos_T startPos);
 
 /***
  * Search
