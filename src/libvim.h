@@ -276,6 +276,7 @@ void vimUndoSync(int force);
  ***/
 
 int vimVisualGetType(void);
+void vimVisualSetType(int);
 int vimVisualIsActive(void);
 int vimSelectIsActive(void);
 
