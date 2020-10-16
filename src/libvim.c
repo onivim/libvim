@@ -326,6 +326,19 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos)
   }
 }
 
+void vimVisualSetStart(pos_T startPos)
+{
+  if (VIsual_active || VIsual_select)
+  {
+    VIsual = startPos;
+  }
+}
+
+void vimVisualSetType(int visualType)
+{
+  VIsual_mode = visualType;
+}
+
 pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
 
 typedef struct shlNode_elem shlNode_T;
