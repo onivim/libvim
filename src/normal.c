@@ -3430,7 +3430,6 @@ static void nv_scroll_line(cmdarg_T *cap)
  */
 void scroll_redraw(int up, long count)
 {
-  printf("-- SCROLL_REDRAW\n");
   if (up)
     scrollup(count, TRUE);
   else

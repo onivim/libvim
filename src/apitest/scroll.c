@@ -192,6 +192,14 @@ MU_TEST(test_ctrl_d)
   mu_check(lastScrollCount == 0);
 }
 
+MU_TEST(test_ctrl_u)
+{
+  vimKey("<c-u>");
+  mu_check(scrollRequestCount == 1);
+  mu_check(lastScrollDirection == SCROLL_HALFPAGE_UP);
+  mu_check(lastScrollCount == 0);
+}
+
 MU_TEST(test_ctrl_e)
 {
   vimInput("g");
@@ -234,6 +242,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_set_get_metrics);
   MU_RUN_TEST(test_zz_zb_zt);
   MU_RUN_TEST(test_ctrl_d);
+  MU_RUN_TEST(test_ctrl_u);
   //MU_RUN_TEST(test_ctrl_f);
   MU_RUN_TEST(test_ctrl_e);
   MU_RUN_TEST(test_ctrl_y);
