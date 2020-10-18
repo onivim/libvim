@@ -140,7 +140,7 @@ void update_topline_redraw(void)
  */
 void update_topline(void)
 {
-    // libvim: No-op
+  // libvim: No-op
 }
 
 void update_curswant(void)
