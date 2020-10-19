@@ -30,8 +30,6 @@ void curs_columns(int may_scroll);
 void scrolldown(long line_count, int byfold);
 void scrollup(long line_count, int byfold);
 void check_topfill(win_T *wp, int down);
-void scrolldown_clamp(void);
-void scrollup_clamp(void);
 void scroll_cursor_top(int min_scroll, int always);
 void set_empty_rows(win_T *wp, int used);
 void scroll_cursor_bot(int min_scroll, int set_topbot);

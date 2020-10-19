@@ -569,6 +569,11 @@ void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
   get_yank_register_value(reg_name, num_lines, lines);
 }
 
+void vimSetScrollCallback(ScrollCallback callback)
+{
+  scrollCallback = callback;
+}
+
 void vimSetYankCallback(YankCallback callback)
 {
   yankCallback = callback;

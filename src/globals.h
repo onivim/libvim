@@ -65,6 +65,7 @@ EXTERN MacroStartRecordCallback macroStartRecordCallback INIT(= NULL);
 EXTERN MacroStopRecordCallback macroStopRecordCallback INIT(= NULL);
 EXTERN OptionSetCallback optionSetCallback INIT(= NULL);
 EXTERN QuitCallback quitCallback INIT(= NULL);
+EXTERN ScrollCallback scrollCallback INIT(= NULL);
 EXTERN TerminalCallback terminalCallback INIT(= NULL);
 EXTERN VoidCallback stopSearchHighlightCallback INIT(= NULL);
 EXTERN VoidCallback unhandledEscapeCallback INIT(= NULL);
