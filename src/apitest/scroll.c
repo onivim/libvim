@@ -58,21 +58,75 @@ MU_TEST(test_zz_zb_zt)
   vimInput("z");
 
   mu_check(scrollRequestCount == 1);
-  mu_check(lastScrollDirection == SCROLL_CURSORCENTERV);
+  mu_check(lastScrollDirection == SCROLL_CURSOR_CENTERV);
   mu_check(lastScrollCount == 1);
 
   vimInput("z");
   vimInput("b");
 
   mu_check(scrollRequestCount == 2);
-  mu_check(lastScrollDirection == SCROLL_CURSORBOTTOM);
+  mu_check(lastScrollDirection == SCROLL_CURSOR_BOTTOM);
   mu_check(lastScrollCount == 1);
 
   vimInput("z");
   vimInput("t");
   mu_check(scrollRequestCount == 3);
-  mu_check(lastScrollDirection == SCROLL_CURSORTOP);
+  mu_check(lastScrollDirection == SCROLL_CURSOR_TOP);
   mu_check(lastScrollCount == 1);
+}
+
+MU_TEST(test_zs_ze)
+{
+  vimInput("z");
+  vimInput("s");
+
+  mu_check(scrollRequestCount == 1);
+  mu_check(lastScrollDirection == SCROLL_CURSOR_LEFT);
+  mu_check(lastScrollCount == 1);
+
+  vimInput("z");
+  vimInput("e");
+
+  mu_check(scrollRequestCount == 2);
+  mu_check(lastScrollDirection == SCROLL_CURSOR_RIGHT);
+  mu_check(lastScrollCount == 1);
+}
+
+MU_TEST(test_zh_zl)
+{
+  vimInput("z");
+  vimInput("h");
+
+  mu_check(scrollRequestCount == 1);
+  mu_check(lastScrollDirection == SCROLL_COLUMN_RIGHT);
+  mu_check(lastScrollCount == 1);
+
+  vimInput("5");
+  vimInput("z");
+  vimInput("h");
+
+  mu_check(scrollRequestCount == 2);
+  mu_check(lastScrollDirection == SCROLL_COLUMN_RIGHT);
+  mu_check(lastScrollCount == 5);
+
+  vimInput("2");
+  vimInput("z");
+  vimInput("H");
+  mu_check(scrollRequestCount == 3);
+  mu_check(lastScrollDirection == SCROLL_HALFPAGE_RIGHT);
+  mu_check(lastScrollCount == 2);
+
+  vimInput("3");
+  vimInput("z");
+  vimInput("L");
+  mu_check(scrollRequestCount == 4);
+  mu_check(lastScrollDirection == SCROLL_HALFPAGE_LEFT);
+  mu_check(lastScrollCount == 3);
+
+  vimInput("z");
+  vimInput("l");
+  mu_check(scrollRequestCount == 5);
+  mu_check(lastScrollDirection == SCROLL_COLUMN_LEFT);
 }
 
 //MU_TEST(test_small_screen_scroll)
@@ -241,11 +295,13 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_set_get_metrics);
   MU_RUN_TEST(test_zz_zb_zt);
+  MU_RUN_TEST(test_zs_ze);
   MU_RUN_TEST(test_ctrl_d);
   MU_RUN_TEST(test_ctrl_u);
   //MU_RUN_TEST(test_ctrl_f);
   MU_RUN_TEST(test_ctrl_e);
   MU_RUN_TEST(test_ctrl_y);
+  MU_RUN_TEST(test_zh_zl);
 }
 
 int main(int argc, char **argv)

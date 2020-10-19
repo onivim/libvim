@@ -3441,14 +3441,11 @@ void scroll_redraw(int up, long count)
  */
 static void nv_zet(cmdarg_T *cap)
 {
-  long n;
-  colnr_T col;
   int nchar = cap->nchar;
 #ifdef FEAT_FOLDING
   long old_fdl = curwin->w_p_fdl;
   int old_fen = curwin->w_p_fen;
 #endif
-  long siso = get_sidescrolloff_value();
 
   if (
 #ifdef FEAT_FOLDING
@@ -3510,8 +3507,6 @@ static void nv_zet(cmdarg_T *cap)
     /* FALLTHROUGH */
   case 'z':
     scroll_cursor_halfway(TRUE);
-    redraw_later(VALID);
-    set_fraction(curwin);
     break;
 
     /* "z^", "z-" and "zb": put cursor at bottom of screen */
@@ -3534,86 +3529,55 @@ static void nv_zet(cmdarg_T *cap)
 
   case 'b':
     scroll_cursor_bot(0, TRUE);
-    redraw_later(VALID);
-    set_fraction(curwin);
     break;
 
     /* "zH" - scroll screen right half-page */
   case 'H':
-    cap->count1 *= curwin->w_width / 2;
-    /* FALLTHROUGH */
+    if (scrollCallback != NULL)
+    {
+      scrollCallback(SCROLL_HALFPAGE_RIGHT, cap->count1);
+    }
+    break;
 
     /* "zh" - scroll screen to the right */
   case 'h':
   case K_LEFT:
-    if (!curwin->w_p_wrap)
+    if (scrollCallback != NULL)
     {
-      if ((colnr_T)cap->count1 > curwin->w_leftcol)
-        curwin->w_leftcol = 0;
-      else
-        curwin->w_leftcol -= (colnr_T)cap->count1;
-      leftcol_changed();
+      scrollCallback(SCROLL_COLUMN_RIGHT, cap->count1);
     }
     break;
 
     /* "zL" - scroll screen left half-page */
   case 'L':
-    cap->count1 *= curwin->w_width / 2;
-    /* FALLTHROUGH */
+    if (scrollCallback != NULL)
+    {
+      scrollCallback(SCROLL_HALFPAGE_LEFT, cap->count1);
+    }
+    break;
 
     /* "zl" - scroll screen to the left */
   case 'l':
   case K_RIGHT:
-    if (!curwin->w_p_wrap)
+    if (scrollCallback != NULL)
     {
-      /* scroll the window left */
-      curwin->w_leftcol += (colnr_T)cap->count1;
-      leftcol_changed();
+      scrollCallback(SCROLL_COLUMN_LEFT, cap->count1);
     }
     break;
 
     /* "zs" - scroll screen, cursor at the start */
   case 's':
-    if (!curwin->w_p_wrap)
+    if (scrollCallback != NULL)
     {
-#ifdef FEAT_FOLDING
-      if (hasFolding(curwin->w_cursor.lnum, NULL, NULL))
-        col = 0; /* like the cursor is in col 0 */
-      else
-#endif
-        getvcol(curwin, &curwin->w_cursor, &col, NULL, NULL);
-      if ((long)col > siso)
-        col -= siso;
-      else
-        col = 0;
-      if (curwin->w_leftcol != col)
-      {
-        curwin->w_leftcol = col;
-        redraw_later(NOT_VALID);
-      }
+      scrollCallback(SCROLL_CURSOR_LEFT, 1);
     }
     break;
 
     /* "ze" - scroll screen, cursor at the end */
   case 'e':
-    if (!curwin->w_p_wrap)
+    if (scrollCallback != NULL)
     {
-#ifdef FEAT_FOLDING
-      if (hasFolding(curwin->w_cursor.lnum, NULL, NULL))
-        col = 0; /* like the cursor is in col 0 */
-      else
-#endif
-        getvcol(curwin, &curwin->w_cursor, NULL, NULL, &col);
-      n = curwin->w_width - curwin_col_off();
-      if ((long)col + siso < n)
-        col = 0;
-      else
-        col = col + siso - n + 1;
-      if (curwin->w_leftcol != col)
-      {
-        curwin->w_leftcol = col;
-        redraw_later(NOT_VALID);
-      }
+      scrollCallback(SCROLL_CURSOR_RIGHT, 1);
     }
     break;
 

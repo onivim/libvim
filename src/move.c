@@ -822,7 +822,7 @@ void scroll_cursor_top(int min_scroll, int always)
 {
   if (scrollCallback != NULL)
   {
-    scrollCallback(SCROLL_CURSORTOP, 1);
+    scrollCallback(SCROLL_CURSOR_TOP, 1);
   }
 }
 
@@ -866,7 +866,7 @@ void scroll_cursor_bot(int min_scroll, int set_topbot)
 {
   if (scrollCallback != NULL)
   {
-    scrollCallback(SCROLL_CURSORBOTTOM, 1);
+    scrollCallback(SCROLL_CURSOR_BOTTOM, 1);
   }
 }
 
@@ -878,7 +878,7 @@ void scroll_cursor_halfway(int atend)
 {
   if (scrollCallback != NULL)
   {
-    scrollCallback(SCROLL_CURSORCENTERV, 1);
+    scrollCallback(SCROLL_CURSOR_CENTERV, 1);
   }
 }
 
