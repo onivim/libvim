@@ -1,6 +1,6 @@
 {
   "name": "libvim",
-  "version": "8.10869.64",
+  "version": "8.10869.65",
   "description": "Standalone vim library",
   "license": "MIT",
   "scripts": {
