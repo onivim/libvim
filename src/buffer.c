@@ -1634,8 +1634,8 @@ void enter_buffer(buf_T *buf)
   check_arg_idx(curwin); /* check for valid arg_idx */
 
   /* when autocmds didn't change it */
-  if (curwin->w_topline == 1 && !curwin->w_topline_was_set)
-    scroll_cursor_halfway(FALSE); /* redisplay at correct position */
+  //  if (curwin->w_topline == 1 && !curwin->w_topline_was_set)
+  //    scroll_cursor_halfway(FALSE); /* redisplay at correct position */
 
   /* Change directories when the 'acd' option is set. */
   DO_AUTOCHDIR;
