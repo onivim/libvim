@@ -136,6 +136,7 @@ int search_regcomp(
     int options,
     regmmatch_T *regmatch) /* return: pattern and ignore-case flag */
 {
+  printf("-- search_regcomp - start 1\n");
   int magic;
   int i;
 
@@ -182,7 +183,7 @@ int search_regcomp(
 
     rev_pattern = reverse_text(pat);
     if (rev_pattern == NULL)
-      mr_pattern = pat; /* out of memory, keep normal pattern. */
+      mr_pattern = strdup(pat); /* out of memory, keep normal pattern. */
     else
     {
       mr_pattern = rev_pattern;
@@ -191,7 +192,7 @@ int search_regcomp(
   }
   else
 #endif
-    mr_pattern = pat;
+    mr_pattern = strdup(pat);
 
   /*
      * Save the currently used pattern in the appropriate place,
