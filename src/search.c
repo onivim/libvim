@@ -136,7 +136,6 @@ int search_regcomp(
     int options,
     regmmatch_T *regmatch) /* return: pattern and ignore-case flag */
 {
-  printf("-- search_regcomp - start 1\n");
   int magic;
   int i;
 

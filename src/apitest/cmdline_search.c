@@ -109,7 +109,6 @@ MU_TEST(test_get_search_highlights_during_visual)
   vimInput(":s/vvvv");
   vimKey("<esc>");
 
-  printf("--- BEFORE searchGetHighlights call2.\n");
   vimSearchGetHighlights(1, 3, &vim_num_search_highlights, &vim_search_highlights);
 }
 
