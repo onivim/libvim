@@ -98,6 +98,20 @@ MU_TEST(test_cancel_n)
   mu_check(vimCursorGetColumn() == 29);
 }
 
+MU_TEST(test_get_search_highlights_during_visual)
+{
+  int vim_num_search_highlights;
+  searchHighlight_T *vim_search_highlights;
+
+  vimInput("V");
+  vimKey("<down>");
+  vimKey("<down>");
+  vimInput(":s/vvvv");
+  vimKey("<esc>");
+
+  vimSearchGetHighlights(1, 3, &vim_num_search_highlights, &vim_search_highlights);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -105,6 +119,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_cancel_inc_search);
   MU_RUN_TEST(test_search_forward_esc);
   MU_RUN_TEST(test_cancel_n);
+  MU_RUN_TEST(test_get_search_highlights_during_visual);
 }
 
 int main(int argc, char **argv)
