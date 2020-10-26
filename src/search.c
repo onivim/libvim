@@ -169,29 +169,38 @@ int search_regcomp(
     add_to_history(HIST_SEARCH, pat, TRUE, NUL);
 #endif
 
+  if (pat != mr_pattern)
+  {
 #ifdef FEAT_RIGHTLEFT
-  if (mr_pattern_alloced)
-  {
-    vim_free(mr_pattern);
-    mr_pattern_alloced = FALSE;
-  }
-
-  if (curwin->w_p_rl && *curwin->w_p_rlc == 's')
-  {
-    char_u *rev_pattern;
-
-    rev_pattern = reverse_text(pat);
-    if (rev_pattern == NULL)
-      mr_pattern = strdup(pat); /* out of memory, keep normal pattern. */
-    else
+    if (mr_pattern_alloced)
     {
-      mr_pattern = rev_pattern;
+      vim_free(mr_pattern);
+      mr_pattern_alloced = FALSE;
+    }
+
+    if (curwin->w_p_rl && *curwin->w_p_rlc == 's')
+    {
+      char_u *rev_pattern;
+
+      rev_pattern = reverse_text(pat);
+      if (rev_pattern == NULL)
+      {
+        mr_pattern = strdup(pat); /* out of memory, keep normal pattern. */
+        mr_pattern_alloced = TRUE;
+      }
+      else
+      {
+        mr_pattern = rev_pattern;
+        mr_pattern_alloced = TRUE;
+      }
+    }
+    else
+#endif
+    {
+      mr_pattern = strdup(pat);
       mr_pattern_alloced = TRUE;
     }
   }
-  else
-#endif
-    mr_pattern = strdup(pat);
 
   /*
      * Save the currently used pattern in the appropriate place,
@@ -221,7 +230,14 @@ int search_regcomp(
 char_u *
 get_search_pat(void)
 {
-  return mr_pattern;
+  if (mr_pattern_alloced)
+  {
+    return mr_pattern;
+  }
+  else
+  {
+    return NULL;
+  }
 }
 
 #if defined(FEAT_RIGHTLEFT) || defined(PROTO)
@@ -637,8 +653,9 @@ int searchit(
   if (search_regcomp(pat, RE_SEARCH, pat_use,
                      (options & (SEARCH_HIS + SEARCH_KEEP)), &regmatch) == FAIL)
   {
-    if ((options & SEARCH_MSG) && !rc_did_emsg)
-      semsg(_("E383: Invalid search string: %s"), mr_pattern);
+    // TODO:
+    //    if ((options & SEARCH_MSG) && !rc_did_emsg)
+    //      semsg(_("E383: Invalid search string: %s"), mr_pattern);
     return FAIL;
   }
 
