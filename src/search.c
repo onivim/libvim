@@ -651,9 +651,9 @@ int searchit(
   if (search_regcomp(pat, RE_SEARCH, pat_use,
                      (options & (SEARCH_HIS + SEARCH_KEEP)), &regmatch) == FAIL)
   {
-    // TODO:
-    //    if ((options & SEARCH_MSG) && !rc_did_emsg)
-    //      semsg(_("E383: Invalid search string: %s"), mr_pattern);
+    if ((options & SEARCH_MSG) && !rc_did_emsg)
+      semsg(_("E383: Invalid search string: %s"), mr_pattern);
+
     return FAIL;
   }
 
