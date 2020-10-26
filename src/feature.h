@@ -816,6 +816,7 @@
 #undef FEAT_SPELL
 #undef FEAT_STL_OPT
 #undef FEAT_SYN_HL
+#undef FEAT_TERMINAL // Handled by consumer
 #undef FEAT_TERMGUICOLORS
 #undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE
