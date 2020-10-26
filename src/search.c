@@ -96,10 +96,8 @@ static int saved_spats_last_idx = 0;
 static int saved_spats_no_hlsearch = 0;
 #endif
 
-static char_u *mr_pattern = NULL; /* pattern used by search_regcomp() */
-#ifdef FEAT_RIGHTLEFT
+static char_u *mr_pattern = NULL;      /* pattern used by search_regcomp() */
 static int mr_pattern_alloced = FALSE; /* mr_pattern was allocated */
-#endif
 
 #ifdef FEAT_FIND_ID
 /*
@@ -171,13 +169,13 @@ int search_regcomp(
 
   if (pat != mr_pattern)
   {
-#ifdef FEAT_RIGHTLEFT
     if (mr_pattern_alloced)
     {
       vim_free(mr_pattern);
       mr_pattern_alloced = FALSE;
     }
 
+#ifdef FEAT_RIGHTLEFT
     if (curwin->w_p_rl && *curwin->w_p_rlc == 's')
     {
       char_u *rev_pattern;
