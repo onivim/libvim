@@ -1517,7 +1517,6 @@ OBJ_COMMON = \
 	objects/version.o \
 	objects/window.o \
 	$(GUI_OBJ) \
-	$(TERM_OBJ) \
 	$(LUA_OBJ) \
 	$(MZSCHEME_OBJ) \
 	$(PERL_OBJ) \
