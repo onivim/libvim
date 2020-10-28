@@ -190,6 +190,16 @@ MU_TEST(test_opt_runtimepath)
   mu_check(lastOptionSet.type == 0);
 }
 
+MU_TEST(test_opt_backspace_string)
+{
+  vimExecute("set backspace=indent,eol");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "backspace") == 0);
+  mu_check(strcmp(lastOptionSet.shortname, "bs") == 0);
+  mu_check(strcmp(lastOptionSet.stringval, "indent,eol") == 0);
+  mu_check(lastOptionSet.type == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -203,6 +213,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_opt_minimap);
   MU_RUN_TEST(test_opt_smoothscroll);
   MU_RUN_TEST(test_opt_runtimepath);
+  MU_RUN_TEST(test_opt_backspace_string);
 }
 
 int main(int argc, char **argv)
