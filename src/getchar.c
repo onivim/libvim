@@ -3411,6 +3411,8 @@ int do_map(
     n = MAP_HASH(mp->m_mode, mp->m_keys[0]);
     mp->m_next = map_table[n];
     map_table[n] = mp;
+
+    inputMappingCallback((const mapblock_T *)mp);
   }
 
 theend:

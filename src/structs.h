@@ -1230,6 +1230,8 @@ struct mapblock
 #endif
 };
 
+typedef void (*InputMappingCallback)(const mapblock_T* mapping);
+
 /*
  * Used for highlighting in the status line.
  */

@@ -194,6 +194,12 @@ void vimColorSchemeSetChangedCallback(ColorSchemeChangedCallback callback);
 void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback);
 
 /***
+ * Mapping
+ */
+
+void vimSetInputMapCallback(InputMappingCallback mappingCallback);
+
+/***
  * Messages
  ***/
 

@@ -60,6 +60,7 @@ EXTERN ColorSchemeChangedCallback colorSchemeChangedCallback INIT(= NULL);
 EXTERN ColorSchemeCompletionCallback colorSchemeCompletionCallback INIT(= NULL);
 EXTERN CursorMoveScreenLineCallback cursorMoveScreenLineCallback INIT(= NULL);
 EXTERN CursorMoveScreenPositionCallback cursorMoveScreenPositionCallback INIT(= NULL);
+EXTERN InputMappingCallback inputMappingCallback INIT(=NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
 EXTERN MacroStartRecordCallback macroStartRecordCallback INIT(= NULL);
 EXTERN MacroStopRecordCallback macroStopRecordCallback INIT(= NULL);
