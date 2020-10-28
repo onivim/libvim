@@ -11,10 +11,10 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 
 void onMap(const mapblock_T *mapping)
 {
-  printf("onMapping - keys: |%s| orig_str: |%s| str: |%s|\n", 
+  printf("onMapping - keys: |%s| orig_str: |%s| script id: |%d|\n", 
   mapping->m_keys, 
-  mapping->m_str,
-  mapping->m_orig_str);
+  mapping->m_orig_str,
+  mapping->m_script_ctx.sc_sid);
 
   mappingCallbackCount++;
 };
