@@ -14,19 +14,6 @@ void test_setup(void)
 
 void test_teardown(void) {}
 
-/* TODO: Get this test green */
-/* MU_TEST(insert_count) { */
-/*   vimInput("5"); */
-/*   vimInput("i"); */
-/*   vimInput("a"); */
-/*   vimInput("\033"); */
-
-/*   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine()); */
-/*   printf("LINE: %s\n", line); */
-/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0);
- */
-/* } */
-
 MU_TEST(simple_replace)
 {
   vimInput("r");
