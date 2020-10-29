@@ -881,6 +881,15 @@ restart_state:
 
   case NORMAL_EXECUTE_COMMAND:;
     int previous_finish_op = finish_op;
+
+    if (context->ca.cmdchar == 'r' && context->ca.nchar == ESC)
+    {
+      clearop(oap);
+      context->state = NORMAL_START_COUNT;
+      context->ca.count0 = 0;
+      context->set_prevcount = TRUE;
+      return HANDLED;
+    }
     /*
      * Execute the command!
      * Call the command function found in the commands table.
@@ -900,7 +909,7 @@ restart_state:
 
     if (finish_op && !previous_finish_op && !VIsual_active)
     {
-      context->state = NORMAL_START_COUNT;
+      context->state = NORMAL_INITIAL;
       context->ca.count0 = 0;
 #ifdef FEAT_EVAL
       context->set_prevcount = TRUE;
@@ -5363,7 +5372,9 @@ static void nv_replace(cmdarg_T *cap)
             ptr[curwin->w_cursor.col] = c;
         }
         else
+        {
           ptr[curwin->w_cursor.col] = cap->nchar;
+        }
         if (p_sm && msg_silent == 0)
           showmatch(cap->nchar);
         ++curwin->w_cursor.col;
