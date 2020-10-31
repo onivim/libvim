@@ -146,6 +146,23 @@ MU_TEST(test_opt_relative_number)
   mu_check(lastOptionSet.type == 1);
 }
 
+MU_TEST(test_opt_codelens)
+{
+  vimExecute("set codelens");
+  mu_check(optionSetCount == 1);
+  mu_check(strcmp(lastOptionSet.fullname, "codelens") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 1);
+  mu_check(lastOptionSet.type == 1);
+
+  vimExecute("set nocodelens");
+  mu_check(optionSetCount == 2);
+  mu_check(strcmp(lastOptionSet.fullname, "codelens") == 0);
+  mu_check(lastOptionSet.shortname == NULL);
+  mu_check(lastOptionSet.numval == 0);
+  mu_check(lastOptionSet.type == 1);
+}
+
 MU_TEST(test_opt_minimap)
 {
   vimExecute("set minimap");
@@ -210,6 +227,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_tab_size);
   MU_RUN_TEST(test_encoding_cannot_change);
   MU_RUN_TEST(test_opt_relative_number);
+  MU_RUN_TEST(test_opt_codelens);
   MU_RUN_TEST(test_opt_minimap);
   MU_RUN_TEST(test_opt_smoothscroll);
   MU_RUN_TEST(test_opt_runtimepath);

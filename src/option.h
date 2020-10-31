@@ -375,6 +375,7 @@ EXTERN int p_deco;    /* 'delcombine' */
 EXTERN char_u *p_ccv; /* 'charconvert' */
 #endif
 EXTERN long p_ch;       /* 'cmdheight' */
+EXTERN int p_codelens;  /* 'codelens' */
 EXTERN int p_cp;        /* 'compatible' */
 EXTERN char_u *p_cpo;   /* 'cpoptions' */
 EXTERN char_u *p_debug; /* 'debug' */
