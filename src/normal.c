@@ -6582,7 +6582,7 @@ static void nv_Undo(cmdarg_T *cap)
 static void nv_c(cmdarg_T *cap)
 {
   /* In Visual mode AND typing "gcc" triggers an operator */
-  if (cap->oap->op_type == OP_COMMENT && VIsual_active)
+  if (cap->oap->op_type == OP_COMMENT)
   {
     /* translate "gcc" to "gcgc" */
     cap->cmdchar = 'g';
