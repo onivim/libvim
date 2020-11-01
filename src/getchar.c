@@ -2897,6 +2897,7 @@ int do_map(
 #endif
   int noremap;
   char_u *orig_rhs;
+  char_u *orig_keys;
 
   keys = arg;
   map_table = maphash;
@@ -3027,6 +3028,7 @@ int do_map(
      * needs to be freed later (*keys_buf and *arg_buf).
      * replace_termcodes() also removes CTRL-Vs and sometimes backslashes.
      */
+  orig_keys = keys;
   if (haskey)
     keys = replace_termcodes(keys, &keys_buf, TRUE, TRUE, special);
   orig_rhs = rhs;
@@ -3283,6 +3285,8 @@ int do_map(
                 mp->m_str = newstr;
                 vim_free(mp->m_orig_str);
                 mp->m_orig_str = vim_strsave(orig_rhs);
+                vim_free(mp->m_orig_keys);
+                mp->m_orig_keys = vim_strsave(orig_keys);
                 mp->m_noremap = noremap;
                 mp->m_nowait = nowait;
                 mp->m_silent = silent;
@@ -3292,6 +3296,10 @@ int do_map(
                 mp->m_script_ctx = current_sctx;
                 mp->m_script_ctx.sc_lnum += sourcing_lnum;
 #endif
+                if (inputMappingCallback != NULL)
+                {
+                  inputMappingCallback((const mapblock_T *)mp);
+                }
                 did_it = TRUE;
               }
             }
@@ -3377,6 +3385,7 @@ int do_map(
       mapped_ctrl_c |= mode;
   }
 
+  mp->m_orig_keys = vim_strsave(orig_keys);
   mp->m_keys = vim_strsave(keys);
   mp->m_str = vim_strsave(rhs);
   mp->m_orig_str = vim_strsave(orig_rhs);
