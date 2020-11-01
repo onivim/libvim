@@ -3412,7 +3412,10 @@ int do_map(
     mp->m_next = map_table[n];
     map_table[n] = mp;
 
-    inputMappingCallback((const mapblock_T *)mp);
+    if (inputMappingCallback != NULL)
+    {
+      inputMappingCallback((const mapblock_T *)mp);
+    }
   }
 
 theend:
