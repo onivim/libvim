@@ -197,7 +197,17 @@ void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback)
  * Mapping
  */
 
-void vimSetInputMapCallback(InputMappingCallback mappingCallback);
+void vimSetInputMapCallback(InputMapCallback mapCallback);
+
+/*
+ * vimSetInputUnmapCallback
+ *
+ * Called when `unmap` family or `mapclear` is called
+ * There are two arguments passed:
+ * - `mode`: The mode (`iunmap`, `nunmap`, etc)
+ * - `keys`: NULL if `mapclear` was used, or a `char_u*` describing the original keys
+ */
+void vimSetInputUnmapCallback(InputUnmapCallback unmapCallback);
 
 /***
  * Messages

@@ -3247,6 +3247,10 @@ int do_map(
 			     * We reset the indicated mode bits. If nothing is
 			     * left the entry is deleted below.
 			     */
+              if (inputUnmapCallback != NULL)
+              {
+                inputUnmapCallback(mode, mp->m_orig_keys);
+              }
               mp->m_mode &= ~mode;
               did_it = TRUE; /* remember we did something */
             }
@@ -3296,9 +3300,12 @@ int do_map(
                 mp->m_script_ctx = current_sctx;
                 mp->m_script_ctx.sc_lnum += sourcing_lnum;
 #endif
-                if (inputMappingCallback != NULL)
+                if (maptype == 0 || maptype == 2)
                 {
-                  inputMappingCallback((const mapblock_T *)mp);
+                  if (inputMapCallback != NULL)
+                  {
+                    inputMapCallback((const mapblock_T *)mp);
+                  }
                 }
                 did_it = TRUE;
               }
@@ -3394,6 +3401,7 @@ int do_map(
     vim_free(mp->m_keys);
     vim_free(mp->m_str);
     vim_free(mp->m_orig_str);
+    vim_free(mp->m_orig_keys);
     vim_free(mp);
     retval = 4; /* no mem */
     goto theend;
@@ -3421,9 +3429,9 @@ int do_map(
     mp->m_next = map_table[n];
     map_table[n] = mp;
 
-    if (inputMappingCallback != NULL)
+    if ((maptype == 0 || maptype == 2) && inputMapCallback != NULL)
     {
-      inputMappingCallback((const mapblock_T *)mp);
+      inputMapCallback((const mapblock_T *)mp);
     }
   }
 
@@ -3446,6 +3454,7 @@ map_free(mapblock_T **mpp)
   vim_free(mp->m_keys);
   vim_free(mp->m_str);
   vim_free(mp->m_orig_str);
+  vim_free(mp->m_orig_keys);
   *mpp = mp->m_next;
   vim_free(mp);
 }
@@ -3535,6 +3544,11 @@ void map_clear(
                 FALSE,
 #endif
                 abbr);
+
+  if (!abbr && inputUnmapCallback != NULL)
+  {
+    inputUnmapCallback(mode, NULL);
+  }
 }
 
 /*

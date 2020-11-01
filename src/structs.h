@@ -1231,7 +1231,8 @@ struct mapblock
 #endif
 };
 
-typedef void (*InputMappingCallback)(const mapblock_T *mapping);
+typedef void (*InputMapCallback)(const mapblock_T *mapping);
+typedef void (*InputUnmapCallback)(int mode, const char_u *orig_lhs);
 
 /*
  * Used for highlighting in the status line.
