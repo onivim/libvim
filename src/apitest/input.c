@@ -31,14 +31,14 @@ MU_TEST(test_cmd_key_insert)
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "") == 0);
 }
 
-MU_TEST(test_cmd_key_binding)
+MU_TEST(test_binding_inactive)
 {
-  vimExecute("inoremap <D-A> b");
+  vimExecute("inoremap a b");
 
   vimInput("o");
-  vimKey("<D-A>");
+  vimKey("a");
 
-  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "b") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "a") == 0);
 }
 
 MU_TEST(test_arrow_keys_normal)
@@ -92,7 +92,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_arrow_keys_normal);
   MU_RUN_TEST(test_cmd_key_insert);
-  MU_RUN_TEST(test_cmd_key_binding);
+  MU_RUN_TEST(test_binding_inactive);
   MU_RUN_TEST(test_unhandled_escape);
   MU_RUN_TEST(test_control_bracket);
 }

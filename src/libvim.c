@@ -563,6 +563,16 @@ void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
   get_yank_register_value(reg_name, num_lines, lines);
 }
 
+void vimSetInputMapCallback(InputMapCallback callback)
+{
+  inputMapCallback = callback;
+}
+
+void vimSetInputUnmapCallback(InputUnmapCallback callback)
+{
+  inputUnmapCallback = callback;
+}
+
 void vimSetScrollCallback(ScrollCallback callback)
 {
   scrollCallback = callback;
@@ -581,6 +591,11 @@ void vimInit(int argc, char **argv)
   params.argv = argv;
   params.want_full_screen = TRUE;
   params.window_count = -1;
+
+  // We expect the consumer to handle key-bindings and mappings,
+  // so disable mappings:
+  no_mapping++;
+  no_zero_mapping++;
 
   mch_early_init();
   common_init(&params);
