@@ -36,8 +36,8 @@ static void mb_replace_pop_ins(int cc);
 static void replace_flush(void);
 static void replace_do_bs(int limit_col);
 static int del_char_after_col(int limit_col);
-//static void ins_reg(void);
 static void ins_ctrl_g(void);
+static void ins_ctrl_g_nonblocking(int c);
 static void ins_ctrl_hat(void);
 static int ins_esc(long *count, int cmdchar, int nomove);
 #ifdef FEAT_RIGHTLEFT
@@ -119,6 +119,7 @@ typedef struct
   int cmdchar_todo;
   int is_ctrlv;  /* If we are coming back from inserting a literal */
   int ctrlv_ret; /* Return value from inserting a literal */
+  int is_ctrlg;  /* If ctrl-g was pressed last */
 } editState_T;
 
 static linenr_T o_lnum = 0;
@@ -135,6 +136,7 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
   context->old_topfill = -1;
   context->nomove = FALSE;
   context->is_ctrlv = FALSE;
+  context->is_ctrlg = FALSE;
   context->ctrlv_ret = 0;
 
   /* Remember whether editing was restarted after CTRL-O. */
@@ -382,6 +384,13 @@ executionStatus_T state_edit_execute(void *ctx, int c)
     revins_legal++;
 #endif
     context->is_ctrlv = FALSE;
+    return HANDLED;
+  }
+
+  if (context->is_ctrlg)
+  {
+    ins_ctrl_g_nonblocking(c);
+    context->is_ctrlg = FALSE;
     return HANDLED;
   }
 
@@ -684,7 +693,8 @@ executionStatus_T state_edit_execute(void *ctx, int c)
     break;
 
   case Ctrl_G: /* commands starting with CTRL-G */
-    ins_ctrl_g();
+    // Mark as in 'ctrlg' mode, handle next key
+    context->is_ctrlg = TRUE;
     break;
 
   case Ctrl_HAT: /* switch input mode and/or langmap */
@@ -4473,17 +4483,8 @@ int hkmap(int c)
 /*
  * CTRL-G commands in Insert mode.
  */
-static void ins_ctrl_g(void)
+static void ins_ctrl_g_nonblocking(int c)
 {
-  int c;
-
-  /*
-   * Don't map the second key. This also prevents the mode message to be
-   * deleted when ESC is hit.
-   */
-  ++no_mapping;
-  c = plain_vgetc();
-  --no_mapping;
   switch (c)
   {
   /* CTRL-G k and CTRL-G <Up>: cursor up to Insstart.col */
@@ -4522,6 +4523,23 @@ static void ins_ctrl_g(void)
   default:
     vim_beep(BO_CTRLG);
   }
+}
+
+/*
+ * CTRL-G commands in Insert mode.
+ */
+static void ins_ctrl_g(void)
+{
+  int c;
+
+  /*
+   * Don't map the second key. This also prevents the mode message to be
+   * deleted when ESC is hit.
+   */
+  ++no_mapping;
+  c = plain_vgetc();
+  --no_mapping;
+  ins_ctrl_g_nonblocking(c);
 }
 
 /*
