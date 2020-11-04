@@ -225,6 +225,12 @@ void vimSetTabPageCallback(TabPageCallback tabPageCallback);
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
 void vimSetOptionSetCallback(OptionSetCallback callback);
 
+/**
+ * Operators
+ **/
+
+void vimSetToggleCommentsCallback(ToggleCommentsCallback callback);
+
 /*
  * vimSetQuitCallback
  *
@@ -269,7 +275,6 @@ void vimMacroSetStopRecordCallback(MacroStopRecordCallback callback);
 
 void vimOptionSetTabSize(int tabSize);
 void vimOptionSetInsertSpaces(int insertSpaces);
-void vimOptionSetLineComment(char_u *str);
 
 int vimOptionGetInsertSpaces(void);
 int vimOptionGetTabSize(void);

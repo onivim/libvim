@@ -198,6 +198,59 @@ MU_TEST(insert_mode_utf8_special_byte)
   mu_check(strcmp(line, input) == 0);
 }
 
+MU_TEST(insert_mode_arrow_breaks_undo)
+{
+  int initialLineCount = vimBufferGetLineCount(curbuf);
+
+  // Add a line above...
+  vimInput("O");
+
+  // Type a, left arrow, b, but join undo
+  vimInput("a");
+  vimKey("<left>");
+  vimInput("b");
+
+  mu_check(vimBufferGetLineCount(curbuf) == initialLineCount + 1);
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "ba") == 0);
+
+  // Undoing should undo edit past arrow key being pressed,
+  // default vim behavior.
+  vimKey("<esc>");
+  vimInput("u");
+  char_u *lineAfterUndo = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(lineAfterUndo, "a") == 0);
+  mu_check(vimBufferGetLineCount(curbuf) == initialLineCount + 1);
+}
+
+MU_TEST(insert_mode_arrow_key_join_undo)
+{
+  int initialLineCount = vimBufferGetLineCount(curbuf);
+
+  // Add a line above...
+  vimInput("O");
+
+  // Type a, left arrow, b, but join undo
+  vimInput("a");
+
+  // <C-g>U joins the undo for left/right arrow
+  vimKey("<C-g>");
+  vimInput("U");
+
+  // ...and then use arrow
+  vimKey("<left>");
+  vimInput("b");
+
+  mu_check(vimBufferGetLineCount(curbuf) == initialLineCount + 1);
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "ba") == 0);
+
+  // Undoing should undo entire edit
+  vimKey("<esc>");
+  vimInput("u");
+  mu_check(vimBufferGetLineCount(curbuf) == initialLineCount);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -214,6 +267,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_ctrlv_newline);
   MU_RUN_TEST(insert_mode_utf8);
   MU_RUN_TEST(insert_mode_utf8_special_byte);
+  MU_RUN_TEST(insert_mode_arrow_breaks_undo);
+  MU_RUN_TEST(insert_mode_arrow_key_join_undo);
 }
 
 int main(int argc, char **argv)

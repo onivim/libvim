@@ -468,17 +468,6 @@ void vimOptionSetInsertSpaces(int insertSpaces)
   }
 }
 
-void vimOptionSetLineComment(const char_u *str)
-{
-  vim_free(curbuf->b_oni_line_comment);
-  curbuf->b_oni_line_comment = (char_u *)alloc(STRLEN(str) + 1);
-
-  if (curbuf->b_oni_line_comment != NULL)
-  {
-    strcpy(curbuf->b_oni_line_comment, str);
-  }
-}
-
 int vimOptionGetTabSize() { return curbuf->b_p_ts; }
 
 int vimOptionGetInsertSpaces(void) { return curbuf->b_p_et; }
@@ -522,6 +511,11 @@ void vimWindowSetHeight(int height)
 void vimSetClipboardGetCallback(ClipboardGetCallback callback)
 {
   clipboardGetCallback = callback;
+}
+
+void vimSetToggleCommentsCallback(ToggleCommentsCallback callback)
+{
+  toggleCommentsCallback = callback;
 }
 
 int vimGetMode(void) { return get_real_state(); }

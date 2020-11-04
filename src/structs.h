@@ -2443,7 +2443,6 @@ struct file_buffer
   int b_diff_failed; // internal diff failed for this buffer
 #endif
 
-  char_u *b_oni_line_comment;
 }; /* file_buffer */
 
 /* buffer updates */
@@ -2484,6 +2483,7 @@ typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priori
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
 typedef void (*OptionSetCallback)(optionSet_T *optionSet);
+typedef int (*ToggleCommentsCallback)(buf_T *buf, linenr_T startLine, linenr_T endLine, linenr_T *outCount, char_u ***outLines);
 
 #ifdef FEAT_DIFF
 /*
