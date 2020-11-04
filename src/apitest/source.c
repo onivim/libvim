@@ -16,11 +16,9 @@ MU_TEST(test_simple_viml)
 {
   vimExecute("source collateral/reverse_keys.vim");
 
-  mu_check(vimCursorGetLine() == 1);
-
-  // Validate input gets reversed
-  vimInput("k");
-  mu_check(vimCursorGetLine() == 2);
+  char_u *testVal = vimEval("g:test_val");
+  mu_check(strcmp(testVal, "123") == 0);
+  vim_free(testVal);
 }
 
 MU_TEST_SUITE(test_suite)

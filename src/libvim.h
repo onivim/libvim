@@ -194,6 +194,22 @@ void vimColorSchemeSetChangedCallback(ColorSchemeChangedCallback callback);
 void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback);
 
 /***
+ * Mapping
+ */
+
+void vimSetInputMapCallback(InputMapCallback mapCallback);
+
+/*
+ * vimSetInputUnmapCallback
+ *
+ * Called when `unmap` family or `mapclear` is called
+ * There are two arguments passed:
+ * - `mode`: The mode (`iunmap`, `nunmap`, etc)
+ * - `keys`: NULL if `mapclear` was used, or a `char_u*` describing the original keys
+ */
+void vimSetInputUnmapCallback(InputUnmapCallback unmapCallback);
+
+/***
  * Messages
  ***/
 
@@ -208,6 +224,12 @@ void vimSetGotoCallback(GotoCallback gotoCallback);
 void vimSetTabPageCallback(TabPageCallback tabPageCallback);
 void vimSetDirectoryChangedCallback(DirectoryChangedCallback callback);
 void vimSetOptionSetCallback(OptionSetCallback callback);
+
+/**
+ * Operators
+ **/
+
+void vimSetToggleCommentsCallback(ToggleCommentsCallback callback);
 
 /*
  * vimSetQuitCallback
@@ -253,7 +275,6 @@ void vimMacroSetStopRecordCallback(MacroStopRecordCallback callback);
 
 void vimOptionSetTabSize(int tabSize);
 void vimOptionSetInsertSpaces(int insertSpaces);
-void vimOptionSetLineComment(char_u *str);
 
 int vimOptionGetInsertSpaces(void);
 int vimOptionGetTabSize(void);

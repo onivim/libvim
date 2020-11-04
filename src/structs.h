@@ -1216,20 +1216,24 @@ typedef struct
 typedef struct mapblock mapblock_T;
 struct mapblock
 {
-  mapblock_T *m_next; /* next mapblock in list */
-  char_u *m_keys;     /* mapped from, lhs */
-  char_u *m_str;      /* mapped to, rhs */
-  char_u *m_orig_str; /* rhs as entered by the user */
-  int m_keylen;       /* strlen(m_keys) */
-  int m_mode;         /* valid mode */
-  int m_noremap;      /* if non-zero no re-mapping for m_str */
-  char m_silent;      /* <silent> used, don't echo commands */
-  char m_nowait;      /* <nowait> used */
+  mapblock_T *m_next;  /* next mapblock in list */
+  char_u *m_keys;      /* mapped from, lhs */
+  char_u *m_orig_keys; /* lhs as entered by user */
+  char_u *m_str;       /* mapped to, rhs */
+  char_u *m_orig_str;  /* rhs as entered by the user */
+  int m_keylen;        /* strlen(m_keys) */
+  int m_mode;          /* valid mode */
+  int m_noremap;       /* if non-zero no re-mapping for m_str */
+  char m_silent;       /* <silent> used, don't echo commands */
+  char m_nowait;       /* <nowait> used */
 #ifdef FEAT_EVAL
   char m_expr;         /* <expr> used, m_str is an expression */
   sctx_T m_script_ctx; /* SCTX where map was defined */
 #endif
 };
+
+typedef void (*InputMapCallback)(const mapblock_T *mapping);
+typedef void (*InputUnmapCallback)(int mode, const char_u *orig_lhs);
 
 /*
  * Used for highlighting in the status line.
@@ -2440,7 +2444,6 @@ struct file_buffer
   int b_diff_failed; // internal diff failed for this buffer
 #endif
 
-  char_u *b_oni_line_comment;
 }; /* file_buffer */
 
 /* buffer updates */
@@ -2481,6 +2484,7 @@ typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priori
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
 typedef void (*OptionSetCallback)(optionSet_T *optionSet);
+typedef int (*ToggleCommentsCallback)(buf_T *buf, linenr_T startLine, linenr_T endLine, linenr_T *outCount, char_u ***outLines);
 
 #ifdef FEAT_DIFF
 /*

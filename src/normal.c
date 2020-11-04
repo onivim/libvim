@@ -349,47 +349,6 @@ static const struct nv_cmd
 
 #define strstartswith(a, b) (!strncmp(a, b, strlen(b)))
 
-void toggle_comment(linenr_T lnum)
-{
-  const char_u *comment = curbuf->b_oni_line_comment != NULL ? curbuf->b_oni_line_comment : (char_u *)"//";
-  int commentlen = (int)STRLEN(comment);
-  const char_u *line = ml_get(lnum);
-  int linelen = (int)STRLEN(line);
-  char_u *newp;
-
-  if (strstartswith(line, comment))
-  {
-    // remove comment
-
-    newp = alloc((linelen - commentlen) + 1);
-
-    if (newp == NULL)
-      return;
-
-    if (virtual_active() && curwin->w_cursor.coladd > 0)
-      coladvance_force(getviscol());
-
-    mch_memmove(newp, line + commentlen, (size_t)((linelen - commentlen) + 1));
-    ml_replace(lnum, newp, FALSE);
-  }
-  else
-  {
-    // add comment
-
-    newp = alloc(linelen + commentlen + 1);
-
-    if (newp == NULL)
-      return;
-
-    if (virtual_active() && curwin->w_cursor.coladd > 0)
-      coladvance_force(getviscol());
-
-    mch_memmove(newp, comment, (size_t)commentlen);
-    mch_memmove(newp + commentlen, line, (size_t)(linelen + 1));
-    ml_replace(lnum, newp, FALSE);
-  }
-}
-
 void toggle_comment_lines(linenr_T start, linenr_T end)
 {
   linenr_T lnum;
@@ -403,17 +362,48 @@ void toggle_comment_lines(linenr_T start, linenr_T end)
   }
 
   // save state for undo
-  u_save(start - 1, end + 1);
 
-  for (lnum = start; lnum <= end; lnum++)
-    toggle_comment(lnum);
+  int ret = FAIL;
+  if (toggleCommentsCallback != NULL)
+  {
+    int originalCount = end - start + 1;
 
-  // set cursoor to beginning
-  curwin->w_cursor.lnum = start;
-  curwin->w_cursor.col = 0;
+    linenr_T newCount;
+    char_u **lines;
 
-  // mark dirty
-  changed_lines(start, 0, end + 1, 0);
+    ret = toggleCommentsCallback(curbuf,
+                                 start,
+                                 end,
+                                 &newCount,
+                                 &lines);
+
+    if (newCount != originalCount)
+    {
+      ret = FAIL;
+    }
+
+    if (ret == OK)
+    {
+      u_save(start - 1, end + 1);
+
+      // Apply updates from the callback
+      for (int i = 0; i < newCount; i++)
+      {
+
+        // Don't need to make a copy of the line - it's already allocated
+        ml_replace(start + i, lines[i], /*copy*/ FALSE);
+      };
+
+      // mark dirty
+      changed_lines(start, 0, end + 1, 0);
+
+      vim_free(lines);
+
+      // set cursor to beginning
+      curwin->w_cursor.lnum = start;
+      curwin->w_cursor.col = 0;
+    }
+  }
 }
 
 /* Number of commands in nv_cmds[]. */
@@ -6599,7 +6589,7 @@ static void nv_Undo(cmdarg_T *cap)
 static void nv_c(cmdarg_T *cap)
 {
   /* In Visual mode AND typing "gcc" triggers an operator */
-  if (cap->oap->op_type == OP_COMMENT && VIsual_active)
+  if (cap->oap->op_type == OP_COMMENT)
   {
     /* translate "gcc" to "gcgc" */
     cap->cmdchar = 'g';
