@@ -672,8 +672,8 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
       {
         context->ca.searchbuf = cmd;
         /* Seed the search - bump it forward and back so everything is set for N and n */
-        (void)normal_search(&context->ca, cmdc, cmd, 0);
-        (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
+        (void)normal_search(&context->ca, cmdc, cmd, SEARCH_START);
+        (void)normal_search(&context->ca, cmdc, cmd, SEARCH_REV | SEARCH_START);
 
         /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
         /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */

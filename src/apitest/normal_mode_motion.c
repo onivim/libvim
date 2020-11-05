@@ -3,6 +3,8 @@
 
 void test_setup(void)
 {
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimInput("g");
   vimInput("g");
 }
@@ -51,6 +53,22 @@ MU_TEST(test_2j_2k)
   mu_check(vimCursorGetLine() == 1);
 }
 
+MU_TEST(test_reverse_search)
+{
+  // Move to second line, first byte
+  vimKey("j");
+  vimKey("0");
+
+  mu_check(vimCursorGetLine() == 2);
+
+  // Search backwards to first
+  vimKey("?");
+  vimInput("line");
+  vimKey("<cr>");
+
+  mu_check(vimCursorGetLine() == 1);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -58,6 +76,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_G_gg);
   MU_RUN_TEST(test_j_k);
   MU_RUN_TEST(test_2j_2k);
+  MU_RUN_TEST(test_reverse_search);
 }
 
 int main(int argc, char **argv)
