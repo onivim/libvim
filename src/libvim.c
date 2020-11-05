@@ -11,9 +11,15 @@
 
 #include "vim.h"
 
-buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
+buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags)
 {
   buf_T *buffer = buflist_new(ffname_arg, NULL, lnum, flags);
+  return buffer;
+}
+
+buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
+{
+  buf_T *buffer = vimBufferLoad(ffname_arg, lnum, flags);
   set_curbuf(buffer, DOBUF_SPLIT);
   return buffer;
 }
@@ -40,6 +46,9 @@ int vimBufferGetModified(buf_T *buf) { return bufIsChanged(buf); }
 
 int vimBufferGetModifiable(buf_T *buf) { return buf->b_p_ma; }
 void vimBufferSetModifiable(buf_T *buf, int modifiable) { buf->b_p_ma = modifiable; }
+
+int vimBufferGetFileFormat(buf_T *buf) { return get_fileformat(buf); }
+void vimBufferSetFileFormat(buf_T *buf, int fileformat) { return set_fileformat_buf(buf, fileformat, OPT_LOCAL); }
 
 int vimBufferGetReadOnly(buf_T *buf) { return buf->b_p_ro; }
 void vimBufferSetReadOnly(buf_T *buf, int readonly) { buf->b_p_ro = readonly; }
@@ -81,6 +90,7 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
   changed_lines_buf(buf, start, end, (end - start) - count);
 
   ++CHANGEDTICK(buf);
+  buf->b_changed = TRUE;
 
   if (bufferUpdateCallback != NULL)
   {
@@ -98,6 +108,16 @@ void vimBufferSetLines(buf_T *buf, linenr_T start, linenr_T end, char_u **lines,
   }
 }
 
+void vimColorSchemeSetChangedCallback(ColorSchemeChangedCallback callback)
+{
+  colorSchemeChangedCallback = callback;
+}
+
+void vimColorSchemeSetCompletionCallback(ColorSchemeCompletionCallback callback)
+{
+  colorSchemeCompletionCallback = callback;
+}
+
 void vimSetBufferUpdateCallback(BufferUpdateCallback f)
 {
   bufferUpdateCallback = f;
@@ -108,9 +128,26 @@ void vimSetAutoCommandCallback(AutoCommandCallback f)
   autoCommandCallback = f;
 }
 
+void vimSetCursorMoveScreenLineCallback(
+    CursorMoveScreenLineCallback f)
+{
+  cursorMoveScreenLineCallback = f;
+}
+
+void vimSetCursorMoveScreenPositionCallback(
+    CursorMoveScreenPositionCallback f)
+{
+  cursorMoveScreenPositionCallback = f;
+}
+
 void vimSetFileWriteFailureCallback(FileWriteFailureCallback f)
 {
   fileWriteFailureCallback = f;
+}
+
+void vimSetAutoIndentCallback(AutoIndentCallback f)
+{
+  autoIndentCallback = f;
 }
 
 void vimSetMessageCallback(MessageCallback f)
@@ -138,6 +175,11 @@ void vimSetDirectoryChangedCallback(DirectoryChangedCallback f)
   directoryChangedCallback = f;
 }
 
+void vimSetOptionSetCallback(OptionSetCallback f)
+{
+  optionSetCallback = f;
+}
+
 void vimSetQuitCallback(QuitCallback f)
 {
   quitCallback = f;
@@ -160,11 +202,15 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count)
   *count = 0;
   *completions = NULL;
 
-  /* set_expand_context(&ccline.xpc); */
   if (!ccline.xpc)
   {
     return;
   }
+  set_cmd_context(ccline.xpc,
+                  ccline.cmdbuff,
+                  strlen(ccline.cmdbuff),
+                  ccline.cmdpos,
+                  0);
   expand_cmdline(ccline.xpc, ccline.cmdbuff, ccline.cmdpos, count, completions);
 }
 
@@ -188,27 +234,45 @@ void vimSetCursorAddCallback(CursorAddCallback callback)
   cursorAddCallback = callback;
 }
 
-void vimInput(char_u *input)
+void vimCursorSetColumnWant(colnr_T curswant)
 {
-  char_u *ptr = NULL;
-  char_u *cpo_save = p_cpo;
+  curwin->w_curswant = curswant;
+}
 
-  /* Set 'cpoptions' the way we want it.
-   *    B set - backslashes are *not* treated specially
-   *    k set - keycodes are *not* reverse-engineered
-   *    < unset - <Key> sequences *are* interpreted
-   *  The last but one parameter of replace_termcodes() is TRUE so that the
-   *  <lt> sequence is recognised - needed for a real backslash.
-   */
-  p_cpo = (char_u *)"Bk";
-  input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
-  p_cpo = cpo_save;
+colnr_T vimCursorGetColumnWant(void)
+{
+  return curwin->w_curswant;
+}
 
-  if (*ptr != NUL) /* trailing CTRL-V results in nothing */
+void vimInputCore(int should_replace_termcodes, char_u *input)
+{
+  if (should_replace_termcodes)
+  {
+    char_u *ptr = NULL;
+    char_u *cpo_save = p_cpo;
+
+    /* Set 'cpoptions' the way we want it.
+     *    B set - backslashes are *not* treated specially
+     *    k set - keycodes are *not* reverse-engineered
+     *    < unset - <Key> sequences *are* interpreted
+     *  The last but one parameter of replace_termcodes() is TRUE so that the
+     *  <lt> sequence is recognised - needed for a real backslash.
+     */
+    p_cpo = (char_u *)"Bk";
+    input = replace_termcodes((char_u *)input, &ptr, FALSE, TRUE, FALSE);
+    p_cpo = cpo_save;
+
+    if (*ptr != NUL) /* trailing CTRL-V results in nothing */
+    {
+      sm_execute_normal(input);
+      vim_free((char_u *)ptr);
+    }
+  }
+  else
   {
     sm_execute_normal(input);
-    vim_free((char_u *)ptr);
   }
+
   /* Trigger CursorMoved if the cursor moved. */
   if (!finish_op && (has_cursormoved()) &&
       !EQUAL_POS(last_cursormoved, curwin->w_cursor))
@@ -220,6 +284,16 @@ void vimInput(char_u *input)
 
   update_curswant();
   curs_columns(TRUE);
+}
+
+void vimInput(char_u *input)
+{
+  vimInputCore(0 /*should_replace_termcodes*/, input);
+}
+
+void vimKey(char_u *key)
+{
+  vimInputCore(1 /*should_replace_termcodes*/, key);
 }
 
 int vimVisualIsActive(void) { return VIsual_active; }
@@ -236,6 +310,11 @@ int vimUndoSaveRegion(linenr_T start_lnum, linenr_T end_lnum)
   return u_save(start_lnum, end_lnum);
 }
 
+void vimUndoSync(int force)
+{
+  u_sync(force);
+}
+
 int vimVisualGetType(void) { return VIsual_mode; }
 
 void vimVisualGetRange(pos_T *startPos, pos_T *endPos)
@@ -250,6 +329,19 @@ void vimVisualGetRange(pos_T *startPos, pos_T *endPos)
     *startPos = curbuf->b_visual.vi_start;
     *endPos = curbuf->b_visual.vi_end;
   }
+}
+
+void vimVisualSetStart(pos_T startPos)
+{
+  if (VIsual_active || VIsual_select)
+  {
+    VIsual = startPos;
+  }
+}
+
+void vimVisualSetType(int visualType)
+{
+  VIsual_mode = visualType;
 }
 
 pos_T *vimSearchGetMatchingPair(int initc) { return findmatch(NULL, initc); }
@@ -361,6 +453,16 @@ void vimOptionSetTabSize(int tabSize)
   curbuf->b_p_sw = tabSize;
 }
 
+void vimMacroSetStartRecordCallback(MacroStartRecordCallback callback)
+{
+  macroStartRecordCallback = callback;
+}
+
+void vimMacroSetStopRecordCallback(MacroStopRecordCallback callback)
+{
+  macroStopRecordCallback = callback;
+}
+
 void vimOptionSetInsertSpaces(int insertSpaces)
 {
   curbuf->b_p_et = insertSpaces;
@@ -368,17 +470,6 @@ void vimOptionSetInsertSpaces(int insertSpaces)
   if (!insertSpaces)
   {
     curbuf->b_p_sts = 0;
-  }
-}
-
-void vimOptionSetLineComment(const char_u *str)
-{
-  vim_free(curbuf->b_oni_line_comment);
-  curbuf->b_oni_line_comment = (char_u *)alloc(STRLEN(str) + 1);
-
-  if (curbuf->b_oni_line_comment != NULL)
-  {
-    strcpy(curbuf->b_oni_line_comment, str);
   }
 }
 
@@ -427,11 +518,31 @@ void vimSetClipboardGetCallback(ClipboardGetCallback callback)
   clipboardGetCallback = callback;
 }
 
+void vimSetToggleCommentsCallback(ToggleCommentsCallback callback)
+{
+  toggleCommentsCallback = callback;
+}
+
 int vimGetMode(void) { return get_real_state(); }
+
+int vimGetPendingOperator(pendingOp_T *pendingOp)
+{
+  return sm_get_pending_operator(pendingOp);
+}
+
+void vimSetFormatCallback(FormatCallback callback)
+{
+  formatCallback = callback;
+}
 
 void vimSetGotoCallback(GotoCallback callback)
 {
   gotoCallback = callback;
+}
+
+void vimSetTabPageCallback(TabPageCallback callback)
+{
+  tabPageCallback = callback;
 }
 
 void vimSetDisplayIntroCallback(VoidCallback callback)
@@ -444,9 +555,32 @@ void vimSetDisplayVersionCallback(VoidCallback callback)
   displayVersionCallback = callback;
 }
 
+char_u *vimEval(char_u *str)
+{
+  char_u *copy = vim_strsave(str);
+  char_u *ret = eval_to_string(copy, NULL, TRUE);
+  vim_free(copy);
+  return ret;
+}
+
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
   get_yank_register_value(reg_name, num_lines, lines);
+}
+
+void vimSetInputMapCallback(InputMapCallback callback)
+{
+  inputMapCallback = callback;
+}
+
+void vimSetInputUnmapCallback(InputUnmapCallback callback)
+{
+  inputUnmapCallback = callback;
+}
+
+void vimSetScrollCallback(ScrollCallback callback)
+{
+  scrollCallback = callback;
 }
 
 void vimSetYankCallback(YankCallback callback)
@@ -463,8 +597,22 @@ void vimInit(int argc, char **argv)
   params.want_full_screen = TRUE;
   params.window_count = -1;
 
+  // We expect the consumer to handle key-bindings and mappings,
+  // so disable mappings:
+  no_mapping++;
+  no_zero_mapping++;
+
   mch_early_init();
   common_init(&params);
+
+// Ported from mch_init_c on Windows
+// Is there anything else we need from there?
+#ifdef MSWIN
+#ifndef __MINGW32__
+  extern int _fmode;
+#endif
+  _fmode = O_BINARY; /* we do our own CR-LF translation */
+#endif
 
   // Don't load viminfofile, for now.
   p_viminfofile = "NONE";

@@ -5465,7 +5465,12 @@ ex_colorscheme(exarg_T *eap)
       vim_free(p);
     }
     else
-      msg("default");
+    {
+      if (colorSchemeChangedCallback != NULL)
+      {
+        colorSchemeChangedCallback(NULL);
+      }
+    }
 #else
     msg(_("unknown"));
 #endif
@@ -5767,6 +5772,93 @@ theend:
 }
 
 /*
+ * Handle the argument for a tabpage related ex command.
+ * Returns a tabpage request.
+ * When an error is encountered then eap->errmsg is set.
+ */
+static tabPageRequest_T
+oni_create_tabpage_request(tabPageKind_T kind, exarg_T *eap)
+{
+  tabPageRequest_T tabPageRequest;
+
+  tabPageRequest.kind = kind;
+
+  if (eap->arg && *eap->arg != NUL)
+  {
+    char_u *p = eap->arg;
+    char_u *p_save;
+    tabPageRequest.relative = 0; /* argument +N/-N means: go to N places to the
+			      * right/left relative to the current position. */
+
+    if (*p == '-')
+    {
+      tabPageRequest.relative = -1;
+      p++;
+    }
+    else if (*p == '+')
+    {
+      tabPageRequest.relative = 1;
+      p++;
+    }
+
+    p_save = p;
+    tabPageRequest.arg = getdigits(&p);
+
+    if (tabPageRequest.relative == 0)
+    {
+      if (STRCMP(p, "$") == 0)
+        tabPageRequest.arg = 9999; // magic number: last tab
+      else if (p == p_save || *p_save == '-' || *p != NUL)
+      {
+        /* No numbers as argument. */
+        eap->errmsg = e_invarg;
+        return tabPageRequest;
+      }
+    }
+    else
+    {
+      if (*p_save == NUL)
+        tabPageRequest.arg = 1;
+      else if (p == p_save || *p_save == '-' || *p != NUL || tabPageRequest.arg == 0)
+      {
+        /* No numbers as argument. */
+        eap->errmsg = e_invarg;
+        return tabPageRequest;
+      }
+    }
+  }
+  else if (eap->addr_count > 0)
+  {
+    if (eap->line2 == 0)
+    {
+      eap->errmsg = e_invrange;
+      tabPageRequest.arg = 0;
+    }
+    else
+    {
+      tabPageRequest.arg = eap->line2;
+    }
+  }
+  else
+  {
+    switch (eap->cmdidx)
+    {
+    case CMD_tabnext:
+      tabPageRequest.relative = 1;
+      tabPageRequest.arg = 1;
+      break;
+    case CMD_tabmove:
+      tabPageRequest.arg = 9999; // magic number: last tab
+      break;
+    default:
+      tabPageRequest.arg = 0;
+    }
+  }
+
+  return tabPageRequest;
+}
+
+/*
  * ":tabclose": close current tab page, unless it is the last one.
  * ":tabclose N": close tab page N.
  */
@@ -5775,6 +5867,16 @@ ex_tabclose(exarg_T *eap)
 {
   tabpage_T *tp;
   int tab_number;
+
+  if (tabPageCallback != NULL)
+  {
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(CLOSE, eap);
+
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
+  }
 
   if (first_tabpage->tp_next == NULL)
     emsg(_("E784: Cannot close last tab page"));
@@ -5810,6 +5912,16 @@ ex_tabonly(exarg_T *eap)
   int done;
   int tab_number;
 
+  if (tabPageCallback != NULL)
+  {
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(ONLY, eap);
+
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
+  }
+
   if (first_tabpage->tp_next == NULL)
     msg(_("Already only one tab page"));
   else
@@ -5819,7 +5931,7 @@ ex_tabonly(exarg_T *eap)
     {
       goto_tabpage(tab_number);
       /* Repeat this up to a 1000 times, because autocommands may
-		 * mess up the lists. */
+     * mess up the lists. */
       for (done = 0; done < 1000; ++done)
       {
         FOR_ALL_TABPAGES(tp)
@@ -6600,6 +6712,16 @@ ex_tabnext(exarg_T *eap)
     goto_tabpage(-tab_number);
     break;
   default: /* CMD_tabnext */
+    if (tabPageCallback != NULL)
+    {
+      tabPageRequest_T tabPageRequest = oni_create_tabpage_request(GOTO, eap);
+
+      if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
+      {
+        return;
+      }
+    }
+
     tab_number = get_tabpage_arg(eap);
     if (eap->errmsg == NULL)
       goto_tabpage(tab_number);
@@ -6613,9 +6735,17 @@ ex_tabnext(exarg_T *eap)
 static void
 ex_tabmove(exarg_T *eap)
 {
-  int tab_number;
+  if (tabPageCallback != NULL)
+  {
+    tabPageRequest_T tabPageRequest = oni_create_tabpage_request(MOVE, eap);
 
-  tab_number = get_tabpage_arg(eap);
+    if (eap->errmsg == NULL && tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
+  }
+
+  int tab_number = get_tabpage_arg(eap);
   if (eap->errmsg == NULL)
     tabpage_move(tab_number);
 }
@@ -10562,14 +10692,11 @@ void ex_terminal(exarg_T *eap)
     }
     cmd = skipwhite(p);
   }
-  if (*cmd == NUL)
-  {
-    /* Make a copy of 'shell', an autocommand may change the option. */
-    tofree = cmd = vim_strsave(p_sh);
 
+  if (opt.jo_term_finish == NUL)
+  {
     /* default to close when the shell exits */
-    if (opt.jo_term_finish == NUL)
-      opt.jo_term_finish = 'c';
+    opt.jo_term_finish = 'c';
   }
 
   if (eap->addr_count > 0)
@@ -10594,7 +10721,15 @@ void ex_terminal(exarg_T *eap)
     pRequest->finish = opt.jo_term_finish;
     pRequest->curwin = opt.jo_curwin;
     pRequest->hidden = opt.jo_hidden;
-    pRequest->cmd = cmd;
+
+    if (*cmd == NUL)
+    {
+      pRequest->cmd = NULL;
+    }
+    else
+    {
+      pRequest->cmd = cmd;
+    }
 
     terminalCallback(pRequest);
     free(pRequest);

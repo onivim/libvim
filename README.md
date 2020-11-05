@@ -70,11 +70,35 @@ npm install -g esy@0.5.7
 
 - `esy '@test' build`
 
+## Development
+
+The `esy` workflow works great for one-off builds, but will rebuild the world every time, so during development it's better to have an incremental workflow.
+
+### Building & running tests incrementally
+
+- `cd src` 
+- `make apitest/autoindent.test.exe`
+- `cd apitest`
+- `./autoindent.test.exe`
+
+### Testing changes against Onivim 2
+
+You can test a locally-built `libvim` against a locally-built Onivim 2 by adding a resolution in the Onivim 2 `package.json`, like:
+```json
+"resolutions": {
+	...
+	"libvim": "link:../libvim/src"
+}
+```
+Just make sure it points to the `libvim/src` folder.
+
+> NOTE: We've seen issues with this workflow where the binaries can be out-of-date in Onivim 2, so we recommend running `rm -rf _esy && esy i` after each change to rebuild the dependency.
+
 ## FAQ
 
 ### Why is `libvim` based on Vim and not Neovim?
 
-I'm a huge fan of the work the Neovim team is doing (and the team has been incredibly support of the Onivim project). Ideally, we would've stuck with Neovim or implemented `libvim` based on `libnvim`. In fact, the first time I tried to build this 'minimal abstraction' - I tried to base it off Neovim's `libnvim`. I timeboxed the investigation to 2 days, and ran into some serious hurdles - our build environment is a bit challenging on Windows (it's based on Cygwin + MingW cross-compiler toolchain) - I encountered several issues getting Neovim + deps to build in that environment. Based off that spike, I estimated it would take ~3-4 weeks to get it working in that toolchain.
+I'm a huge fan of the work the Neovim team is doing (and the team has been incredibly supportive of the Onivim project). Ideally, we would've stuck with Neovim or implemented `libvim` based on `libnvim`. In fact, the first time I tried to build this 'minimal abstraction' - I tried to base it off Neovim's `libnvim`. I timeboxed the investigation to 2 days, and ran into some serious hurdles - our build environment is a bit challenging on Windows (it's based on Cygwin + MingW cross-compiler toolchain) - I encountered several issues getting Neovim + deps to build in that environment. Based off that spike, I estimated it would take ~3-4 weeks to get it working in that toolchain.
 
 Note that this is not a Neovim issue - the dependency usage and leveraging of `CMake` are good decisions - it's a consequence of our OCaml build system. The Cygwin + MingW cross-compiler toolchain isn't well handled by all dependencies (being a weird hybrid of Win32 and Unix, it's often the case where #ifdefs are wrong, incorrect dependencies are pulled in, and it can be a huge time sink working through these issues).
 

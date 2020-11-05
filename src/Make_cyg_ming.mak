@@ -502,16 +502,6 @@ ifeq ($(CHANNEL),yes)
 DEFINES += -DFEAT_JOB_CHANNEL
 endif
 
-ifeq ($(TERMINAL),yes)
-DEFINES += -DFEAT_TERMINAL
-TERM_DEPS = \
-	libvterm/include/vterm.h \
-	libvterm/include/vterm_keycodes.h \
-	libvterm/src/rect.h \
-	libvterm/src/utf8.h \
-	libvterm/src/vterm_internal.h
-endif
-
 # DirectWrite (DirectX)
 ifeq ($(DIRECTX),yes)
 # Only allow DirectWrite for a GUI build.
@@ -648,19 +638,6 @@ OBJ += $(OUTDIR)/gui_dwrite.o
 LIB += -ld2d1 -ldwrite
 USE_STDCPLUS = yes
  endif
-endif
-
-ifeq ($(TERMINAL),yes)
-OBJ += $(OUTDIR)/terminal.o \
-	$(OUTDIR)/encoding.o \
-	$(OUTDIR)/keyboard.o \
-	$(OUTDIR)/mouse.o \
-	$(OUTDIR)/parser.o \
-	$(OUTDIR)/pen.o \
-	$(OUTDIR)/termscreen.o \
-	$(OUTDIR)/state.o \
-	$(OUTDIR)/unicode.o \
-	$(OUTDIR)/vterm.o
 endif
 
 # Include xdiff
@@ -930,19 +907,6 @@ $(OUTDIR)/os_win32.o:	os_win32.c $(INCL) $(MZSCHEME_INCL)
 
 $(OUTDIR)/regexp.o:	regexp.c regexp_nfa.c $(INCL)
 	$(CC) -c $(CFLAGS) regexp.c -o $@
-
-$(OUTDIR)/terminal.o:	terminal.c $(INCL) $(TERM_DEPS)
-	$(CC) -c $(CFLAGS) terminal.c -o $@
-
-
-CCCTERM = $(CC) -c $(CFLAGS) -Ilibvterm/include -DINLINE="" \
-	  -DVSNPRINTF=vim_vsnprintf \
-	  -DIS_COMBINING_FUNCTION=utf_iscomposing_uint \
-	  -DWCWIDTH_FUNCTION=utf_uint2cells
-
-$(OUTDIR)/%.o : libvterm/src/%.c $(TERM_DEPS)
-	$(CCCTERM) $< -o $@
-
 
 $(OUTDIR)/%.o : xdiff/%.c $(XDIFF_DEPS)
 	$(CC) -c $(CFLAGS) $< -o $@

@@ -2936,7 +2936,8 @@ int get_fileformat_force(
  * Sets both 'textmode' and 'fileformat'.
  * Note: Does _not_ set global value of 'textmode'!
  */
-void set_fileformat(
+void set_fileformat_buf(
+    buf_T *buf,
     int t,
     int opt_flags) /* OPT_LOCAL and/or OPT_GLOBAL */
 {
@@ -2946,15 +2947,15 @@ void set_fileformat(
   {
   case EOL_DOS:
     p = FF_DOS;
-    curbuf->b_p_tx = TRUE;
+    buf->b_p_tx = TRUE;
     break;
   case EOL_UNIX:
     p = FF_UNIX;
-    curbuf->b_p_tx = FALSE;
+    buf->b_p_tx = FALSE;
     break;
   case EOL_MAC:
     p = FF_MAC;
-    curbuf->b_p_tx = FALSE;
+    buf->b_p_tx = FALSE;
     break;
   }
   if (p != NULL)
@@ -2962,8 +2963,20 @@ void set_fileformat(
                              OPT_FREE | opt_flags, 0);
 
   /* This may cause the buffer to become (un)modified. */
-  check_status(curbuf);
+  check_status(buf);
   redraw_tabline = TRUE;
+}
+
+/*
+ * Set the current end-of-line type to EOL_DOS, EOL_UNIX or EOL_MAC.
+ * Sets both 'textmode' and 'fileformat'.
+ * Note: Does _not_ set global value of 'textmode'!
+ */
+void set_fileformat(
+    int t,
+    int opt_flags) /* OPT_LOCAL and/or OPT_GLOBAL */
+{
+  set_fileformat_buf(curbuf, t, opt_flags);
 }
 
 /*

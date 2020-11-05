@@ -767,11 +767,12 @@ int get_yank_register(int regname, int writing)
 
   int num_lines;
   char_u **lines;
+  int blockType;
   int useExternalClipboard = 0;
 
   if (clipboardGetCallback != NULL && !writing)
   {
-    useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines);
+    useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines, &blockType);
   }
 
   if ((regname == 0 || regname == '"') && !writing && y_previous != NULL)
@@ -781,7 +782,7 @@ int get_yank_register(int regname, int writing)
     if (useExternalClipboard)
     {
       free_yank_all(); /* free register */
-      y_current->y_type = MLINE;
+      y_current->y_type = blockType;
       y_current->y_size = num_lines;
       y_current->y_array = lines;
 
@@ -823,7 +824,7 @@ int get_yank_register(int regname, int writing)
     if (!writing && useExternalClipboard)
     {
       free_yank_all(); /* free register */
-      y_current->y_type = MLINE;
+      y_current->y_type = blockType;
       y_current->y_size = num_lines;
       y_current->y_array = lines;
 
@@ -916,6 +917,11 @@ int do_record(int c)
       reg_recording = c;
       regname = c;
       retval = OK;
+
+      if (macroStartRecordCallback != NULL)
+      {
+        macroStartRecordCallback(regname);
+      }
     }
   }
   else /* stop recording */
@@ -934,6 +940,11 @@ int do_record(int c)
     {
       /* Remove escaping for CSI and K_SPECIAL in multi-byte chars. */
       vim_unescape_csi(p);
+
+      if (macroStopRecordCallback != NULL)
+      {
+        macroStopRecordCallback(regname, p);
+      }
 
       /*
        * We don't want to change the default register here, so save and

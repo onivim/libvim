@@ -1232,7 +1232,7 @@ NO_ATTR=
 PROTO_FLAGS = -d -E"$(CPP)" $(NO_ATTR)
 
 
-WARN_FLAGS = -Wall -Wno-unknown-warning-option -Wno-cpp -Wno-pointer-sign -Wno-unused-parameter -Wno-strict-overflow -Wno-return-type -Werror
+WARN_FLAGS = -Wall -Wno-array-bounds -Wno-unknown-warning-option -Wno-cpp -Wno-pointer-sign -Wno-unused-parameter -Wno-strict-overflow -Wno-return-type -Werror
 
 ################################################
 ##   no changes required below this line      ##
@@ -1510,7 +1510,6 @@ OBJ_COMMON = \
 	objects/syntax.o \
 	objects/tag.o \
 	objects/term.o \
-	objects/terminal.o \
 	objects/ui.o \
 	objects/undo.o \
 	objects/usercmd.o \
@@ -1518,7 +1517,6 @@ OBJ_COMMON = \
 	objects/version.o \
 	objects/window.o \
 	$(GUI_OBJ) \
-	$(TERM_OBJ) \
 	$(LUA_OBJ) \
 	$(MZSCHEME_OBJ) \
 	$(PERL_OBJ) \
@@ -1963,9 +1961,10 @@ installvim: installvimbin installtutorbin \
 TEST_SRC = $(wildcard apitest/*.c)
 TEST_COLLATERAL = $(wildcard apitest/collateral/*.*)
 TEST_EXE = $(TEST_SRC:.c=.test.exe)
+TEST_VALGRIND_EXE = $(TEST_SRC:.c=.test-valgrind.exe)
 
 copy-apitest-collateral: $(TEST_COLLATERAL)
-	mkdir $(DEST_BIN)/collateral
+	mkdir -p $(DEST_BIN)/collateral
 	$(INSTALL_PROG) apitest/collateral/* $(DEST_BIN)/collateral
 	echo "--- collateral folder ---"
 	ls $(DEST_BIN)/collateral
@@ -1974,9 +1973,15 @@ apitest/%.test.exe: apitest/%.c libvim.a
 	$(CC) -I. $(ALL_CFLAGS) -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
 	echo "Copying $@ to $(DEST_BIN)"
 	$(INSTALL_PROG) $@ $(DEST_BIN)
+	
+apitest/%.test-valgrind.exe: apitest/%.c libvim.a
+	$(CC) -I. $(ALL_CFLAGS) -g -fno-omit-frame-pointer $< -o $@ libvim.a $(ALL_LIBS)
+	echo "Copying $@ to $(DEST_BIN)"
+	$(INSTALL_PROG) $@ $(DEST_BIN)
 
-installapitest:  copy-apitest-collateral $(TEST_EXE)
+installapitest:  copy-apitest-collateral $(TEST_EXE) $(TEST_VALGRIND_EXE)
 	$(INSTALL_PROG) build/run-tests.sh $(DEST_BIN)
+	$(INSTALL_PROG) build/run-tests-valgrind.sh $(DEST_BIN)
 
 installlibvim: libvim.a $(DEST_BIN) $(DEST_LIB)
 	mkdir -p $(DEST_INCLUDE)
@@ -2874,9 +2879,6 @@ objects/tag.o: tag.c
 objects/term.o: term.c
 	$(CCC) -o $@ term.c
 
-objects/terminal.o: terminal.c $(TERM_DEPS)
-	$(CCC) -o $@ terminal.c
-
 objects/ui.o: ui.c
 	$(CCC) -o $@ ui.c
 
@@ -2902,33 +2904,6 @@ CCCTERM = $(CCC_NF) $(VTERM_CFLAGS) $(ALL_CFLAGS) -DINLINE="" \
 	  -DVSNPRINTF=vim_vsnprintf \
 	  -DIS_COMBINING_FUNCTION=utf_iscomposing_uint \
 	  -DWCWIDTH_FUNCTION=utf_uint2cells
-
-objects/encoding.o: libvterm/src/encoding.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/encoding.c
-
-objects/keyboard.o: libvterm/src/keyboard.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/keyboard.c
-
-objects/mouse.o: libvterm/src/mouse.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/mouse.c
-
-objects/parser.o: libvterm/src/parser.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/parser.c
-
-objects/pen.o: libvterm/src/pen.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/pen.c
-
-objects/termscreen.o: libvterm/src/termscreen.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/termscreen.c
-
-objects/state.o: libvterm/src/state.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/state.c
-
-objects/unicode.o: libvterm/src/unicode.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/unicode.c
-
-objects/vterm.o: libvterm/src/vterm.c $(TERM_DEPS)
-	$(CCCTERM) -o $@ libvterm/src/vterm.c
 
 CCCDIFF = $(CCC_NF) $(ALL_CFLAGS)
 
@@ -3243,13 +3218,7 @@ objects/tag.o: tag.c vim.h protodef.h auto/config.h feature.h os_unix.h \
 objects/term.o: term.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h libvterm/include/vterm.h \
- libvterm/include/vterm_keycodes.h
-objects/terminal.o: terminal.c vim.h protodef.h auto/config.h feature.h os_unix.h \
- auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
-  structs.h regexp.h  alloc.h ex_cmds.h \
- proto.h globals.h libvterm/include/vterm.h \
- libvterm/include/vterm_keycodes.h
+ proto.h globals.h
 objects/ui.o: ui.c vim.h protodef.h auto/config.h feature.h os_unix.h \
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
@@ -3310,29 +3279,6 @@ objects/channel.o: channel.c vim.h protodef.h auto/config.h feature.h os_unix.h 
  auto/osdef.h ascii.h keymap.h term.h macros.h option.h \
   structs.h regexp.h  alloc.h ex_cmds.h \
  proto.h globals.h
-objects/encoding.o: libvterm/src/encoding.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
- libvterm/src/encoding/DECdrawing.inc libvterm/src/encoding/uk.inc
-objects/keyboard.o: libvterm/src/keyboard.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
- libvterm/src/utf8.h
-objects/mouse.o: libvterm/src/mouse.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
- libvterm/src/utf8.h
-objects/parser.o: libvterm/src/parser.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h
-objects/pen.o: libvterm/src/pen.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h
-objects/state.o: libvterm/src/state.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h
-objects/termscreen.o: libvterm/src/termscreen.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
- libvterm/src/rect.h libvterm/src/utf8.h
-objects/unicode.o: libvterm/src/unicode.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h
-objects/vterm.o: libvterm/src/vterm.c libvterm/src/vterm_internal.h \
- libvterm/include/vterm.h libvterm/include/vterm_keycodes.h \
- libvterm/src/utf8.h
 objects/xdiffi.o: xdiff/xdiffi.c xdiff/xinclude.h auto/config.h \
  xdiff/xmacros.h xdiff/xdiff.h vim.h protodef.h \
  auto/config.h feature.h os_unix.h \

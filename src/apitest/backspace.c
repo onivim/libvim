@@ -3,8 +3,8 @@
 
 void test_setup(void)
 {
-  vimInput("<Esc>");
-  vimInput("<Esc>");
+  vimKey("<Esc>");
+  vimKey("<Esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -25,8 +25,8 @@ MU_TEST(backspace_beyond_insert)
   // Backspace a couple of times...
   // This verifies we have the correct backspace settings
   // (default doesn't backspace past insert region)
-  vimInput("<c-h>");
-  vimInput("<c-h>");
+  vimKey("<c-h>");
+  vimKey("<c-h>");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   printf("LINE: %s\n", line);

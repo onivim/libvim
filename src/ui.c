@@ -24,34 +24,6 @@
 #include <windows.h>
 #endif
 
-void ui_write(char_u *s, int len)
-{
-#ifndef NO_CONSOLE
-  /* Don't output anything in silent mode ("ex -s") unless 'verbose' set */
-  if (!(silent_mode && p_verbose == 0))
-  {
-#if !defined(MSWIN)
-    char_u *tofree = NULL;
-
-    if (output_conv.vc_type != CONV_NONE)
-    {
-      /* Convert characters from 'encoding' to 'termencoding'. */
-      tofree = string_convert(&output_conv, s, &len);
-      if (tofree != NULL)
-        s = tofree;
-    }
-#endif
-
-    mch_write(s, len);
-
-#if !defined(MSWIN)
-    if (output_conv.vc_type != CONV_NONE)
-      vim_free(tofree);
-#endif
-  }
-#endif
-}
-
 #if defined(UNIX) || defined(VMS) || defined(PROTO) || defined(MSWIN)
 /*
  * When executing an external program, there may be some typed characters that
@@ -123,11 +95,6 @@ int ui_inchar(
   {
     static int count = 0;
 
-#ifndef NO_CONSOLE
-    retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
-    if (retval > 0 || typebuf_changed(tb_change_cnt) || wtime >= 0)
-      goto theend;
-#endif
     if (wtime == -1 && ++count == 1000)
       read_error_exit();
     buf[0] = CAR;
@@ -190,10 +157,6 @@ int ui_inchar(
      *
      */
 
-#ifndef NO_CONSOLE
-  retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
-#endif
-
   if (wtime == -1 || wtime > 100L)
     /* block SIGHUP et al. */
     (void)vim_handle_signal(SIGNAL_BLOCK);
@@ -209,176 +172,6 @@ theend:
 #endif
   return retval;
 }
-
-#if defined(UNIX) || defined(PROTO)
-/*
- * Common code for mch_inchar() and gui_inchar(): Wait for a while or
- * indefinitely until characters are available, dealing with timers and
- * messages on channels.
- *
- * "buf" may be NULL if the available characters are not to be returned, only
- * check if they are available.
- *
- * Return the number of characters that are available.
- * If "wtime" == 0 do not wait for characters.
- * If "wtime" == n wait a short time for characters.
- * If "wtime" == -1 wait forever for characters.
- */
-int inchar_loop(
-    char_u *buf,
-    int maxlen,
-    long wtime, // don't use "time", MIPS cannot handle it
-    int tb_change_cnt,
-    int (*wait_func)(long wtime, int *interrupted, int ignore_input),
-    int (*resize_func)(int check_only))
-{
-  int len;
-  int interrupted = FALSE;
-  int did_call_wait_func = FALSE;
-  int did_start_blocking = FALSE;
-  long wait_time;
-  long elapsed_time = 0;
-#ifdef ELAPSED_FUNC
-  elapsed_T start_tv;
-
-  ELAPSED_INIT(start_tv);
-#endif
-
-  /* repeat until we got a character or waited long enough */
-  for (;;)
-  {
-    /* Check if window changed size while we were busy, perhaps the ":set
-	 * columns=99" command was used. */
-    if (resize_func != NULL)
-      resize_func(FALSE);
-
-#ifdef MESSAGE_QUEUE
-    // Only process messages when waiting.
-    if (wtime != 0)
-    {
-      parse_queued_messages();
-      // If input was put directly in typeahead buffer bail out here.
-      if (typebuf_changed(tb_change_cnt))
-        return 0;
-    }
-#endif
-    if (wtime < 0 && did_start_blocking)
-      // blocking and already waited for p_ut
-      wait_time = -1;
-    else
-    {
-      if (wtime >= 0)
-        wait_time = wtime;
-      else
-        // going to block after p_ut
-        wait_time = p_ut;
-#ifdef ELAPSED_FUNC
-      elapsed_time = ELAPSED_FUNC(start_tv);
-#endif
-      wait_time -= elapsed_time;
-
-      // If the waiting time is now zero or less, we timed out.  However,
-      // loop at least once to check for characters and events.  Matters
-      // when "wtime" is zero.
-      if (wait_time <= 0 && did_call_wait_func)
-      {
-        if (wtime >= 0)
-          // no character available within "wtime"
-          return 0;
-
-        // No character available within 'updatetime'.
-        did_start_blocking = TRUE;
-        if (trigger_cursorhold() && maxlen >= 3 && !typebuf_changed(tb_change_cnt))
-        {
-          // Put K_CURSORHOLD in the input buffer or return it.
-          if (buf == NULL)
-          {
-            char_u ibuf[3];
-
-            ibuf[0] = CSI;
-            ibuf[1] = KS_EXTRA;
-            ibuf[2] = (int)KE_CURSORHOLD;
-            add_to_input_buf(ibuf, 3);
-          }
-          else
-          {
-            buf[0] = K_SPECIAL;
-            buf[1] = KS_EXTRA;
-            buf[2] = (int)KE_CURSORHOLD;
-          }
-          return 3;
-        }
-
-        // There is no character available within 'updatetime' seconds:
-        // flush all the swap files to disk.  Also done when
-        // interrupted by SIGWINCH.
-        before_blocking();
-        continue;
-      }
-    }
-
-#ifdef FEAT_JOB_CHANNEL
-    if (wait_time < 0 || wait_time > 100L)
-    {
-      // Checking if a job ended requires polling.  Do this at least
-      // every 100 msec.
-      if (has_pending_job())
-        wait_time = 100L;
-
-      // If there is readahead then parse_queued_messages() timed out and
-      // we should call it again soon.
-      if (channel_any_readahead())
-        wait_time = 10L;
-    }
-#endif
-#ifdef FEAT_BEVAL_GUI
-    if (p_beval && wait_time > 100L)
-      // The 'balloonexpr' may indirectly invoke a callback while waiting
-      // for a character, need to check often.
-      wait_time = 100L;
-#endif
-
-    // Wait for a character to be typed or another event, such as the winch
-    // signal or an event on the monitored file descriptors.
-    did_call_wait_func = TRUE;
-    if (wait_func(wait_time, &interrupted, FALSE))
-    {
-      // If input was put directly in typeahead buffer bail out here.
-      if (typebuf_changed(tb_change_cnt))
-        return 0;
-
-      // We might have something to return now.
-      if (buf == NULL)
-        // "buf" is NULL, we were just waiting, not actually getting
-        // input.
-        return input_available();
-
-      len = read_from_input_buf(buf, (long)maxlen);
-      if (len > 0)
-        return len;
-      continue;
-    }
-    // Timed out or interrupted with no character available.
-
-#ifndef ELAPSED_FUNC
-    // estimate the elapsed time
-    elapsed_time += wait_time;
-#endif
-
-    if ((resize_func != NULL && resize_func(TRUE))
-#ifdef MESSAGE_QUEUE
-        || interrupted
-#endif
-        || wait_time > 0 || (wtime < 0 && !did_start_blocking))
-      // no character available, but something to be done, keep going
-      continue;
-
-    // no character available or interrupted, return zero
-    break;
-  }
-  return 0;
-}
-#endif
 
 #if defined(FEAT_TIMERS) || defined(PROTO)
 /*
@@ -446,15 +239,8 @@ int ui_wait_for_chars_or_timer(
  */
 int ui_char_avail(void)
 {
-#ifndef NO_CONSOLE
-#ifdef NO_CONSOLE_INPUT
-  if (no_console_input())
-    return 0;
-#endif
-  return mch_char_avail();
-#else
+  // libvim - no-op
   return 0;
-#endif
 }
 
 /*

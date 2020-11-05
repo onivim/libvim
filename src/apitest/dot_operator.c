@@ -12,7 +12,7 @@ MU_TEST(test_basic_redo)
   vimInput("a");
   vimInput("b");
   vimInput("c");
-  vimInput("<esc>");
+  vimKey("<esc>");
 
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "abc") == 0);
 

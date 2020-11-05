@@ -36,8 +36,8 @@ static void mb_replace_pop_ins(int cc);
 static void replace_flush(void);
 static void replace_do_bs(int limit_col);
 static int del_char_after_col(int limit_col);
-static void ins_reg(void);
 static void ins_ctrl_g(void);
+static void ins_ctrl_g_nonblocking(int c);
 static void ins_ctrl_hat(void);
 static int ins_esc(long *count, int cmdchar, int nomove);
 #ifdef FEAT_RIGHTLEFT
@@ -119,6 +119,7 @@ typedef struct
   int cmdchar_todo;
   int is_ctrlv;  /* If we are coming back from inserting a literal */
   int ctrlv_ret; /* Return value from inserting a literal */
+  int is_ctrlg;  /* If ctrl-g was pressed last */
 } editState_T;
 
 static linenr_T o_lnum = 0;
@@ -133,7 +134,9 @@ void *state_edit_initialize(int cmdchar, int startln, long count)
   context->lastc = 0;
   context->old_topline = 0;
   context->old_topfill = -1;
+  context->nomove = FALSE;
   context->is_ctrlv = FALSE;
+  context->is_ctrlg = FALSE;
   context->ctrlv_ret = 0;
 
   /* Remember whether editing was restarted after CTRL-O. */
@@ -381,6 +384,13 @@ executionStatus_T state_edit_execute(void *ctx, int c)
     revins_legal++;
 #endif
     context->is_ctrlv = FALSE;
+    return HANDLED;
+  }
+
+  if (context->is_ctrlg)
+  {
+    ins_ctrl_g_nonblocking(c);
+    context->is_ctrlg = FALSE;
     return HANDLED;
   }
 
@@ -682,14 +692,9 @@ executionStatus_T state_edit_execute(void *ctx, int c)
     context->inserted_space = FALSE;
     break;
 
-  case Ctrl_R: /* insert the contents of a register */
-    ins_reg();
-    auto_format(FALSE, TRUE);
-    context->inserted_space = FALSE;
-    break;
-
   case Ctrl_G: /* commands starting with CTRL-G */
-    ins_ctrl_g();
+    // Mark as in 'ctrlg' mode, handle next key
+    context->is_ctrlg = TRUE;
     break;
 
   case Ctrl_HAT: /* switch input mode and/or langmap */
@@ -1611,12 +1616,6 @@ int edit(int cmdchar, int startln, /* if set, insert at start of line */
       if (stuff_inserted(NUL, 1L, (c == Ctrl_A)) == FAIL && c != Ctrl_A &&
           !p_im)
         goto doESCkey; /* quit insert mode */
-      inserted_space = FALSE;
-      break;
-
-    case Ctrl_R: /* insert the contents of a register */
-      ins_reg();
-      auto_format(FALSE, TRUE);
       inserted_space = FALSE;
       break;
 
@@ -4481,119 +4480,11 @@ int hkmap(int c)
 }
 #endif
 
-static void ins_reg(void)
-{
-  int need_redraw = FALSE;
-  int regname;
-  int literally = 0;
-  int vis_active = VIsual_active;
-
-  /*
-   * If we are going to wait for a character, show a '"'.
-   */
-  pc_status = PC_STATUS_UNSET;
-  if (redrawing() && !char_avail())
-  {
-    /* may need to redraw when no more chars available now */
-    ins_redraw(FALSE);
-
-    edit_putchar('"', TRUE);
-  }
-
-  /*
-   * Don't map the register name. This also prevents the mode message to be
-   * deleted when ESC is hit.
-   */
-  ++no_mapping;
-  regname = plain_vgetc();
-  LANGMAP_ADJUST(regname, TRUE);
-  if (regname == Ctrl_R || regname == Ctrl_O || regname == Ctrl_P)
-  {
-    /* Get a third key for literal register insertion */
-    literally = regname;
-    regname = plain_vgetc();
-    LANGMAP_ADJUST(regname, TRUE);
-  }
-  --no_mapping;
-  edit_putchar('"', TRUE);
-
-#ifdef FEAT_EVAL
-  /* Don't call u_sync() while typing the expression or giving an error
-   * message for it. Only call it explicitly. */
-  ++no_u_sync;
-  if (regname == '=')
-  {
-    pos_T curpos = curwin->w_cursor;
-    /* Sync undo when evaluating the expression calls setline() or
-     * append(), so that it can be undone separately. */
-    u_sync_once = 2;
-
-    regname = get_expr_register();
-
-    // Cursor may be moved back a column.
-    curwin->w_cursor = curpos;
-    check_cursor();
-  }
-  if (regname == NUL || !valid_yank_reg(regname, FALSE))
-  {
-    vim_beep(BO_REG);
-    need_redraw = TRUE; /* remove the '"' */
-  }
-  else
-  {
-#endif
-    if (literally == Ctrl_O || literally == Ctrl_P)
-    {
-      /* Append the command to the redo buffer. */
-      AppendCharToRedobuff(Ctrl_R);
-      AppendCharToRedobuff(literally);
-      AppendCharToRedobuff(regname);
-
-      do_put(regname, BACKWARD, 1L,
-             (literally == Ctrl_P ? PUT_FIXINDENT : 0) | PUT_CURSEND);
-    }
-    else if (insert_reg(regname, literally) == FAIL)
-    {
-      vim_beep(BO_REG);
-      need_redraw = TRUE; /* remove the '"' */
-    }
-    else if (stop_insert_mode)
-      /* When the '=' register was used and a function was invoked that
-       * did ":stopinsert" then stuff_empty() returns FALSE but we won't
-       * insert anything, need to remove the '"' */
-      need_redraw = TRUE;
-
-#ifdef FEAT_EVAL
-  }
-  --no_u_sync;
-  if (u_sync_once == 1)
-    ins_need_undo = TRUE;
-  u_sync_once = 0;
-#endif
-
-  /* If the inserted register is empty, we need to remove the '"' */
-  if (need_redraw || stuff_empty())
-    edit_unputchar();
-
-  /* Disallow starting Visual mode here, would get a weird mode. */
-  if (!vis_active && VIsual_active)
-    end_visual_mode();
-}
-
 /*
  * CTRL-G commands in Insert mode.
  */
-static void ins_ctrl_g(void)
+static void ins_ctrl_g_nonblocking(int c)
 {
-  int c;
-
-  /*
-   * Don't map the second key. This also prevents the mode message to be
-   * deleted when ESC is hit.
-   */
-  ++no_mapping;
-  c = plain_vgetc();
-  --no_mapping;
   switch (c)
   {
   /* CTRL-G k and CTRL-G <Up>: cursor up to Insstart.col */
@@ -4632,6 +4523,23 @@ static void ins_ctrl_g(void)
   default:
     vim_beep(BO_CTRLG);
   }
+}
+
+/*
+ * CTRL-G commands in Insert mode.
+ */
+static void ins_ctrl_g(void)
+{
+  int c;
+
+  /*
+   * Don't map the second key. This also prevents the mode message to be
+   * deleted when ESC is hit.
+   */
+  ++no_mapping;
+  c = plain_vgetc();
+  --no_mapping;
+  ins_ctrl_g_nonblocking(c);
 }
 
 /*

@@ -3,6 +3,7 @@
 void *state_normal_cmd_initialize();
 void state_normal_cmd_cleanup(void *ctx);
 executionStatus_T state_normal_cmd_execute(void *ctx, int key);
+int state_normal_pending_operator(void *ctx, pendingOp_T *pendingOp);
 
 void init_normal_cmds(void);
 void normal_cmd(oparg_T *oap, int toplevel);

@@ -96,10 +96,8 @@ static int saved_spats_last_idx = 0;
 static int saved_spats_no_hlsearch = 0;
 #endif
 
-static char_u *mr_pattern = NULL; /* pattern used by search_regcomp() */
-#ifdef FEAT_RIGHTLEFT
+static char_u *mr_pattern = NULL;      /* pattern used by search_regcomp() */
 static int mr_pattern_alloced = FALSE; /* mr_pattern was allocated */
-#endif
 
 #ifdef FEAT_FIND_ID
 /*
@@ -169,29 +167,38 @@ int search_regcomp(
     add_to_history(HIST_SEARCH, pat, TRUE, NUL);
 #endif
 
-#ifdef FEAT_RIGHTLEFT
-  if (mr_pattern_alloced)
+  if (pat != mr_pattern)
   {
-    vim_free(mr_pattern);
-    mr_pattern_alloced = FALSE;
-  }
-
-  if (curwin->w_p_rl && *curwin->w_p_rlc == 's')
-  {
-    char_u *rev_pattern;
-
-    rev_pattern = reverse_text(pat);
-    if (rev_pattern == NULL)
-      mr_pattern = pat; /* out of memory, keep normal pattern. */
-    else
+    if (mr_pattern_alloced)
     {
-      mr_pattern = rev_pattern;
+      vim_free(mr_pattern);
+      mr_pattern_alloced = FALSE;
+    }
+
+#ifdef FEAT_RIGHTLEFT
+    if (curwin->w_p_rl && *curwin->w_p_rlc == 's')
+    {
+      char_u *rev_pattern;
+
+      rev_pattern = reverse_text(pat);
+      if (rev_pattern == NULL)
+      {
+        mr_pattern = strdup(pat); /* out of memory, keep normal pattern. */
+        mr_pattern_alloced = TRUE;
+      }
+      else
+      {
+        mr_pattern = rev_pattern;
+        mr_pattern_alloced = TRUE;
+      }
+    }
+    else
+#endif
+    {
+      mr_pattern = strdup(pat);
       mr_pattern_alloced = TRUE;
     }
   }
-  else
-#endif
-    mr_pattern = pat;
 
   /*
      * Save the currently used pattern in the appropriate place,
@@ -221,7 +228,14 @@ int search_regcomp(
 char_u *
 get_search_pat(void)
 {
-  return mr_pattern;
+  if (mr_pattern_alloced)
+  {
+    return mr_pattern;
+  }
+  else
+  {
+    return NULL;
+  }
 }
 
 #if defined(FEAT_RIGHTLEFT) || defined(PROTO)
@@ -639,6 +653,7 @@ int searchit(
   {
     if ((options & SEARCH_MSG) && !rc_did_emsg)
       semsg(_("E383: Invalid search string: %s"), mr_pattern);
+
     return FAIL;
   }
 

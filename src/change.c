@@ -2095,6 +2095,22 @@ int open_line(
     did_append = FALSE;
   }
 
+  if (autoIndentCallback != NULL)
+  {
+    int sw = (int)get_sw_value(curbuf);
+    int indentOption = autoIndentCallback(
+        curwin->w_cursor.lnum + 1,
+        curbuf,
+        saved_line,
+        next_line);
+
+    newindent += (indentOption * sw);
+    if (newindent < 0)
+    {
+      newindent = 0;
+    }
+  }
+
   if (newindent
 #ifdef FEAT_SMARTINDENT
       || did_si

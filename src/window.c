@@ -3921,6 +3921,34 @@ void goto_tabpage(int n)
   tabpage_T *tp = NULL; // shut up compiler
   tabpage_T *ttp;
   int i;
+  tabPageRequest_T tabPageRequest;
+
+  if (tabPageCallback != NULL)
+  {
+    if (n == 0)
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 1;
+      tabPageRequest.arg = 1;
+    }
+    else if (n < 0)
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = -1;
+      tabPageRequest.arg = -n;
+    }
+    else
+    {
+      tabPageRequest.kind = GOTO;
+      tabPageRequest.relative = 0;
+      tabPageRequest.arg = n;
+    }
+
+    if (tabPageCallback(tabPageRequest))
+    {
+      return;
+    }
+  }
 
   if (text_locked())
   {
@@ -3948,7 +3976,7 @@ void goto_tabpage(int n)
   else if (n < 0)
   {
     /* "gT": go to previous tab page, wrap around end.  "N gT" repeats
-	 * this N times. */
+   * this N times. */
     ttp = curtab;
     for (i = n; i < 0; ++i)
     {
@@ -4898,12 +4926,6 @@ void win_setheight_win(int height, win_T *win)
   /* recompute the window positions */
   row = win_comp_pos();
 
-  /*
-     * If there is extra space created between the last window and the command
-     * line, clear it.
-     */
-  if (full_screen && msg_scrolled == 0 && row < cmdline_row)
-    screen_fill(row, cmdline_row, 0, (int)Columns, ' ', ' ', 0);
   cmdline_row = row;
   msg_row = row;
   msg_col = 0;
@@ -5416,7 +5438,6 @@ void win_drag_status_line(win_T *dragwin, int offset)
       fr = fr->fr_next;
   }
   row = win_comp_pos();
-  screen_fill(row, cmdline_row, 0, (int)Columns, ' ', ' ', 0);
   cmdline_row = row;
   p_ch = Rows - cmdline_row;
   if (p_ch < 1)
@@ -5776,10 +5797,6 @@ void command_height(void)
       /* Recompute window positions. */
       (void)win_comp_pos();
 
-      /* clear the lines added to cmdline */
-      if (full_screen)
-        screen_fill((int)(cmdline_row), (int)Rows, 0,
-                    (int)Columns, ' ', ' ', 0);
       msg_row = cmdline_row;
       redraw_cmdline = TRUE;
       return;

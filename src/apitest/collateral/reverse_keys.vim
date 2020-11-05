@@ -1,4 +1,1 @@
-nnoremap j k
-nnoremap k j
-nnoremap h l
-nnoremap l h
+let g:test_val = 123

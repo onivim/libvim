@@ -10,8 +10,8 @@ void onUnhandledEscape(void)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
   vimExecute("e!");
 
   vimInput("g");
@@ -26,19 +26,19 @@ void test_teardown(void) {}
 MU_TEST(test_cmd_key_insert)
 {
   vimInput("o");
-  vimInput("<D-A>");
+  vimKey("<D-A>");
 
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "") == 0);
 }
 
-MU_TEST(test_cmd_key_binding)
+MU_TEST(test_binding_inactive)
 {
-  vimExecute("inoremap <D-A> b");
+  vimExecute("inoremap a b");
 
   vimInput("o");
-  vimInput("<D-A>");
+  vimKey("a");
 
-  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "b") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "a") == 0);
 }
 
 MU_TEST(test_arrow_keys_normal)
@@ -46,19 +46,19 @@ MU_TEST(test_arrow_keys_normal)
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
 
-  vimInput("<Right>");
+  vimKey("<Right>");
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 1);
 
-  vimInput("<Down>");
+  vimKey("<Down>");
   mu_check(vimCursorGetLine() == 2);
   mu_check(vimCursorGetColumn() == 1);
 
-  vimInput("<Left>");
+  vimKey("<Left>");
   mu_check(vimCursorGetLine() == 2);
   mu_check(vimCursorGetColumn() == 0);
 
-  vimInput("<Up>");
+  vimKey("<Up>");
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
 }
@@ -66,12 +66,12 @@ MU_TEST(test_arrow_keys_normal)
 MU_TEST(test_unhandled_escape)
 {
   // Should get unhandled escape...
-  vimInput("<esc>");
+  vimKey("<esc>");
   mu_check(unhandledEscapeCount == 1);
 
   // ...but not if escape was handled
   vimInput("i");
-  vimInput("<esc>");
+  vimKey("<esc>");
   // Should still be 1 - no additional calls made.
   mu_check(unhandledEscapeCount == 1);
 }
@@ -82,7 +82,7 @@ MU_TEST(test_control_bracket)
 
   mu_check((vimGetMode() & INSERT) == INSERT);
 
-  vimInput("<c-[>");
+  vimKey("<c-[>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 }
 
@@ -92,7 +92,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_arrow_keys_normal);
   MU_RUN_TEST(test_cmd_key_insert);
-  MU_RUN_TEST(test_cmd_key_binding);
+  MU_RUN_TEST(test_binding_inactive);
   MU_RUN_TEST(test_unhandled_escape);
   MU_RUN_TEST(test_control_bracket);
 }

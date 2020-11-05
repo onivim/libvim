@@ -287,49 +287,6 @@ int mch_chdir(char *path)
 #define NEW_TTY_SYSTEM
 #endif
 
-/*
- * Write s[len] to the screen (stdout).
- */
-void mch_write(char_u *s, int len)
-{
-  vim_ignored = (int)write(1, (char *)s, len);
-  if (p_wd) /* Unix is too fast, slow down a bit more */
-    RealWaitForChar(read_cmd_fd, p_wd, NULL, NULL);
-}
-
-/*
- * Function passed to inchar_loop() to handle window resizing.
- * If "check_only" is TRUE: Return whether there was a resize.
- * If "check_only" is FALSE: Deal with the window resized.
- */
-static int
-resize_func(int check_only)
-{
-  if (check_only)
-    return do_resize;
-  while (do_resize)
-    handle_resize();
-  return FALSE;
-}
-
-/*
- * mch_inchar(): low level input function.
- * Get a characters from the keyboard.
- * Return the number of characters that are available.
- * If wtime == 0 do not wait for characters.
- * If wtime == n wait a short time for characters.
- * If wtime == -1 wait forever for characters.
- */
-int mch_inchar(
-    char_u *buf,
-    int maxlen,
-    long wtime, /* don't use "time", MIPS cannot handle it */
-    int tb_change_cnt)
-{
-  return inchar_loop(buf, maxlen, wtime, tb_change_cnt,
-                     WaitForChar, resize_func);
-}
-
 static void
 handle_resize(void)
 {

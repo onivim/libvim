@@ -30,6 +30,8 @@ typedef struct
   colnr_T coladd; // extra virtual column
 } pos_T;
 
+typedef struct file_buffer buf_T; /* forward declaration */
+
 typedef enum
 {
   MSG_INFO,
@@ -79,6 +81,7 @@ typedef enum
   DECLARATION,
   IMPLEMENTATION,
   TYPEDEFINITION,
+  HOVER,
 } gotoTarget_T;
 
 typedef struct
@@ -86,6 +89,41 @@ typedef struct
   pos_T location;
   gotoTarget_T target;
 } gotoRequest_T;
+
+typedef enum
+{
+  SCROLL_CURSOR_CENTERV, // Center Vertically
+  SCROLL_CURSOR_CENTERH, // Center Horizontally
+  SCROLL_CURSOR_TOP,
+  SCROLL_CURSOR_BOTTOM,
+  SCROLL_CURSOR_LEFT,
+  SCROLL_CURSOR_RIGHT,
+  SCROLL_LINE_UP,
+  SCROLL_LINE_DOWN,
+  SCROLL_HALFPAGE_DOWN,
+  SCROLL_HALFPAGE_UP,
+  SCROLL_PAGE_DOWN,
+  SCROLL_PAGE_UP,
+  SCROLL_HALFPAGE_LEFT,  // zL
+  SCROLL_HALFPAGE_RIGHT, // zH
+  SCROLL_COLUMN_LEFT,    // zl
+  SCROLL_COLUMN_RIGHT    // zh
+} scrollDirection_T;
+
+typedef enum
+{
+  GOTO,
+  MOVE,
+  CLOSE,
+  ONLY,
+} tabPageKind_T;
+
+typedef struct
+{
+  tabPageKind_T kind;
+  int arg;      // 0 means none, otherwise interpretation depends on [kind] and [relative]
+  int relative; // 0 means [arg] is absolute, otherwise [relative * arg] yields the actual relative position
+} tabPageRequest_T;
 
 typedef struct
 {
@@ -97,14 +135,58 @@ typedef struct
   int hidden;
 } terminalRequest_t;
 
-typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines);
+typedef enum
+{
+  INDENTATION, // Indentation, ie, '=' operator
+  FORMATTING,  // Formatting, ie, 'gq' operator
+} formatRequestType_T;
+
+typedef struct
+{
+  formatRequestType_T formatType;
+  int returnCursor;
+  pos_T start;
+  pos_T end;
+  buf_T *buf;
+  char_u *cmd; // If [cmd] is specified, should delegate to external command.
+} formatRequest_T;
+
+typedef int (*ClipboardGetCallback)(int regname, int *num_lines, char_u ***lines, int *blockType /* MLINE, MCHAR, MBLOCK */);
+
+// Return OK for success, FAIL for failure
+typedef int (*ColorSchemeChangedCallback)(char_u *colorScheme);
+
 typedef void (*CursorAddCallback)(pos_T cursor);
+
+// Return OK for success, FAIL for failure
+typedef int (*ColorSchemeCompletionCallback)(char_u *filter, int *num_colorschemes, char_u ***colorschemes);
+
+typedef void (*FormatCallback)(formatRequest_T *formatRequest);
+typedef int (*AutoIndentCallback)(int lnum, buf_T *buf,
+                                  char_u *prevLine, char_u *currentLine);
+typedef void (*MacroStartRecordCallback)(int regname);
+typedef void (*MacroStopRecordCallback)(int regname, char_u *regvalue);
 typedef void (*VoidCallback)(void);
 typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
+typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
+typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
+
+typedef enum
+{
+  MOTION_H,
+  MOTION_L,
+  MOTION_M,
+} screenLineMotion_T;
+typedef void (*CursorMoveScreenLineCallback)(screenLineMotion_T motion, int count, linenr_T startLine, linenr_T *destLine);
+
+typedef void (*CursorMoveScreenPositionCallback)(
+    int direction, int count, linenr_T lnum, colnr_T cursor,
+    colnr_T curswant,
+    linenr_T *destLnum, colnr_T *destCol);
 
 typedef struct
 {
@@ -125,21 +207,6 @@ typedef enum
   UNHANDLED,
   COMPLETED_UNHANDLED,
 } executionStatus_T;
-
-typedef executionStatus_T (*state_execute)(void *context, int key);
-typedef void (*state_cleanup)(void *context);
-
-typedef const char *sname;
-
-/* State machine information */
-typedef struct
-{
-  void *context;
-  int mode;
-  state_execute execute_fn;
-  state_cleanup cleanup_fn;
-  void *prev;
-} sm_T;
 
 /*
  * Same, but without coladd.
@@ -172,8 +239,7 @@ typedef struct growarray
 typedef struct window_S win_T;
 typedef struct wininfo_S wininfo_T;
 typedef struct frame_S frame_T;
-typedef int scid_T;               /* script ID */
-typedef struct file_buffer buf_T; /* forward declaration */
+typedef int scid_T; /* script ID */
 typedef struct terminal_S term_T;
 
 typedef void (*AutoCommandCallback)(event_T, buf_T *buf);
@@ -670,7 +736,8 @@ struct cmdline_info
   int cmdbufflen;    /* length of cmdbuff */
   int cmdlen;        /* number of chars in command line */
   int cmdpos;        /* current cursor position */
-  int cmdspos;       /* cursor column on screen */
+                     // Screen position not needed for libvim:
+                     //  int cmdspos;       /* cursor column on screen */
   int cmdfirstc;     /* ':', '/', '?', '=', '>' or NUL */
   int cmdindent;     /* number of spaces before cmdline */
   char_u *cmdprompt; /* message in front of cmdline */
@@ -1150,20 +1217,24 @@ typedef struct
 typedef struct mapblock mapblock_T;
 struct mapblock
 {
-  mapblock_T *m_next; /* next mapblock in list */
-  char_u *m_keys;     /* mapped from, lhs */
-  char_u *m_str;      /* mapped to, rhs */
-  char_u *m_orig_str; /* rhs as entered by the user */
-  int m_keylen;       /* strlen(m_keys) */
-  int m_mode;         /* valid mode */
-  int m_noremap;      /* if non-zero no re-mapping for m_str */
-  char m_silent;      /* <silent> used, don't echo commands */
-  char m_nowait;      /* <nowait> used */
+  mapblock_T *m_next;  /* next mapblock in list */
+  char_u *m_keys;      /* mapped from, lhs */
+  char_u *m_orig_keys; /* lhs as entered by user */
+  char_u *m_str;       /* mapped to, rhs */
+  char_u *m_orig_str;  /* rhs as entered by the user */
+  int m_keylen;        /* strlen(m_keys) */
+  int m_mode;          /* valid mode */
+  int m_noremap;       /* if non-zero no re-mapping for m_str */
+  char m_silent;       /* <silent> used, don't echo commands */
+  char m_nowait;       /* <nowait> used */
 #ifdef FEAT_EVAL
   char m_expr;         /* <expr> used, m_str is an expression */
   sctx_T m_script_ctx; /* SCTX where map was defined */
 #endif
 };
+
+typedef void (*InputMapCallback)(const mapblock_T *mapping);
+typedef void (*InputUnmapCallback)(int mode, const char_u *orig_lhs);
 
 /*
  * Used for highlighting in the status line.
@@ -2374,7 +2445,6 @@ struct file_buffer
   int b_diff_failed; // internal diff failed for this buffer
 #endif
 
-  char_u *b_oni_line_comment;
 }; /* file_buffer */
 
 /* buffer updates */
@@ -2393,11 +2463,29 @@ typedef enum
   FILE_CHANGED,
 } writeFailureReason_T;
 
+typedef struct
+{
+  char_u *fullname;
+  char_u *shortname;
+
+  // Type can be:
+  // Number or toggle: 1 -> value is in numval
+  // String: 0 -> value is in stringval
+  int type;
+
+  long numval;
+  char_u *stringval;
+  int opt_flags; // [ OPT_FREE | OPT_LOCAL | OPT_GLOBAL ]
+  int hidden;
+} optionSet_T;
+
 typedef void (*BufferUpdateCallback)(bufferUpdate_T bufferUpdate);
 typedef void (*FileWriteFailureCallback)(writeFailureReason_T failureReason, buf_T *buf);
 typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priority);
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
+typedef void (*OptionSetCallback)(optionSet_T *optionSet);
+typedef int (*ToggleCommentsCallback)(buf_T *buf, linenr_T startLine, linenr_T endLine, linenr_T *outCount, char_u ***outLines);
 
 #ifdef FEAT_DIFF
 /*
@@ -2929,6 +3017,30 @@ typedef struct cmdarg_S
   int retval;        /* return: CA_* values */
   char_u *searchbuf; /* return: pointer to search pattern or NULL */
 } cmdarg_T;
+
+typedef struct pendingOp_S
+{
+  int op_type;
+  int regname;
+  long count;
+} pendingOp_T;
+
+typedef executionStatus_T (*state_execute)(void *context, int key);
+typedef void (*state_cleanup)(void *context);
+typedef int (*state_pending_operator)(void *context, pendingOp_T *pendingOp);
+
+typedef const char *sname;
+
+/* State machine information */
+typedef struct
+{
+  void *context;
+  int mode;
+  state_execute execute_fn;
+  state_cleanup cleanup_fn;
+  state_pending_operator pending_operator_fn;
+  void *prev;
+} sm_T;
 
 /* values for retval: */
 #define CA_COMMAND_BUSY 1  /* skip restarting edit() once */

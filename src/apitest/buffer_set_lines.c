@@ -19,8 +19,8 @@ void onBufferUpdate(bufferUpdate_T update)
 
 void test_setup(void)
 {
-  vimInput("<esc>");
-  vimInput("<esc>");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimExecute("e!");
 
@@ -134,6 +134,24 @@ MU_TEST(test_replace_entire_buffer_with_more_lines_again)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
+MU_TEST(test_version_is_incremented)
+{
+  int initialVersion = vimBufferGetLastChangedTick(curbuf);
+  char_u *lines[] = {"one"};
+  vimBufferSetLines(curbuf, 0, 0, lines, 1);
+
+  int afterVersion = vimBufferGetLastChangedTick(curbuf);
+  mu_check(afterVersion > initialVersion);
+}
+
+MU_TEST(test_modified_is_set)
+{
+  mu_check(vimBufferGetModified(curbuf) == FALSE);
+  char_u *lines[] = {"one"};
+  vimBufferSetLines(curbuf, 0, 0, lines, 1);
+  mu_check(vimBufferGetModified(curbuf) == TRUE);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -146,6 +164,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_replace_entire_buffer_after_first_line);
   MU_RUN_TEST(test_replace_entire_buffer_with_more_lines);
   MU_RUN_TEST(test_replace_entire_buffer_with_more_lines_again);
+  MU_RUN_TEST(test_version_is_incremented);
+  MU_RUN_TEST(test_modified_is_set);
 }
 
 int main(int argc, char **argv)

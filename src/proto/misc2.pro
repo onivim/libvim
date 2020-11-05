@@ -81,6 +81,7 @@ int get_mouse_button(int code, int *is_click, int *is_drag);
 int get_pseudo_mouse_code(int button, int is_click, int is_drag);
 int get_fileformat(buf_T *buf);
 int get_fileformat_force(buf_T *buf, exarg_T *eap);
+void set_fileformat_buf(buf_T *buf, int t, int opt_flags);
 void set_fileformat(int t, int opt_flags);
 int default_fileformat(void);
 int call_shell(char_u *cmd, int opt);
