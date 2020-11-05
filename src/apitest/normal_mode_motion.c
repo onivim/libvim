@@ -53,6 +53,38 @@ MU_TEST(test_2j_2k)
   mu_check(vimCursorGetLine() == 1);
 }
 
+MU_TEST(test_forward_search)
+{
+  // Move to very beginning
+  vimKey("g");
+  vimKey("g");
+  vimKey("0");
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 0);
+
+  // Search forwards to first 'line'
+  vimKey("/");
+  vimInput("line");
+  vimKey("<cr>");
+  printf("LINE: %ld\n", vimCursorGetLine());
+
+  mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 18);
+
+  // Search again from here
+  vimKey("<esc>");
+  vimKey("<esc>");
+
+  vimKey("/");
+  vimInput("line");
+  vimKey("<cr>");
+  printf("LINE: %ld\n", vimCursorGetLine());
+
+  mu_check(vimCursorGetLine() == 2);
+  mu_check(vimCursorGetColumn() == 19);
+}
+
 MU_TEST(test_reverse_search)
 {
   // Move to second line, first byte
@@ -67,6 +99,19 @@ MU_TEST(test_reverse_search)
   vimKey("<cr>");
 
   mu_check(vimCursorGetLine() == 1);
+  mu_check(vimCursorGetColumn() == 18);
+
+  // Starting from match, searching backwards again
+  vimKey("<esc>");
+  vimKey("<esc>");
+
+  vimKey("?");
+  vimInput("line");
+  vimKey("<cr>");
+
+  // Serach should loop back
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 18);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -76,6 +121,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_G_gg);
   MU_RUN_TEST(test_j_k);
   MU_RUN_TEST(test_2j_2k);
+  MU_RUN_TEST(test_forward_search);
   MU_RUN_TEST(test_reverse_search);
 }
 
