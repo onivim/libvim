@@ -689,7 +689,29 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
         /*                         ? 0 */
         /*                         : SEARCH_MARK); */
       }
-      start_normal_mode(context);
+      if (context->oap->op_type == OP_NOP)
+      {
+        start_normal_mode(context);
+      }
+      else
+      {
+        // We have a pending operator, so finish it
+        if (finish_op || VIsual_active)
+        {
+          do_pending_operator(&context->ca, context->old_col, FALSE);
+        }
+
+        int stateMode = sm_get_current_mode();
+        if (stateMode != NORMAL)
+        {
+          context->returnState = stateMode;
+          context->returnPriorPosition = curwin->w_cursor;
+        }
+        else
+        {
+          start_normal_mode(context);
+        }
+      }
       return HANDLED;
       break;
     default:
