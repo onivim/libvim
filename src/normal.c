@@ -7028,11 +7028,14 @@ static void nv_edit(cmdarg_T *cap)
 
     int start = VIsual.lnum < curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
     int end = VIsual.lnum > curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
+    int minCol = VIsual.col < curwin->w_cursor.col ? VIsual.col : curwin->w_cursor.col;
 
     for (int i = start; i < end; i++)
     {
       int lnum = i;
-      int col = VIsual_mode == Ctrl_V ? VIsual.col : 0;
+      int initialPos = cap->cmdchar == 'I' ? minCol : STRLEN(ml_get_buf(curbuf, lnum, FALSE));
+      int col = VIsual_mode == Ctrl_V ? VIsual.col : initialPos;
+      curwin->w_cursor.col += (colnr_T)STRLEN(ml_get_cursor());
       if (cursorAddCallback != NULL)
       {
         pos_T cursor;

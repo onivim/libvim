@@ -6,6 +6,8 @@ static int onCursorAddCount = 0;
 void test_setup(void)
 {
   vimExecute("e!");
+  vimKey("<esc>");
+  vimKey("<esc>");
 
   vimInput("g");
   vimInput("g");
@@ -79,6 +81,16 @@ MU_TEST(test_add_cursors_visual)
   mu_check(onCursorAddCount == 2);
 }
 
+MU_TEST(test_add_cursors_visual_after)
+{
+  vimInput("<c-v>");
+  vimInput("j");
+  vimInput("j");
+  vimInput("A");
+
+  mu_check(onCursorAddCount == 2);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -89,6 +101,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_set_cursor_doesnt_move_topline);
 
   MU_RUN_TEST(test_add_cursors_visual);
+  MU_RUN_TEST(test_add_cursors_visual_after);
 }
 
 int main(int argc, char **argv)
