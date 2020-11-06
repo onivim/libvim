@@ -672,8 +672,16 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
       {
         context->ca.searchbuf = cmd;
         /* Seed the search - bump it forward and back so everything is set for N and n */
-        (void)normal_search(&context->ca, cmdc, cmd, 0);
-        (void)normal_search(&context->ca, cmdc, NULL, SEARCH_REV | SEARCH_END);
+        if (cmdc == '/')
+        {
+          (void)normal_search(&context->ca, cmdc, cmd, 0);
+          (void)normal_search(&context->ca, cmdc, cmd, SEARCH_REV | SEARCH_END);
+        }
+        else
+        {
+          (void)normal_search(&context->ca, cmdc, cmd, SEARCH_START);
+          (void)normal_search(&context->ca, cmdc, cmd, SEARCH_REV | SEARCH_START);
+        }
 
         /* TODO: SEARCH_MARK parameter - how do we wire that up? We may need to stash save_cursor somewhere. */
         /* (void)normal_search(cap, cap->cmdchar, cap->searchbuf, */
@@ -681,7 +689,29 @@ executionStatus_T state_normal_cmd_execute(void *ctx, int c)
         /*                         ? 0 */
         /*                         : SEARCH_MARK); */
       }
-      start_normal_mode(context);
+      if (context->oap->op_type == OP_NOP)
+      {
+        start_normal_mode(context);
+      }
+      else
+      {
+        // We have a pending operator, so finish it
+        if (finish_op || VIsual_active)
+        {
+          do_pending_operator(&context->ca, context->old_col, FALSE);
+        }
+
+        int stateMode = sm_get_current_mode();
+        if (stateMode != NORMAL)
+        {
+          context->returnState = stateMode;
+          context->returnPriorPosition = curwin->w_cursor;
+        }
+        else
+        {
+          start_normal_mode(context);
+        }
+      }
       return HANDLED;
       break;
     default:
