@@ -1390,6 +1390,8 @@ typedef struct
   } vval;
 } typval_T;
 
+typedef void (*EvalVariableSetCallback)(char_u *name, typval_T *tv);
+
 /* Values for "dv_scope". */
 #define VAR_SCOPE 1 /* a:, v:, s:, etc. scope dictionaries */
 

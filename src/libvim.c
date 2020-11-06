@@ -175,6 +175,11 @@ void vimSetDirectoryChangedCallback(DirectoryChangedCallback f)
   directoryChangedCallback = f;
 }
 
+void vimSetEvalVariableSetCallback(EvalVariableSetCallback f)
+{
+  evalVariableSetCallback = f;
+}
+
 void vimSetOptionSetCallback(OptionSetCallback f)
 {
   optionSetCallback = f;
