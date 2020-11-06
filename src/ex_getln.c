@@ -556,10 +556,6 @@ may_adjust_incsearch_highlighting(
     incsearch_state_T *is_state,
     int c)
 {
-  printf("-- may_adjust_incsearch_highlighting - firstc: %c c: %c\n",
-  firstc,
-  c
-  );
   int skiplen, patlen;
   pos_T t;
   char_u *pat;
