@@ -3197,6 +3197,19 @@ static void nv_gd(oparg_T *oap, int nchar,
   }
 }
 
+static void nv_goto_outline(oparg_T *oap)
+{
+  clearopbeep(oap);
+  gotoRequest_T gotoRequest;
+  gotoRequest.location = curwin->w_cursor;
+  gotoRequest.target = OUTLINE;
+
+  if (gotoCallback != NULL)
+  {
+    gotoCallback(gotoRequest);
+  }
+}
+
 /*
  * Return TRUE if line[offset] is not inside a C-style comment or string, FALSE
  * otherwise.
@@ -6459,6 +6472,10 @@ static void nv_g_cmd(cmdarg_T *cap)
   case 'd':
   case 'D':
     nv_gd(oap, cap->nchar, (int)cap->count0);
+    break;
+
+  case 'O':
+    nv_goto_outline(oap);
     break;
 
   case K_IGNORE:

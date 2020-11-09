@@ -77,6 +77,17 @@ MU_TEST(test_goto_hover)
   mu_check(lastTarget == HOVER);
 }
 
+MU_TEST(test_goto_outline)
+{
+  vimInput("g");
+  vimInput("O");
+
+  mu_check(gotoCount == 1);
+  mu_check(lastLnum == 1);
+  mu_check(lastCol == 0);
+  mu_check(lastTarget == OUTLINE);
+}
+
 // TODO: Implement goto-implementation
 /*MU_TEST(test_goto_implementation)
 {
@@ -96,6 +107,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_goto_definition);
   MU_RUN_TEST(test_goto_declaration);
   MU_RUN_TEST(test_goto_hover);
+  MU_RUN_TEST(test_goto_outline);
   //MU_RUN_TEST(test_goto_implementation);
 }
 
