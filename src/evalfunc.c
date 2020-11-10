@@ -4665,26 +4665,32 @@ f_getchar(typval_T *argvars, typval_T *rettv)
 {
   varnumber_T n = 0;
   int error = FALSE;
-  int mode = -1; // 
-    if (argvars[0].v_type == VAR_UNKNOWN) {
-        mode = -1;
-    }
-    else if (tv_get_number_chk(&argvars[0], &error) == 1) {
-        mode = 1;
-    } else {
-        mode = 0;
-    }
+  int mode = -1; //
+  if (argvars[0].v_type == VAR_UNKNOWN)
+  {
+    mode = -1;
+  }
+  else if (tv_get_number_chk(&argvars[0], &error) == 1)
+  {
+    mode = 1;
+  }
+  else
+  {
+    mode = 0;
+  }
 
-if (functionGetCharCallback != NULL && error == FALSE) {
-        char outChar;
-        int outModMask;
-        int result = functionGetCharCallback(mode, &outChar, &outModMask);
+  if (functionGetCharCallback != NULL && error == FALSE)
+  {
+    char outChar;
+    int outModMask;
+    int result = functionGetCharCallback(mode, &outChar, &outModMask);
 
-        if (result == OK) {
-               n = outChar; 
-               mod_mask = outModMask;
-        }
-}
+    if (result == OK)
+    {
+      n = outChar;
+      mod_mask = outModMask;
+    }
+  }
 
   set_vim_var_nr(VV_MOUSE_WIN, 0);
   set_vim_var_nr(VV_MOUSE_WINID, 0);
@@ -5363,7 +5369,6 @@ f_getreg(typval_T *argvars, typval_T *rettv)
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = get_reg_contents(regname,
                                             arg2 ? GREG_EXPR_SRC : 0);
-  printf("f_getreg: %s\n", rettv->vval.v_string);
   }
 }
 
@@ -5413,7 +5418,6 @@ f_getregtype(typval_T *argvars, typval_T *rettv)
   }
   rettv->v_type = VAR_STRING;
   rettv->vval.v_string = vim_strsave(buf);
-  printf("f_getregtype: %s\n", buf);
 }
 
 /*
@@ -10755,7 +10759,6 @@ f_setreg(typval_T *argvars, typval_T *rettv)
     strval = tv_get_string_chk(&argvars[1]);
     if (strval == NULL)
       return;
-    printf("f_setreg - string: %c|%s|%d\n", regname, strval, yank_type);
     write_reg_contents_ex(regname, strval, -1,
                           append, yank_type, block_len);
   }

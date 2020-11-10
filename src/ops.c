@@ -770,7 +770,6 @@ int get_yank_register(int regname, int writing)
   int blockType;
   int useExternalClipboard = 0;
 
-  printf("clip_unnamed: %d\n", clip_unnamed);
   if (clipboardGetCallback != NULL && !writing && clip_unnamed)
   {
     useExternalClipboard = clipboardGetCallback(regname, &num_lines, &lines, &blockType);

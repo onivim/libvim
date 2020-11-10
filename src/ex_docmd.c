@@ -8535,7 +8535,6 @@ void ex_normal(exarg_T *eap)
         check_cursor_moved(curwin);
       }
 
-      printf("RUNNING :NORMAL: %s\n", arg != NULL ? arg : eap->arg);
       sm_execute_normal(arg != NULL ? arg : eap->arg, /* preserveState */ TRUE);
     } while (eap->addr_count > 0 && eap->line1 <= eap->line2 && !got_int);
   }
