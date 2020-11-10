@@ -2341,7 +2341,6 @@ set_var_lval(
   int cc;
   listitem_T *ri;
   dictitem_T *di;
-
   if (lp->ll_tv == NULL)
   {
     cc = *endp;
@@ -7893,6 +7892,13 @@ void set_var(
     typval_T *tv,
     int copy) /* make copy of value in "tv" */
 {
+
+  if (name != NULL && tv != NULL)
+  {
+    //printf("lp->ll_exp_name: %s\n", lp->ll_exp_name);
+    evalVariableSetCallback(name, tv);
+  }
+
   dictitem_T *v;
   char_u *varname;
   hashtab_T *ht;

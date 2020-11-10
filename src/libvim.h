@@ -107,6 +107,8 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count);
  */
 char_u *vimEval(char_u *str);
 
+void vimSetEvalVariableSetCallback(EvalVariableSetCallback callback);
+
 /***
  * Cursor Methods
  ***/

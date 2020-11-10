@@ -50,6 +50,7 @@ EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN FileWriteFailureCallback fileWriteFailureCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
+EXTERN EvalVariableSetCallback evalVariableSetCallback INIT(= NULL);
 EXTERN FormatCallback formatCallback INIT(= NULL);
 EXTERN GotoCallback gotoCallback INIT(= NULL);
 EXTERN TabPageCallback tabPageCallback INIT(= NULL);
