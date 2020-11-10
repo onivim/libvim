@@ -1,6 +1,21 @@
 # Cross-platform build pipeline + NPM publish
 
 name: $(Build.SourceVersion)
+
+# Master build triggers
+trigger: 
+- master
+
+# PR Triggers
+pr:
+  autoCancel: true
+  branches:
+    include: 
+    - master
+  paths:
+    exclude: 
+    - README.md
+
 jobs:
 - job: ArchDocker
   displayName: "Linux - Arch"
