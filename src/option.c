@@ -660,7 +660,7 @@ static struct vimoption options[] =
          {(char_u *)0L, (char_u *)0L}
 #endif
          SCTX_INIT},
-        {"clipboard", "cb", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)NULL, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
+        {"clipboard", "cb", P_STRING | P_VI_DEF | P_ONECOMMA | P_NODUP, (char_u *)&p_cb, PV_NONE, {(char_u *)"unnamed", (char_u *)0L} SCTX_INIT},
         {"cmdheight", "ch", P_NUM | P_VI_DEF | P_RALL, (char_u *)&p_ch, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
         {"cmdwinheight", "cwh", P_NUM | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)7L, (char_u *)0L} SCTX_INIT},
         {"codelens", NULL, P_BOOL | P_VI_DEF, (char_u *)&p_codelens, PV_NONE, {(char_u *)TRUE, (char_u *)0L} SCTX_INIT},
@@ -2228,6 +2228,7 @@ static long_u *insecure_flag(int opt_idx, int opt_flags);
 static void set_string_option_global(int opt_idx, char_u **varp);
 static char *did_set_string_option(int opt_idx, char_u **varp, int new_value_alloced, char_u *oldval, char *errbuf, int opt_flags, int *value_checked);
 static char *set_chars_option(char_u **varp);
+static char *check_clipboard_option(void);
 #ifdef FEAT_EVAL
 static void set_option_sctx_idx(int opt_idx, int opt_flags, sctx_T script_ctx);
 #endif
@@ -4331,6 +4332,9 @@ didset_options2(void)
   /* Parse default for 'fillchars'. */
   (void)set_chars_option(&p_fcs);
 
+  /* Parse default for 'clipboard' */
+  (void)check_clipboard_option();
+
 #ifdef FEAT_VARTABS
   vim_free(curbuf->b_p_vsts_array);
   tabstop_set(curbuf->b_p_vsts, &curbuf->b_p_vsts_array);
@@ -5504,6 +5508,11 @@ did_set_string_option(
       errmsg = e_invarg;
   }
 
+  /* 'clipboard' */
+  else if (varp == &p_cb) {
+         errmsg = check_clipboard_option();
+  }
+
   /* When 'bufhidden' is set, check for valid value. */
   else if (gvarp == &p_bh)
   {
@@ -6554,6 +6563,93 @@ set_bool_option(
   check_redraw(options[opt_idx].flags);
 
   return NULL;
+}
+
+/*
+ * Extract the items in the 'clipboard' option and set global values.
+ * Return an error message or NULL for success.
+ */
+static char *
+check_clipboard_option(void)
+{
+  int new_unnamed = 0;
+  int new_autoselect_star = FALSE;
+  int new_autoselect_plus = FALSE;
+  int new_autoselectml = FALSE;
+  int new_html = FALSE;
+  regprog_T *new_exclude_prog = NULL;
+  char *errmsg = NULL;
+  char_u *p;
+
+  for (p = p_cb; *p != NUL;)
+  {
+    if (STRNCMP(p, "unnamed", 7) == 0 && (p[7] == ',' || p[7] == NUL))
+    {
+      new_unnamed |= CLIP_UNNAMED;
+      p += 7;
+    }
+    else if (STRNCMP(p, "unnamedplus", 11) == 0 && (p[11] == ',' || p[11] == NUL))
+    {
+      new_unnamed |= CLIP_UNNAMED_PLUS;
+      p += 11;
+    }
+    else if (STRNCMP(p, "autoselect", 10) == 0 && (p[10] == ',' || p[10] == NUL))
+    {
+      new_autoselect_star = TRUE;
+      p += 10;
+    }
+    else if (STRNCMP(p, "autoselectplus", 14) == 0 && (p[14] == ',' || p[14] == NUL))
+    {
+      new_autoselect_plus = TRUE;
+      p += 14;
+    }
+    else if (STRNCMP(p, "autoselectml", 12) == 0 && (p[12] == ',' || p[12] == NUL))
+    {
+      new_autoselectml = TRUE;
+      p += 12;
+    }
+    else if (STRNCMP(p, "html", 4) == 0 && (p[4] == ',' || p[4] == NUL))
+    {
+      new_html = TRUE;
+      p += 4;
+    }
+    else if (STRNCMP(p, "exclude:", 8) == 0 && new_exclude_prog == NULL)
+    {
+      p += 8;
+      new_exclude_prog = vim_regcomp(p, RE_MAGIC);
+      if (new_exclude_prog == NULL)
+        errmsg = e_invarg;
+      break;
+    }
+    else
+    {
+      errmsg = e_invarg;
+      break;
+    }
+    if (*p == ',')
+      ++p;
+  }
+  if (errmsg == NULL)
+  {
+    clip_unnamed = new_unnamed;
+    clip_autoselect_star = new_autoselect_star;
+    clip_autoselect_plus = new_autoselect_plus;
+    clip_autoselectml = new_autoselectml;
+    clip_html = new_html;
+    vim_regfree(clip_exclude_prog);
+    clip_exclude_prog = new_exclude_prog;
+#ifdef FEAT_GUI_GTK
+    if (gui.in_use)
+    {
+      gui_gtk_set_selection_targets();
+      gui_gtk_set_dnd_targets();
+    }
+#endif
+  }
+  else
+    vim_regfree(new_exclude_prog);
+
+  return errmsg;
 }
 
 /*

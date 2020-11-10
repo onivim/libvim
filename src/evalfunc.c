@@ -4663,43 +4663,28 @@ f_getchangelist(typval_T *argvars, typval_T *rettv)
 static void
 f_getchar(typval_T *argvars, typval_T *rettv)
 {
-  varnumber_T n;
-  // int error = FALSE;
+  varnumber_T n = 0;
+  int error = FALSE;
+  int mode = -1; // 
+    if (argvars[0].v_type == VAR_UNKNOWN) {
+        mode = -1;
+    }
+    else if (tv_get_number_chk(&argvars[0], &error) == 1) {
+        mode = 1;
+    } else {
+        mode = 0;
+    }
 
-#ifdef MESSAGE_QUEUE
-  // vpeekc() used to check for messages, but that caused problems, invoking
-  // a callback where it was not expected.  Some plugins use getchar(1) in a
-  // loop to await a message, therefore make sure we check for messages here.
-  parse_queued_messages();
-#endif
+if (functionGetCharCallback != NULL && error == FALSE) {
+        char outChar;
+        int outModMask;
+        int result = functionGetCharCallback(mode, &outChar, &outModMask);
 
-  /* Position the cursor.  Needed after a message that ends in a space. */
-  windgoto(msg_row, msg_col);
-
-  n = '"';
-  // ++no_mapping;
-  // ++allow_keys;
-  // for (;;)
-  // {
-  //   if (argvars[0].v_type == VAR_UNKNOWN)
-  //     /* getchar(): blocking wait. */
-  //     n = plain_vgetc();
-  //   else if (tv_get_number_chk(&argvars[0], &error) == 1)
-  //     /* getchar(1): only check if char avail */
-  //     n = vpeekc_any();
-  //   else if (error || vpeekc_any() == NUL)
-  //     /* illegal argument or getchar(0) and no char avail: return zero */
-  //     n = 0;
-  //   else
-  //     /* getchar(0) and char avail: return char */
-  //     n = plain_vgetc();
-
-  //   if (n == K_IGNORE)
-  //     continue;
-  //   break;
-  // }
-  // --no_mapping;
-  // --allow_keys;
+        if (result == OK) {
+               n = outChar; 
+               mod_mask = outModMask;
+        }
+}
 
   set_vim_var_nr(VV_MOUSE_WIN, 0);
   set_vim_var_nr(VV_MOUSE_WINID, 0);
@@ -5378,6 +5363,7 @@ f_getreg(typval_T *argvars, typval_T *rettv)
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = get_reg_contents(regname,
                                             arg2 ? GREG_EXPR_SRC : 0);
+  printf("f_getreg: %s\n", rettv->vval.v_string);
   }
 }
 
@@ -5427,6 +5413,7 @@ f_getregtype(typval_T *argvars, typval_T *rettv)
   }
   rettv->v_type = VAR_STRING;
   rettv->vval.v_string = vim_strsave(buf);
+  printf("f_getregtype: %s\n", buf);
 }
 
 /*
@@ -10768,6 +10755,7 @@ f_setreg(typval_T *argvars, typval_T *rettv)
     strval = tv_get_string_chk(&argvars[1]);
     if (strval == NULL)
       return;
+    printf("f_setreg - string: %c|%s|%d\n", regname, strval, yank_type);
     write_reg_contents_ex(regname, strval, -1,
                           append, yank_type, block_len);
   }

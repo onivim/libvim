@@ -373,6 +373,7 @@ EXTERN char_u *p_enc; /* 'encoding' */
 EXTERN int p_deco;    /* 'delcombine' */
 #ifdef FEAT_EVAL
 EXTERN char_u *p_ccv; /* 'charconvert' */
+EXTERN char_u *p_cb; /* clipboard */
 #endif
 EXTERN long p_ch;       /* 'cmdheight' */
 EXTERN int p_codelens;  /* 'codelens' */

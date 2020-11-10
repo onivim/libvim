@@ -96,6 +96,7 @@ void sm_execute_normal(char_u *keys, int preserveState)
     sm_push_normal();
   }
 
+  printf("-- RUNNING KEYS: %s\n", keys);
   char_u *keys_esc = vim_strsave_escape_csi(keys);
   ins_typebuf(keys_esc, REMAP_NONE, 0, FALSE, FALSE);
   vim_free(keys_esc);
@@ -105,6 +106,7 @@ void sm_execute_normal(char_u *keys, int preserveState)
     while (vpeekc() != NUL && typebuf.tb_len > 0)
     {
       int c = vgetc();
+      printf("-- key: %c|%d\n", c, c);
       if (state_current == NULL)
       {
         sm_push_normal();

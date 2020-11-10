@@ -60,6 +60,7 @@ EXTERN ColorSchemeChangedCallback colorSchemeChangedCallback INIT(= NULL);
 EXTERN ColorSchemeCompletionCallback colorSchemeCompletionCallback INIT(= NULL);
 EXTERN CursorMoveScreenLineCallback cursorMoveScreenLineCallback INIT(= NULL);
 EXTERN CursorMoveScreenPositionCallback cursorMoveScreenPositionCallback INIT(= NULL);
+EXTERN FunctionGetCharCallback functionGetCharCallback INIT(=NULL);
 EXTERN InputMapCallback inputMapCallback INIT(= NULL);
 EXTERN InputUnmapCallback inputUnmapCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
@@ -411,10 +412,17 @@ EXTERN int diff_need_scrollbind INIT(= FALSE);
 /* While redrawing the screen this flag is set.  It means the screen size
  * ('lines' and 'rows') must not be changed. */
 EXTERN int updating_screen INIT(= FALSE);
-
+EXTERN VimClipboard clip_star; /* PRIMARY selection in X11 */
+#define clip_plus clip_start
+#define ONE_CLIPBOARD
 #define CLIP_UNNAMED 1
 #define CLIP_UNNAMED_PLUS 2
 EXTERN int clip_unnamed INIT(= 0);       /* above two values or'ed */
+EXTERN int clip_autoselect_star INIT(= FALSE);
+EXTERN int clip_autoselect_plus INIT(= FALSE);
+EXTERN int clip_autoselectml INIT(= FALSE);
+EXTERN int clip_html INIT(= FALSE);
+EXTERN regprog_T *clip_exclude_prog INIT(= NULL);
 EXTERN int clip_unnamed_saved INIT(= 0); /* above two values or'ed */
 
 /*

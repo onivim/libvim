@@ -558,6 +558,10 @@ char_u *vimEval(char_u *str)
   return ret;
 }
 
+void vimSetFunctionGetCharCallback(FunctionGetCharCallback callback) {
+  functionGetCharCallback = callback;
+}
+
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
   get_yank_register_value(reg_name, num_lines, lines);

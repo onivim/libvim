@@ -174,6 +174,10 @@ typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
 
+// Return OK on success, FAIL on failure
+// Mode corresponds to the argument passed to `getchar(mode)`
+typedef int (*FunctionGetCharCallback)(int mode, char *character, int* modMask);
+
 typedef enum
 {
   MOTION_H,
