@@ -4663,7 +4663,7 @@ static void
 f_getchar(typval_T *argvars, typval_T *rettv)
 {
   varnumber_T n;
-  int error = FALSE;
+  // int error = FALSE;
 
 #ifdef MESSAGE_QUEUE
   // vpeekc() used to check for messages, but that caused problems, invoking
@@ -4675,29 +4675,30 @@ f_getchar(typval_T *argvars, typval_T *rettv)
   /* Position the cursor.  Needed after a message that ends in a space. */
   windgoto(msg_row, msg_col);
 
-  ++no_mapping;
-  ++allow_keys;
-  for (;;)
-  {
-    if (argvars[0].v_type == VAR_UNKNOWN)
-      /* getchar(): blocking wait. */
-      n = plain_vgetc();
-    else if (tv_get_number_chk(&argvars[0], &error) == 1)
-      /* getchar(1): only check if char avail */
-      n = vpeekc_any();
-    else if (error || vpeekc_any() == NUL)
-      /* illegal argument or getchar(0) and no char avail: return zero */
-      n = 0;
-    else
-      /* getchar(0) and char avail: return char */
-      n = plain_vgetc();
+  n = '"';
+  // ++no_mapping;
+  // ++allow_keys;
+  // for (;;)
+  // {
+  //   if (argvars[0].v_type == VAR_UNKNOWN)
+  //     /* getchar(): blocking wait. */
+  //     n = plain_vgetc();
+  //   else if (tv_get_number_chk(&argvars[0], &error) == 1)
+  //     /* getchar(1): only check if char avail */
+  //     n = vpeekc_any();
+  //   else if (error || vpeekc_any() == NUL)
+  //     /* illegal argument or getchar(0) and no char avail: return zero */
+  //     n = 0;
+  //   else
+  //     /* getchar(0) and char avail: return char */
+  //     n = plain_vgetc();
 
-    if (n == K_IGNORE)
-      continue;
-    break;
-  }
-  --no_mapping;
-  --allow_keys;
+  //   if (n == K_IGNORE)
+  //     continue;
+  //   break;
+  // }
+  // --no_mapping;
+  // --allow_keys;
 
   set_vim_var_nr(VV_MOUSE_WIN, 0);
   set_vim_var_nr(VV_MOUSE_WINID, 0);

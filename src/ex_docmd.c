@@ -8535,10 +8535,12 @@ void ex_normal(exarg_T *eap)
         check_cursor_moved(curwin);
       }
 
-      exec_normal_cmd(arg != NULL
-                          ? arg
-                          : eap->arg,
-                      eap->forceit ? REMAP_NONE : REMAP_YES, FALSE);
+      printf("RUNNING :NORMAL: %s\n", arg != NULL ? arg : eap->arg);
+      sm_execute_normal(arg != NULL ? arg : eap->arg, /* preserveState */TRUE);
+      // exec_normal_cmd(arg != NULL
+      //                     ? arg
+      //                     : eap->arg,
+      //                 eap->forceit ? REMAP_NONE : REMAP_YES, FALSE);
     } while (eap->addr_count > 0 && eap->line1 <= eap->line2 && !got_int);
   }
 
