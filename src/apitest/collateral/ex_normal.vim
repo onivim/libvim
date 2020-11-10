@@ -11,3 +11,7 @@ endfunction
 function NormInsertCharacterBothSides()
     exe "norm! Ia\<ESC>Ab"
 endfunction
+
+function NormInsertCharacterBothSidesMultipleLines()
+    exe "%norm! Ia\<ESC>Ab"
+endfunction

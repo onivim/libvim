@@ -85,8 +85,9 @@ void sm_push_change(oparg_T *oap)
  */
 void sm_execute_normal(char_u *keys, int preserveState)
 {
-  sm_T* previousState = state_current;
-  if (preserveState) {
+  sm_T *previousState = state_current;
+  if (preserveState)
+  {
     state_current = NULL;
   }
 
@@ -104,7 +105,6 @@ void sm_execute_normal(char_u *keys, int preserveState)
     while (vpeekc() != NUL && typebuf.tb_len > 0)
     {
       int c = vgetc();
-
       if (state_current == NULL)
       {
         sm_push_normal();
@@ -136,16 +136,18 @@ void sm_execute_normal(char_u *keys, int preserveState)
     }
   }
 
-  if (preserveState) {
+  if (preserveState)
+  {
 
-     sm_T *stateToCleanup = state_current;
-     while (stateToCleanup != NULL) {
+    sm_T *stateToCleanup = state_current;
+    while (stateToCleanup != NULL)
+    {
       stateToCleanup->cleanup_fn(stateToCleanup->context);
-      sm_T *prev =stateToCleanup;
+      sm_T *prev = stateToCleanup;
       stateToCleanup = prev->prev;
       vim_free(prev);
-     }
-     state_current = previousState;
+    }
+    state_current = previousState;
   }
 }
 void sm_execute(char_u *keys)

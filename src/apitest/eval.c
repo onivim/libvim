@@ -49,7 +49,7 @@ MU_TEST(test_exe_norm_insert_character)
   vimExecute("source collateral/ex_normal.vim");
   vimExecute("call NormInsertCharacter()");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u* line = vimBufferGetLine(curbuf, 1);
+  char_u *line = vimBufferGetLine(curbuf, 1);
   printf("LINE: %s\n", line);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test file") == 0);
 }
@@ -60,9 +60,22 @@ MU_TEST(test_exe_norm_insert_character_both_sides)
   vimExecute("source collateral/ex_normal.vim");
   vimExecute("call NormInsertCharacterBothSides()");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u* line = vimBufferGetLine(curbuf, 1);
+  char_u *line = vimBufferGetLine(curbuf, 1);
   printf("LINE: %s\n", line);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test fileb") == 0);
+}
+
+MU_TEST(test_exe_norm_insert_character_both_sides_multiple_lines)
+{
+  mu_check(vimBufferGetLineCount(curbuf) == 3);
+  vimExecute("source collateral/ex_normal.vim");
+  vimExecute("call NormInsertCharacterBothSidesMultipleLines()");
+  mu_check(vimBufferGetLineCount(curbuf) == 3);
+  char_u *line = vimBufferGetLine(curbuf, 3);
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test fileb") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 2), "aThis is the second line of a test fileb") == 0);
+  mu_check(strcmp(vimBufferGetLine(curbuf, 3), "aThis is the third line of a test fileb") == 0);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -74,6 +87,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_exe_norm_delete_line);
   MU_RUN_TEST(test_exe_norm_insert_character);
   MU_RUN_TEST(test_exe_norm_insert_character_both_sides);
+  MU_RUN_TEST(test_exe_norm_insert_character_both_sides_multiple_lines);
 }
 
 int main(int argc, char **argv)
