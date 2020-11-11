@@ -83,7 +83,7 @@ void sm_push_change(oparg_T *oap)
  * Like sm_execute, but if there is no active state,
  * defaults to normal mode.
  */
-void sm_execute_normal(char_u *keys, int preserveState)
+void sm_execute_normal(char_u *cmd, int preserveState)
 {
   sm_T *previousState = state_current;
   if (preserveState)
@@ -96,8 +96,8 @@ void sm_execute_normal(char_u *keys, int preserveState)
     sm_push_normal();
   }
 
-  char_u *keys_esc = vim_strsave_escape_csi(keys);
-  ins_typebuf(keys_esc, REMAP_NONE, 0, FALSE, FALSE);
+  char_u *keys_esc = vim_strsave_escape_csi(cmd);
+  ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
   vim_free(keys_esc);
 
   if (state_current != NULL)
@@ -153,12 +153,17 @@ void sm_execute_normal(char_u *keys, int preserveState)
 void sm_execute(char_u *keys)
 {
   char_u *keys_esc = vim_strsave_escape_csi(keys);
-  ins_typebuf(keys_esc, REMAP_NONE, 0, FALSE, FALSE);
+  ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
   vim_free(keys_esc);
 
   // Reset abbr_cnt after each input here,
   // to enable correct cabbrev expansions
   typebuf.tb_no_abbr_cnt = 0;
+
+  if (state_current == NULL)
+  {
+    sm_push_normal();
+  }
 
   if (state_current != NULL)
   {

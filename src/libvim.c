@@ -259,13 +259,13 @@ void vimInputCore(int should_replace_termcodes, char_u *input)
 
     if (*ptr != NUL) /* trailing CTRL-V results in nothing */
     {
-      sm_execute_normal(input, /* preserveState */ FALSE);
+      sm_execute(input);
       vim_free((char_u *)ptr);
     }
   }
   else
   {
-    sm_execute_normal(input, /* preserveState */ FALSE);
+    sm_execute(input);
   }
 
   /* Trigger CursorMoved if the cursor moved. */
