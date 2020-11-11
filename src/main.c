@@ -1012,32 +1012,33 @@ void main_loop(
 	 * If we're invoked as ex, do a round of ex commands.
 	 * Otherwise, get and execute a normal mode command.
 	 */
-    if (exmode_active)
-    {
-      if (noexmode) /* End of ":global/path/visual" commands */
-        return;
-      do_exmode(exmode_active == EXMODE_VIM);
-    }
-    else
-    {
-#ifdef FEAT_TERMINAL
-      if (term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active && !skip_term_loop)
-      {
-        /* If terminal_loop() returns OK we got a key that is handled
-		 * in Normal model.  With FAIL we first need to position the
-		 * cursor and the screen needs to be redrawn. */
-        if (terminal_loop(TRUE) == OK)
-          normal_cmd(&oa, TRUE);
-      }
-      else
-#endif
-      {
-#ifdef FEAT_TERMINAL
-        skip_term_loop = FALSE;
-#endif
-        normal_cmd(&oa, TRUE);
-      }
-    }
+    // Libvim: No-op
+    //     if (exmode_active)
+    //     {
+    //       if (noexmode) /* End of ":global/path/visual" commands */
+    //         return;
+    //       do_exmode(exmode_active == EXMODE_VIM);
+    //     }
+    //     else
+    //     {
+    // #ifdef FEAT_TERMINAL
+    //       if (term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active && !skip_term_loop)
+    //       {
+    //         /* If terminal_loop() returns OK we got a key that is handled
+    // 		 * in Normal model.  With FAIL we first need to position the
+    // 		 * cursor and the screen needs to be redrawn. */
+    //         if (terminal_loop(TRUE) == OK)
+    //           normal_cmd(&oa, TRUE);
+    //       }
+    //       else
+    // #endif
+    //       {
+    // #ifdef FEAT_TERMINAL
+    //         skip_term_loop = FALSE;
+    // #endif
+    //         normal_cmd(&oa, TRUE);
+    //       }
+    //     }
   }
 }
 

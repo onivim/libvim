@@ -3509,101 +3509,103 @@ f_extend(typval_T *argvars, typval_T *rettv)
 static void
 f_feedkeys(typval_T *argvars, typval_T *rettv UNUSED)
 {
-  int remap = TRUE;
-  int insert = FALSE;
-  char_u *keys, *flags;
-  char_u nbuf[NUMBUFLEN];
-  int typed = FALSE;
-  int execute = FALSE;
-  int dangerous = FALSE;
-  int lowlevel = FALSE;
-  char_u *keys_esc;
+  // libvim: not yet implemented
+  semsg("libvim: feedkeys not implemented");
+  //   int remap = TRUE;
+  //   int insert = FALSE;
+  //   char_u *keys, *flags;
+  //   char_u nbuf[NUMBUFLEN];
+  //   int typed = FALSE;
+  //   int execute = FALSE;
+  //   int dangerous = FALSE;
+  //   int lowlevel = FALSE;
+  //   char_u *keys_esc;
 
-  /* This is not allowed in the sandbox.  If the commands would still be
-     * executed in the sandbox it would be OK, but it probably happens later,
-     * when "sandbox" is no longer set. */
-  if (check_secure())
-    return;
+  //   /* This is not allowed in the sandbox.  If the commands would still be
+  //      * executed in the sandbox it would be OK, but it probably happens later,
+  //      * when "sandbox" is no longer set. */
+  //   if (check_secure())
+  //     return;
 
-  keys = tv_get_string(&argvars[0]);
+  //   keys = tv_get_string(&argvars[0]);
 
-  if (argvars[1].v_type != VAR_UNKNOWN)
-  {
-    flags = tv_get_string_buf(&argvars[1], nbuf);
-    for (; *flags != NUL; ++flags)
-    {
-      switch (*flags)
-      {
-      case 'n':
-        remap = FALSE;
-        break;
-      case 'm':
-        remap = TRUE;
-        break;
-      case 't':
-        typed = TRUE;
-        break;
-      case 'i':
-        insert = TRUE;
-        break;
-      case 'x':
-        execute = TRUE;
-        break;
-      case '!':
-        dangerous = TRUE;
-        break;
-      case 'L':
-        lowlevel = TRUE;
-        break;
-      }
-    }
-  }
+  //   if (argvars[1].v_type != VAR_UNKNOWN)
+  //   {
+  //     flags = tv_get_string_buf(&argvars[1], nbuf);
+  //     for (; *flags != NUL; ++flags)
+  //     {
+  //       switch (*flags)
+  //       {
+  //       case 'n':
+  //         remap = FALSE;
+  //         break;
+  //       case 'm':
+  //         remap = TRUE;
+  //         break;
+  //       case 't':
+  //         typed = TRUE;
+  //         break;
+  //       case 'i':
+  //         insert = TRUE;
+  //         break;
+  //       case 'x':
+  //         execute = TRUE;
+  //         break;
+  //       case '!':
+  //         dangerous = TRUE;
+  //         break;
+  //       case 'L':
+  //         lowlevel = TRUE;
+  //         break;
+  //       }
+  //     }
+  //   }
 
-  if (*keys != NUL || execute)
-  {
-    /* Need to escape K_SPECIAL and CSI before putting the string in the
-	 * typeahead buffer. */
-    keys_esc = vim_strsave_escape_csi(keys);
-    if (keys_esc != NULL)
-    {
-      if (lowlevel)
-      {
-#ifdef USE_INPUT_BUF
-        add_to_input_buf(keys, (int)STRLEN(keys));
-#else
-        emsg(_("E980: lowlevel input not supported"));
-#endif
-      }
-      else
-      {
-        ins_typebuf(keys_esc, (remap ? REMAP_YES : REMAP_NONE),
-                    insert ? 0 : typebuf.tb_len, !typed, FALSE);
-        if (vgetc_busy
-#ifdef FEAT_TIMERS
-            || timer_busy
-#endif
-        )
-          typebuf_was_filled = TRUE;
-      }
-      vim_free(keys_esc);
+  //   if (*keys != NUL || execute)
+  //   {
+  //     /* Need to escape K_SPECIAL and CSI before putting the string in the
+  // 	 * typeahead buffer. */
+  //     keys_esc = vim_strsave_escape_csi(keys);
+  //     if (keys_esc != NULL)
+  //     {
+  //       if (lowlevel)
+  //       {
+  // #ifdef USE_INPUT_BUF
+  //         add_to_input_buf(keys, (int)STRLEN(keys));
+  // #else
+  //         emsg(_("E980: lowlevel input not supported"));
+  // #endif
+  //       }
+  //       else
+  //       {
+  //         ins_typebuf(keys_esc, (remap ? REMAP_YES : REMAP_NONE),
+  //                     insert ? 0 : typebuf.tb_len, !typed, FALSE);
+  //         if (vgetc_busy
+  // #ifdef FEAT_TIMERS
+  //             || timer_busy
+  // #endif
+  //         )
+  //           typebuf_was_filled = TRUE;
+  //       }
+  //       vim_free(keys_esc);
 
-      if (execute)
-      {
-        int save_msg_scroll = msg_scroll;
+  //       if (execute)
+  //       {
+  //         int save_msg_scroll = msg_scroll;
 
-        /* Avoid a 1 second delay when the keys start Insert mode. */
-        msg_scroll = FALSE;
+  //         /* Avoid a 1 second delay when the keys start Insert mode. */
+  //         msg_scroll = FALSE;
 
-        if (!dangerous)
-          ++ex_normal_busy;
-        exec_normal(TRUE, lowlevel, TRUE);
-        if (!dangerous)
-          --ex_normal_busy;
+  //         if (!dangerous)
+  //           ++ex_normal_busy;
+  //         exec_normal(TRUE, lowlevel, TRUE);
+  //         if (!dangerous)
+  //           --ex_normal_busy;
 
-        msg_scroll |= save_msg_scroll;
-      }
-    }
-  }
+  //         msg_scroll |= save_msg_scroll;
+  //       }
+  //     }
+  //   }
 }
 
 /*

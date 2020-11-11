@@ -1383,7 +1383,6 @@ void openscript(
      */
   if (directly)
   {
-    oparg_T oa;
     int oldcurscript;
     int save_State = State;
     int save_restart_edit = restart_edit;
@@ -1395,15 +1394,16 @@ void openscript(
     msg_scroll = FALSE; /* no msg scrolling in Normal mode */
     restart_edit = 0;   /* don't go to Insert mode */
     p_im = FALSE;       /* don't use 'insertmode' */
-    clear_oparg(&oa);
     finish_op = FALSE;
 
     oldcurscript = curscript;
     do
     {
       update_topline_cursor(); // update cursor position and topline
-      normal_cmd(&oa, FALSE);  // execute one command
-      vpeekc();                // check for end of file
+      //normal_cmd(&oa, FALSE);  // execute one command
+      // TODO: Wire-up to sm_execute_normal
+      //sm_execute_normal()
+      vpeekc(); // check for end of file
     } while (scriptin[oldcurscript] != NULL);
 
     State = save_State;

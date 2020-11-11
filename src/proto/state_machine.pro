@@ -10,7 +10,9 @@ void sm_push_normal();
 void sm_push_change(oparg_T *oap);
 void sm_push_cmdline(int cmdchar, long count, int indent);
 
-void sm_execute_normal(char_u *keys);
+// Execute a cmd as if in normal mode, reverting to the previous state when complete
+void sm_execute_normal(char_u *cmd, int preserveState);
+
 void sm_execute(char_u *key);
 
 int sm_get_current_mode(void);
