@@ -49,7 +49,6 @@ MU_TEST(test_exe_norm_insert_character)
   vimExecute("source collateral/ex_normal.vim");
   vimExecute("call NormInsertCharacter()");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test file") == 0);
 }
 
