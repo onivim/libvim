@@ -83,21 +83,77 @@ void sm_push_change(oparg_T *oap)
  * Like sm_execute, but if there is no active state,
  * defaults to normal mode.
  */
-void sm_execute_normal(char_u *keys)
+void sm_execute_normal(char_u *keys, int preserveState)
 {
+  sm_T *previousState = state_current;
+  if (preserveState)
+  {
+    state_current = NULL;
+  }
 
   if (state_current == NULL)
   {
     sm_push_normal();
   }
 
-  sm_execute(keys);
-}
+  char_u *keys_esc = vim_strsave_escape_csi(keys);
+  ins_typebuf(keys_esc, REMAP_NONE, 0, FALSE, FALSE);
+  vim_free(keys_esc);
 
+  if (state_current != NULL)
+  {
+    while (vpeekc() != NUL && typebuf.tb_len > 0)
+    {
+      int c = vgetc();
+      if (state_current == NULL)
+      {
+        sm_push_normal();
+      }
+
+      sm_T *current = state_current;
+      executionStatus_T result = current->execute_fn(state_current->context, c);
+
+      switch (result)
+      {
+      case HANDLED:
+        break;
+      case UNHANDLED:
+        vungetc(c);
+        return;
+        break;
+      case COMPLETED_UNHANDLED:
+        vungetc(c);
+        current->cleanup_fn(state_current->context);
+        state_current = (sm_T *)current->prev;
+        vim_free(current);
+        break;
+      case COMPLETED:
+        current->cleanup_fn(state_current->context);
+        state_current = (sm_T *)current->prev;
+        vim_free(current);
+        break;
+      }
+    }
+  }
+
+  if (preserveState)
+  {
+
+    sm_T *stateToCleanup = state_current;
+    while (stateToCleanup != NULL)
+    {
+      stateToCleanup->cleanup_fn(stateToCleanup->context);
+      sm_T *prev = stateToCleanup;
+      stateToCleanup = prev->prev;
+      vim_free(prev);
+    }
+    state_current = previousState;
+  }
+}
 void sm_execute(char_u *keys)
 {
   char_u *keys_esc = vim_strsave_escape_csi(keys);
-  ins_typebuf(keys_esc, REMAP_YES, 0, FALSE, FALSE);
+  ins_typebuf(keys_esc, REMAP_NONE, 0, FALSE, FALSE);
   vim_free(keys_esc);
 
   // Reset abbr_cnt after each input here,
