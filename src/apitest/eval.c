@@ -59,7 +59,6 @@ MU_TEST(test_exe_norm_insert_character_both_sides)
   vimExecute("source collateral/ex_normal.vim");
   vimExecute("call NormInsertCharacterBothSides()");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 1);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test fileb") == 0);
 }
 
@@ -69,7 +68,6 @@ MU_TEST(test_exe_norm_insert_character_both_sides_multiple_lines)
   vimExecute("source collateral/ex_normal.vim");
   vimExecute("call NormInsertCharacterBothSidesMultipleLines()");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 3);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test fileb") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "aThis is the second line of a test fileb") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "aThis is the third line of a test fileb") == 0);
@@ -80,7 +78,6 @@ MU_TEST(test_range_norm_insert_all_lines)
   mu_check(vimBufferGetLineCount(curbuf) == 3);
   vimExecute("g/line/norm! Ia");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 3);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "aThis is the second line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "aThis is the third line of a test file") == 0);
@@ -91,7 +88,6 @@ MU_TEST(test_range_norm_insert_single_line)
   mu_check(vimBufferGetLineCount(curbuf) == 3);
   vimExecute("g/second/norm! Ia");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 3);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "This is the first line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "aThis is the second line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "This is the third line of a test file") == 0);
@@ -102,7 +98,6 @@ MU_TEST(test_inverse_range_norm)
   mu_check(vimBufferGetLineCount(curbuf) == 3);
   vimExecute("g!/second/norm! Ia");
   mu_check(vimBufferGetLineCount(curbuf) == 3);
-  char_u *line = vimBufferGetLine(curbuf, 3);
   mu_check(strcmp(vimBufferGetLine(curbuf, 1), "aThis is the first line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 2), "This is the second line of a test file") == 0);
   mu_check(strcmp(vimBufferGetLine(curbuf, 3), "aThis is the third line of a test file") == 0);
