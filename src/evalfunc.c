@@ -3509,8 +3509,7 @@ f_extend(typval_T *argvars, typval_T *rettv)
 static void
 f_feedkeys(typval_T *argvars, typval_T *rettv UNUSED)
 {
-  // libvim: not yet implemented
-  semsg("libvim: feedkeys not implemented");
+  // TODO: Externalize feedkeys
   //   int remap = TRUE;
   //   int insert = FALSE;
   //   char_u *keys, *flags;
@@ -3598,7 +3597,7 @@ f_feedkeys(typval_T *argvars, typval_T *rettv UNUSED)
 
   //         if (!dangerous)
   //           ++ex_normal_busy;
-  //         exec_normal(TRUE, lowlevel, TRUE);
+  //         //exec_normal(TRUE, lowlevel, TRUE);
   //         if (!dangerous)
   //           --ex_normal_busy;
 
@@ -4664,42 +4663,34 @@ f_getchangelist(typval_T *argvars, typval_T *rettv)
 static void
 f_getchar(typval_T *argvars, typval_T *rettv)
 {
-  varnumber_T n;
+  varnumber_T n = 0;
   int error = FALSE;
-
-#ifdef MESSAGE_QUEUE
-  // vpeekc() used to check for messages, but that caused problems, invoking
-  // a callback where it was not expected.  Some plugins use getchar(1) in a
-  // loop to await a message, therefore make sure we check for messages here.
-  parse_queued_messages();
-#endif
-
-  /* Position the cursor.  Needed after a message that ends in a space. */
-  windgoto(msg_row, msg_col);
-
-  ++no_mapping;
-  ++allow_keys;
-  for (;;)
+  int mode = -1; //
+  if (argvars[0].v_type == VAR_UNKNOWN)
   {
-    if (argvars[0].v_type == VAR_UNKNOWN)
-      /* getchar(): blocking wait. */
-      n = plain_vgetc();
-    else if (tv_get_number_chk(&argvars[0], &error) == 1)
-      /* getchar(1): only check if char avail */
-      n = vpeekc_any();
-    else if (error || vpeekc_any() == NUL)
-      /* illegal argument or getchar(0) and no char avail: return zero */
-      n = 0;
-    else
-      /* getchar(0) and char avail: return char */
-      n = plain_vgetc();
-
-    if (n == K_IGNORE)
-      continue;
-    break;
+    mode = -1;
   }
-  --no_mapping;
-  --allow_keys;
+  else if (tv_get_number_chk(&argvars[0], &error) == 1)
+  {
+    mode = 1;
+  }
+  else
+  {
+    mode = 0;
+  }
+
+  if (functionGetCharCallback != NULL && error == FALSE)
+  {
+    char outChar;
+    int outModMask;
+    int result = functionGetCharCallback(mode, &outChar, &outModMask);
+
+    if (result == OK)
+    {
+      n = outChar;
+      mod_mask = outModMask;
+    }
+  }
 
   set_vim_var_nr(VV_MOUSE_WIN, 0);
   set_vim_var_nr(VV_MOUSE_WINID, 0);
