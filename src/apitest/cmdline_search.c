@@ -112,6 +112,31 @@ MU_TEST(test_get_search_highlights_during_visual)
   vimSearchGetHighlights(1, 3, &vim_num_search_highlights, &vim_search_highlights);
 }
 
+MU_TEST(test_insert_literal_ctrl_v)
+{
+  vimInput("/");
+  vimKey("<C-v>");
+  vimInput("1");
+  vimInput("2");
+  vimInput("3");
+
+  mu_check(strcmp(vimSearchGetPattern(), "{") == 0);
+}
+
+MU_TEST(test_insert_literal_ctrl_q)
+{
+  vimInput("/");
+  vimKey("<C-q>");
+  vimInput("1");
+  vimInput("2");
+  vimInput("6");
+  // Tack a number after, just to make sure it gets input
+  // and not swallowed by insert_literal
+  vimInput("7");
+
+  mu_check(strcmp(vimSearchGetPattern(), "~7") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -120,6 +145,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_search_forward_esc);
   MU_RUN_TEST(test_cancel_n);
   MU_RUN_TEST(test_get_search_highlights_during_visual);
+  MU_RUN_TEST(test_insert_literal_ctrl_v);
+  MU_RUN_TEST(test_insert_literal_ctrl_q);
 }
 
 int main(int argc, char **argv)
