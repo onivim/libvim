@@ -6893,11 +6893,16 @@ void write_viminfo_history(FILE *fp, int merge)
       continue;
     if (num_saved < 0) /* Use default */
       num_saved = hislen;
+
+    // Not sure why clang-format is inconsistent for this next line, but disabling to pass CI...
+    // clang-format off
     fprintf(fp, _("\n# %s History (newest to oldest):\n"),
             type == HIST_CMD ? _("Command Line") : type == HIST_SEARCH ? _("Search String")
                                                : type == HIST_EXPR     ? _("Expression")
                                                : type == HIST_INPUT    ? _("Input Line")
                                                                        : _("Debug Line"));
+    // clang-format on
+
     if (num_saved > hislen)
       num_saved = hislen;
 
