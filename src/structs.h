@@ -183,7 +183,7 @@ typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
-typedef int (*ClearCallback)(clearRequest_T clearInfo);
+typedef void (*ClearCallback)(clearRequest_T clearInfo);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
@@ -315,8 +315,8 @@ typedef struct
  * alphabet coding.  To minimize changes to the code, I decided to just
  * increase the number of possible marks. */
 #define NMARKS ('z' - 'a' + 1) /* max. # of named marks */
-#define JUMPLISTSIZE 100       /* max. # of marks in jump list */
-#define TAGSTACKSIZE 20        /* max. # of tags in tag stack */
+#define JUMPLISTSIZE 100 /* max. # of marks in jump list */
+#define TAGSTACKSIZE 20 /* max. # of tags in tag stack */
 
 typedef struct filemark
 {
@@ -433,7 +433,7 @@ typedef struct
 #define w_p_scr w_onebuf_opt.wo_scr /* 'scroll' */
   int wo_scb;
 #define w_p_scb w_onebuf_opt.wo_scb /* 'scrollbind' */
-  int wo_diff_saved;                /* options were saved for starting diff mode */
+  int wo_diff_saved; /* options were saved for starting diff mode */
 #define w_p_diff_saved w_onebuf_opt.wo_diff_saved
   int wo_scb_save; /* 'scrollbind' saved for diff mode*/
 #define w_p_scb_save w_onebuf_opt.wo_scb_save
@@ -445,7 +445,7 @@ typedef struct
 #endif
   int wo_crb;
 #define w_p_crb w_onebuf_opt.wo_crb /* 'cursorbind' */
-  int wo_crb_save;                  /* 'cursorbind' state saved for diff mode*/
+  int wo_crb_save; /* 'cursorbind' state saved for diff mode*/
 #define w_p_crb_save w_onebuf_opt.wo_crb_save
 #ifdef FEAT_SIGNS
   char_u *wo_scl;
@@ -580,7 +580,7 @@ struct u_header
 };
 
 /* values for uh_flags */
-#define UH_CHANGED 0x01  /* b_changed flag before undo/after redo */
+#define UH_CHANGED 0x01 /* b_changed flag before undo/after redo */
 #define UH_EMPTYBUF 0x02 /* buffer was empty */
 
 /*
@@ -771,8 +771,8 @@ struct cmdline_info
 };
 
 /* values for xp_backslash */
-#define XP_BS_NONE 0  /* nothing special for backslashes */
-#define XP_BS_ONE 1   /* uses one backslash before a space */
+#define XP_BS_NONE 0 /* nothing special for backslashes */
+#define XP_BS_ONE 1 /* uses one backslash before a space */
 #define XP_BS_THREE 2 /* uses three backslashes before a space */
 
 /*
@@ -862,10 +862,10 @@ typedef struct memline
 
   memfile_T *ml_mfp; /* pointer to associated memfile */
 
-#define ML_EMPTY 1        /* empty buffer */
-#define ML_LINE_DIRTY 2   /* cached line was changed and allocated */
+#define ML_EMPTY 1 /* empty buffer */
+#define ML_LINE_DIRTY 2 /* cached line was changed and allocated */
 #define ML_LOCKED_DIRTY 4 /* ml_locked was changed */
-#define ML_LOCKED_POS 8   /* ml_locked needs positive block number */
+#define ML_LOCKED_POS 8 /* ml_locked needs positive block number */
   int ml_flags;
 
   infoptr_T *ml_stack; /* stack of pointer blocks (array of IPTRs) */
@@ -918,8 +918,8 @@ typedef struct proptype_S
 } proptype_T;
 
 #define PT_FLAG_INS_START_INCL 1 // insert at start included in property
-#define PT_FLAG_INS_END_INCL 2   // insert at end included in property
-#define PT_FLAG_COMBINE 4        // combine with syntax highlight
+#define PT_FLAG_INS_END_INCL 2 // insert at end included in property
+#define PT_FLAG_COMBINE 4 // combine with syntax highlight
 
 // Sign group
 typedef struct signgroup_S
@@ -1029,17 +1029,17 @@ struct condstack
 
 /* There is no CSF_IF, the lack of CSF_WHILE, CSF_FOR and CSF_TRY means ":if"
  * was used. */
-#define CSF_TRUE 0x0001   /* condition was TRUE */
+#define CSF_TRUE 0x0001 /* condition was TRUE */
 #define CSF_ACTIVE 0x0002 /* current state is active */
-#define CSF_ELSE 0x0004   /* ":else" has been passed */
-#define CSF_WHILE 0x0008  /* is a ":while" */
-#define CSF_FOR 0x0010    /* is a ":for" */
+#define CSF_ELSE 0x0004 /* ":else" has been passed */
+#define CSF_WHILE 0x0008 /* is a ":while" */
+#define CSF_FOR 0x0010 /* is a ":for" */
 
-#define CSF_TRY 0x0100     /* is a ":try" */
+#define CSF_TRY 0x0100 /* is a ":try" */
 #define CSF_FINALLY 0x0200 /* ":finally" has been passed */
-#define CSF_THROWN 0x0400  /* exception thrown to this try conditional */
-#define CSF_CAUGHT 0x0800  /* exception caught by this try conditional */
-#define CSF_SILENT 0x1000  /* "emsg_silent" reset by ":try" */
+#define CSF_THROWN 0x0400 /* exception thrown to this try conditional */
+#define CSF_CAUGHT 0x0800 /* exception caught by this try conditional */
+#define CSF_SILENT 0x1000 /* "emsg_silent" reset by ":try" */
 /* Note that CSF_ELSE is only used when CSF_TRY and CSF_WHILE are unset
  * (an ":if"), and CSF_SILENT is only used when CSF_TRY is set. */
 
@@ -1047,22 +1047,22 @@ struct condstack
  * What's pending for being reactivated at the ":endtry" of this try
  * conditional:
  */
-#define CSTP_NONE 0      /* nothing pending in ":finally" clause */
-#define CSTP_ERROR 1     /* an error is pending */
+#define CSTP_NONE 0 /* nothing pending in ":finally" clause */
+#define CSTP_ERROR 1 /* an error is pending */
 #define CSTP_INTERRUPT 2 /* an interrupt is pending */
-#define CSTP_THROW 4     /* a throw is pending */
-#define CSTP_BREAK 8     /* ":break" is pending */
+#define CSTP_THROW 4 /* a throw is pending */
+#define CSTP_BREAK 8 /* ":break" is pending */
 #define CSTP_CONTINUE 16 /* ":continue" is pending */
-#define CSTP_RETURN 24   /* ":return" is pending */
-#define CSTP_FINISH 32   /* ":finish" is pending */
+#define CSTP_RETURN 24 /* ":return" is pending */
+#define CSTP_FINISH 32 /* ":finish" is pending */
 
 /*
  * Flags for the cs_lflags item in struct condstack.
  */
-#define CSL_HAD_LOOP 1    /* just found ":while" or ":for" */
+#define CSL_HAD_LOOP 1 /* just found ":while" or ":for" */
 #define CSL_HAD_ENDLOOP 2 /* just found ":endwhile" or ":endfor" */
-#define CSL_HAD_CONT 4    /* just found ":continue" */
-#define CSL_HAD_FINA 8    /* just found ":finally" */
+#define CSL_HAD_CONT 4 /* just found ":continue" */
+#define CSL_HAD_FINA 8 /* just found ":finally" */
 
 /*
  * A list of error messages that can be converted to an exception.  "throw_msg"
@@ -1419,7 +1419,7 @@ typedef struct
 
 /* Values for "v_lock". */
 #define VAR_LOCKED 1 /* locked with lock(), can use unlock() */
-#define VAR_FIXED 2  /* locked forever */
+#define VAR_FIXED 2 /* locked forever */
 
 /*
  * Structure to hold an item of a list: an internal variable without a name.
@@ -1495,10 +1495,10 @@ struct dictitem16_S
 };
 typedef struct dictitem16_S dictitem16_T;
 
-#define DI_FLAGS_RO 1     /* "di_flags" value: read-only variable */
+#define DI_FLAGS_RO 1 /* "di_flags" value: read-only variable */
 #define DI_FLAGS_RO_SBX 2 /* "di_flags" value: read-only in the sandbox */
-#define DI_FLAGS_FIX 4    /* "di_flags" value: fixed: no :unlet or remove() */
-#define DI_FLAGS_LOCK 8   /* "di_flags" value: locked variable */
+#define DI_FLAGS_FIX 4 /* "di_flags" value: fixed: no :unlet or remove() */
+#define DI_FLAGS_LOCK 8 /* "di_flags" value: locked variable */
 #define DI_FLAGS_ALLOC 16 /* "di_flags" value: separately allocated */
 
 /*
@@ -1570,7 +1570,7 @@ typedef struct
 
 #define MAX_FUNC_ARGS 20 // maximum number of function arguments
 #define VAR_SHORT_LEN 20 // short variable name length
-#define FIXVAR_CNT 12    // number of fixed variables
+#define FIXVAR_CNT 12 // number of fixed variables
 
 /* structure to hold info for a function that is currently being executed. */
 struct funccall_S
@@ -1873,56 +1873,56 @@ struct channel_S
   int ch_copyID;
 };
 
-#define JO_MODE 0x0001               /* channel mode */
-#define JO_IN_MODE 0x0002            /* stdin mode */
-#define JO_OUT_MODE 0x0004           /* stdout mode */
-#define JO_ERR_MODE 0x0008           /* stderr mode */
-#define JO_CALLBACK 0x0010           /* channel callback */
-#define JO_OUT_CALLBACK 0x0020       /* stdout callback */
-#define JO_ERR_CALLBACK 0x0040       /* stderr callback */
-#define JO_CLOSE_CALLBACK 0x0080     /* "close_cb" */
-#define JO_WAITTIME 0x0100           /* only for ch_open() */
-#define JO_TIMEOUT 0x0200            /* all timeouts */
-#define JO_OUT_TIMEOUT 0x0400        /* stdout timeouts */
-#define JO_ERR_TIMEOUT 0x0800        /* stderr timeouts */
-#define JO_PART 0x1000               /* "part" */
-#define JO_ID 0x2000                 /* "id" */
-#define JO_STOPONEXIT 0x4000         /* "stoponexit" */
-#define JO_EXIT_CB 0x8000            /* "exit_cb" */
-#define JO_OUT_IO 0x10000            /* "out_io" */
-#define JO_ERR_IO 0x20000            /* "err_io" (JO_OUT_IO << 1) */
-#define JO_IN_IO 0x40000             /* "in_io" (JO_OUT_IO << 2) */
-#define JO_OUT_NAME 0x80000          /* "out_name" */
-#define JO_ERR_NAME 0x100000         /* "err_name" (JO_OUT_NAME << 1) */
-#define JO_IN_NAME 0x200000          /* "in_name" (JO_OUT_NAME << 2) */
-#define JO_IN_TOP 0x400000           /* "in_top" */
-#define JO_IN_BOT 0x800000           /* "in_bot" */
-#define JO_OUT_BUF 0x1000000         /* "out_buf" */
-#define JO_ERR_BUF 0x2000000         /* "err_buf" (JO_OUT_BUF << 1) */
-#define JO_IN_BUF 0x4000000          /* "in_buf" (JO_OUT_BUF << 2) */
-#define JO_CHANNEL 0x8000000         /* "channel" */
-#define JO_BLOCK_WRITE 0x10000000    /* "block_write" */
+#define JO_MODE 0x0001 /* channel mode */
+#define JO_IN_MODE 0x0002 /* stdin mode */
+#define JO_OUT_MODE 0x0004 /* stdout mode */
+#define JO_ERR_MODE 0x0008 /* stderr mode */
+#define JO_CALLBACK 0x0010 /* channel callback */
+#define JO_OUT_CALLBACK 0x0020 /* stdout callback */
+#define JO_ERR_CALLBACK 0x0040 /* stderr callback */
+#define JO_CLOSE_CALLBACK 0x0080 /* "close_cb" */
+#define JO_WAITTIME 0x0100 /* only for ch_open() */
+#define JO_TIMEOUT 0x0200 /* all timeouts */
+#define JO_OUT_TIMEOUT 0x0400 /* stdout timeouts */
+#define JO_ERR_TIMEOUT 0x0800 /* stderr timeouts */
+#define JO_PART 0x1000 /* "part" */
+#define JO_ID 0x2000 /* "id" */
+#define JO_STOPONEXIT 0x4000 /* "stoponexit" */
+#define JO_EXIT_CB 0x8000 /* "exit_cb" */
+#define JO_OUT_IO 0x10000 /* "out_io" */
+#define JO_ERR_IO 0x20000 /* "err_io" (JO_OUT_IO << 1) */
+#define JO_IN_IO 0x40000 /* "in_io" (JO_OUT_IO << 2) */
+#define JO_OUT_NAME 0x80000 /* "out_name" */
+#define JO_ERR_NAME 0x100000 /* "err_name" (JO_OUT_NAME << 1) */
+#define JO_IN_NAME 0x200000 /* "in_name" (JO_OUT_NAME << 2) */
+#define JO_IN_TOP 0x400000 /* "in_top" */
+#define JO_IN_BOT 0x800000 /* "in_bot" */
+#define JO_OUT_BUF 0x1000000 /* "out_buf" */
+#define JO_ERR_BUF 0x2000000 /* "err_buf" (JO_OUT_BUF << 1) */
+#define JO_IN_BUF 0x4000000 /* "in_buf" (JO_OUT_BUF << 2) */
+#define JO_CHANNEL 0x8000000 /* "channel" */
+#define JO_BLOCK_WRITE 0x10000000 /* "block_write" */
 #define JO_OUT_MODIFIABLE 0x20000000 /* "out_modifiable" */
 #define JO_ERR_MODIFIABLE 0x40000000 /* "err_modifiable" (JO_OUT_ << 1) */
 #define JO_ALL 0x7fffffff
 
-#define JO2_OUT_MSG 0x0001      /* "out_msg" */
-#define JO2_ERR_MSG 0x0002      /* "err_msg" (JO_OUT_ << 1) */
-#define JO2_TERM_NAME 0x0004    /* "term_name" */
-#define JO2_TERM_FINISH 0x0008  /* "term_finish" */
-#define JO2_ENV 0x0010          /* "env" */
-#define JO2_CWD 0x0020          /* "cwd" */
-#define JO2_TERM_ROWS 0x0040    /* "term_rows" */
-#define JO2_TERM_COLS 0x0080    /* "term_cols" */
-#define JO2_VERTICAL 0x0100     /* "vertical" */
-#define JO2_CURWIN 0x0200       /* "curwin" */
-#define JO2_HIDDEN 0x0400       /* "hidden" */
+#define JO2_OUT_MSG 0x0001 /* "out_msg" */
+#define JO2_ERR_MSG 0x0002 /* "err_msg" (JO_OUT_ << 1) */
+#define JO2_TERM_NAME 0x0004 /* "term_name" */
+#define JO2_TERM_FINISH 0x0008 /* "term_finish" */
+#define JO2_ENV 0x0010 /* "env" */
+#define JO2_CWD 0x0020 /* "cwd" */
+#define JO2_TERM_ROWS 0x0040 /* "term_rows" */
+#define JO2_TERM_COLS 0x0080 /* "term_cols" */
+#define JO2_VERTICAL 0x0100 /* "vertical" */
+#define JO2_CURWIN 0x0200 /* "curwin" */
+#define JO2_HIDDEN 0x0400 /* "hidden" */
 #define JO2_TERM_OPENCMD 0x0800 /* "term_opencmd" */
-#define JO2_EOF_CHARS 0x1000    /* "eof_chars" */
-#define JO2_NORESTORE 0x2000    /* "norestore" */
-#define JO2_TERM_KILL 0x4000    /* "term_kill" */
-#define JO2_ANSI_COLORS 0x8000  /* "ansi_colors" */
-#define JO2_TTY_TYPE 0x10000    /* "tty_type" */
+#define JO2_EOF_CHARS 0x1000 /* "eof_chars" */
+#define JO2_NORESTORE 0x2000 /* "norestore" */
+#define JO2_TERM_KILL 0x4000 /* "term_kill" */
+#define JO2_ANSI_COLORS 0x8000 /* "ansi_colors" */
+#define JO2_TTY_TYPE 0x10000 /* "tty_type" */
 
 #define JO_MODE_ALL (JO_MODE + JO_IN_MODE + JO_OUT_MODE + JO_ERR_MODE)
 #define JO_CB_ALL \
@@ -2028,8 +2028,8 @@ typedef struct
 
 /* values for b_syn_spell: what to do with toplevel text */
 #define SYNSPL_DEFAULT 0 /* spell check if @Spell not defined */
-#define SYNSPL_TOP 1     /* spell check toplevel text */
-#define SYNSPL_NOTOP 2   /* don't spell check toplevel text */
+#define SYNSPL_TOP 1 /* spell check toplevel text */
+#define SYNSPL_NOTOP 2 /* don't spell check toplevel text */
 
 /* avoid #ifdefs for when b_spell is not available */
 #define B_SPELL(buf) (0)
@@ -2240,16 +2240,16 @@ struct file_buffer
   long b_p_iminsert;          /* input mode for insert */
   long b_p_imsearch;          /* input mode for search */
 #define B_IMODE_USE_INSERT -1 /*	Use b_p_iminsert value for search */
-#define B_IMODE_NONE 0        /*	Input via none */
-#define B_IMODE_LMAP 1        /*	Input via langmap */
-#define B_IMODE_IM 2          /*	Input via input method */
+#define B_IMODE_NONE 0 /*	Input via none */
+#define B_IMODE_LMAP 1 /*	Input via langmap */
+#define B_IMODE_IM 2 /*	Input via input method */
 #define B_IMODE_LAST 2
 
 #ifdef FEAT_KEYMAP
-  short b_kmap_state;   /* using "lmap" mappings */
-#define KEYMAP_INIT 1   /* 'keymap' was set, call keymap_init() */
+  short b_kmap_state; /* using "lmap" mappings */
+#define KEYMAP_INIT 1 /* 'keymap' was set, call keymap_init() */
 #define KEYMAP_LOADED 2 /* 'keymap' mappings have been loaded */
-  garray_T b_kmap_ga;   /* the keymap table */
+  garray_T b_kmap_ga; /* the keymap table */
 #endif
 
   /*
@@ -2624,8 +2624,8 @@ struct frame_S
 };
 
 #define FR_LEAF 0 /* frame is a leaf */
-#define FR_ROW 1  /* frame with a row of windows */
-#define FR_COL 2  /* frame with a column of windows */
+#define FR_ROW 1 /* frame with a row of windows */
+#define FR_COL 2 /* frame with a column of windows */
 
 /*
  * Struct used for highlighting 'hlsearch' matches, matches defined by
@@ -3060,7 +3060,7 @@ typedef struct
 } sm_T;
 
 /* values for retval: */
-#define CA_COMMAND_BUSY 1  /* skip restarting edit() once */
+#define CA_COMMAND_BUSY 1 /* skip restarting edit() once */
 #define CA_NO_ADJ_OP_END 2 /* don't adjust operator end */
 
 /* For generating prototypes when FEAT_MENU isn't defined. */
@@ -3195,8 +3195,8 @@ typedef struct js_reader js_read_T;
 #define MAX_ARG_CMDS 10
 
 /* values for "window_layout" */
-#define WIN_HOR 1  /* "-o" horizontally split windows */
-#define WIN_VER 2  /* "-O" vertically split windows */
+#define WIN_HOR 1 /* "-o" horizontally split windows */
+#define WIN_VER 2 /* "-O" vertically split windows */
 #define WIN_TABS 3 /* "-p" windows on tab pages */
 
 /* Struct for various parameters passed between main() and other functions. */

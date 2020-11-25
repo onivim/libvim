@@ -683,7 +683,7 @@ int emsg(char *s)
 }
 
 #ifndef PROTO // manual proto with __attribute__
-              /*
+/*
  * Print an error message with format string and variable arguments.
  * Note: caller must not pass 'IObuff' as 1st argument.
  */
@@ -718,7 +718,7 @@ void iemsg(char *s)
 }
 
 #ifndef PROTO // manual proto with __attribute__
-              /*
+/*
  * Same as semsg(...) but abort on error when ABORT_ON_INTERNAL_ERROR is
  * defined. It is used for internal errors only, so that they can be
  * detected when fuzzing vim.
@@ -885,9 +885,10 @@ void ex_messages(exarg_T *eap)
 {
   if (STRCMP(eap->arg, "clear") == 0)
   {
-    if (clearCallback != NULL) {
+    if (clearCallback != NULL)
+    {
       clearRequest_T clearRequest;
-      clearRequest.count = eap->addr_count;
+      clearRequest.count = eap->addr_count != 0 ? eap->line2 : 0;
       clearRequest.target = CLEAR_MESSAGES;
       clearCallback(clearRequest);
     }
@@ -901,10 +902,11 @@ void ex_messages(exarg_T *eap)
     return;
   }
 
-  if (gotoCallback != NULL) {
+  if (gotoCallback != NULL)
+  {
     gotoRequest_T gotoRequest;
     gotoRequest.target = MESSAGES;
-    gotoRequest.count = eap->addr_count;
+    gotoRequest.count = eap->addr_count != 0 ? eap->line2 : 0;
     gotoCallback(gotoRequest);
   }
 }

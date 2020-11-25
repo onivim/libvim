@@ -663,15 +663,15 @@ EXTERN JMP_BUF x_jump_env;
  * Note that "enc_utf8" is also set for "unicode", because the characters are
  * internally stored as UTF-8 (to avoid trouble with NUL bytes).
  */
-#define DBCS_JPN 932   /* japan */
+#define DBCS_JPN 932 /* japan */
 #define DBCS_JPNU 9932 /* euc-jp */
-#define DBCS_KOR 949   /* korea */
+#define DBCS_KOR 949 /* korea */
 #define DBCS_KORU 9949 /* euc-kr */
-#define DBCS_CHS 936   /* chinese */
+#define DBCS_CHS 936 /* chinese */
 #define DBCS_CHSU 9936 /* euc-cn */
-#define DBCS_CHT 950   /* taiwan */
+#define DBCS_CHT 950 /* taiwan */
 #define DBCS_CHTU 9950 /* euc-tw */
-#define DBCS_2BYTE 1   /* 2byte- */
+#define DBCS_2BYTE 1 /* 2byte- */
 #define DBCS_DEBUG -1
 
 EXTERN int enc_dbcs INIT(= 0);          /* One of DBCS_xxx values if
@@ -914,7 +914,7 @@ EXTERN char_u langmap_mapchar[256]; /* mapping for language keys */
 EXTERN int save_p_ls INIT(= -1);  /* Save 'laststatus' setting */
 EXTERN int save_p_wmh INIT(= -1); /* Save 'winminheight' setting */
 EXTERN int wild_menu_showing INIT(= 0);
-#define WM_SHOWN 1    /* wildmenu showing */
+#define WM_SHOWN 1 /* wildmenu showing */
 #define WM_SCROLLED 2 /* wildmenu showing with scroll */
 #endif
 
