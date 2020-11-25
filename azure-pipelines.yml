@@ -121,6 +121,6 @@ jobs:
 - job: HygieneChecks
   displayName: "Hygiene Checks"
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'macOS-10.15'
   steps:
   - template: .ci/check-hygiene.yml
