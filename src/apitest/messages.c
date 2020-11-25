@@ -7,6 +7,10 @@
 char_u lastMessage[MAX_TEST_MESSAGE];
 char_u lastTitle[MAX_TEST_MESSAGE];
 msgPriority_T lastPriority;
+gotoRequest_T lastGoto;
+int gotoCount;
+int clearCount;
+clearRequest_T lastClear;
 
 void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 {
@@ -20,14 +24,26 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
   lastPriority = priority;
 };
 
+int onGoto(gotoRequest_T gotoRequest)
+{
+  lastGoto = gotoRequest;
+  gotoCount++;
+  return 0;
+}
+
+void onClear(clearRequest_T clearRequest)
+{
+  lastClear = clearRequest;
+  clearCount++;
+}
+
 void test_setup(void)
 {
-  printf("a\n");
+  clearCount = 0;
+  gotoCount = 0;
   vimKey("<esc>");
   vimKey("<esc>");
-  printf("b\n");
   vimExecute("e!");
-  printf("e\n");
 
   vimInput("g");
   vimInput("g");
@@ -174,6 +190,39 @@ MU_TEST(test_print_changes)
   mu_check(lastPriority == MSG_INFO);
 }
 
+MU_TEST(test_ex_goto_messages)
+{
+  vimExecute("messages");
+  mu_check(gotoCount == 1);
+  mu_check(lastGoto.target == MESSAGES);
+  mu_check(lastGoto.count == 0);
+}
+
+MU_TEST(test_ex_goto_messages_count)
+{
+  vimExecute("5messages");
+  mu_check(gotoCount == 1);
+  mu_check(lastGoto.target == MESSAGES);
+  mu_check(lastGoto.count == 5);
+}
+
+MU_TEST(test_ex_clear_messages)
+{
+  vimExecute("messages clear");
+  mu_check(clearCount == 1);
+  mu_check(lastClear.target == CLEAR_MESSAGES);
+  mu_check(lastClear.count == 0);
+}
+
+MU_TEST(test_ex_clear_messages_count)
+{
+
+  vimExecute("10messages clear");
+  mu_check(clearCount == 1);
+  mu_check(lastClear.target == CLEAR_MESSAGES);
+  mu_check(lastClear.count == 10);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -192,6 +241,10 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_print_marks);
   MU_RUN_TEST(test_print_jumps);
   MU_RUN_TEST(test_print_changes);
+  MU_RUN_TEST(test_ex_goto_messages);
+  MU_RUN_TEST(test_ex_goto_messages_count);
+  MU_RUN_TEST(test_ex_clear_messages);
+  MU_RUN_TEST(test_ex_clear_messages_count);
 }
 
 int main(int argc, char **argv)
@@ -199,6 +252,8 @@ int main(int argc, char **argv)
   vimInit(argc, argv);
 
   vimSetMessageCallback(&onMessage);
+  vimSetClearCallback(&onClear);
+  vimSetGotoCallback(&onGoto);
 
   win_setwidth(5);
   win_setheight(100);
