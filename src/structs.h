@@ -83,10 +83,23 @@ typedef enum
   TYPEDEFINITION,
   HOVER,
   OUTLINE,
+  MESSAGES
 } gotoTarget_T;
+
+typedef enum
+{
+  CLEAR_MESSAGES
+} clearTarget_T;
 
 typedef struct
 {
+  int count;
+  clearTarget_T target;
+} clearRequest_T;
+
+typedef struct
+{
+  int count;
   pos_T location;
   gotoTarget_T target;
 } gotoRequest_T;
@@ -170,6 +183,7 @@ typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
+typedef int (*ClearCallback)(clearRequest_T clearInfo);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
