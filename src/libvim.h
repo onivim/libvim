@@ -221,7 +221,6 @@ void vimSetMessageCallback(MessageCallback messageCallback);
  * Misc
  **/
 
-
 // Set a callback for when various entities should be cleared - ie, messages.
 void vimSetClearCallback(ClearCallback clearCallback);
 
