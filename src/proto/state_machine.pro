@@ -1,6 +1,6 @@
 /* state_machine.c */
 
-void sm_push(int mode, void *context, state_execute executeFn,
+void sm_push(int mode, subMode_T subMode, void *context, state_execute executeFn,
              state_pending_operator pendingOperatorFn,
              state_cleanup cleanupFn);
 
@@ -16,6 +16,7 @@ void sm_execute_normal(char_u *cmd, int preserveState);
 void sm_execute(char_u *key);
 
 int sm_get_current_mode(void);
+subMode_T sm_get_current_sub_mode(void);
 int sm_get_pending_operator(pendingOp_T *pendingOp);
 
 sm_T *sm_get_current(void);

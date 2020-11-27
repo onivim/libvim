@@ -125,16 +125,21 @@ MU_TEST(insert_mode_ctrlv)
 {
   vimInput("O");
 
+  mu_check(vimGetSubMode() == SM_NONE);
+
   // Character literal mode
   vimKey("<c-v>");
+  mu_check(vimGetSubMode() == SM_INSERT_LITERAL);
 
   vimInput("1");
+  mu_check(vimGetSubMode() == SM_INSERT_LITERAL);
   vimInput("2");
+  mu_check(vimGetSubMode() == SM_INSERT_LITERAL);
   vimInput("6");
+  mu_check(vimGetSubMode() == SM_NONE);
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "~") == 0);
 }
 
@@ -142,11 +147,14 @@ MU_TEST(insert_mode_ctrlv_no_digit)
 {
   vimInput("O");
 
+  mu_check(vimGetSubMode() == SM_NONE);
   // Character literal mode
   vimKey("<c-v>");
+  mu_check(vimGetSubMode() == SM_INSERT_LITERAL);
 
   // Jump out of character literal mode by entering a non-digit character
   vimInput("a");
+  mu_check(vimGetSubMode() == SM_NONE);
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
@@ -159,10 +167,13 @@ MU_TEST(insert_mode_ctrlv_newline)
   vimInput("O");
 
   // Character literal mode
+  mu_check(vimGetSubMode() == SM_NONE);
   vimKey("<c-v>");
 
+  mu_check(vimGetSubMode() == SM_INSERT_LITERAL);
   // Jump out of character literal mode by entering a non-digit character
   vimKey("<cr>");
+  mu_check(vimGetSubMode() == SM_NONE);
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
   mu_check(line[0] == 13);
