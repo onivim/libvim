@@ -229,7 +229,8 @@ MU_TEST(insert_mode_arrow_key_join_undo)
   mu_check(vimBufferGetLineCount(curbuf) == initialLineCount);
 }
 
-MU_TEST(insert_mode_test_count_i) {
+MU_TEST(insert_mode_test_count_i)
+{
   vimKey("3");
   vimKey("i");
 
@@ -240,7 +241,8 @@ MU_TEST(insert_mode_test_count_i) {
   mu_check(strcmp(line, "abcabcabcThis is the first line of a test file") == 0);
 }
 
-MU_TEST(insert_mode_test_count_A) {
+MU_TEST(insert_mode_test_count_A)
+{
   vimKey("4");
   vimKey("A");
 
@@ -251,7 +253,8 @@ MU_TEST(insert_mode_test_count_A) {
   mu_check(strcmp(line, "This is the first line of a test fileabcabcabcabc") == 0);
 }
 
-MU_TEST(insert_mode_test_count_O) {
+MU_TEST(insert_mode_test_count_O)
+{
   vimKey("2");
   vimKey("O");
 

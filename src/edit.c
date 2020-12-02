@@ -643,7 +643,9 @@ executionStatus_T state_edit_execute(void *ctx, int c)
       return COMPLETED;
       /* TODO: Handle Ctrl_O */
       /* return (c == Ctrl_O); */
-    } else {
+    }
+    else
+    {
       return HANDLED;
     }
 
