@@ -16,19 +16,6 @@ void test_setup(void)
 
 void test_teardown(void) {}
 
-/* TODO: Get this test green */
-/* MU_TEST(insert_count) { */
-/*   vimInput("5"); */
-/*   vimInput("i"); */
-/*   vimInput("a"); */
-/*   vimInput("\033"); */
-
-/*   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine()); */
-/*   printf("LINE: %s\n", line); */
-/*   mu_check(strcmp(line, "aaaaaThis is the first line of a test file") == 0);
- */
-/* } */
-
 MU_TEST(insert_beginning)
 {
   vimInput("I");
@@ -37,7 +24,6 @@ MU_TEST(insert_beginning)
   vimInput("c");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "abcThis is the first line of a test file") == 0);
 }
 
@@ -66,8 +52,6 @@ MU_TEST(insert_prev_line)
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
-  printf("LINE: %s\n", line);
-
   mu_check(strcmp(line, "abc") == 0);
 }
 
@@ -82,8 +66,6 @@ MU_TEST(insert_next_line)
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
-  printf("LINE: %s\n", line);
-
   mu_check(strcmp(line, "abc") == 0);
 }
 MU_TEST(insert_end)
@@ -93,8 +75,6 @@ MU_TEST(insert_end)
   vimInput("b");
   vimInput("c");
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-
-  printf("LINE: %s\n", line);
 
   mu_check(strcmp(line, "This is the first line of a test fileabc") == 0);
 }
@@ -136,7 +116,6 @@ MU_TEST(insert_mode_ctrlv)
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "~") == 0);
 }
 
@@ -152,7 +131,6 @@ MU_TEST(insert_mode_ctrlv_no_digit)
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
 
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "a") == 0);
 }
 
@@ -178,7 +156,6 @@ MU_TEST(insert_mode_utf8)
   vimInput("κόσμε");
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "κόσμε") == 0);
 }
 
@@ -196,7 +173,6 @@ MU_TEST(insert_mode_utf8_special_byte)
   vimInput(input);
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, input) == 0);
 }
 
@@ -254,8 +230,6 @@ MU_TEST(insert_mode_arrow_key_join_undo)
 }
 
 MU_TEST(insert_mode_test_count_i) {
-  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", beforeLine);
   vimKey("3");
   vimKey("i");
 
@@ -267,8 +241,6 @@ MU_TEST(insert_mode_test_count_i) {
 }
 
 MU_TEST(insert_mode_test_count_A) {
-  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", beforeLine);
   vimKey("4");
   vimKey("A");
 
@@ -280,8 +252,6 @@ MU_TEST(insert_mode_test_count_A) {
 }
 
 MU_TEST(insert_mode_test_count_O) {
-  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", beforeLine);
   vimKey("2");
   vimKey("O");
 
