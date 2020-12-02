@@ -3,6 +3,8 @@
 
 void test_setup(void)
 {
+  (void)vimBufferOpen("collateral/testfile.txt", 1, 0);
+
   vimKey("<Esc>");
   vimKey("<Esc>");
   vimExecute("e!");
@@ -251,6 +253,50 @@ MU_TEST(insert_mode_arrow_key_join_undo)
   mu_check(vimBufferGetLineCount(curbuf) == initialLineCount);
 }
 
+MU_TEST(insert_mode_test_count_i) {
+  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", beforeLine);
+  vimKey("3");
+  vimKey("i");
+
+  vimInput("abc");
+  vimKey("<esc>");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "abcabcabcThis is the first line of a test file") == 0);
+}
+
+MU_TEST(insert_mode_test_count_A) {
+  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", beforeLine);
+  vimKey("4");
+  vimKey("A");
+
+  vimInput("abc");
+  vimKey("<esc>");
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "This is the first line of a test fileabcabcabcabc") == 0);
+}
+
+MU_TEST(insert_mode_test_count_O) {
+  char_u *beforeLine = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", beforeLine);
+  vimKey("2");
+  vimKey("O");
+
+  vimInput("abc");
+  vimKey("<esc>");
+
+  char_u *line1 = vimBufferGetLine(curbuf, 1);
+  mu_check(strcmp(line1, "abc") == 0);
+
+  char_u *line2 = vimBufferGetLine(curbuf, 1);
+  mu_check(strcmp(line2, "abc") == 0);
+
+  mu_check(vimBufferGetLineCount(curbuf) == 5);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -269,6 +315,9 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_utf8_special_byte);
   MU_RUN_TEST(insert_mode_arrow_breaks_undo);
   MU_RUN_TEST(insert_mode_arrow_key_join_undo);
+  MU_RUN_TEST(insert_mode_test_count_i);
+  MU_RUN_TEST(insert_mode_test_count_A);
+  MU_RUN_TEST(insert_mode_test_count_O);
 }
 
 int main(int argc, char **argv)
