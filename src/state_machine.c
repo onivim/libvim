@@ -20,7 +20,7 @@ int no_pending_operator(void *ctx, pendingOp_T *cmdarg)
 
 subMode_T sm_get_current_sub_mode() { 
   if (state_current == NULL) {
-    return SM_NONE
+    return SM_NONE;
   } else {
     return state_current->subMode; 
   }
