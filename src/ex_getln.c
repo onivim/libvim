@@ -2156,6 +2156,8 @@ typedef struct
   struct cmdline_info save_ccline;
   int did_save_ccline;
   int cmdline_type;
+  int is_ctrlv;  /* If we are coming back from inserting a literal */
+  int ctrlv_ret; /* Return value from inserting a literal */
 #endif
 } cmdlineState_T;
 
@@ -2184,6 +2186,8 @@ void *state_cmdline_initialize(int c, long count UNUSED, int indent)
   context->break_ctrl_c = FALSE;
   context->b_im_ptr = NULL;
   context->did_save_ccline = FALSE;
+  context->ctrlv_ret = 0;
+  context->is_ctrlv = FALSE;
 
   // if (ccline.cmdbuff != NULL)
   // {
@@ -2701,439 +2705,455 @@ executionStatus_T state_cmdline_execute(void *ctx, int c)
 
   context->do_abbr = TRUE; /* default: check for abbreviation */
 
-  /*
-	 * Big switch for a typed command line character.
-	 */
-  switch (c)
+  /* Coming back from ctrl_v - handle that */
+  if (context->is_ctrlv)
   {
-  case K_BS:
-  case Ctrl_H:
-  case K_DEL:
-  case K_KDEL:
-  case Ctrl_W:
-    if (c == K_KDEL)
-      c = K_DEL;
-
+    c = context->ctrlv_ret;
+    context->is_ctrlv = FALSE;
+  }
+  else
+  {
     /*
+   * Big switch for a typed command line character.
+  */
+
+    switch (c)
+    {
+    case K_BS:
+    case Ctrl_H:
+    case K_DEL:
+    case K_KDEL:
+    case Ctrl_W:
+      if (c == K_KDEL)
+        c = K_DEL;
+
+      /*
 		 * delete current character is the same as backspace on next
 		 * character, except at end of line
 		 */
-    if (c == K_DEL && ccline.cmdpos != ccline.cmdlen)
-      ++ccline.cmdpos;
-    if (has_mbyte && c == K_DEL)
-      ccline.cmdpos += mb_off_next(ccline.cmdbuff,
-                                   ccline.cmdbuff + ccline.cmdpos);
-    if (ccline.cmdpos > 0)
-    {
-      char_u *p;
-
-      context->j = ccline.cmdpos;
-      p = ccline.cmdbuff + context->j;
-      if (has_mbyte)
+      if (c == K_DEL && ccline.cmdpos != ccline.cmdlen)
+        ++ccline.cmdpos;
+      if (has_mbyte && c == K_DEL)
+        ccline.cmdpos += mb_off_next(ccline.cmdbuff,
+                                     ccline.cmdbuff + ccline.cmdpos);
+      if (ccline.cmdpos > 0)
       {
-        p = mb_prevptr(ccline.cmdbuff, p);
-        if (c == Ctrl_W)
+        char_u *p;
+
+        context->j = ccline.cmdpos;
+        p = ccline.cmdbuff + context->j;
+        if (has_mbyte)
         {
-          while (p > ccline.cmdbuff && vim_isspace(*p))
-            p = mb_prevptr(ccline.cmdbuff, p);
-          context->i = mb_get_class(p);
-          while (p > ccline.cmdbuff && mb_get_class(p) == context->i)
-            p = mb_prevptr(ccline.cmdbuff, p);
-          if (mb_get_class(p) != context->i)
-            p += (*mb_ptr2len)(p);
+          p = mb_prevptr(ccline.cmdbuff, p);
+          if (c == Ctrl_W)
+          {
+            while (p > ccline.cmdbuff && vim_isspace(*p))
+              p = mb_prevptr(ccline.cmdbuff, p);
+            context->i = mb_get_class(p);
+            while (p > ccline.cmdbuff && mb_get_class(p) == context->i)
+              p = mb_prevptr(ccline.cmdbuff, p);
+            if (mb_get_class(p) != context->i)
+              p += (*mb_ptr2len)(p);
+          }
+        }
+        else if (c == Ctrl_W)
+        {
+          while (p > ccline.cmdbuff && vim_isspace(p[-1]))
+            --p;
+          context->i = vim_iswordc(p[-1]);
+          while (p > ccline.cmdbuff && !vim_isspace(p[-1]) && vim_iswordc(p[-1]) == context->i)
+            --p;
+        }
+        else
+          --p;
+        ccline.cmdpos = (int)(p - ccline.cmdbuff);
+        ccline.cmdlen -= context->j - ccline.cmdpos;
+        context->i = ccline.cmdpos;
+        while (context->i < ccline.cmdlen)
+          ccline.cmdbuff[context->i++] = ccline.cmdbuff[context->j++];
+
+        /* Truncate at the end, required for multi-byte chars. */
+        ccline.cmdbuff[ccline.cmdlen] = NUL;
+#ifdef FEAT_SEARCH_EXTRA
+        if (ccline.cmdlen == 0)
+        {
+          context->is_state.search_start = context->is_state.save_cursor;
+          /* save view settings, so that the screen
+			 * won't be restored at the wrong position */
+          context->is_state.old_viewstate = context->is_state.init_viewstate;
+        }
+#endif
+      }
+      else if (ccline.cmdlen == 0 && c != Ctrl_W && ccline.cmdprompt == NULL && context->indent == 0)
+      {
+        /* In ex and debug mode it doesn't make sense to return. */
+        if (exmode_active
+#ifdef FEAT_EVAL
+            || ccline.cmdfirstc == '>'
+#endif
+        )
+          goto cmdline_not_changed;
+
+        VIM_CLEAR(ccline.cmdbuff); /* no commandline to return */
+        if (!cmd_silent)
+        {
+#ifdef FEAT_RIGHTLEFT
+          if (cmdmsg_rl)
+            msg_col = Columns;
+          else
+#endif
+            msg_col = 0;
+          msg_putchar(' '); /* delete ':' */
+        }
+#ifdef FEAT_SEARCH_EXTRA
+        if (ccline.cmdlen == 0)
+          context->is_state.search_start = context->is_state.save_cursor;
+#endif
+        redraw_cmdline = TRUE;
+        goto returncmd; /* back to cmd mode */
+      }
+      goto cmdline_changed;
+
+    case K_INS:
+    case K_KINS:
+      ccline.overstrike = !ccline.overstrike;
+      goto cmdline_not_changed;
+
+    case Ctrl_HAT:
+      if (map_to_exists_mode((char_u *)"", LANGMAP, FALSE))
+      {
+        /* ":lmap" mappings exists, toggle use of mappings. */
+        State ^= LANGMAP;
+        if (context->b_im_ptr != NULL)
+        {
+          if (State & LANGMAP)
+            *context->b_im_ptr = B_IMODE_LMAP;
+          else
+            *context->b_im_ptr = B_IMODE_NONE;
         }
       }
-      else if (c == Ctrl_W)
+      if (context->b_im_ptr != NULL)
       {
-        while (p > ccline.cmdbuff && vim_isspace(p[-1]))
-          --p;
-        context->i = vim_iswordc(p[-1]);
-        while (p > ccline.cmdbuff && !vim_isspace(p[-1]) && vim_iswordc(p[-1]) == context->i)
-          --p;
+        if (context->b_im_ptr == &curbuf->b_p_iminsert)
+          set_iminsert_global();
+        else
+          set_imsearch_global();
       }
-      else
-        --p;
-      ccline.cmdpos = (int)(p - ccline.cmdbuff);
-      ccline.cmdlen -= context->j - ccline.cmdpos;
-      context->i = ccline.cmdpos;
+#if defined(FEAT_KEYMAP)
+      /* Show/unshow value of 'keymap' in status lines later. */
+      status_redraw_curbuf();
+#endif
+      goto cmdline_not_changed;
+
+      /*	case '@':   only in very old vi */
+    case Ctrl_U:
+      /* delete all characters left of the cursor */
+      context->j = ccline.cmdpos;
+      ccline.cmdlen -= context->j;
+      context->i = ccline.cmdpos = 0;
       while (context->i < ccline.cmdlen)
         ccline.cmdbuff[context->i++] = ccline.cmdbuff[context->j++];
-
       /* Truncate at the end, required for multi-byte chars. */
       ccline.cmdbuff[ccline.cmdlen] = NUL;
 #ifdef FEAT_SEARCH_EXTRA
       if (ccline.cmdlen == 0)
-      {
-        context->is_state.search_start = context->is_state.save_cursor;
-        /* save view settings, so that the screen
-			 * won't be restored at the wrong position */
-        context->is_state.old_viewstate = context->is_state.init_viewstate;
-      }
-#endif
-    }
-    else if (ccline.cmdlen == 0 && c != Ctrl_W && ccline.cmdprompt == NULL && context->indent == 0)
-    {
-      /* In ex and debug mode it doesn't make sense to return. */
-      if (exmode_active
-#ifdef FEAT_EVAL
-          || ccline.cmdfirstc == '>'
-#endif
-      )
-        goto cmdline_not_changed;
-
-      VIM_CLEAR(ccline.cmdbuff); /* no commandline to return */
-      if (!cmd_silent)
-      {
-#ifdef FEAT_RIGHTLEFT
-        if (cmdmsg_rl)
-          msg_col = Columns;
-        else
-#endif
-          msg_col = 0;
-        msg_putchar(' '); /* delete ':' */
-      }
-#ifdef FEAT_SEARCH_EXTRA
-      if (ccline.cmdlen == 0)
         context->is_state.search_start = context->is_state.save_cursor;
 #endif
-      redraw_cmdline = TRUE;
-      goto returncmd; /* back to cmd mode */
-    }
-    goto cmdline_changed;
+      redrawcmd();
+      goto cmdline_changed;
 
-  case K_INS:
-  case K_KINS:
-    ccline.overstrike = !ccline.overstrike;
-    goto cmdline_not_changed;
-
-  case Ctrl_HAT:
-    if (map_to_exists_mode((char_u *)"", LANGMAP, FALSE))
-    {
-      /* ":lmap" mappings exists, toggle use of mappings. */
-      State ^= LANGMAP;
-      if (context->b_im_ptr != NULL)
-      {
-        if (State & LANGMAP)
-          *context->b_im_ptr = B_IMODE_LMAP;
-        else
-          *context->b_im_ptr = B_IMODE_NONE;
-      }
-    }
-    if (context->b_im_ptr != NULL)
-    {
-      if (context->b_im_ptr == &curbuf->b_p_iminsert)
-        set_iminsert_global();
-      else
-        set_imsearch_global();
-    }
-#if defined(FEAT_KEYMAP)
-    /* Show/unshow value of 'keymap' in status lines later. */
-    status_redraw_curbuf();
-#endif
-    goto cmdline_not_changed;
-
-    /*	case '@':   only in very old vi */
-  case Ctrl_U:
-    /* delete all characters left of the cursor */
-    context->j = ccline.cmdpos;
-    ccline.cmdlen -= context->j;
-    context->i = ccline.cmdpos = 0;
-    while (context->i < ccline.cmdlen)
-      ccline.cmdbuff[context->i++] = ccline.cmdbuff[context->j++];
-    /* Truncate at the end, required for multi-byte chars. */
-    ccline.cmdbuff[ccline.cmdlen] = NUL;
-#ifdef FEAT_SEARCH_EXTRA
-    if (ccline.cmdlen == 0)
-      context->is_state.search_start = context->is_state.save_cursor;
-#endif
-    redrawcmd();
-    goto cmdline_changed;
-
-  case ESC: /* get here if p_wc != ESC or when ESC typed twice */
-  case Ctrl_C:
-    /* In exmode it doesn't make sense to return.  Except when
+    case ESC: /* get here if p_wc != ESC or when ESC typed twice */
+    case Ctrl_C:
+      /* In exmode it doesn't make sense to return.  Except when
 		 * ":normal" runs out of characters. */
-    if (exmode_active && (ex_normal_busy == 0 || typebuf.tb_len > 0))
-      goto cmdline_not_changed;
+      if (exmode_active && (ex_normal_busy == 0 || typebuf.tb_len > 0))
+        goto cmdline_not_changed;
 
-    context->gotesc = TRUE; /* will free ccline.cmdbuff after
+      context->gotesc = TRUE; /* will free ccline.cmdbuff after
 					   putting it in history */
-    goto returncmd;         /* back to cmd mode */
+      goto returncmd;         /* back to cmd mode */
 
-  case Ctrl_D:
-    if (showmatches(&context->xpc, FALSE) == EXPAND_NOTHING)
-      break; /* Use ^D as normal char instead */
+    case Ctrl_D:
+      if (showmatches(&context->xpc, FALSE) == EXPAND_NOTHING)
+        break; /* Use ^D as normal char instead */
 
-    return HANDLED;
+      return HANDLED;
 
-  case K_RIGHT:
-  case K_S_RIGHT:
-  case K_C_RIGHT:
-    do
-    {
-      if (ccline.cmdpos >= ccline.cmdlen)
+    case K_RIGHT:
+    case K_S_RIGHT:
+    case K_C_RIGHT:
+      do
+      {
+        if (ccline.cmdpos >= ccline.cmdlen)
+          break;
+        context->i = cmdline_charsize(ccline.cmdpos);
+
+        if (has_mbyte)
+          ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
+        else
+          ++ccline.cmdpos;
+
+      } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
+
+      goto cmdline_not_changed;
+
+    case K_LEFT:
+    case K_S_LEFT:
+    case K_C_LEFT:
+      if (ccline.cmdpos == 0)
+        goto cmdline_not_changed;
+      do
+      {
+        --ccline.cmdpos;
+        if (has_mbyte) /* move to first byte of char */
+          ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
+                                          ccline.cmdbuff + ccline.cmdpos);
+      } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
+
+      goto cmdline_not_changed;
+
+    case K_IGNORE:
+      /* Ignore mouse event or open_cmdwin() result. */
+      goto cmdline_not_changed;
+
+    case K_SELECT: /* end of Select mode mapping - ignore */
+      goto cmdline_not_changed;
+
+    case Ctrl_V:
+    case Ctrl_Q:
+      context->is_ctrlv = TRUE;
+      sm_push_insert_literal(&context->ctrlv_ret);
+      return HANDLED;
+
+    case Ctrl_B: /* begin of command line */
+    case K_HOME:
+    case K_KHOME:
+    case K_S_HOME:
+    case K_C_HOME:
+      ccline.cmdpos = 0;
+      goto cmdline_not_changed;
+
+    case Ctrl_E: /* end of command line */
+    case K_END:
+    case K_KEND:
+    case K_S_END:
+    case K_C_END:
+      ccline.cmdpos = ccline.cmdlen;
+      goto cmdline_not_changed;
+
+    case Ctrl_A: /* all matches */
+      if (nextwild(&context->xpc, WILD_ALL, 0, context->firstc != '@') == FAIL)
         break;
-      context->i = cmdline_charsize(ccline.cmdpos);
+      goto cmdline_changed;
 
-      if (has_mbyte)
-        ccline.cmdpos += (*mb_ptr2len)(ccline.cmdbuff + ccline.cmdpos);
-      else
-        ++ccline.cmdpos;
-
-    } while ((c == K_S_RIGHT || c == K_C_RIGHT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos] != ' ');
-
-    goto cmdline_not_changed;
-
-  case K_LEFT:
-  case K_S_LEFT:
-  case K_C_LEFT:
-    if (ccline.cmdpos == 0)
-      goto cmdline_not_changed;
-    do
-    {
-      --ccline.cmdpos;
-      if (has_mbyte) /* move to first byte of char */
-        ccline.cmdpos -= (*mb_head_off)(ccline.cmdbuff,
-                                        ccline.cmdbuff + ccline.cmdpos);
-    } while (ccline.cmdpos > 0 && (c == K_S_LEFT || c == K_C_LEFT || (mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL))) && ccline.cmdbuff[ccline.cmdpos - 1] != ' ');
-
-    goto cmdline_not_changed;
-
-  case K_IGNORE:
-    /* Ignore mouse event or open_cmdwin() result. */
-    goto cmdline_not_changed;
-
-  case K_SELECT: /* end of Select mode mapping - ignore */
-    goto cmdline_not_changed;
-
-  case Ctrl_B: /* begin of command line */
-  case K_HOME:
-  case K_KHOME:
-  case K_S_HOME:
-  case K_C_HOME:
-    ccline.cmdpos = 0;
-    goto cmdline_not_changed;
-
-  case Ctrl_E: /* end of command line */
-  case K_END:
-  case K_KEND:
-  case K_S_END:
-  case K_C_END:
-    ccline.cmdpos = ccline.cmdlen;
-    goto cmdline_not_changed;
-
-  case Ctrl_A: /* all matches */
-    if (nextwild(&context->xpc, WILD_ALL, 0, context->firstc != '@') == FAIL)
-      break;
-    goto cmdline_changed;
-
-  case Ctrl_L:
+    case Ctrl_L:
 #ifdef FEAT_SEARCH_EXTRA
-    if (may_add_char_to_search(context->firstc, &c, &context->is_state) == OK)
-      goto cmdline_not_changed;
+      if (may_add_char_to_search(context->firstc, &c, &context->is_state) == OK)
+        goto cmdline_not_changed;
 #endif
 
-    /* completion: longest common part */
-    if (nextwild(&context->xpc, WILD_LONGEST, 0, context->firstc != '@') == FAIL)
-      break;
-    goto cmdline_changed;
-
-  case Ctrl_N: /* next match */
-  case Ctrl_P: /* previous match */
-    if (context->xpc.xp_numfiles > 0)
-    {
-      if (nextwild(&context->xpc, (c == Ctrl_P) ? WILD_PREV : WILD_NEXT,
-                   0, context->firstc != '@') == FAIL)
+      /* completion: longest common part */
+      if (nextwild(&context->xpc, WILD_LONGEST, 0, context->firstc != '@') == FAIL)
         break;
-      goto cmdline_not_changed;
-    }
-#ifdef FEAT_CMDHIST
-    /* FALLTHROUGH */
-  case K_UP:
-  case K_DOWN:
-  case K_S_UP:
-  case K_S_DOWN:
-  case K_PAGEUP:
-  case K_KPAGEUP:
-  case K_PAGEDOWN:
-  case K_KPAGEDOWN:
-    if (hislen == 0 || context->firstc == NUL) /* no history */
-      goto cmdline_not_changed;
+      goto cmdline_changed;
 
-    context->i = context->hiscnt;
-
-    /* save current command string so it can be restored later */
-    if (context->lookfor == NULL)
-    {
-      if ((context->lookfor = vim_strsave(ccline.cmdbuff)) == NULL)
-        goto cmdline_not_changed;
-      context->lookfor[ccline.cmdpos] = NUL;
-    }
-
-    context->j = (int)STRLEN(context->lookfor);
-    for (;;)
-    {
-      /* one step backwards */
-      if (c == K_UP || c == K_S_UP || c == Ctrl_P || c == K_PAGEUP || c == K_KPAGEUP)
+    case Ctrl_N: /* next match */
+    case Ctrl_P: /* previous match */
+      if (context->xpc.xp_numfiles > 0)
       {
-        if (context->hiscnt == hislen) /* first time */
-          context->hiscnt = hisidx[context->histype];
-        else if (context->hiscnt == 0 && hisidx[context->histype] != hislen - 1)
-          context->hiscnt = hislen - 1;
-        else if (context->hiscnt != hisidx[context->histype] + 1)
-          --context->hiscnt;
-        else /* at top of list */
+        if (nextwild(&context->xpc, (c == Ctrl_P) ? WILD_PREV : WILD_NEXT,
+                     0, context->firstc != '@') == FAIL)
+          break;
+        goto cmdline_not_changed;
+      }
+#ifdef FEAT_CMDHIST
+      /* FALLTHROUGH */
+    case K_UP:
+    case K_DOWN:
+    case K_S_UP:
+    case K_S_DOWN:
+    case K_PAGEUP:
+    case K_KPAGEUP:
+    case K_PAGEDOWN:
+    case K_KPAGEDOWN:
+      if (hislen == 0 || context->firstc == NUL) /* no history */
+        goto cmdline_not_changed;
+
+      context->i = context->hiscnt;
+
+      /* save current command string so it can be restored later */
+      if (context->lookfor == NULL)
+      {
+        if ((context->lookfor = vim_strsave(ccline.cmdbuff)) == NULL)
+          goto cmdline_not_changed;
+        context->lookfor[ccline.cmdpos] = NUL;
+      }
+
+      context->j = (int)STRLEN(context->lookfor);
+      for (;;)
+      {
+        /* one step backwards */
+        if (c == K_UP || c == K_S_UP || c == Ctrl_P || c == K_PAGEUP || c == K_KPAGEUP)
+        {
+          if (context->hiscnt == hislen) /* first time */
+            context->hiscnt = hisidx[context->histype];
+          else if (context->hiscnt == 0 && hisidx[context->histype] != hislen - 1)
+            context->hiscnt = hislen - 1;
+          else if (context->hiscnt != hisidx[context->histype] + 1)
+            --context->hiscnt;
+          else /* at top of list */
+          {
+            context->hiscnt = context->i;
+            break;
+          }
+        }
+        else /* one step forwards */
+        {
+          /* on last entry, clear the line */
+          if (context->hiscnt == hisidx[context->histype])
+          {
+            context->hiscnt = hislen;
+            break;
+          }
+
+          /* not on a history line, nothing to do */
+          if (context->hiscnt == hislen)
+            break;
+          if (context->hiscnt == hislen - 1) /* wrap around */
+            context->hiscnt = 0;
+          else
+            ++context->hiscnt;
+        }
+        if (context->hiscnt < 0 || history[context->histype][context->hiscnt].hisstr == NULL)
         {
           context->hiscnt = context->i;
           break;
         }
-      }
-      else /* one step forwards */
-      {
-        /* on last entry, clear the line */
-        if (context->hiscnt == hisidx[context->histype])
-        {
-          context->hiscnt = hislen;
+        if ((c != K_UP && c != K_DOWN) || context->hiscnt == context->i || STRNCMP(history[context->histype][context->hiscnt].hisstr, context->lookfor, (size_t)context->j) == 0)
           break;
-        }
+      }
 
-        /* not on a history line, nothing to do */
+      if (context->hiscnt != context->i) /* jumped to other entry */
+      {
+        char_u *p;
+        int len;
+        int old_firstc;
+
+        VIM_CLEAR(ccline.cmdbuff);
+        context->xpc.xp_context = EXPAND_NOTHING;
         if (context->hiscnt == hislen)
-          break;
-        if (context->hiscnt == hislen - 1) /* wrap around */
-          context->hiscnt = 0;
+          p = context->lookfor; /* back to the old one */
         else
-          ++context->hiscnt;
-      }
-      if (context->hiscnt < 0 || history[context->histype][context->hiscnt].hisstr == NULL)
-      {
-        context->hiscnt = context->i;
-        break;
-      }
-      if ((c != K_UP && c != K_DOWN) || context->hiscnt == context->i || STRNCMP(history[context->histype][context->hiscnt].hisstr, context->lookfor, (size_t)context->j) == 0)
-        break;
-    }
+          p = history[context->histype][context->hiscnt].hisstr;
 
-    if (context->hiscnt != context->i) /* jumped to other entry */
-    {
-      char_u *p;
-      int len;
-      int old_firstc;
-
-      VIM_CLEAR(ccline.cmdbuff);
-      context->xpc.xp_context = EXPAND_NOTHING;
-      if (context->hiscnt == hislen)
-        p = context->lookfor; /* back to the old one */
-      else
-        p = history[context->histype][context->hiscnt].hisstr;
-
-      if (context->histype == HIST_SEARCH && p != context->lookfor && (old_firstc = p[STRLEN(p) + 1]) != context->firstc)
-      {
-        /* Correct for the separator character used when
+        if (context->histype == HIST_SEARCH && p != context->lookfor && (old_firstc = p[STRLEN(p) + 1]) != context->firstc)
+        {
+          /* Correct for the separator character used when
 			 * adding the history entry vs the one used now.
 			 * First loop: count length.
 			 * Second loop: copy the characters. */
-        for (context->i = 0; context->i <= 1; ++context->i)
-        {
-          len = 0;
-          for (context->j = 0; p[context->j] != NUL; ++context->j)
+          for (context->i = 0; context->i <= 1; ++context->i)
           {
-            /* Replace old sep with new sep, unless it is
+            len = 0;
+            for (context->j = 0; p[context->j] != NUL; ++context->j)
+            {
+              /* Replace old sep with new sep, unless it is
 				 * escaped. */
-            if (p[context->j] == old_firstc && (context->j == 0 || p[context->j - 1] != '\\'))
-            {
-              if (context->i > 0)
-                ccline.cmdbuff[len] = context->firstc;
-            }
-            else
-            {
-              /* Escape new sep, unless it is already
-				     * escaped. */
-              if (p[context->j] == context->firstc && (context->j == 0 || p[context->j - 1] != '\\'))
+              if (p[context->j] == old_firstc && (context->j == 0 || p[context->j - 1] != '\\'))
               {
                 if (context->i > 0)
-                  ccline.cmdbuff[len] = '\\';
-                ++len;
+                  ccline.cmdbuff[len] = context->firstc;
               }
-              if (context->i > 0)
-                ccline.cmdbuff[len] = p[context->j];
+              else
+              {
+                /* Escape new sep, unless it is already
+				     * escaped. */
+                if (p[context->j] == context->firstc && (context->j == 0 || p[context->j - 1] != '\\'))
+                {
+                  if (context->i > 0)
+                    ccline.cmdbuff[len] = '\\';
+                  ++len;
+                }
+                if (context->i > 0)
+                  ccline.cmdbuff[len] = p[context->j];
+              }
+              ++len;
             }
-            ++len;
+            if (context->i == 0)
+            {
+              alloc_cmdbuff(len);
+              if (ccline.cmdbuff == NULL)
+                goto returncmd;
+            }
           }
-          if (context->i == 0)
-          {
-            alloc_cmdbuff(len);
-            if (ccline.cmdbuff == NULL)
-              goto returncmd;
-          }
+          ccline.cmdbuff[len] = NUL;
         }
-        ccline.cmdbuff[len] = NUL;
-      }
-      else
-      {
-        alloc_cmdbuff((int)STRLEN(p));
-        if (ccline.cmdbuff == NULL)
-          goto returncmd;
-        STRCPY(ccline.cmdbuff, p);
-      }
+        else
+        {
+          alloc_cmdbuff((int)STRLEN(p));
+          if (ccline.cmdbuff == NULL)
+            goto returncmd;
+          STRCPY(ccline.cmdbuff, p);
+        }
 
-      ccline.cmdpos = ccline.cmdlen = (int)STRLEN(ccline.cmdbuff);
-      redrawcmd();
-      goto cmdline_changed;
-    }
-    beep_flush();
+        ccline.cmdpos = ccline.cmdlen = (int)STRLEN(ccline.cmdbuff);
+        redrawcmd();
+        goto cmdline_changed;
+      }
+      beep_flush();
 #endif
-    goto cmdline_not_changed;
+      goto cmdline_not_changed;
 
 #ifdef FEAT_SEARCH_EXTRA
-  case Ctrl_G: /* next match */
-  case Ctrl_T: /* previous match */
-    if (may_adjust_incsearch_highlighting(
-            context->firstc, context->count, &context->is_state, c) == FAIL)
-      goto cmdline_not_changed;
-    break;
+    case Ctrl_G: /* next match */
+    case Ctrl_T: /* previous match */
+      if (may_adjust_incsearch_highlighting(
+              context->firstc, context->count, &context->is_state, c) == FAIL)
+        goto cmdline_not_changed;
+      break;
 #endif
 
 #ifdef FEAT_DIGRAPHS
-  case Ctrl_K:
-    putcmdline('?', TRUE);
-    c = get_digraph(TRUE);
-    extra_char = NUL;
-    if (c != NUL)
-      break;
+    case Ctrl_K:
+      putcmdline('?', TRUE);
+      c = get_digraph(TRUE);
+      extra_char = NUL;
+      if (c != NUL)
+        break;
 
-    goto cmdline_not_changed;
+      goto cmdline_not_changed;
 #endif /* FEAT_DIGRAPHS */
 
 #ifdef FEAT_RIGHTLEFT
-  case Ctrl__: /* CTRL-_: switch language mode */
-    if (!p_ari)
-      break;
-    cmd_hkmap = !cmd_hkmap;
-    goto cmdline_not_changed;
+    case Ctrl__: /* CTRL-_: switch language mode */
+      if (!p_ari)
+        break;
+      cmd_hkmap = !cmd_hkmap;
+      goto cmdline_not_changed;
 #endif
 
-  case K_PS:
-    bracketed_paste(PASTE_CMDLINE, FALSE, NULL);
-    goto cmdline_changed;
+    case K_PS:
+      bracketed_paste(PASTE_CMDLINE, FALSE, NULL);
+      goto cmdline_changed;
 
-  default:
+    default:
 #ifdef UNIX
-    if (c == intr_char)
-    {
-      context->gotesc = TRUE; /* will free ccline.cmdbuff after
+      if (c == intr_char)
+      {
+        context->gotesc = TRUE; /* will free ccline.cmdbuff after
 					   putting it in history */
-      goto returncmd;         /* back to Normal mode */
-    }
+        goto returncmd;         /* back to Normal mode */
+      }
 #endif
-    /*
+      /*
 		 * Normal character with no special meaning.  Just set mod_mask
 		 * to 0x0 so that typing Shift-Space in the GUI doesn't enter
 		 * the string <S-Space>.  This should only happen after ^V.
 		 */
-    if (!IS_SPECIAL(c))
-      mod_mask = 0x0;
-    break;
+      if (!IS_SPECIAL(c))
+        mod_mask = 0x0;
+      break;
+    }
   }
   /*
 	 * End of switch on command line character.
@@ -6873,8 +6893,16 @@ void write_viminfo_history(FILE *fp, int merge)
       continue;
     if (num_saved < 0) /* Use default */
       num_saved = hislen;
+
+    // Not sure why clang-format is inconsistent for this next line, but disabling to pass CI...
+    // clang-format off
     fprintf(fp, _("\n# %s History (newest to oldest):\n"),
-            type == HIST_CMD ? _("Command Line") : type == HIST_SEARCH ? _("Search String") : type == HIST_EXPR ? _("Expression") : type == HIST_INPUT ? _("Input Line") : _("Debug Line"));
+            type == HIST_CMD ? _("Command Line") : type == HIST_SEARCH ? _("Search String")
+                                               : type == HIST_EXPR     ? _("Expression")
+                                               : type == HIST_INPUT    ? _("Input Line")
+                                                                       : _("Debug Line"));
+    // clang-format on
+
     if (num_saved > hislen)
       num_saved = hislen;
 

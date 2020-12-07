@@ -393,6 +393,13 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
 void vimSetClipboardGetCallback(ClipboardGetCallback callback);
 
 int vimGetMode(void);
+
+/* There are some modal input experiences that aren't considered
+  full-fledged modes, but are nevertheless a modal input state.
+  Examples include insert-literal (C-V, C-G), search w/ confirmation, etc.
+*/
+subMode_T vimGetSubMode(void);
+
 int vimGetPendingOperator(pendingOp_T *pendingOp);
 
 void vimSetYankCallback(YankCallback callback);

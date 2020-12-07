@@ -126,6 +126,12 @@ typedef enum
 
 typedef enum
 {
+  SM_NONE,
+  SM_INSERT_LITERAL
+} subMode_T;
+
+typedef enum
+{
   GOTO,
   MOVE,
   CLOSE,
@@ -3053,6 +3059,7 @@ typedef struct
 {
   void *context;
   int mode;
+  subMode_T subMode;
   state_execute execute_fn;
   state_cleanup cleanup_fn;
   state_pending_operator pending_operator_fn;

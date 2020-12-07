@@ -520,6 +520,8 @@ void vimSetToggleCommentsCallback(ToggleCommentsCallback callback)
 
 int vimGetMode(void) { return get_real_state(); }
 
+subMode_T vimGetSubMode(void) { return sm_get_current_sub_mode(); }
+
 int vimGetPendingOperator(pendingOp_T *pendingOp)
 {
   return sm_get_pending_operator(pendingOp);
