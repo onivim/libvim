@@ -18,7 +18,13 @@ int no_pending_operator(void *ctx, pendingOp_T *cmdarg)
   return FALSE;
 }
 
-subMode_T sm_get_current_sub_mode() { return state_current->subMode; }
+subMode_T sm_get_current_sub_mode() { 
+  if (state_current == NULL) {
+    return SM_NONE
+  } else {
+    return state_current->subMode; 
+  }
+};
 
 void sm_push(int mode, subMode_T subMode, void *context, state_execute executeFn,
              state_pending_operator pendingOperatorFn,
