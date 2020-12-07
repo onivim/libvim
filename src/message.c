@@ -683,7 +683,7 @@ int emsg(char *s)
 }
 
 #ifndef PROTO // manual proto with __attribute__
-              /*
+/*
  * Print an error message with format string and variable arguments.
  * Note: caller must not pass 'IObuff' as 1st argument.
  */
@@ -718,7 +718,7 @@ void iemsg(char *s)
 }
 
 #ifndef PROTO // manual proto with __attribute__
-              /*
+/*
  * Same as semsg(...) but abort on error when ABORT_ON_INTERNAL_ERROR is
  * defined. It is used for internal errors only, so that they can be
  * detected when fuzzing vim.
@@ -883,16 +883,16 @@ int delete_first_msg(void)
  */
 void ex_messages(exarg_T *eap)
 {
-  struct msg_hist *p;
-  char_u *s;
-  int c = 0;
-
   if (STRCMP(eap->arg, "clear") == 0)
   {
-    int keep = eap->addr_count == 0 ? 0 : eap->line2;
+    if (clearCallback != NULL)
+    {
+      clearRequest_T clearRequest;
+      clearRequest.count = eap->addr_count != 0 ? eap->line2 : 0;
+      clearRequest.target = CLEAR_MESSAGES;
+      clearCallback(clearRequest);
+    }
 
-    while (msg_hist_len > keep)
-      (void)delete_first_msg();
     return;
   }
 
@@ -902,42 +902,13 @@ void ex_messages(exarg_T *eap)
     return;
   }
 
-  msg_hist_off = TRUE;
-
-  p = first_msg_hist;
-  if (eap->addr_count != 0)
+  if (gotoCallback != NULL)
   {
-    /* Count total messages */
-    for (; p != NULL && !got_int; p = p->next)
-      c++;
-
-    c -= eap->line2;
-
-    /* Skip without number of messages specified */
-    for (p = first_msg_hist; p != NULL && !got_int && c > 0;
-         p = p->next, c--)
-      ;
+    gotoRequest_T gotoRequest;
+    gotoRequest.target = MESSAGES;
+    gotoRequest.count = eap->addr_count != 0 ? eap->line2 : 0;
+    gotoCallback(gotoRequest);
   }
-
-  if (p == first_msg_hist)
-  {
-    s = mch_getenv((char_u *)"LANG");
-    if (s != NULL && *s != NUL)
-      // The next comment is extracted by xgettext and put in po file for
-      // translators to read.
-      msg_attr(
-          // Translator: Please replace the name and email address
-          // with the appropriate text for your translation.
-          _("Messages maintainer: Bram Moolenaar <Bram@vim.org>"),
-          HL_ATTR(HLF_T));
-  }
-
-  /* Display what was not skipped. */
-  for (; p != NULL && !got_int; p = p->next)
-    if (p->msg != NULL)
-      msg_attr((char *)p->msg, p->attr);
-
-  msg_hist_off = FALSE;
 }
 
 #if defined(FIND_REPLACE_DIALOG) || defined(PROTO)

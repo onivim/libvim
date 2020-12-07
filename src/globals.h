@@ -47,6 +47,7 @@ EXTERN char_u *LineWraps INIT(= NULL); /* line wraps to next line */
 /* libvim API callbacks */
 EXTERN AutoCommandCallback autoCommandCallback INIT(= NULL);
 EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
+EXTERN ClearCallback clearCallback INIT(= NULL);
 EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN FileWriteFailureCallback fileWriteFailureCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);

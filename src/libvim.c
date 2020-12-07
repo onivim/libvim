@@ -527,6 +527,11 @@ int vimGetPendingOperator(pendingOp_T *pendingOp)
   return sm_get_pending_operator(pendingOp);
 }
 
+void vimSetClearCallback(ClearCallback callback)
+{
+  clearCallback = callback;
+}
+
 void vimSetFormatCallback(FormatCallback callback)
 {
   formatCallback = callback;
