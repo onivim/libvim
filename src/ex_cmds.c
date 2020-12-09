@@ -1210,14 +1210,14 @@ void do_bang(
   if (addr_count == 0) /* :! */
   {
     /* echo the command */
-    msg_start();
-    msg_putchar(':');
-    msg_putchar('!');
-    msg_outtrans(newcmd);
-    msg_clr_eos();
-    windgoto(msg_row, msg_col);
+    char_u *buffer = get_cmd_output(newcmd, NULL,
+    SHELL_SILENT, NULL);
 
-    do_shell(newcmd, 0);
+    if (outputCallback != NULL) {
+      outputCallback(newcmd, buffer);
+    }
+
+    vim_free(buffer);
   }
   else /* :range! */
   {
