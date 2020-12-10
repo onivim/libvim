@@ -4061,6 +4061,7 @@ get_cmd_output(
      */
   ++no_check_timestamps;
   call_shell(command, SHELL_DOOUT | SHELL_EXPAND | flags);
+  printf("get_cmd_output - finished call_shell\n");
   --no_check_timestamps;
 
   vim_free(command);
@@ -4074,6 +4075,7 @@ get_cmd_output(
 #else
   fd = mch_fopen((char *)tempname, READBIN);
 #endif
+  printf("get_cmd_output - called mch_fopen\n");
 
   if (fd == NULL)
   {
