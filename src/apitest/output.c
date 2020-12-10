@@ -16,7 +16,7 @@ void onOutput(char_u *cmd, char_u *output)
     lastCmd = NULL;
   }
 
-  if (cmd != NULL) 
+  if (cmd != NULL)
   {
     lastCmd = strdup(cmd);
   }
@@ -27,7 +27,7 @@ void onOutput(char_u *cmd, char_u *output)
     lastOutput = NULL;
   };
 
-  if (output != NULL) 
+  if (output != NULL)
   {
     lastOutput = strdup(output);
   }
