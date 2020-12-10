@@ -1194,6 +1194,8 @@ void do_bang(
     AppendToRedobuff((char_u *)"\n");
     bangredo = FALSE;
   }
+
+  fprintf(stderr, "!! p_shq: %s\n", p_shq);
   /*
      * Add quotes around the command, for shells that need them.
      */
