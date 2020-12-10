@@ -4075,11 +4075,11 @@ get_cmd_output(
 #else
   fd = mch_fopen((char *)tempname, READBIN);
 #endif
-  printf("get_cmd_output - called mch_fopen\n");
+  fprintf(stderr, "get_cmd_output - called mch_fopen\n");
 
   if (fd == NULL)
   {
-    printf("!UNABLE to read tempfile\n");
+    fprintf(stderr, "!UNABLE to read tempfile\n");
     semsg(_(e_notopen), tempname);
     goto done;
   }

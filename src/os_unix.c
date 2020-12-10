@@ -3137,12 +3137,16 @@ mch_call_shell_fork(
   int pipe_error = FALSE;
   int did_settmode = FALSE; /* settmode(TMODE_RAW) called */
 
+  fprintf(stderr, "mch_call_shell_fork - 1\n");
+
   if (options & SHELL_COOKED)
     settmode(TMODE_COOK); /* set to normal mode */
 
+  fprintf(stderr, "mch_call_shell_fork - 2\n");
   if (build_argv(cmd, &argv, &tofree1, &tofree2) == FAIL)
     goto error;
 
+  fprintf(stderr, "mch_call_shell_fork - 3\n");
   /*
      * For the GUI, when writing the output into the buffer and when reading
      * input from the buffer: Try using a pseudo-tty to get the stdin/stdout
@@ -3162,6 +3166,7 @@ mch_call_shell_fork(
     }
     if (pipe_error)
     {
+    fprintf(stderr, "mch_call_shell_fork - pipe error 1\n");
       msg_puts(_("\nCannot create pipes\n"));
     }
   }
@@ -3835,8 +3840,10 @@ int mch_call_shell(
     int options) /* SHELL_*, see vim.h */
 {
 #ifdef USE_SYSTEM
+  fprintf(stderr, "mch_call_shell - system\n");
   return mch_call_shell_system(cmd, options);
 #else
+  fprintf(stderr, "mch_call_shell - fork\n");
   return mch_call_shell_fork(cmd, options);
 #endif
 }
