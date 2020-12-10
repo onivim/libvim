@@ -4086,7 +4086,7 @@ get_cmd_output(
 
   fseek(fd, 0L, SEEK_END);
   len = ftell(fd); /* get size of temp file */
-  printf("get_cmd_output: Temp file is %d bytes\n", len);
+  fprintf(stderr, "get_cmd_output: Temp file is %d bytes\n", len);
   fseek(fd, 0L, SEEK_SET);
 
   buffer = alloc(len + 1);
