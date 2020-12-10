@@ -2985,9 +2985,6 @@ build_argv(
   char **argv = NULL;
   int argc;
 
-  fprintf(stderr, "build_argv - cmd: %s\n", cmd);
-  fprintf(stderr, "build_argv - p_sh: %s\n", p_sh);
-
   *sh_tofree = vim_strsave(p_sh);
   if (*sh_tofree == NULL) /* out of memory */
     return FAIL;
@@ -3140,23 +3137,12 @@ mch_call_shell_fork(
   int pipe_error = FALSE;
   int did_settmode = FALSE; /* settmode(TMODE_RAW) called */
 
-  fprintf(stderr, "mch_call_shell_fork - 1\n");
-
   if (options & SHELL_COOKED)
     settmode(TMODE_COOK); /* set to normal mode */
 
-  fprintf(stderr, "mch_call_shell_fork - cmd: %s\n", cmd);
-  fprintf(stderr, "mch_call_shell_fork - 2\n");
   if (build_argv(cmd, &argv, &tofree1, &tofree2) == FAIL)
     goto error;
 
-  int idx = 0;
-  while (argv[idx] != NULL) {
-    fprintf(stderr, "ARGV %d: %s\n", idx, argv[idx]);
-    idx++;
-  }
-
-  fprintf(stderr, "mch_call_shell_fork - 3\n");
   /*
      * For the GUI, when writing the output into the buffer and when reading
      * input from the buffer: Try using a pseudo-tty to get the stdin/stdout
@@ -3176,7 +3162,6 @@ mch_call_shell_fork(
     }
     if (pipe_error)
     {
-    fprintf(stderr, "mch_call_shell_fork - pipe error 1\n");
       msg_puts(_("\nCannot create pipes\n"));
     }
   }
@@ -3812,12 +3797,10 @@ mch_call_shell_fork(
       {
         /* LINTED avoid "bitwise operation on signed value" */
         retval = WEXITSTATUS(status);
-        fprintf(stderr, "mch_shell_fork: RETVAL: %d\n", retval);
         if (retval != 0 && !emsg_silent)
         {
           if (retval == EXEC_FAILED)
           {
-            fprintf(stderr, "mch_shell_fork: EXEC_FAILED");
             msg_puts(_("\nCannot execute shell "));
             msg_outtrans(p_sh);
             msg_putchar('\n');
@@ -3852,10 +3835,8 @@ int mch_call_shell(
     int options) /* SHELL_*, see vim.h */
 {
 #ifdef USE_SYSTEM
-  fprintf(stderr, "mch_call_shell - system\n");
   return mch_call_shell_system(cmd, options);
 #else
-  fprintf(stderr, "mch_call_shell - fork\n");
   return mch_call_shell_fork(cmd, options);
 #endif
 }

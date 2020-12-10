@@ -4032,28 +4032,20 @@ get_cmd_output(
   int i = 0;
   FILE *fd;
 
-  printf("--get_cmd_output - start\n");
-
-  if (check_restricted() || check_secure()) {
-    printf("!RESTRICTED OR SECURE\n");
+  if (check_restricted() || check_secure())
     return NULL;
-  }
 
   /* get a name for the temp file */
   if ((tempname = vim_tempname('o', FALSE)) == NULL)
   {
-    printf("!UNABLE TO CREATE TEMP FILE\n");
     emsg(_(e_notmp));
     return NULL;
   }
 
   /* Add the redirection stuff */
   command = make_filter_cmd(cmd, infile, tempname);
-  if (command == NULL) {
-    printf("!UNABLE TO CREATE FILTER COMMAND\n");
+  if (command == NULL)
     goto done;
-  }
-  printf("- get_cmd_output - filter command is %s\n", command);
 
   /*
      * Call the shell to execute the command (errors are ignored).
@@ -4061,7 +4053,6 @@ get_cmd_output(
      */
   ++no_check_timestamps;
   call_shell(command, SHELL_DOOUT | SHELL_EXPAND | flags);
-  printf("get_cmd_output - finished call_shell\n");
   --no_check_timestamps;
 
   vim_free(command);
@@ -4075,18 +4066,15 @@ get_cmd_output(
 #else
   fd = mch_fopen((char *)tempname, READBIN);
 #endif
-  fprintf(stderr, "get_cmd_output - called mch_fopen\n");
 
   if (fd == NULL)
   {
-    fprintf(stderr, "!UNABLE to read tempfile\n");
     semsg(_(e_notopen), tempname);
     goto done;
   }
 
   fseek(fd, 0L, SEEK_END);
   len = ftell(fd); /* get size of temp file */
-  fprintf(stderr, "get_cmd_output: Temp file is %d bytes\n", len);
   fseek(fd, 0L, SEEK_SET);
 
   buffer = alloc(len + 1);
