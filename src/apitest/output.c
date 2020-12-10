@@ -72,14 +72,14 @@ void test_teardown(void)
   }
 }
 
-MU_TEST(test_ex_bang_ls)
-{
-  vimExecute("!ls");
+// MU_TEST(test_ex_bang_ls)
+// {
+//   vimExecute("!ls");
 
-  mu_check(outputCount == 1);
-  mu_check(strcmp(lastCmd, "ls") == 0);
-  mu_check(strlen(lastOutput) > 0);
-}
+//   mu_check(outputCount == 1);
+//   mu_check(strcmp(lastCmd, "ls") == 0);
+//   mu_check(strlen(lastOutput) > 0);
+// }
 
 MU_TEST(test_ex_bang_echo)
 {
@@ -104,7 +104,7 @@ MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-  MU_RUN_TEST(test_ex_bang_ls);
+  // MU_RUN_TEST(test_ex_bang_ls);
   MU_RUN_TEST(test_ex_bang_echo);
   MU_RUN_TEST(test_ex_read_cmd);
 }
