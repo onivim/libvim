@@ -3146,6 +3146,12 @@ mch_call_shell_fork(
   if (build_argv(cmd, &argv, &tofree1, &tofree2) == FAIL)
     goto error;
 
+  int idx = 0;
+  while (argv[idx] != NULL) {
+    fprintf(stderr, "ARGV %d: %s\n", idx, argv[idx]);
+    idx++;
+  }
+
   fprintf(stderr, "mch_call_shell_fork - 3\n");
   /*
      * For the GUI, when writing the output into the buffer and when reading
@@ -3807,6 +3813,7 @@ mch_call_shell_fork(
         {
           if (retval == EXEC_FAILED)
           {
+            fprintf(stderr, "mch_shell_fork: EXEC_FAILED");
             msg_puts(_("\nCannot execute shell "));
             msg_outtrans(p_sh);
             msg_putchar('\n');
