@@ -3802,6 +3802,7 @@ mch_call_shell_fork(
       {
         /* LINTED avoid "bitwise operation on signed value" */
         retval = WEXITSTATUS(status);
+        fprintf(stderr, "mch_shell_fork: RETVAL: %d\n", retval);
         if (retval != 0 && !emsg_silent)
         {
           if (retval == EXEC_FAILED)
