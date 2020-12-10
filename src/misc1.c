@@ -4032,20 +4032,28 @@ get_cmd_output(
   int i = 0;
   FILE *fd;
 
-  if (check_restricted() || check_secure())
+  printf("--get_cmd_output - start\n");
+
+  if (check_restricted() || check_secure()) {
+    printf("!RESTRICTED OR SECURE\n");
     return NULL;
+  }
 
   /* get a name for the temp file */
   if ((tempname = vim_tempname('o', FALSE)) == NULL)
   {
+    printf("!UNABLE TO CREATE TEMP FILE\n");
     emsg(_(e_notmp));
     return NULL;
   }
 
   /* Add the redirection stuff */
   command = make_filter_cmd(cmd, infile, tempname);
-  if (command == NULL)
+  if (command == NULL) {
+    printf("!UNABLE TO CREATE FILTER COMMAND\n");
     goto done;
+  }
+  printf("- get_cmd_output - filter command is %s\n", command);
 
   /*
      * Call the shell to execute the command (errors are ignored).
