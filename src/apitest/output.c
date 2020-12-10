@@ -32,6 +32,11 @@ void onOutput(char_u *cmd, char_u *output)
   outputCount++;
 };
 
+void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
+{
+  printf("onMessage - title: |%s| contents: |%s|", title, msg);
+};
+
 void test_setup(void)
 {
   outputCount = 0;
@@ -109,6 +114,7 @@ int main(int argc, char **argv)
   vimInit(argc, argv);
 
   vimSetOutputCallback(&onOutput);
+  vimSetMessageCallback(&onMessage);
 
   win_setwidth(5);
   win_setheight(100);
