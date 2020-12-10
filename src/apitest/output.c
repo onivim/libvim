@@ -8,19 +8,27 @@ static int outputCount = 0;
 
 void onOutput(char_u *cmd, char_u *output)
 {
-  printf("onOutput - title: |%s| contents: |%s|", cmd, output);
+  printf("onOutput - title: |%s| contents: |%s|\n", cmd, output);
 
   if (lastCmd != NULL)
   {
     vim_free(lastCmd);
+    lastCmd = NULL;
   }
-  lastCmd = strdup(cmd);
+
+  if (cmd != NULL) {
+    lastCmd = strdup(cmd);
+  }
 
   if (lastOutput != NULL)
   {
     vim_free(lastOutput);
+    lastOutput = NULL;
   };
-  lastOutput = strdup(output);
+
+  if (output != NULL) {
+    lastOutput = strdup(output);
+  }
   outputCount++;
 };
 
