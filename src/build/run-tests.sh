@@ -3,9 +3,13 @@ set -e
 echo "The script you are running has basename `basename "$0"`, dirname `dirname "$0"`"
 echo "The present working directory is `pwd`"
 
+
 CWD=`dirname "$0"`
 echo $CWD
 cd $CWD
+export TMPDIR=$CWD/vim-temp
+mkdir $TMPDIR
+echo "- Using temporary directory $TMPDIR"
 ls
 echo "- Starting API tests"
 for file in ./*.exe;
