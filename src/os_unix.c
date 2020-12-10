@@ -3142,6 +3142,7 @@ mch_call_shell_fork(
   if (options & SHELL_COOKED)
     settmode(TMODE_COOK); /* set to normal mode */
 
+  fprintf(stderr, "mch_call_shell_fork - cmd: %s\n", cmd);
   fprintf(stderr, "mch_call_shell_fork - 2\n");
   if (build_argv(cmd, &argv, &tofree1, &tofree2) == FAIL)
     goto error;
