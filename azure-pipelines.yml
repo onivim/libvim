@@ -57,6 +57,8 @@ jobs:
     vmImage: 'Ubuntu 18.04'
   steps:
   - template: .ci/esy-build-steps.yml
+  # Does changing permissions help?
+  - script: sudo chmod o+rwx /tmp
   - template: .ci/libvim-test.yml
     parameters:
         testRunner: run-tests.sh
