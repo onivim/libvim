@@ -56,6 +56,7 @@ jobs:
   pool:
     vmImage: 'Ubuntu 18.04'
   steps:
+  - template: .ci/clean-linux-deps.yml
   - template: .ci/esy-build-steps.yml
   # Does changing permissions help?
   - script: ls /
