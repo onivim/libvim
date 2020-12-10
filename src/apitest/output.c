@@ -8,7 +8,7 @@ static int outputCount = 0;
 
 void onOutput(char_u *cmd, char_u *output)
 {
-  printf("onOutput - title: |%s| contents: |%s|\n", cmd, output);
+  printf("onOutput - cmd: |%s| output: |%s|\n", cmd, output);
 
   if (lastCmd != NULL)
   {
