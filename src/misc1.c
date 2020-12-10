@@ -4077,12 +4077,14 @@ get_cmd_output(
 
   if (fd == NULL)
   {
+    printf("!UNABLE to read tempfile\n");
     semsg(_(e_notopen), tempname);
     goto done;
   }
 
   fseek(fd, 0L, SEEK_END);
   len = ftell(fd); /* get size of temp file */
+  printf("get_cmd_output: Temp file is %d bytes\n", len);
   fseek(fd, 0L, SEEK_SET);
 
   buffer = alloc(len + 1);
