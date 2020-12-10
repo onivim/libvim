@@ -1194,6 +1194,7 @@ void do_bang(
     AppendToRedobuff((char_u *)"\n");
     bangredo = FALSE;
   }
+
   /*
      * Add quotes around the command, for shells that need them.
      */
@@ -1210,14 +1211,15 @@ void do_bang(
   if (addr_count == 0) /* :! */
   {
     /* echo the command */
-    msg_start();
-    msg_putchar(':');
-    msg_putchar('!');
-    msg_outtrans(newcmd);
-    msg_clr_eos();
-    windgoto(msg_row, msg_col);
+    char_u *buffer = get_cmd_output(newcmd, NULL,
+                                    0, NULL);
 
-    do_shell(newcmd, 0);
+    if (outputCallback != NULL)
+    {
+      outputCallback(newcmd, buffer);
+    }
+
+    vim_free(buffer);
   }
   else /* :range! */
   {

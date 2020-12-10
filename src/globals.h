@@ -65,6 +65,7 @@ EXTERN FunctionGetCharCallback functionGetCharCallback INIT(= NULL);
 EXTERN InputMapCallback inputMapCallback INIT(= NULL);
 EXTERN InputUnmapCallback inputUnmapCallback INIT(= NULL);
 EXTERN MessageCallback messageCallback INIT(= NULL);
+EXTERN OutputCallback outputCallback INIT(= NULL);
 EXTERN MacroStartRecordCallback macroStartRecordCallback INIT(= NULL);
 EXTERN MacroStopRecordCallback macroStopRecordCallback INIT(= NULL);
 EXTERN OptionSetCallback optionSetCallback INIT(= NULL);

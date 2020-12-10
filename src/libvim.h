@@ -224,6 +224,9 @@ void vimSetMessageCallback(MessageCallback messageCallback);
 // Set a callback for when various entities should be cleared - ie, messages.
 void vimSetClearCallback(ClearCallback clearCallback);
 
+// Set a callback for when output is produced (ie, `:!ls`)
+void vimSetOutputCallback(OutputCallback outputCallback);
+
 void vimSetFormatCallback(FormatCallback formatCallback);
 void vimSetGotoCallback(GotoCallback gotoCallback);
 void vimSetTabPageCallback(TabPageCallback tabPageCallback);
