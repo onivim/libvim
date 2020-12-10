@@ -1211,7 +1211,7 @@ void do_bang(
   {
     /* echo the command */
     char_u *buffer = get_cmd_output(newcmd, NULL,
-                                    SHELL_SILENT, NULL);
+                                    0, NULL);
 
     if (outputCallback != NULL) 
     {
