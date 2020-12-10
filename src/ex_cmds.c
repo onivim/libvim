@@ -1214,7 +1214,7 @@ void do_bang(
     char_u *buffer = get_cmd_output(newcmd, NULL,
                                     0, NULL);
 
-    if (outputCallback != NULL) 
+    if (outputCallback != NULL)
     {
       outputCallback(newcmd, buffer);
     }
