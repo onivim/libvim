@@ -58,6 +58,10 @@ jobs:
   steps:
   - template: .ci/esy-build-steps.yml
   # Does changing permissions help?
+  - script: ls /
+    displayName: "Show root"
+  - script: ls /tmp
+    displayName: "Show tmp"
   - script: sudo chmod o+rwx /tmp
   - template: .ci/libvim-test.yml
     parameters:
