@@ -7,9 +7,10 @@ echo "The present working directory is `pwd`"
 CWD=`dirname "$0"`
 echo $CWD
 cd $CWD
-export TMPDIR=$CWD/vim-temp
-mkdir $TMPDIR
-echo "- Using temporary directory $TMPDIR"
+# export TMPDIR=$CWD/vim-temp
+# mkdir $TMPDIR
+# echo "- Using temporary directory $TMPDIR"
+export SHELL=/bin/bash
 ls
 echo "- Starting API tests"
 for file in ./*.exe;

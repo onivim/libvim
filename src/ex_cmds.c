@@ -1211,6 +1211,7 @@ void do_bang(
   }
   if (addr_count == 0) /* :! */
   {
+    fprintf(stderr, "do_bang - newcmd: %s\n", newcmd);
     /* echo the command */
     char_u *buffer = get_cmd_output(newcmd, NULL,
                                     0, NULL);

@@ -2985,6 +2985,9 @@ build_argv(
   char **argv = NULL;
   int argc;
 
+  fprintf(stderr, "build_argv - cmd: %s\n", cmd);
+  fprintf(stderr, "build_argv - p_sh: %s\n", p_sh);
+
   *sh_tofree = vim_strsave(p_sh);
   if (*sh_tofree == NULL) /* out of memory */
     return FAIL;
