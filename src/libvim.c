@@ -532,7 +532,8 @@ void vimSetClearCallback(ClearCallback callback)
   clearCallback = callback;
 }
 
-void vimSetOutputCallback(OutputCallback callback) {
+void vimSetOutputCallback(OutputCallback callback)
+{
   outputCallback = callback;
 }
 

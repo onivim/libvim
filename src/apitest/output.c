@@ -2,20 +2,22 @@
 #include "minunit.h"
 #include "vim.h"
 
-static char_u* lastCmd = NULL;
-static char_u* lastOutput = NULL;
+static char_u *lastCmd = NULL;
+static char_u *lastOutput = NULL;
 static int outputCount = 0;
 
 void onOutput(char_u *cmd, char_u *output)
 {
   printf("onOutput - title: |%s| contents: |%s|", cmd, output);
 
-  if (lastCmd != NULL) {
+  if (lastCmd != NULL)
+  {
     vim_free(lastCmd);
   }
   lastCmd = strdup(cmd);
 
-  if (lastOutput != NULL) {
+  if (lastOutput != NULL)
+  {
     vim_free(lastOutput);
   };
   lastOutput = strdup(output);
@@ -25,11 +27,13 @@ void onOutput(char_u *cmd, char_u *output)
 void test_setup(void)
 {
   outputCount = 0;
-  if (lastCmd != NULL) {
+  if (lastCmd != NULL)
+  {
     vim_free(lastCmd);
     lastCmd = NULL;
   }
-  if (lastOutput != NULL) {
+  if (lastOutput != NULL)
+  {
     vim_free(lastOutput);
     lastOutput = NULL;
   }
@@ -41,18 +45,22 @@ void test_setup(void)
   vimInput("g");
 }
 
-void test_teardown(void) {
-  if (lastCmd != NULL) {
+void test_teardown(void)
+{
+  if (lastCmd != NULL)
+  {
     vim_free(lastCmd);
     lastCmd = NULL;
   }
-  if (lastOutput != NULL) {
+  if (lastOutput != NULL)
+  {
     vim_free(lastOutput);
     lastOutput = NULL;
   }
 }
 
-MU_TEST(test_ex_bang_ls) {
+MU_TEST(test_ex_bang_ls)
+{
   vimExecute("!ls");
 
   mu_check(outputCount == 1);
@@ -60,7 +68,8 @@ MU_TEST(test_ex_bang_ls) {
   mu_check(strlen(lastOutput) > 0);
 }
 
-MU_TEST(test_ex_bang_echo) {
+MU_TEST(test_ex_bang_echo)
+{
   vimExecute("!echo 'hi'");
 
   mu_check(outputCount == 1);
@@ -68,7 +77,8 @@ MU_TEST(test_ex_bang_echo) {
   mu_check(strlen(lastOutput) > 0);
 }
 
-MU_TEST(test_ex_read_cmd) {
+MU_TEST(test_ex_read_cmd)
+{
   size_t originalBufferLength = vimBufferGetLineCount(vimBufferGetCurrent());
   vimExecute("read !ls .");
 
