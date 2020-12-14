@@ -94,13 +94,13 @@ void do_window(
   case 's':
     if (windowSplitCallback != NULL)
     {
-      windowSplitCallback(HORIZONTAL_SPLIT, curbuf->b_ffname);
+      windowSplitCallback(SPLIT_HORIZONTAL, curbuf->b_ffname);
     }
     return;
   case 'v':
     if (windowSplitCallback != NULL)
     {
-      windowSplitCallback(VERTICAL_SPLIT, curbuf->b_ffname);
+      windowSplitCallback(SPLIT_VERTICAL, curbuf->b_ffname);
     }
     return;
   default:

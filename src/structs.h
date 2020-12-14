@@ -41,9 +41,12 @@ typedef enum
 
 typedef enum
 {
-  HORIZONTAL_SPLIT,
-  VERTICAL_SPLIT,
-  TAB_PAGE,
+  SPLIT_HORIZONTAL,
+  SPLIT_HORIZONTAL_NEW,
+  SPLIT_VERTICAL,
+  SPLIT_VERTICAL_NEW,
+  SPLIT_TAB,
+  SPLIT_TAB_NEW
 } windowSplit_T;
 
 typedef enum

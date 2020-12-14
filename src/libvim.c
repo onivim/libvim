@@ -17,6 +17,12 @@ buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags)
   return buffer;
 }
 
+buf_T *vimBufferNew(int flags)
+{
+  buf_T *buffer = buflist_new(NULL, NULL, 0, flags);
+  return buffer;
+}
+
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
 {
   buf_T *buffer = vimBufferLoad(ffname_arg, lnum, flags);
