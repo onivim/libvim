@@ -6527,18 +6527,33 @@ void ex_splitview(exarg_T *eap)
 
   int use_tab = eap->cmdidx == CMD_tabedit || eap->cmdidx == CMD_tabfind || eap->cmdidx == CMD_tabnew;
 
-  windowSplit_T splitType = HORIZONTAL_SPLIT;
+  windowSplit_T splitType = SPLIT_HORIZONTAL;
 
   switch (eap->cmdidx)
   {
-  case CMD_vsplit:
-  case CMD_vnew:
-    splitType = VERTICAL_SPLIT;
+  case CMD_split:
+    splitType = SPLIT_HORIZONTAL;
     break;
+
+  case CMD_new:
+    splitType = SPLIT_HORIZONTAL_NEW;
+    break;
+
+  case CMD_vsplit:
+    splitType = SPLIT_VERTICAL;
+    break;
+
+  case CMD_vnew:
+    splitType = SPLIT_VERTICAL_NEW;
+    break;
+
   case CMD_tabfind:
   case CMD_tabedit:
+    splitType = SPLIT_TAB;
+    break;
+
   case CMD_tabnew:
-    splitType = TAB_PAGE;
+    splitType = SPLIT_TAB_NEW;
     break;
   default:
     break;

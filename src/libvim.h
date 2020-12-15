@@ -33,6 +33,13 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
 buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags);
 
 /*
+ * vimBufferNew
+ *
+ * Create a new buffer
+ */
+buf_T *vimBufferNew(int flags);
+
+/*
  * vimBufferCheckIfChanged
  *
  * Check if the contents of a buffer have been changed on the filesystem, outside of libvim.
