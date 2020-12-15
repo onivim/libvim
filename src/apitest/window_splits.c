@@ -5,7 +5,7 @@
 #define MAX_FNAME 8192
 
 char_u lastFilename[MAX_FNAME];
-windowSplit_T lastSplitType; 
+windowSplit_T lastSplitType;
 void onWindowSplit(windowSplit_T splitType, char_u *filename)
 {
   printf("onWindowSplit - type: |%d| file: |%s|\n", splitType, filename);
