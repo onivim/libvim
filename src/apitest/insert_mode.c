@@ -316,6 +316,23 @@ MU_TEST(insert_mode_test_ctrl_o_delete)
   mu_check(vimBufferGetLineCount(curbuf) < startingLineCount);
 }
 
+MU_TEST(insert_mode_test_ctrl_o_change)
+{
+  vimKey("i");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("C");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  printf("LINE: %s\n", line);
+  mu_check(strcmp(line, "") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -340,6 +357,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(insert_mode_test_ctrl_o_motion);
   MU_RUN_TEST(insert_mode_test_ctrl_o_delete);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_change);
 }
 
 int main(int argc, char **argv)

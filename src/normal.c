@@ -972,7 +972,9 @@ restart_state:
 
     if (restart_edit != 0) {
       restart_edit = 0;
-      sm_push_insert('i', FALSE, context->ca.count1);
+      if (stuff_empty()) {
+        sm_push_insert('i', FALSE, context->ca.count1);
+      }
     }
 
     /*
