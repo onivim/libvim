@@ -291,8 +291,6 @@ MU_TEST(insert_mode_test_ctrl_o_motion)
   vimKey("<c-o>");
   mu_check((vimGetMode() & NORMAL) == NORMAL);
 
-  printf("RESTART_EDIT: %c\n", restart_edit);
-
   vimKey("j");
   mu_check(vimCursorGetLine() == 2);
   mu_check((vimGetMode() & INSERT) == INSERT);
@@ -316,6 +314,22 @@ MU_TEST(insert_mode_test_ctrl_o_delete)
   mu_check(vimBufferGetLineCount(curbuf) < startingLineCount);
 }
 
+MU_TEST(insert_mode_test_ctrl_o_delete_translate)
+{
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("D");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "") == 0);
+}
+
 MU_TEST(insert_mode_test_ctrl_o_change)
 {
   vimKey("i");
@@ -329,7 +343,6 @@ MU_TEST(insert_mode_test_ctrl_o_change)
   mu_check((vimGetMode() & INSERT) == INSERT);
 
   char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
-  printf("LINE: %s\n", line);
   mu_check(strcmp(line, "") == 0);
 }
 
@@ -357,6 +370,7 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(insert_mode_test_ctrl_o_motion);
   MU_RUN_TEST(insert_mode_test_ctrl_o_delete);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_delete_translate);
   MU_RUN_TEST(insert_mode_test_ctrl_o_change);
 }
 

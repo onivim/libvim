@@ -970,11 +970,8 @@ restart_state:
       do_pending_operator(&context->ca, context->old_col, FALSE);
     }
 
-    if (restart_edit != 0) {
-      restart_edit = 0;
-      if (stuff_empty()) {
+    if (restart_edit != 0 && stuff_empty()) {
         sm_push_insert('i', FALSE, context->ca.count1);
-      }
     }
 
     /*
