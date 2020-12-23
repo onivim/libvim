@@ -970,6 +970,11 @@ restart_state:
       do_pending_operator(&context->ca, context->old_col, FALSE);
     }
 
+    if (restart_edit != 0 && stuff_empty())
+    {
+      sm_push_insert('i', FALSE, context->ca.count1);
+    }
+
     /*
      * Some operators, like 'change', will cause a transition to a new mode.
      * If that's the case, we need to switch gears here and record state state

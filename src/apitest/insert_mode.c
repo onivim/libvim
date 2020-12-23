@@ -282,6 +282,70 @@ MU_TEST(insert_mode_test_count_O)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
+MU_TEST(insert_mode_test_ctrl_o_motion)
+{
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("j");
+  mu_check(vimCursorGetLine() == 2);
+  mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
+MU_TEST(insert_mode_test_ctrl_o_delete)
+{
+  int startingLineCount = vimBufferGetLineCount(curbuf);
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("d");
+  mu_check((vimGetMode() & INSERT) != INSERT);
+  vimKey("d");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  mu_check(vimBufferGetLineCount(curbuf) < startingLineCount);
+}
+
+MU_TEST(insert_mode_test_ctrl_o_delete_translate)
+{
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("D");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "") == 0);
+}
+
+MU_TEST(insert_mode_test_ctrl_o_change)
+{
+  vimKey("i");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("C");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  char_u *line = vimBufferGetLine(curbuf, vimCursorGetLine());
+  mu_check(strcmp(line, "") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -303,6 +367,11 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_test_count_i);
   MU_RUN_TEST(insert_mode_test_count_A);
   MU_RUN_TEST(insert_mode_test_count_O);
+
+  MU_RUN_TEST(insert_mode_test_ctrl_o_motion);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_delete);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_delete_translate);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_change);
 }
 
 int main(int argc, char **argv)
