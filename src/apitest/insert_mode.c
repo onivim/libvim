@@ -282,6 +282,22 @@ MU_TEST(insert_mode_test_count_O)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
+MU_TEST(insert_mode_test_ctrl_o)
+{
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  printf("RESTART_EDIT: %c\n", restart_edit);
+
+  vimKey("j");
+  mu_check(vimCursorGetLine() == 2);
+  mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -303,6 +319,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_test_count_i);
   MU_RUN_TEST(insert_mode_test_count_A);
   MU_RUN_TEST(insert_mode_test_count_O);
+
+  MU_RUN_TEST(insert_mode_test_ctrl_o);
 }
 
 int main(int argc, char **argv)
