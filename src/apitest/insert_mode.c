@@ -282,7 +282,7 @@ MU_TEST(insert_mode_test_count_O)
   mu_check(vimBufferGetLineCount(curbuf) == 5);
 }
 
-MU_TEST(insert_mode_test_ctrl_o)
+MU_TEST(insert_mode_test_ctrl_o_motion)
 {
   vimKey("I");
   mu_check((vimGetMode() & INSERT) == INSERT);
@@ -296,6 +296,24 @@ MU_TEST(insert_mode_test_ctrl_o)
   vimKey("j");
   mu_check(vimCursorGetLine() == 2);
   mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
+MU_TEST(insert_mode_test_ctrl_o_delete)
+{
+  int startingLineCount = vimBufferGetLineCount(curbuf);
+  vimKey("I");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+  mu_check(vimCursorGetLine() == 1);
+
+  vimKey("<c-o>");
+  mu_check((vimGetMode() & NORMAL) == NORMAL);
+
+  vimKey("d");
+  mu_check((vimGetMode() & INSERT) != INSERT);
+  vimKey("d");
+  mu_check((vimGetMode() & INSERT) == INSERT);
+
+  mu_check(vimBufferGetLineCount(curbuf) < startingLineCount);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -320,7 +338,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(insert_mode_test_count_A);
   MU_RUN_TEST(insert_mode_test_count_O);
 
-  MU_RUN_TEST(insert_mode_test_ctrl_o);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_motion);
+  MU_RUN_TEST(insert_mode_test_ctrl_o_delete);
 }
 
 int main(int argc, char **argv)

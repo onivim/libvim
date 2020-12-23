@@ -918,11 +918,6 @@ restart_state:
 
     finish_op = (oap->op_type != OP_NOP);
 
-    if (restart_edit != 0) {
-      restart_edit = 0;
-      sm_push_insert('i', FALSE, context->ca.count1);
-    }
-
     int stateMode = sm_get_current_mode();
     if (stateMode != NORMAL)
     {
@@ -973,6 +968,11 @@ restart_state:
     if (finish_op || VIsual_active)
     {
       do_pending_operator(&context->ca, context->old_col, FALSE);
+    }
+
+    if (restart_edit != 0) {
+      restart_edit = 0;
+      sm_push_insert('i', FALSE, context->ca.count1);
     }
 
     /*
