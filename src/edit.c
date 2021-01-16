@@ -644,7 +644,10 @@ executionStatus_T state_edit_execute(void *ctx, int c)
       /* TODO: Handle Ctrl_O */
       /* return (c == Ctrl_O); */
     }
-    return COMPLETED;
+    else
+    {
+      return HANDLED;
+    }
 
   case Ctrl_Z: /* suspend when 'insertmode' set */
     if (!p_im)

@@ -6,7 +6,8 @@ steps:
       versionSpec: '8.9'
   - script: npm install -g clang-format
     displayName: 'npm install -g clang-format'
-  - script: clang-format -i src/*.c src/*.h src/proto/*.pro src/apitest/*.c
+  - script: clang-format -i *.c *.h proto/*.pro apitest/*.c
     displayName: 'format check'
+    workingDirectory: src
   - script: git diff --exit-code
     displayName: 'check that code is formatted correctly. If not, run clang-format -i on changed files.'

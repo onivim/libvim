@@ -41,9 +41,12 @@ typedef enum
 
 typedef enum
 {
-  HORIZONTAL_SPLIT,
-  VERTICAL_SPLIT,
-  TAB_PAGE,
+  SPLIT_HORIZONTAL,
+  SPLIT_HORIZONTAL_NEW,
+  SPLIT_VERTICAL,
+  SPLIT_VERTICAL_NEW,
+  SPLIT_TAB,
+  SPLIT_TAB_NEW
 } windowSplit_T;
 
 typedef enum
@@ -82,10 +85,24 @@ typedef enum
   IMPLEMENTATION,
   TYPEDEFINITION,
   HOVER,
+  OUTLINE,
+  MESSAGES
 } gotoTarget_T;
+
+typedef enum
+{
+  CLEAR_MESSAGES
+} clearTarget_T;
 
 typedef struct
 {
+  int count;
+  clearTarget_T target;
+} clearRequest_T;
+
+typedef struct
+{
+  int count;
   pos_T location;
   gotoTarget_T target;
 } gotoRequest_T;
@@ -109,6 +126,12 @@ typedef enum
   SCROLL_COLUMN_LEFT,    // zl
   SCROLL_COLUMN_RIGHT    // zh
 } scrollDirection_T;
+
+typedef enum
+{
+  SM_NONE,
+  SM_INSERT_LITERAL
+} subMode_T;
 
 typedef enum
 {
@@ -171,9 +194,14 @@ typedef void (*WindowSplitCallback)(windowSplit_T splitType, char_u *fname);
 typedef void (*WindowMovementCallback)(windowMovement_T movementType, int count);
 typedef void (*YankCallback)(yankInfo_T *yankInfo);
 typedef void (*TerminalCallback)(terminalRequest_t *terminalRequest);
+typedef void (*ClearCallback)(clearRequest_T clearInfo);
 typedef int (*GotoCallback)(gotoRequest_T gotoInfo);
 typedef void (*ScrollCallback)(scrollDirection_T dir, long count);
 typedef int (*TabPageCallback)(tabPageRequest_T tabPageInfo);
+
+// Return OK on success, FAIL on failure
+// Mode corresponds to the argument passed to `getchar(mode)`
+typedef int (*FunctionGetCharCallback)(int mode, char *character, int *modMask);
 
 typedef enum
 {
@@ -2485,6 +2513,7 @@ typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priori
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
 typedef void (*OptionSetCallback)(optionSet_T *optionSet);
+typedef void (*OutputCallback)(char_u *cmd, char_u *output);
 typedef int (*ToggleCommentsCallback)(buf_T *buf, linenr_T startLine, linenr_T endLine, linenr_T *outCount, char_u ***outLines);
 
 #ifdef FEAT_DIFF
@@ -3036,6 +3065,7 @@ typedef struct
 {
   void *context;
   int mode;
+  subMode_T subMode;
   state_execute execute_fn;
   state_cleanup cleanup_fn;
   state_pending_operator pending_operator_fn;

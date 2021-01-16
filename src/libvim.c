@@ -17,6 +17,12 @@ buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags)
   return buffer;
 }
 
+buf_T *vimBufferNew(int flags)
+{
+  buf_T *buffer = buflist_new(NULL, NULL, 0, flags);
+  return buffer;
+}
+
 buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags)
 {
   buf_T *buffer = vimBufferLoad(ffname_arg, lnum, flags);
@@ -264,13 +270,13 @@ void vimInputCore(int should_replace_termcodes, char_u *input)
 
     if (*ptr != NUL) /* trailing CTRL-V results in nothing */
     {
-      sm_execute_normal(input);
+      sm_execute(input);
       vim_free((char_u *)ptr);
     }
   }
   else
   {
-    sm_execute_normal(input);
+    sm_execute(input);
   }
 
   /* Trigger CursorMoved if the cursor moved. */
@@ -525,9 +531,21 @@ void vimSetToggleCommentsCallback(ToggleCommentsCallback callback)
 
 int vimGetMode(void) { return get_real_state(); }
 
+subMode_T vimGetSubMode(void) { return sm_get_current_sub_mode(); }
+
 int vimGetPendingOperator(pendingOp_T *pendingOp)
 {
   return sm_get_pending_operator(pendingOp);
+}
+
+void vimSetClearCallback(ClearCallback callback)
+{
+  clearCallback = callback;
+}
+
+void vimSetOutputCallback(OutputCallback callback)
+{
+  outputCallback = callback;
 }
 
 void vimSetFormatCallback(FormatCallback callback)
@@ -566,6 +584,11 @@ char_u *vimEval(char_u *str)
 void vimRegisterGet(int reg_name, int *num_lines, char_u ***lines)
 {
   get_yank_register_value(reg_name, num_lines, lines);
+}
+
+void vimSetFunctionGetCharCallback(FunctionGetCharCallback callback)
+{
+  functionGetCharCallback = callback;
 }
 
 void vimSetInputMapCallback(InputMapCallback callback)

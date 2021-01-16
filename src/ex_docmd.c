@@ -6527,18 +6527,33 @@ void ex_splitview(exarg_T *eap)
 
   int use_tab = eap->cmdidx == CMD_tabedit || eap->cmdidx == CMD_tabfind || eap->cmdidx == CMD_tabnew;
 
-  windowSplit_T splitType = HORIZONTAL_SPLIT;
+  windowSplit_T splitType = SPLIT_HORIZONTAL;
 
   switch (eap->cmdidx)
   {
-  case CMD_vsplit:
-  case CMD_vnew:
-    splitType = VERTICAL_SPLIT;
+  case CMD_split:
+    splitType = SPLIT_HORIZONTAL;
     break;
+
+  case CMD_new:
+    splitType = SPLIT_HORIZONTAL_NEW;
+    break;
+
+  case CMD_vsplit:
+    splitType = SPLIT_VERTICAL;
+    break;
+
+  case CMD_vnew:
+    splitType = SPLIT_VERTICAL_NEW;
+    break;
+
   case CMD_tabfind:
   case CMD_tabedit:
+    splitType = SPLIT_TAB;
+    break;
+
   case CMD_tabnew:
-    splitType = TAB_PAGE;
+    splitType = SPLIT_TAB_NEW;
     break;
   default:
     break;
@@ -8535,10 +8550,7 @@ void ex_normal(exarg_T *eap)
         check_cursor_moved(curwin);
       }
 
-      exec_normal_cmd(arg != NULL
-                          ? arg
-                          : eap->arg,
-                      eap->forceit ? REMAP_NONE : REMAP_YES, FALSE);
+      sm_execute_normal(arg != NULL ? arg : eap->arg, /* preserveState */ TRUE);
     } while (eap->addr_count > 0 && eap->line1 <= eap->line2 && !got_int);
   }
 
@@ -8596,49 +8608,6 @@ ex_stopinsert(exarg_T *eap UNUSED)
   restart_edit = 0;
   stop_insert_mode = TRUE;
   clearmode();
-}
-
-/*
- * Execute normal mode command "cmd".
- * "remap" can be REMAP_NONE or REMAP_YES.
- */
-void exec_normal_cmd(char_u *cmd, int remap, int silent)
-{
-  /* Stuff the argument into the typeahead buffer. */
-  ins_typebuf(cmd, remap, 0, TRUE, silent);
-  exec_normal(FALSE, FALSE, FALSE);
-}
-
-/*
- * Execute normal_cmd() until there is no typeahead left.
- * When "use_vpeekc" is TRUE use vpeekc() to check for available chars.
- */
-void exec_normal(int was_typed, int use_vpeekc, int may_use_terminal_loop UNUSED)
-{
-  oparg_T oa;
-  int c;
-
-  // When calling vpeekc() from feedkeys() it will return Ctrl_C when there
-  // is nothing to get, so also check for Ctrl_C.
-  clear_oparg(&oa);
-  finish_op = FALSE;
-  while ((!stuff_empty() || ((was_typed || !typebuf_typed()) && typebuf.tb_len > 0) || (use_vpeekc && (c = vpeekc()) != NUL && c != Ctrl_C)) && !got_int)
-  {
-    update_topline_cursor();
-#ifdef FEAT_TERMINAL
-    if (may_use_terminal_loop && term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active)
-    {
-      /* If terminal_loop() returns OK we got a key that is handled
-	     * in Normal model.  With FAIL we first need to position the
-	     * cursor and the screen needs to be redrawn. */
-      if (terminal_loop(TRUE) == OK)
-        normal_cmd(&oa, TRUE);
-    }
-    else
-#endif
-      /* execute a Normal mode cmd */
-      normal_cmd(&oa, TRUE);
-  }
 }
 
 #ifdef FEAT_FIND_ID

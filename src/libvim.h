@@ -33,6 +33,13 @@ buf_T *vimBufferOpen(char_u *ffname_arg, linenr_T lnum, int flags);
 buf_T *vimBufferLoad(char_u *ffname_arg, linenr_T lnum, int flags);
 
 /*
+ * vimBufferNew
+ *
+ * Create a new buffer
+ */
+buf_T *vimBufferNew(int flags);
+
+/*
  * vimBufferCheckIfChanged
  *
  * Check if the contents of a buffer have been changed on the filesystem, outside of libvim.
@@ -106,6 +113,8 @@ void vimCommandLineGetCompletions(char_u ***completions, int *count);
  * Callee is responsible for freeing the command as well as the result.
  */
 char_u *vimEval(char_u *str);
+
+void vimSetFunctionGetCharCallback(FunctionGetCharCallback callback);
 
 /***
  * Cursor Methods
@@ -219,6 +228,12 @@ void vimSetMessageCallback(MessageCallback messageCallback);
 /**
  * Misc
  **/
+
+// Set a callback for when various entities should be cleared - ie, messages.
+void vimSetClearCallback(ClearCallback clearCallback);
+
+// Set a callback for when output is produced (ie, `:!ls`)
+void vimSetOutputCallback(OutputCallback outputCallback);
 
 void vimSetFormatCallback(FormatCallback formatCallback);
 void vimSetGotoCallback(GotoCallback gotoCallback);
@@ -389,6 +404,13 @@ void vimSetWindowMovementCallback(WindowMovementCallback callback);
 void vimSetClipboardGetCallback(ClipboardGetCallback callback);
 
 int vimGetMode(void);
+
+/* There are some modal input experiences that aren't considered
+  full-fledged modes, but are nevertheless a modal input state.
+  Examples include insert-literal (C-V, C-G), search w/ confirmation, etc.
+*/
+subMode_T vimGetSubMode(void);
+
 int vimGetPendingOperator(pendingOp_T *pendingOp);
 
 void vimSetYankCallback(YankCallback callback);
