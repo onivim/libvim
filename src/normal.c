@@ -6376,7 +6376,7 @@ static void nv_edit(cmdarg_T *cap)
     cap->cmdchar = 'i';
 
   /* in Visual mode "A" and "I" are an operator */
-  if (VIsual_active && (cap->cmdchar == 'A' || cap->cmdchar == 'I'))
+  if (VIsual_active && VIsual_mode == Ctrl_V && (cap->cmdchar == 'A' || cap->cmdchar == 'I'))
   {
 #ifdef FEAT_TERMINAL
     if (term_in_normal_mode())
@@ -6387,35 +6387,60 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
+    int minCol = VIsual.col;
+    if (minCol > curwin->w_cursor.col) {
+      minCol = curwin->w_cursor.col;
+    }
+
+    // If 'A' was used in visual block, jump to next character
+    if (cap->cmdchar == 'A' && VIsual_mode == Ctrl_V) {
+      inc_cursor();
+      minCol = curwin->w_cursor.col;
+    }
+
+    int vcol = getviscol();
+
     curbuf->b_visual.vi_mode = VIsual_mode;
     curbuf->b_visual.vi_start = VIsual;
     curbuf->b_visual.vi_end = curwin->w_cursor;
 
     int start = VIsual.lnum < curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
     int end = VIsual.lnum > curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
-    int minCol = VIsual.col < curwin->w_cursor.col ? VIsual.col : curwin->w_cursor.col;
 
-    for (int i = start; i < end; i++)
+    int inclusive = curwin->w_cursor.lnum > VIsual.lnum;
+    int stop = inclusive ? end : end + 1;
+    int initial = inclusive ? start : start + 1;
+
+    pos_T originalPos = curwin->w_cursor;
+
+    for (int i = initial; i < stop; i++)
     {
       int lnum = i;
-      int initialPos = cap->cmdchar == 'I' ? minCol : STRLEN(ml_get_buf(curbuf, lnum, FALSE));
-      int col = VIsual_mode == Ctrl_V ? VIsual.col : initialPos;
-      curwin->w_cursor.col += (colnr_T)STRLEN(ml_get_cursor());
-      if (cursorAddCallback != NULL)
-      {
-        pos_T cursor;
-        cursor.lnum = lnum;
-        cursor.col = col;
-        cursorAddCallback(cursor);
+
+      // Try to advance to virtual column
+      curwin->w_cursor.lnum = lnum;
+      curwin->w_cursor.col = 0;
+
+      pos_T pos;
+      pos.lnum = lnum;
+      pos.col = 0;
+      if(getvpos(&pos, vcol)) {
+        if (cursorAddCallback != NULL)
+        {
+          cursorAddCallback(pos);
+        }
       }
+
     }
+
+    curwin->w_cursor = originalPos;
 
     end_visual_mode();
     clearop(cap->oap);
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
-  if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
+  else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
       (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
