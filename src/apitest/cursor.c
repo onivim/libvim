@@ -19,7 +19,7 @@ void test_setup(void)
 
 void onCursorAdd(pos_T cursor)
 {
-  printf("Adding cursor at line: %ld col: %d\n", cursor.lnum, cursor.col);
+  printf("TEST: onCursorAdd - Adding cursor at line: %ld col: %d\n", cursor.lnum, cursor.col);
   cursors[onCursorAddCount] = cursor;
   onCursorAddCount++;
 }
