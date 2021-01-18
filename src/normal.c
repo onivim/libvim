@@ -6415,6 +6415,9 @@ static void nv_edit(cmdarg_T *cap)
       minCol = curwin->w_cursor.col;
     }
 
+    /* Pretend Insert mode here to allow the cursor on the
+     * character past the end of the line */
+
     // If 'A' was used in visual block, jump to next character
     if (cap->cmdchar == 'A' && VIsual_mode == Ctrl_V) {
       inc_cursor();
@@ -6422,6 +6425,7 @@ static void nv_edit(cmdarg_T *cap)
     }
 
     int vcol = getviscol();
+    curwin->w_cursor.col, vcol);
 
     curbuf->b_visual.vi_mode = VIsual_mode;
     curbuf->b_visual.vi_start = VIsual;
@@ -6456,10 +6460,11 @@ static void nv_edit(cmdarg_T *cap)
 
     }
 
-    curwin->w_cursor = originalPos;
-
     end_visual_mode();
+    // end_visual_mode may adjust cursor position; but we want to persist it - so restore after.
+    curwin->w_cursor = originalPos;
     clearop(cap->oap);
+    invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */

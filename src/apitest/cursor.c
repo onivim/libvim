@@ -76,7 +76,6 @@ MU_TEST(test_set_cursor_invalid_column)
 MU_TEST(test_add_cursors_visual_I)
 {
   vimKey("<c-v>");
-  printf("LINE: %ld\n", vimCursorGetLine());
   vimInput("j");
   vimInput("j");
   vimInput("I");
@@ -91,6 +90,9 @@ MU_TEST(test_add_cursors_visual_I)
 
   mu_check(vimCursorGetLine() == 3);
   mu_check(vimCursorGetColumn() == 0);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
 }
 
 MU_TEST(test_add_cursors_visual_reverse_I)
@@ -118,6 +120,9 @@ MU_TEST(test_add_cursors_visual_reverse_I)
 
   mu_check(vimCursorGetLine() == 1);
   mu_check(vimCursorGetColumn() == 0);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
 }
 
 MU_TEST(test_add_cursors_visual_after)
@@ -137,6 +142,9 @@ MU_TEST(test_add_cursors_visual_after)
 
   mu_check(vimCursorGetLine() == 3);
   mu_check(vimCursorGetColumn() == 1);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
 }
 
 MU_TEST(test_add_cursors_visual_skip_empty_line)
@@ -158,6 +166,9 @@ MU_TEST(test_add_cursors_visual_skip_empty_line)
 
   mu_check(vimCursorGetLine() == 3);
   mu_check(vimCursorGetColumn() == 1);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
 }
 
 MU_TEST(test_add_cursors_visual_utf8_vcol)
@@ -186,6 +197,41 @@ MU_TEST(test_add_cursors_visual_utf8_vcol)
 
   mu_check(vimCursorGetLine() == 3);
   mu_check(vimCursorGetColumn() == 2);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
+// Verify the primary cursor ends up past EOL when transitioning to insert mode
+MU_TEST(test_add_cursors_eol)
+{
+  // Add an empty line up top
+  char_u *lines[] = {"abc", "def", "ghi"};
+
+  vimBufferSetLines(curbuf, 0, 0, lines, 3);
+  vimKey("<c-v>");
+  // Move two lines down
+  vimInput("j");
+  vimInput("j");
+  //  Move two characters to the right (`de|f`)
+  vimInput("l");
+  vimInput("l");
+  vimInput("A");
+
+  mu_check(cursors[0].lnum == 1);
+  mu_check(cursors[0].col == 3);
+
+  // Verify we're on the proper byte...
+  mu_check(cursors[1].lnum == 2);
+  mu_check(cursors[1].col == 3);
+
+  mu_check(onCursorAddCount == 2);
+
+  mu_check(vimCursorGetLine() == 3);
+  mu_check(vimCursorGetColumn() == 3);
+
+  // Verify we switch to insert mode
+  mu_check((vimGetMode() & INSERT) == INSERT);
 }
 
 MU_TEST_SUITE(test_suite)
@@ -202,6 +248,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_add_cursors_visual_after);
   MU_RUN_TEST(test_add_cursors_visual_skip_empty_line);
   MU_RUN_TEST(test_add_cursors_visual_utf8_vcol);
+  MU_RUN_TEST(test_add_cursors_eol);
 }
 
 int main(int argc, char **argv)
