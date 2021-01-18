@@ -6425,7 +6425,6 @@ static void nv_edit(cmdarg_T *cap)
     }
 
     int vcol = getviscol();
-    curwin->w_cursor.col, vcol);
 
     curbuf->b_visual.vi_mode = VIsual_mode;
     curbuf->b_visual.vi_start = VIsual;
