@@ -1364,6 +1364,29 @@ void do_pending_operator(cmdarg_T *cap, int old_col, int gui_yank)
       }
 
       redo_VIsual_busy = FALSE;
+
+      /*
+       * Switch Visual off now, so screen updating does
+       * not show inverted text when the screen is redrawn.
+       * With OP_YANK and sometimes with OP_COLON and OP_FILTER there is
+       * no screen redraw, so it is done here to remove the inverted
+       * part.
+       */
+      if (!gui_yank)
+      {
+        VIsual_active = FALSE;
+        may_clear_cmdline();
+        if ((oap->op_type == OP_YANK || oap->op_type == OP_COLON ||
+             oap->op_type == OP_FUNCTION || oap->op_type == OP_FILTER) &&
+            oap->motion_force == NUL)
+        {
+#ifdef FEAT_LINEBREAK
+          /* make sure redrawing is correct */
+          curwin->w_p_lbr = lbr_saved;
+#endif
+          redraw_curbuf_later(INVERTED);
+        }
+      }
     }
 
     /* Include the trailing byte of a multi-byte char. */
