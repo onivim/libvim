@@ -6411,7 +6411,8 @@ static void nv_edit(cmdarg_T *cap)
     }
 #endif
     int minCol = VIsual.col;
-    if (minCol > curwin->w_cursor.col) {
+    if (minCol > curwin->w_cursor.col)
+    {
       minCol = curwin->w_cursor.col;
     }
 
@@ -6419,7 +6420,8 @@ static void nv_edit(cmdarg_T *cap)
      * character past the end of the line */
 
     // If 'A' was used in visual block, jump to next character
-    if (cap->cmdchar == 'A' && VIsual_mode == Ctrl_V) {
+    if (cap->cmdchar == 'A' && VIsual_mode == Ctrl_V)
+    {
       inc_cursor();
       minCol = curwin->w_cursor.col;
     }
@@ -6450,13 +6452,13 @@ static void nv_edit(cmdarg_T *cap)
       pos_T pos;
       pos.lnum = lnum;
       pos.col = 0;
-      if(getvpos(&pos, vcol)) {
+      if (getvpos(&pos, vcol))
+      {
         if (cursorAddCallback != NULL)
         {
           cursorAddCallback(pos);
         }
       }
-
     }
 
     end_visual_mode();
@@ -6468,7 +6470,7 @@ static void nv_edit(cmdarg_T *cap)
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
   else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
-      (cap->oap->op_type != OP_NOP || VIsual_active))
+           (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
     nv_object(cap);
