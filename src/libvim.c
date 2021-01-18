@@ -235,6 +235,11 @@ void vimCursorSetPosition(pos_T pos)
   curs_columns(TRUE);
 }
 
+void vimSetCursorAddCallback(CursorAddCallback callback)
+{
+  cursorAddCallback = callback;
+}
+
 void vimCursorSetColumnWant(colnr_T curswant)
 {
   curwin->w_curswant = curswant;
