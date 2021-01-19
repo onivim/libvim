@@ -6412,7 +6412,8 @@ static void nv_edit(cmdarg_T *cap)
     }
 #endif
     // Block 'I'insert or 'A'ppend - special case to produce multiple cursors
-    if (VIsual_mode == Ctrl_V) {
+    if (VIsual_mode == Ctrl_V)
+    {
       was_visual_block = 1;
       int minCol = VIsual.col;
       if (minCol > curwin->w_cursor.col)
@@ -6467,7 +6468,9 @@ static void nv_edit(cmdarg_T *cap)
       curwin->w_cursor = originalPos;
       clearop(cap->oap);
       invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
-    } else {
+    }
+    else
+    {
       // Not block - default to original Vim behavior:
       end_visual_mode();
       clearop(cap->oap);
@@ -6477,7 +6480,7 @@ static void nv_edit(cmdarg_T *cap)
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
   if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
-           (cap->oap->op_type != OP_NOP || VIsual_active))
+      (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
     nv_object(cap);
