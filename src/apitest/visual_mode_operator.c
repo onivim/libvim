@@ -53,6 +53,24 @@ MU_TEST(test_visual_character_delete)
   mu_check(strcmp(line, "is is the first line of a test file") == 0);
 }
 
+MU_TEST(test_visual_character_insert)
+{
+  vimInput("v");
+  vimInput("j");
+  vimInput("I");
+
+  mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
+MU_TEST(test_visual_linewise_append)
+{
+  vimInput("V");
+  vimInput("j");
+  vimInput("A");
+
+  mu_check((vimGetMode() & INSERT) == INSERT);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
@@ -60,6 +78,8 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_visual_linewise_delete);
   MU_RUN_TEST(test_visual_linewise_motion_delete);
   MU_RUN_TEST(test_visual_character_delete);
+  MU_RUN_TEST(test_visual_character_insert);
+  MU_RUN_TEST(test_visual_linewise_append);
 }
 
 int main(int argc, char **argv)

@@ -6398,8 +6398,9 @@ static void nv_edit(cmdarg_T *cap)
   if (cap->cmdchar == K_INS || cap->cmdchar == K_KINS)
     cap->cmdchar = 'i';
 
+  int was_visual_block = 0;
   /* in Visual mode "A" and "I" are an operator */
-  if (VIsual_active && VIsual_mode == Ctrl_V && (cap->cmdchar == 'A' || cap->cmdchar == 'I'))
+  if (VIsual_active && (cap->cmdchar == 'A' || cap->cmdchar == 'I'))
   {
 #ifdef FEAT_TERMINAL
     if (term_in_normal_mode())
@@ -6410,66 +6411,72 @@ static void nv_edit(cmdarg_T *cap)
       return;
     }
 #endif
-    int minCol = VIsual.col;
-    if (minCol > curwin->w_cursor.col)
-    {
-      minCol = curwin->w_cursor.col;
-    }
-
-    /* Pretend Insert mode here to allow the cursor on the
-     * character past the end of the line */
-
-    // If 'A' was used in visual block, jump to next character
-    if (cap->cmdchar == 'A' && VIsual_mode == Ctrl_V)
-    {
-      inc_cursor();
-      minCol = curwin->w_cursor.col;
-    }
-
-    int vcol = getviscol();
-
-    curbuf->b_visual.vi_mode = VIsual_mode;
-    curbuf->b_visual.vi_start = VIsual;
-    curbuf->b_visual.vi_end = curwin->w_cursor;
-
-    int start = VIsual.lnum < curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
-    int end = VIsual.lnum > curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
-
-    int inclusive = curwin->w_cursor.lnum > VIsual.lnum;
-    int stop = inclusive ? end : end + 1;
-    int initial = inclusive ? start : start + 1;
-
-    pos_T originalPos = curwin->w_cursor;
-
-    for (int i = initial; i < stop; i++)
-    {
-      int lnum = i;
-
-      // Try to advance to virtual column
-      curwin->w_cursor.lnum = lnum;
-      curwin->w_cursor.col = 0;
-
-      pos_T pos;
-      pos.lnum = lnum;
-      pos.col = 0;
-      if (getvpos(&pos, vcol))
+    // Block 'I'insert or 'A'ppend - special case to produce multiple cursors
+    if (VIsual_mode == Ctrl_V) {
+      was_visual_block = 1;
+      int minCol = VIsual.col;
+      if (minCol > curwin->w_cursor.col)
       {
-        if (cursorAddCallback != NULL)
+        minCol = curwin->w_cursor.col;
+      }
+
+      // If 'A' was used, jump to next character
+      if (cap->cmdchar == 'A')
+      {
+        inc_cursor();
+        minCol = curwin->w_cursor.col;
+      }
+
+      int vcol = getviscol();
+
+      curbuf->b_visual.vi_mode = VIsual_mode;
+      curbuf->b_visual.vi_start = VIsual;
+      curbuf->b_visual.vi_end = curwin->w_cursor;
+
+      int start = VIsual.lnum < curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
+      int end = VIsual.lnum > curwin->w_cursor.lnum ? VIsual.lnum : curwin->w_cursor.lnum;
+
+      int inclusive = curwin->w_cursor.lnum > VIsual.lnum;
+      int stop = inclusive ? end : end + 1;
+      int initial = inclusive ? start : start + 1;
+
+      pos_T originalPos = curwin->w_cursor;
+
+      for (int i = initial; i < stop; i++)
+      {
+        int lnum = i;
+
+        // Try to advance to virtual column
+        curwin->w_cursor.lnum = lnum;
+        curwin->w_cursor.col = 0;
+
+        pos_T pos;
+        pos.lnum = lnum;
+        pos.col = 0;
+        if (getvpos(&pos, vcol))
         {
-          cursorAddCallback(pos);
+          if (cursorAddCallback != NULL)
+          {
+            cursorAddCallback(pos);
+          }
         }
       }
-    }
 
-    end_visual_mode();
-    // end_visual_mode may adjust cursor position; but we want to persist it - so restore after.
-    curwin->w_cursor = originalPos;
-    clearop(cap->oap);
-    invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
+      end_visual_mode();
+      // end_visual_mode may adjust cursor position; but we want to persist it - so restore after.
+      curwin->w_cursor = originalPos;
+      clearop(cap->oap);
+      invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
+    } else {
+      // Not block - default to original Vim behavior:
+      end_visual_mode();
+      clearop(cap->oap);
+      //v_visop(cap);
+    }
   }
 
   /* in Visual mode and after an operator "a" and "i" are for text objects */
-  else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
+  if ((cap->cmdchar == 'a' || cap->cmdchar == 'i') &&
            (cap->oap->op_type != OP_NOP || VIsual_active))
   {
 #ifdef FEAT_TEXTOBJ
@@ -6523,7 +6530,7 @@ static void nv_edit(cmdarg_T *cap)
     /* Insert to replace the deleted text with the pasted text. */
     invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
   }
-  else if (!checkclearopq(cap->oap))
+  else if (!was_visual_block && !checkclearopq(cap->oap))
   {
     switch (cap->cmdchar)
     {
