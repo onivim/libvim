@@ -24,6 +24,7 @@ void test_setup(void)
 {
   vimKey("<esc>");
   vimKey("<esc>");
+  vimBufferOpen("collateral/testfile.txt", 1, 0);
 
   vimExecute("e!");
   vimInput("g");
@@ -39,7 +40,7 @@ MU_TEST(test_no_highlights_initially)
 {
   int num;
   searchHighlight_T *highlights;
-  vimSearchGetHighlights(0, 0, &num, &highlights);
+  vimSearchGetHighlights(curbuf, 0, 0, &num, &highlights);
 
   mu_check(num == 0);
   mu_check(highlights == NULL);
@@ -54,7 +55,7 @@ MU_TEST(test_get_highlights)
 
   int num;
   searchHighlight_T *highlights;
-  vimSearchGetHighlights(0, 0, &num, &highlights);
+  vimSearchGetHighlights(curbuf, 0, 0, &num, &highlights);
 
   mu_check(num == 3);
   mu_check(highlights[0].start.lnum == 1);
@@ -89,9 +90,37 @@ MU_TEST(test_no_matching_highlights)
 
   int num;
   searchHighlight_T *highlights;
-  vimSearchGetHighlights(0, 0, &num, &highlights);
+  vimSearchGetHighlights(curbuf, 0, 0, &num, &highlights);
 
   mu_check(num == 0);
+  mu_check(errorCount == 0);
+}
+
+MU_TEST(test_highlights_multiple_buffers)
+{
+  vimInput("/");
+  // Both buffers we're testing have 'Line' or 'line' on every line...
+  vimInput("i");
+  vimInput("n");
+  vimInput("e");
+
+  buf_T* originalBuffer = curbuf;
+
+  // Switch to an alternate file
+  vimBufferOpen("collateral/lines_100.txt", 1, 0);
+  mu_check(originalBuffer != curbuf);
+  int num;
+  searchHighlight_T *highlights;
+  vimSearchGetHighlights(curbuf, 0, 0, &num, &highlights);
+
+  vim_free(highlights);
+  mu_check(num == 100);
+  mu_check(errorCount == 0);
+
+  // Check original buffer
+  vimSearchGetHighlights(originalBuffer, 0, 0, &num, &highlights);
+  vim_free(highlights);
+  mu_check(num == 3);
   mu_check(errorCount == 0);
 }
 
@@ -103,6 +132,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_get_highlights);
   MU_RUN_TEST(test_nohlsearch);
   MU_RUN_TEST(test_no_matching_highlights);
+  MU_RUN_TEST(test_highlights_multiple_buffers);
 }
 
 int main(int argc, char **argv)

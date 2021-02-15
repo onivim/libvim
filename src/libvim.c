@@ -359,7 +359,7 @@ struct shlNode_elem
   shlNode_T *next;
 };
 
-void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
+void vimSearchGetHighlights(buf_T *buf, linenr_T start_lnum, linenr_T end_lnum,
                             int *num_highlights,
                             searchHighlight_T **highlights)
 {
@@ -389,7 +389,7 @@ void vimSearchGetHighlights(linenr_T start_lnum, linenr_T end_lnum,
 
   while (v == 1)
   {
-    v = searchit(NULL, curbuf, &startPos, &endPos, FORWARD, pattern, 1,
+    v = searchit(NULL, buf, &startPos, &endPos, FORWARD, pattern, 1,
                  SEARCH_KEEP, RE_SEARCH, end_lnum, NULL, NULL);
 
     if (v == 0)
