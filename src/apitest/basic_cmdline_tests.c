@@ -136,6 +136,28 @@ MU_TEST(test_cmdline_substitution)
                   "Ahis is the first line of a test file") == 0);
 }
 
+MU_TEST(test_cmdline_substitution_confirm)
+{
+  buf_T *buffer = vimBufferGetCurrent();
+  int lc = vimBufferGetLineCount(buffer);
+  mu_check(lc == 3);
+
+  vimInput(":");
+  vimInput("s");
+  vimInput("!");
+  vimInput("T");
+  vimInput("!");
+  vimInput("A");
+  vimInput("!");
+  vimInput("g");
+  vimInput("g");
+  vimInput("c");
+  vimKey("<cr>");
+
+  mu_check(strcmp(vimBufferGetLine(buffer, 1),
+                  "This is the first line of a test file") == 0);
+}
+
 MU_TEST(test_cmdline_get_type)
 {
   vimInput(":");
@@ -162,6 +184,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_cmdline_enter);
   MU_RUN_TEST(test_cmdline_execute);
   MU_RUN_TEST(test_cmdline_substitution);
+  MU_RUN_TEST(test_cmdline_substitution_confirm);
   MU_RUN_TEST(test_cmdline_get_type);
 }
 
