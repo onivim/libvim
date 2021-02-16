@@ -104,7 +104,7 @@ MU_TEST(test_highlights_multiple_buffers)
   vimInput("n");
   vimInput("e");
 
-  buf_T* originalBuffer = curbuf;
+  buf_T *originalBuffer = curbuf;
 
   // Switch to an alternate file
   vimBufferOpen("collateral/lines_100.txt", 1, 0);
