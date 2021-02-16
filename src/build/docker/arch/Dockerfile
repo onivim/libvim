@@ -1,4 +1,4 @@
-FROM archlinux/base
+FROM archlinux:latest
 
 # WORKAROUND for glibc 2.33 and old Docker
 # See https://github.com/actions/virtual-environments/issues/2658
