@@ -2,6 +2,8 @@ FROM archlinux/base
 
 RUN pacman --noconfirm -Syu
 
+RUN mkdir -p /var/lib/pacman
+
 RUN pacman --noconfirm -S nodejs npm gcc coreutils grep tar sed gawk make diffutils
 
 RUN node --version
