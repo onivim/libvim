@@ -18,14 +18,11 @@ MU_TEST(test_search_in_large_file)
 {
 
   vimInput("/");
-  printf("Typing e...\n");
   vimInput("e");
-  printf("Typed e! \n");
 
   int num;
   searchHighlight_T *highlights;
-  vimSearchGetHighlights(0, 0, &num, &highlights);
-  printf("Got %d highlights\n", num);
+  vimSearchGetHighlights(curbuf, 0, 0, &num, &highlights);
   vim_free(highlights);
   mu_check(num == 15420);
 }
