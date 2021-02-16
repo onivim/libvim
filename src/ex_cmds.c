@@ -4596,7 +4596,7 @@ typedef struct
   int do_ic;     /* ignore case flag */
 } subflags_T;
 
-/* mo_sub()
+/* do_sub()
  *
  * Perform a substitution from line eap->line1 to line eap->line2 using the
  * command pointed to by eap->arg which should be of the form:
