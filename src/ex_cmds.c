@@ -4846,7 +4846,8 @@ void do_sub(exarg_T *eap)
 
   // HACK: For now, instead of hanging / hitting a block input path... at least let the user know what went wrong.
   // Next step: Implement a state machine so we can handle confirm without blocking.
-  if (subflags.do_ask) {
+  if (subflags.do_ask)
+  {
     emsg("libvim: Confirm flag (c) is not currently supported for substitution.");
     return;
   }
