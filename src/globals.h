@@ -50,6 +50,7 @@ EXTERN BufferUpdateCallback bufferUpdateCallback INIT(= NULL);
 EXTERN ClearCallback clearCallback INIT(= NULL);
 EXTERN ClipboardGetCallback clipboardGetCallback INIT(= NULL);
 EXTERN CursorAddCallback cursorAddCallback INIT(= NULL);
+EXTERN CustomCommandCallback customCommandCallback INIT(= NULL);
 EXTERN FileWriteFailureCallback fileWriteFailureCallback INIT(= NULL);
 EXTERN DirectoryChangedCallback directoryChangedCallback INIT(= NULL);
 EXTERN FormatCallback formatCallback INIT(= NULL);

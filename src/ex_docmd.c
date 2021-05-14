@@ -1651,6 +1651,23 @@ do_one_cmd(
   ea.cmd = skip_range(ea.cmd, NULL);
   if (*ea.cmd == '*' && vim_strchr(p_cpo, CPO_STAR) == NULL)
     ea.cmd = skipwhite(ea.cmd + 1);
+
+  // First, let a custom command handler have a shot at handling this
+
+  if (customCommandCallback != NULL)
+  {
+    exCommand_T cmd;
+    cmd.cmd = vim_strsave(ea.cmd);
+    cmd.forceit = ea.forceit;
+    int ret = customCommandCallback(&cmd);
+    vim_free(cmd.cmd);
+
+    if (ret != 0)
+    {
+      goto doend;
+    }
+  }
+
   p = find_command(&ea, NULL);
 
 #ifdef FEAT_EVAL

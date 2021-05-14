@@ -66,6 +66,14 @@ typedef enum
   WIN_MOVE_ROTATE_UPWARDS,   // <C-w>R
 } windowMovement_T;
 
+// Subset of exarg_T from ex_cmds.h:
+typedef struct
+{
+  char_u *cmd;
+  int forceit;
+  int regname;
+} exCommand_T;
+
 typedef struct
 {
   int op_char;
@@ -271,6 +279,8 @@ typedef int scid_T; /* script ID */
 typedef struct terminal_S term_T;
 
 typedef void (*AutoCommandCallback)(event_T, buf_T *buf);
+
+typedef int (*CustomCommandCallback)(exCommand_T *eap);
 
 /*
  * SCript ConteXt (SCTX): identifies a script script line.
