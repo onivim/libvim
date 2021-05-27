@@ -450,7 +450,46 @@ void vimSetStopSearchHighlightCallback(VoidCallback callback)
   stopSearchHighlightCallback = callback;
 }
 
-void vimExecute(char_u *cmd) { do_cmdline_cmd(cmd); }
+typedef struct {
+	char_u **lines;
+  int lineCount;
+	int nextLine;
+} libvim_execute_cookie_T;
+
+char_u* vimExecute_getLine(int line, void* cookie, int indent) {
+  libvim_execute_cookie_T* context = (libvim_execute_cookie_T*)cookie;
+
+	printf("vimExecute_getLine: %d current: %d\n", line, context->nextLine);
+  if (context->nextLine >= context->lineCount) {
+    return NULL;
+  } else {
+		int nextLine = context->nextLine;
+		context->nextLine++;
+		printf("nextLine: %d line: %s\n", nextLine, context->lines[nextLine]);
+    return strdup(context->lines[nextLine]);
+  }
+};
+
+void vimExecuteLines(char_u **lines, int lineCount) {
+  libvim_execute_cookie_T cookie;
+  cookie.lines = lines;
+  cookie.lineCount = lineCount;
+	cookie.nextLine = 1;
+
+	do_cmdline(
+    lines[0],
+    &vimExecute_getLine,
+    &cookie,
+                    DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED
+  );
+}
+
+void vimExecute(char_u *cmd) { 
+
+  char_u* lines[] = {cmd};
+
+  vimExecuteLines(lines, 1);
+};
 
 void vimOptionSetTabSize(int tabSize)
 {
