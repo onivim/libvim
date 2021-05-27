@@ -478,13 +478,13 @@ void vimExecuteLines(char_u **lines, int lineCount)
   libvim_execute_cookie_T cookie;
   cookie.lines = lines;
   cookie.lineCount = lineCount;
-  cookie.nextLine = 1;
+  cookie.nextLine = 0;
 
   do_cmdline(
-      lines[0],
+      NULL,
       &vimExecute_getLine,
       &cookie,
-      DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED);
+      DOCMD_VERBOSE | DOCMD_REPEAT | DOCMD_NOWAIT | DOCMD_KEYTYPED);
 }
 
 void vimExecute(char_u *cmd)
