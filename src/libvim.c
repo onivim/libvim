@@ -475,6 +475,11 @@ char_u *vimExecute_getLine(int line, void *cookie, int indent)
 
 void vimExecuteLines(char_u **lines, int lineCount)
 {
+  if (lines == NULL || lineCount <= 0)
+  {
+    return;
+  }
+
   libvim_execute_cookie_T cookie;
   cookie.lines = lines;
   cookie.lineCount = lineCount;
