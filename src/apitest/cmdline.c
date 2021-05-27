@@ -47,7 +47,6 @@ MU_TEST(test_insert_literal_ctrl_q)
   mu_check(strcmp(vimCommandLineGetText(), "a~b") == 0);
 }
 
-
 MU_TEST(test_typing_function_command)
 {
   vimInput(":");
@@ -57,7 +56,7 @@ MU_TEST(test_typing_function_command)
   mu_check(messageCount == 1);
 }
 
-MU_TEST(test_multiline_command_sends_message) 
+MU_TEST(test_multiline_command_sends_message)
 {
   mu_check(messageCount == 0);
   vimExecute("function! Test()");
@@ -69,16 +68,15 @@ MU_TEST(test_valid_multiline_command)
 {
   mu_check(messageCount == 0);
 
-  char_u* lines[] = {
-    "function! SomeCommandTest()",
-    "return 42",
-    "endfunction"
-  };
+  char_u *lines[] = {
+      "function! SomeCommandTest()",
+      "return 42",
+      "endfunction"};
 
   vimExecuteLines(lines, 3);
   mu_check(messageCount == 0);
 
-  char_u* result = vimEval("SomeCommandTest()");
+  char_u *result = vimEval("SomeCommandTest()");
   printf("Got result: %s\n", result);
   mu_check(strcmp(result, "42") == 0);
   vim_free(result);

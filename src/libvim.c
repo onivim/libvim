@@ -450,43 +450,47 @@ void vimSetStopSearchHighlightCallback(VoidCallback callback)
   stopSearchHighlightCallback = callback;
 }
 
-typedef struct {
-	char_u **lines;
+typedef struct
+{
+  char_u **lines;
   int lineCount;
-	int nextLine;
+  int nextLine;
 } libvim_execute_cookie_T;
 
-char_u* vimExecute_getLine(int line, void* cookie, int indent) {
-  libvim_execute_cookie_T* context = (libvim_execute_cookie_T*)cookie;
+char_u *vimExecute_getLine(int line, void *cookie, int indent)
+{
+  libvim_execute_cookie_T *context = (libvim_execute_cookie_T *)cookie;
 
-	printf("vimExecute_getLine: %d current: %d\n", line, context->nextLine);
-  if (context->nextLine >= context->lineCount) {
+  if (context->nextLine >= context->lineCount)
+  {
     return NULL;
-  } else {
-		int nextLine = context->nextLine;
-		context->nextLine++;
-		printf("nextLine: %d line: %s\n", nextLine, context->lines[nextLine]);
+  }
+  else
+  {
+    int nextLine = context->nextLine;
+    context->nextLine++;
     return strdup(context->lines[nextLine]);
   }
 };
 
-void vimExecuteLines(char_u **lines, int lineCount) {
+void vimExecuteLines(char_u **lines, int lineCount)
+{
   libvim_execute_cookie_T cookie;
   cookie.lines = lines;
   cookie.lineCount = lineCount;
-	cookie.nextLine = 1;
+  cookie.nextLine = 1;
 
-	do_cmdline(
-    lines[0],
-    &vimExecute_getLine,
-    &cookie,
-                    DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED
-  );
+  do_cmdline(
+      lines[0],
+      &vimExecute_getLine,
+      &cookie,
+      DOCMD_VERBOSE | DOCMD_NOWAIT | DOCMD_KEYTYPED);
 }
 
-void vimExecute(char_u *cmd) { 
+void vimExecute(char_u *cmd)
+{
 
-  char_u* lines[] = {cmd};
+  char_u *lines[] = {cmd};
 
   vimExecuteLines(lines, 1);
 };
