@@ -2269,10 +2269,13 @@ void ex_function(exarg_T *eap)
     else
     {
       vim_free(line_to_free);
-      if (eap->getline == NULL)
-        theline = getcmdline(':', 0L, indent);
-      else
+      if (eap->getline == NULL) {
+				// libvim: Only allow :function in the context of source/vimExecuteLines
+				emsg(_("E126: Missing :endfunction"));
+				goto erret;
+      } else {
         theline = eap->getline(':', eap->cookie, indent);
+			}
       line_to_free = theline;
     }
     if (KeyTyped)

@@ -48,22 +48,22 @@ MU_TEST(test_insert_literal_ctrl_q)
 }
 
 
-// MU_TEST(test_typing_function_command)
-// {
-//   vimInput(":");
-//   vimInput("function! Test()");
-  // TODO: Fix
-  // vimKey("<CR>");
+MU_TEST(test_typing_function_command)
+{
+  vimInput(":");
+  vimInput("function! Test()");
+  vimKey("<CR>");
+  //Should get an error message for multiline construct
+  mu_check(messageCount == 1);
+}
+
+MU_TEST(test_multiline_command_sends_message) 
+{
+  mu_check(messageCount == 0);
+  vimExecute("function! Test()");
   // Should get an error message for multiline construct
-//   mu_check(messageCount == 1);
-// }
-// MU_TEST(test_multiline_command_sends_message) 
-// {
-//   mu_check(messageCount == 0);
-//   vimExecute("function! Test()");
-  // Should get an error message for multiline construct
-//   mu_check(messageCount == 1);
-// }
+  mu_check(messageCount == 1);
+}
 
 MU_TEST(test_valid_multiline_command)
 {
@@ -90,8 +90,8 @@ MU_TEST_SUITE(test_suite)
 
   MU_RUN_TEST(test_insert_literal_ctrl_v);
   MU_RUN_TEST(test_insert_literal_ctrl_q);
-  //MU_RUN_TEST(test_typing_function_command);
-  //MU_RUN_TEST(test_multiline_command_sends_message);
+  MU_RUN_TEST(test_typing_function_command);
+  MU_RUN_TEST(test_multiline_command_sends_message);
   MU_RUN_TEST(test_valid_multiline_command);
 }
 
