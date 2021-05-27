@@ -191,6 +191,8 @@ void vimKey(char_u *key);
  */
 void vimExecute(char_u *cmd);
 
+void vimExecuteLines(char_u **lines, int lineCount);
+
 /***
  * Auto-indent
  ***/
