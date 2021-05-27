@@ -102,6 +102,8 @@ char_u *vimCommandLineGetText(void);
 int vimCommandLineGetPosition(void);
 void vimCommandLineGetCompletions(char_u ***completions, int *count);
 
+void vimSetCustomCommandHandler(CustomCommandCallback customCommandHandler);
+
 /**
 * Eval
 ***/
