@@ -1216,7 +1216,7 @@ void do_bang(
 
     if (outputCallback != NULL)
     {
-      outputCallback(newcmd, buffer);
+      outputCallback(newcmd, buffer, msg_silent);
     }
 
     vim_free(buffer);
