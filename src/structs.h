@@ -2523,7 +2523,7 @@ typedef void (*MessageCallback)(char_u *title, char_u *msg, msgPriority_T priori
 typedef void (*DirectoryChangedCallback)(char_u *path);
 typedef void (*QuitCallback)(buf_T *buf, int isForced);
 typedef void (*OptionSetCallback)(optionSet_T *optionSet);
-typedef void (*OutputCallback)(char_u *cmd, char_u *output);
+typedef void (*OutputCallback)(char_u *cmd, char_u *output, int isSilent);
 typedef int (*ToggleCommentsCallback)(buf_T *buf, linenr_T startLine, linenr_T endLine, linenr_T *outCount, char_u ***outLines);
 
 #ifdef FEAT_DIFF

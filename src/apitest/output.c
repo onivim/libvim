@@ -4,11 +4,12 @@
 
 static char_u *lastCmd = NULL;
 static char_u *lastOutput = NULL;
+static int lastSilent = 0;
 static int outputCount = 0;
 
-void onOutput(char_u *cmd, char_u *output)
+void onOutput(char_u *cmd, char_u *output, int isSilent)
 {
-  printf("onOutput - cmd: |%s| output: |%s|\n", cmd, output);
+  printf("onOutput - cmd: |%s| output: |%s| silent: |%d|\n", cmd, output, isSilent);
 
   if (lastCmd != NULL)
   {
@@ -31,6 +32,8 @@ void onOutput(char_u *cmd, char_u *output)
   {
     lastOutput = strdup(output);
   }
+
+  lastSilent = isSilent;
   outputCount++;
 };
 
@@ -42,6 +45,7 @@ void onMessage(char_u *title, char_u *msg, msgPriority_T priority)
 void test_setup(void)
 {
   outputCount = 0;
+  lastSilent = 0;
   if (lastCmd != NULL)
   {
     vim_free(lastCmd);
@@ -90,6 +94,21 @@ MU_TEST(test_ex_bang_echo)
   mu_check(outputCount == 1);
   mu_check(strcmp(lastCmd, "echo 'hi'") == 0);
   mu_check(strlen(lastOutput) > 0);
+  mu_check(lastSilent == 0);
+}
+
+MU_TEST(test_ex_bang_echo_silent)
+{
+  vimExecute("silent !echo 'whisper...'");
+
+  mu_check(outputCount == 1);
+  mu_check(strcmp(lastCmd, "echo 'whisper...'") == 0);
+  mu_check(strlen(lastOutput) > 0);
+  mu_check(lastSilent == 1);
+
+  // Verify silent flag gets reset
+  vimExecute("!echo 'hi'");
+  mu_check(lastSilent == 0);
 }
 
 MU_TEST(test_ex_read_cmd)
@@ -108,6 +127,7 @@ MU_TEST_SUITE(test_suite)
 
   // MU_RUN_TEST(test_ex_bang_ls);
   MU_RUN_TEST(test_ex_bang_echo);
+  MU_RUN_TEST(test_ex_bang_echo_silent);
   MU_RUN_TEST(test_ex_read_cmd);
 }
 
