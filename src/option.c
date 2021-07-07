@@ -608,17 +608,7 @@ static struct vimoption options[] =
          {(char_u *)"", (char_u *)NULL}
 #endif
          SCTX_INIT},
-        {"browsedir", "bsdir", P_STRING | P_VI_DEF,
-#ifdef FEAT_BROWSE
-         (char_u *)&p_bsdir,
-         PV_NONE,
-         {(char_u *)"last", (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"browsedir", "bsdir", P_STRING | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"bufhidden", "bh", P_STRING | P_ALLOCED | P_VI_DEF | P_NOGLOB, (char_u *)&p_bh, PV_BH, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"buflisted", "bl", P_BOOL | P_VI_DEF | P_NOGLOB, (char_u *)&p_bl, PV_BL, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
         {"buftype", "bt", P_STRING | P_ALLOCED | P_VI_DEF | P_NOGLOB, (char_u *)&p_bt, PV_BT, {(char_u *)"", (char_u *)0L} SCTX_INIT},
@@ -2188,9 +2178,6 @@ static char *(p_mousem_values[]) = {"extend", "popup", "popup_setpos", "mac", NU
 static char *(p_sel_values[]) = {"inclusive", "exclusive", "old", NULL};
 static char *(p_slm_values[]) = {"mouse", "key", "cmd", NULL};
 static char *(p_km_values[]) = {"startsel", "stopsel", NULL};
-#ifdef FEAT_BROWSE
-static char *(p_bsdir_values[]) = {"current", "last", "buffer", NULL};
-#endif
 static char *(p_scbopt_values[]) = {"ver", "hor", "jump", NULL};
 static char *(p_debug_values[]) = {"msg", "throw", "beep", NULL};
 static char *(p_ead_values[]) = {"both", "ver", "hor", NULL};
@@ -5445,15 +5432,6 @@ did_set_string_option(
     if (check_opt_strings(p_slm, p_slm_values, TRUE) != OK)
       errmsg = e_invarg;
   }
-
-#ifdef FEAT_BROWSE
-  /* 'browsedir' */
-  else if (varp == &p_bsdir)
-  {
-    if (check_opt_strings(p_bsdir, p_bsdir_values, FALSE) != OK && !mch_isdir(p_bsdir))
-      errmsg = e_invarg;
-  }
-#endif
 
   /* 'keymodel' */
   else if (varp == &p_km)

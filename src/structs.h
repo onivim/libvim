@@ -803,10 +803,7 @@ struct cmdline_info
  */
 typedef struct
 {
-  int hide; /* TRUE when ":hide" was used */
-#ifdef FEAT_BROWSE_CMD
-  int browse; /* TRUE to invoke file dialog */
-#endif
+  int hide;                   /* TRUE when ":hide" was used */
   int split;                  /* flags for win_split() */
   int tab;                    /* > 0 when ":tab" was used */
   int keepalt;                /* TRUE when ":keepalt" was used */

@@ -1153,25 +1153,8 @@ void ex_diffpatch(exarg_T *eap)
   char_u dirbuf[MAXPATHL];
   char_u *fullname = NULL;
 #endif
-#ifdef FEAT_BROWSE
-  char_u *browseFile = NULL;
-  int browse_flag = cmdmod.browse;
-#endif
   stat_T st;
   char_u *esc_name = NULL;
-
-#ifdef FEAT_BROWSE
-  if (cmdmod.browse)
-  {
-    browseFile = do_browse(0, (char_u *)_("Patch file"),
-                           eap->arg, NULL, NULL,
-                           (char_u *)_(BROWSE_FILTER_ALL_FILES), NULL);
-    if (browseFile == NULL)
-      return; /* operation cancelled */
-    eap->arg = browseFile;
-    cmdmod.browse = FALSE; /* don't let do_ecmd() browse again */
-  }
-#endif
 
   /* We need two temp file names. */
   tmp_orig = vim_tempname('o', FALSE);
@@ -1320,10 +1303,6 @@ theend:
   vim_free(fullname);
 #endif
   vim_free(esc_name);
-#ifdef FEAT_BROWSE
-  vim_free(browseFile);
-  cmdmod.browse = browse_flag;
-#endif
 }
 
 /*
