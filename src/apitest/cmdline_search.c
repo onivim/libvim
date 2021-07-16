@@ -137,12 +137,30 @@ MU_TEST(test_insert_literal_ctrl_q)
   mu_check(strcmp(vimSearchGetPattern(), "~7") == 0);
 }
 
+MU_TEST(test_search_end)
+{
+  // Regression test for Onivim:
+  // https://github.com/onivim/oni2/issues/3704
+  vimInput("/");
+  vimInput("t");
+  vimInput("s");
+  vimInput("t");
+  vimInput("/");
+  vimInput("e");
+  mu_check(strcmp(vimSearchGetPattern(), "tst") == 0);
+
+  vimKey("<cr>");
+  // This was the part that failed in Onivim #3704:
+  mu_check(strcmp(vimSearchGetPattern(), "tst") == 0);
+}
+
 MU_TEST_SUITE(test_suite)
 {
   MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
   MU_RUN_TEST(test_cancel_inc_search);
   MU_RUN_TEST(test_search_forward_esc);
+  MU_RUN_TEST(test_search_end);
   MU_RUN_TEST(test_cancel_n);
   MU_RUN_TEST(test_get_search_highlights_during_visual);
   MU_RUN_TEST(test_insert_literal_ctrl_v);
