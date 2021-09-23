@@ -1563,13 +1563,8 @@ void do_shell(
     msg_putchar('\n'); // may shift screen one line up
 
   // warning message before calling the shell
-  if (p_warn && !autocmd_busy && msg_silent == 0)
-    FOR_ALL_BUFFERS(buf)
-  if (bufIsChangedNotTerm(buf))
-  {
+  if (p_warn && !autocmd_busy && msg_silent == 0 && anyBufIsChanged())
     msg_puts(_("[No write since last change]\n"));
-    break;
-  }
 
   // This windgoto is required for when the '\n' resulted in a "delete line
   // 1" command to the terminal.
