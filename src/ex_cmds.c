@@ -1518,7 +1518,6 @@ void do_shell(
     char_u *cmd,
     int flags) /* may be SHELL_DOOUT when output is redirected */
 {
-  buf_T *buf;
   int save_nwr;
 #ifdef MSWIN
   int winstart = FALSE;
