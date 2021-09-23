@@ -450,36 +450,6 @@ void close_buffer(
   else if (buf->b_p_bh[0] == 'u') /* 'bufhidden' == "unload" */
     unload_buf = TRUE;
 
-#ifdef FEAT_TERMINAL
-  if (bt_terminal(buf) && (buf->b_nwindows == 1 || del_buf))
-  {
-    if (term_job_running(buf->b_term))
-    {
-      if (wipe_buf || unload_buf)
-      {
-        if (!can_unload_buffer(buf))
-          return;
-
-        /* Wiping out or unloading a terminal buffer kills the job. */
-        free_terminal(buf);
-      }
-      else
-      {
-        /* The job keeps running, hide the buffer. */
-        del_buf = FALSE;
-        unload_buf = FALSE;
-      }
-    }
-    else
-    {
-      /* A terminal buffer is wiped out if the job has finished. */
-      del_buf = TRUE;
-      unload_buf = TRUE;
-      wipe_buf = TRUE;
-    }
-  }
-#endif
-
   /* Disallow deleting the buffer when it is locked (already being closed or
      * halfway a command that relies on it). Unloading is allowed. */
   if ((del_buf || wipe_buf) && !can_unload_buffer(buf))
@@ -794,9 +764,6 @@ free_buffer(buf_T *buf)
 #endif
 #ifdef FEAT_JOB_CHANNEL
   channel_buffer_free(buf);
-#endif
-#ifdef FEAT_TERMINAL
-  free_terminal(buf);
 #endif
 #ifdef FEAT_JOB_CHANNEL
   vim_free(buf->b_prompt_text);
@@ -1538,7 +1505,8 @@ void set_curbuf(buf_T *buf, int action)
       if (prevbuf == curbuf)
         u_sync(FALSE);
       close_buffer(prevbuf == curwin->w_buffer ? curwin : NULL, prevbuf,
-                   unload ? action : (action == DOBUF_GOTO && !buf_hide(prevbuf) && !bufIsChanged(prevbuf)) ? DOBUF_UNLOAD : 0, FALSE);
+                   unload ? action : (action == DOBUF_GOTO && !buf_hide(prevbuf) && !bufIsChanged(prevbuf)) ? DOBUF_UNLOAD : 0,
+                   FALSE);
       if (curwin != previouswin && win_valid(previouswin))
         /* autocommands changed curwin, Grr! */
         curwin = previouswin;
@@ -1660,22 +1628,12 @@ void do_autochdir(void)
 
 void no_write_message(void)
 {
-#ifdef FEAT_TERMINAL
-  if (term_job_running(curbuf->b_term))
-    emsg(_("E948: Job still running (add ! to end the job)"));
-  else
-#endif
-    emsg(_("E37: No write since last change (add ! to override)"));
+  emsg(_("E37: No write since last change (add ! to override)"));
 }
 
 void no_write_message_nobang(buf_T *buf UNUSED)
 {
-#ifdef FEAT_TERMINAL
-  if (term_job_running(buf->b_term))
-    emsg(_("E948: Job still running"));
-  else
-#endif
-    emsg(_("E37: No write since last change"));
+  emsg(_("E37: No write since last change"));
 }
 
 /*
@@ -2753,23 +2711,11 @@ void buflist_list(exarg_T *eap)
   int i;
   int ro_char;
   int changed_char;
-#ifdef FEAT_TERMINAL
-  int job_running;
-  int job_none_open;
-#endif
 
   for (buf = firstbuf; buf != NULL && !got_int; buf = buf->b_next)
   {
-#ifdef FEAT_TERMINAL
-    job_running = term_job_running(buf->b_term);
-    job_none_open = job_running && term_none_open(buf->b_term);
-#endif
     /* skip unlisted buffers, unless ! was used */
-    if ((!buf->b_p_bl && !eap->forceit && !vim_strchr(eap->arg, 'u')) || (vim_strchr(eap->arg, 'u') && buf->b_p_bl) || (vim_strchr(eap->arg, '+') && ((buf->b_flags & BF_READERR) || !bufIsChanged(buf))) || (vim_strchr(eap->arg, 'a') && (buf->b_ml.ml_mfp == NULL || buf->b_nwindows == 0)) || (vim_strchr(eap->arg, 'h') && (buf->b_ml.ml_mfp == NULL || buf->b_nwindows != 0))
-#ifdef FEAT_TERMINAL
-        || (vim_strchr(eap->arg, 'R') && (!job_running || (job_running && job_none_open))) || (vim_strchr(eap->arg, '?') && (!job_running || (job_running && !job_none_open))) || (vim_strchr(eap->arg, 'F') && (job_running || buf->b_term == NULL))
-#endif
-        || (vim_strchr(eap->arg, '-') && buf->b_p_ma) || (vim_strchr(eap->arg, '=') && !buf->b_p_ro) || (vim_strchr(eap->arg, 'x') && !(buf->b_flags & BF_READERR)) || (vim_strchr(eap->arg, '%') && buf != curbuf) || (vim_strchr(eap->arg, '#') && (buf == curbuf || curwin->w_alt_fnum != buf->b_fnum)))
+    if ((!buf->b_p_bl && !eap->forceit && !vim_strchr(eap->arg, 'u')) || (vim_strchr(eap->arg, 'u') && buf->b_p_bl) || (vim_strchr(eap->arg, '+') && ((buf->b_flags & BF_READERR) || !bufIsChanged(buf))) || (vim_strchr(eap->arg, 'a') && (buf->b_ml.ml_mfp == NULL || buf->b_nwindows == 0)) || (vim_strchr(eap->arg, 'h') && (buf->b_ml.ml_mfp == NULL || buf->b_nwindows != 0)) || (vim_strchr(eap->arg, '-') && buf->b_p_ma) || (vim_strchr(eap->arg, '=') && !buf->b_p_ro) || (vim_strchr(eap->arg, 'x') && !(buf->b_flags & BF_READERR)) || (vim_strchr(eap->arg, '%') && buf != curbuf) || (vim_strchr(eap->arg, '#') && (buf == curbuf || curwin->w_alt_fnum != buf->b_fnum)))
       continue;
     if (buf_spname(buf) != NULL)
       vim_strncpy(NameBuff, buf_spname(buf), MAXPATHL - 1);
@@ -2780,21 +2726,8 @@ void buflist_list(exarg_T *eap)
 
     changed_char = (buf->b_flags & BF_READERR) ? 'x'
                                                : (bufIsChanged(buf) ? '+' : ' ');
-#ifdef FEAT_TERMINAL
-    if (term_job_running(buf->b_term))
-    {
-      if (term_none_open(buf->b_term))
-        ro_char = '?';
-      else
-        ro_char = 'R';
-      changed_char = ' '; /* bufIsChanged() returns TRUE to avoid
-				  * closing, but it's not actually changed. */
-    }
-    else if (buf->b_term != NULL)
-      ro_char = 'F';
-    else
-#endif
-      ro_char = !buf->b_p_ma ? '-' : (buf->b_p_ro ? '=' : ' ');
+
+    ro_char = !buf->b_p_ma ? '-' : (buf->b_p_ro ? '=' : ' ');
 
     msg_T *msg = msg2_create(MSG_INFO);
 
@@ -4090,9 +4023,6 @@ void write_viminfo_bufferlist(FILE *fp)
 #ifdef FEAT_QUICKFIX
         || bt_quickfix(buf)
 #endif
-#ifdef FEAT_TERMINAL
-        || bt_terminal(buf)
-#endif
         || removable(buf->b_ffname))
       continue;
 
@@ -4124,16 +4054,6 @@ int bt_normal(buf_T *buf)
 int bt_quickfix(buf_T *buf)
 {
   return buf != NULL && buf->b_p_bt[0] == 'q';
-}
-#endif
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Return TRUE if "buf" is a terminal buffer.
- */
-int bt_terminal(buf_T *buf)
-{
-  return buf != NULL && buf->b_p_bt[0] == 't';
 }
 #endif
 
@@ -4235,10 +4155,6 @@ buf_spname(buf_T *buf)
      * contains the name as specified by the user. */
   if (bt_nofile(buf))
   {
-#ifdef FEAT_TERMINAL
-    if (buf->b_term != NULL)
-      return term_get_status_text(buf->b_term);
-#endif
     if (buf->b_fname != NULL)
       return buf->b_fname;
 #ifdef FEAT_JOB_CHANNEL

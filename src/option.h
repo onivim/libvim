@@ -695,14 +695,11 @@ EXTERN int p_tbidi; /* 'termbidi' */
 #endif
 EXTERN char_u *p_tenc;     /* 'termencoding' */
 EXTERN char_u *p_termfont; /* 'termfont' (Onivim) */
-#if defined(MSWIN) && defined(FEAT_TERMINAL)
-EXTERN char_u *p_twt; // 'termwintype'
-#endif
-EXTERN int p_terse;   /* 'terse' */
-EXTERN int p_ta;      /* 'textauto' */
-EXTERN int p_to;      /* 'tildeop' */
-EXTERN int p_timeout; /* 'timeout' */
-EXTERN long p_tm;     /* 'timeoutlen' */
+EXTERN int p_terse;        /* 'terse' */
+EXTERN int p_ta;           /* 'textauto' */
+EXTERN int p_to;           /* 'tildeop' */
+EXTERN int p_timeout;      /* 'timeout' */
+EXTERN long p_tm;          /* 'timeoutlen' */
 #ifdef FEAT_TITLE
 EXTERN int p_title;           /* 'title' */
 EXTERN long p_titlelen;       /* 'titlelen' */
@@ -778,13 +775,10 @@ EXTERN char_u *p_wim; /* 'wildmode' */
 #ifdef FEAT_WILDMENU
 EXTERN int p_wmnu; /* 'wildmenu' */
 #endif
-EXTERN long p_wh;  /* 'winheight' */
-EXTERN long p_wmh; /* 'winminheight' */
-EXTERN long p_wmw; /* 'winminwidth' */
-EXTERN long p_wiw; /* 'winwidth' */
-#if defined(MSWIN) && defined(FEAT_TERMINAL)
-EXTERN char_u *p_winptydll; /* 'winptydll' */
-#endif
+EXTERN long p_wh;   /* 'winheight' */
+EXTERN long p_wmh;  /* 'winminheight' */
+EXTERN long p_wmw;  /* 'winminwidth' */
+EXTERN long p_wiw;  /* 'winwidth' */
 EXTERN int p_ws;    /* 'wrapscan' */
 EXTERN int p_write; /* 'write' */
 EXTERN int p_wa;    /* 'writeany' */
@@ -911,10 +905,6 @@ enum
   BV_UDF,
   BV_UL,
   BV_WM
-#ifdef FEAT_TERMINAL
-  ,
-  BV_TWSL
-#endif
 #ifdef FEAT_VARTABS
   ,
   BV_VSTS,
@@ -935,11 +925,6 @@ enum
 #ifdef FEAT_ARABIC
   ,
   WV_ARAB
-#endif
-#ifdef FEAT_TERMINAL
-  ,
-  WV_TWK,
-  WV_TWS
 #endif
   ,
   WV_CRBIND

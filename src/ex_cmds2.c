@@ -423,11 +423,6 @@ long check_due_timer(void)
   if (did_one)
     redraw_after_callback(need_update_screen);
 
-#ifdef FEAT_TERMINAL
-  /* Some terminal windows may need their buffer updated. */
-  next_due = term_check_timers(next_due, &now);
-#endif
-
   return current_id != last_timer_id ? 1 : next_due;
 }
 
@@ -694,9 +689,8 @@ void ex_profile(exarg_T *eap)
 }
 
 /* Command line expansion for :profile. */
-static enum {
-  PEXP_SUBCMD, /* expand :profile sub-commands */
-  PEXP_FUNC    /* expand :profile func {funcname} */
+static enum { PEXP_SUBCMD, /* expand :profile sub-commands */
+              PEXP_FUNC    /* expand :profile func {funcname} */
 } pexpand_what;
 
 static char *pexpand_cmds[] = {
@@ -1099,17 +1093,9 @@ int check_changed_any(
       bufref_T bufref;
 
       set_bufref(&bufref, buf);
-#ifdef FEAT_TERMINAL
-      if (term_job_running(buf->b_term))
-      {
-        if (term_try_stop_job(buf) == FAIL)
-          break;
-      }
-      else
-#endif
-          /* Try auto-writing the buffer.  If this fails but the buffer no
+      /* Try auto-writing the buffer.  If this fails but the buffer no
 	     * longer exists it's not changed, that's OK. */
-          if (check_changed(buf, (p_awa ? CCGD_AW : 0) | CCGD_MULTWIN | CCGD_ALLBUF) && bufref_valid(&bufref))
+      if (check_changed(buf, (p_awa ? CCGD_AW : 0) | CCGD_MULTWIN | CCGD_ALLBUF) && bufref_valid(&bufref))
         break; /* didn't save - still changes */
     }
   }
@@ -1132,14 +1118,8 @@ int check_changed_any(
       msg_didout = FALSE;
     }
     if (
-#ifdef FEAT_TERMINAL
-        term_job_running(buf->b_term)
-            ? semsg(_("E947: Job still running in buffer \"%s\""),
-                    buf->b_fname)
-            :
-#endif
-            semsg(_("E162: No write since last change for buffer \"%s\""),
-                  buf_spname(buf) != NULL ? buf_spname(buf) : buf->b_fname))
+        semsg(_("E162: No write since last change for buffer \"%s\""),
+              buf_spname(buf) != NULL ? buf_spname(buf) : buf->b_fname))
     {
       save = no_wait_return;
       no_wait_return = FALSE;
@@ -2657,7 +2637,8 @@ void ex_options(
 {
   vim_setenv((char_u *)"OPTWIN_CMD",
              (char_u *)(cmdmod.tab ? "tab"
-                                   : (cmdmod.split & WSP_VERT) ? "vert" : ""));
+                                   : (cmdmod.split & WSP_VERT) ? "vert"
+                                                               : ""));
   cmd_source((char_u *)SYS_OPTWIN_FILE, NULL);
 }
 #endif

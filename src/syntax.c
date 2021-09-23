@@ -184,12 +184,6 @@ static char *(highlight_init_light[]) = {
          "TabLine term=underline cterm=underline ctermfg=black ctermbg=LightGrey gui=underline guibg=LightGrey"),
     CENT("MatchParen term=reverse ctermbg=Cyan",
          "MatchParen term=reverse ctermbg=Cyan guibg=Cyan"),
-#ifdef FEAT_TERMINAL
-    CENT("StatusLineTerm term=reverse,bold cterm=bold ctermfg=White ctermbg=DarkGreen",
-         "StatusLineTerm term=reverse,bold cterm=bold ctermfg=White ctermbg=DarkGreen gui=bold guifg=bg guibg=DarkGreen"),
-    CENT("StatusLineTermNC term=reverse ctermfg=White ctermbg=DarkGreen",
-         "StatusLineTermNC term=reverse ctermfg=White ctermbg=DarkGreen guifg=bg guibg=DarkGreen"),
-#endif
     NULL};
 
 /* Default colors only used with a dark background. */
@@ -240,12 +234,6 @@ static char *(highlight_init_dark[]) = {
          "TabLine term=underline cterm=underline ctermfg=white ctermbg=DarkGrey gui=underline guibg=DarkGrey"),
     CENT("MatchParen term=reverse ctermbg=DarkCyan",
          "MatchParen term=reverse ctermbg=DarkCyan guibg=DarkCyan"),
-#ifdef FEAT_TERMINAL
-    CENT("StatusLineTerm term=reverse,bold cterm=bold ctermfg=Black ctermbg=LightGreen",
-         "StatusLineTerm term=reverse,bold cterm=bold ctermfg=Black ctermbg=LightGreen gui=bold guifg=bg guibg=LightGreen"),
-    CENT("StatusLineTermNC term=reverse ctermfg=Black ctermbg=LightGreen",
-         "StatusLineTermNC term=reverse ctermfg=Black ctermbg=LightGreen guifg=bg guibg=LightGreen"),
-#endif
     NULL};
 
 void init_highlight(
@@ -487,9 +475,6 @@ void do_highlight(
   int error = FALSE;
   int color;
   int is_normal_group = FALSE; /* "Normal" group */
-#ifdef FEAT_TERMINAL
-  int is_terminal_group = FALSE; /* "Terminal" group */
-#endif
 #define is_menu_group 0
 #define is_tooltip_group 0
 
@@ -661,10 +646,6 @@ void do_highlight(
 
   if (STRCMP(HL_TABLE()[idx].sg_name_u, "NORMAL") == 0)
     is_normal_group = TRUE;
-#ifdef FEAT_TERMINAL
-  else if (STRCMP(HL_TABLE()[idx].sg_name_u, "TERMINAL") == 0)
-    is_terminal_group = TRUE;
-#endif
 
   /* Clear the highlighting for ":hi clear {group}" and ":hi clear". */
   if (doclear || (forceit && init))
@@ -1154,11 +1135,6 @@ void do_highlight(
       HL_TABLE()
       [idx].sg_cterm_attr = 0;
     }
-#ifdef FEAT_TERMINAL
-    else if (is_terminal_group)
-      set_terminal_default_colors(
-          HL_TABLE()[idx].sg_cterm_fg, HL_TABLE()[idx].sg_cterm_bg);
-#endif
     else
       set_hl_attr(idx);
 #ifdef FEAT_EVAL
@@ -1614,23 +1590,6 @@ get_attr_entry(garray_T *table, attrentry_T *aep)
   ++table->ga_len;
   return (table->ga_len - 1 + ATTR_OFF);
 }
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Get an attribute index for a cterm entry.
- * Uses an existing entry when possible or adds one when needed.
- */
-int get_cterm_attr_idx(int attr, int fg, int bg)
-{
-  attrentry_T at_en;
-
-  vim_memset(&at_en, 0, sizeof(attrentry_T));
-  at_en.ae_attr = attr;
-  at_en.ae_u.cterm.fg_color = fg;
-  at_en.ae_u.cterm.bg_color = bg;
-  return get_attr_entry(&cterm_attr_table, &at_en);
-}
-#endif
 
 #if defined(PROTO)
 /*

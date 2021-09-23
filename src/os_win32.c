@@ -1465,16 +1465,6 @@ int mch_char_avail(void)
   return WaitForChar(0L, FALSE);
 }
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Check for any pending input or messages.
- */
-int mch_check_messages(void)
-{
-  return WaitForChar(0L, TRUE);
-}
-#endif
-
 /*
  * Create the console input.  Used when reading stdin doesn't work.
  */

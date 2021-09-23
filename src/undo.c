@@ -389,11 +389,6 @@ int u_savecommon(
     if (!undo_allowed())
       return FAIL;
 
-#ifdef FEAT_TERMINAL
-    /* A change in a terminal buffer removes the highlighting. */
-    term_change_in_curbuf();
-#endif
-
     /*
 	 * Saving text for undo means we are going to make a change.  Give a
 	 * warning for a read-only file before making the change, so that the
@@ -3153,16 +3148,13 @@ void u_blockfree(buf_T *buf)
  * Check if the 'modified' flag is set, or 'ff' has changed (only need to
  * check the first character, because it can only be "dos", "unix" or "mac").
  * "nofile" and "scratch" type buffers are considered to always be unchanged.
- * Also considers a buffer changed when a terminal window contains a running
- * job.
  */
 int bufIsChanged(buf_T *buf)
 {
-#ifdef FEAT_TERMINAL
-  if (term_job_running(buf->b_term))
-    return TRUE;
-#endif
-  return bufIsChangedNotTerm(buf);
+
+  // In a "prompt" buffer we do respect 'modified', so that we can control
+  // closing the window by setting or resetting that option.
+  return (!bt_dontwrite(buf) || bt_prompt(buf)) && (buf->b_changed || file_ff_differs(buf, TRUE));
 }
 
 /*
@@ -3176,16 +3168,6 @@ int anyBufIsChanged(void)
   if (bufIsChanged(buf))
     return TRUE;
   return FALSE;
-}
-
-/*
- * Like bufIsChanged() but ignoring a terminal window.
- */
-int bufIsChangedNotTerm(buf_T *buf)
-{
-  // In a "prompt" buffer we do respect 'modified', so that we can control
-  // closing the window by setting or resetting that option.
-  return (!bt_dontwrite(buf) || bt_prompt(buf)) && (buf->b_changed || file_ff_differs(buf, TRUE));
 }
 
 int curbufIsChanged(void)

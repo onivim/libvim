@@ -6188,11 +6188,7 @@ int buf_check_timestamp(
   /* If there is no file name, the buffer is not loaded, 'buftype' is
      * set, we are in the middle of a save or being called recursively: ignore
      * this buffer. */
-  if (buf->b_ffname == NULL || buf->b_ml.ml_mfp == NULL || !bt_normal(buf) || buf->b_saving || busy
-#ifdef FEAT_TERMINAL
-      || buf->b_term != NULL
-#endif
-  )
+  if (buf->b_ffname == NULL || buf->b_ml.ml_mfp == NULL || !bt_normal(buf) || buf->b_saving || busy)
     return 0;
 
   if (!(buf->b_flags & BF_NOTEDITED) && buf->b_mtime != 0 && ((stat_res = mch_stat((char *)buf->b_ffname, &st)) < 0 || time_differs((long)st.st_mtime, buf->b_mtime) || st.st_size != buf->b_orig_size

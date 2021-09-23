@@ -406,11 +406,7 @@ static char *(features[]) =
         "-tag_old_static",
         "-tag_any_white",
         "-termguicolors",
-#ifdef FEAT_TERMINAL
-        "+terminal",
-#else
         "-terminal",
-#endif
 #if defined(UNIX)
 /* only Unix can have terminfo instead of termcap */
 #ifdef TERMINFO

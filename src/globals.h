@@ -376,11 +376,7 @@ EXTERN int highlight_attr[HLF_COUNT]; /* Highl. attr for each context. */
 #ifdef USER_HIGHLIGHT
 EXTERN int highlight_user[9]; /* User[1-9] attributes */
 #endif
-#ifdef FEAT_TERMINAL
-// When TRUE skip calling terminal_loop() once.  Used when
-// typing ':' at the more prompt.
-EXTERN int skip_term_loop INIT(= FALSE);
-#endif
+
 EXTERN int cterm_normal_fg_color INIT(= 0);
 EXTERN int cterm_normal_fg_bold INIT(= 0);
 EXTERN int cterm_normal_bg_color INIT(= 0);
@@ -1088,7 +1084,7 @@ EXTERN char e_libcall[] INIT(= N_("E364: Library call failed for \"%s()\""));
 #ifdef HAVE_FSYNC
 EXTERN char e_fsync[] INIT(= N_("E667: Fsync failed"));
 #endif
-#if defined(DYNAMIC_PERL) || defined(DYNAMIC_PYTHON) || defined(DYNAMIC_PYTHON3) || defined(DYNAMIC_RUBY) || defined(DYNAMIC_TCL) || defined(DYNAMIC_ICONV) || defined(DYNAMIC_GETTEXT) || defined(DYNAMIC_MZSCHEME) || defined(DYNAMIC_LUA) || defined(FEAT_TERMINAL)
+#if defined(DYNAMIC_PERL) || defined(DYNAMIC_PYTHON) || defined(DYNAMIC_PYTHON3) || defined(DYNAMIC_RUBY) || defined(DYNAMIC_TCL) || defined(DYNAMIC_ICONV) || defined(DYNAMIC_GETTEXT) || defined(DYNAMIC_MZSCHEME) || defined(DYNAMIC_LUA)
 EXTERN char e_loadlib[] INIT(= N_("E370: Could not load library %s"));
 EXTERN char e_loadfunc[] INIT(= N_("E448: Could not load library function %s"));
 #endif

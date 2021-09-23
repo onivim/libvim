@@ -1846,18 +1846,6 @@ static struct interval ambiguous[] =
         {0xf0000, 0xffffd},
         {0x100000, 0x10fffd}};
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * utf_char2cells() with different argument type for libvterm.
- */
-int utf_uint2cells(UINT32_T c)
-{
-  if (c >= 0x100 && utf_iscomposing((int)c))
-    return 0;
-  return utf_char2cells((int)c);
-}
-#endif
-
 /*
  * For UTF-8 character "c" return 2 for a double-width character, 1 for others.
  * Returns 4 or 6 for an unprintable character.
@@ -2697,16 +2685,6 @@ int utf_char2bytes(int c, char_u *buf)
   buf[5] = 0x80 + (c & 0x3f);
   return 6;
 }
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * utf_iscomposing() with different argument type for libvterm.
- */
-int utf_iscomposing_uint(UINT32_T c)
-{
-  return utf_iscomposing((int)c);
-}
-#endif
 
 /*
  * Return TRUE if "c" is a composing UTF-8 character.  This means it will be

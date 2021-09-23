@@ -472,13 +472,6 @@ typedef struct
   char_u *wo_scl;
 #define w_p_scl w_onebuf_opt.wo_scl /* 'signcolumn' */
 #endif
-#ifdef FEAT_TERMINAL
-  char_u *wo_twk;
-#define w_p_twk w_onebuf_opt.wo_twk /* 'termwinkey' */
-  char_u *wo_tws;
-#define w_p_tws w_onebuf_opt.wo_tws /* 'termwinsize' */
-#endif
-
 #ifdef FEAT_EVAL
   sctx_T wo_script_ctx[WV_COUNT]; /* SCTXs for window-local options */
 #define w_p_script_ctx w_onebuf_opt.wo_script_ctx
@@ -2399,9 +2392,6 @@ struct file_buffer
 #ifdef FEAT_PERSISTENT_UNDO
   int b_p_udf; /* 'undofile' */
 #endif
-#ifdef FEAT_TERMINAL
-  long b_p_twsl; /* 'termwinscroll' */
-#endif
 
   /* end of buffer options */
 
@@ -2475,10 +2465,6 @@ struct file_buffer
 
   int b_mapped_ctrl_c; /* modes where CTRL-C is mapped */
 
-#ifdef FEAT_TERMINAL
-  term_T *b_term; /* When not NULL this buffer is for a terminal
-				 * window. */
-#endif
 #ifdef FEAT_DIFF
   int b_diff_failed; // internal diff failed for this buffer
 #endif

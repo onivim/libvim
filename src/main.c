@@ -1021,21 +1021,7 @@ void main_loop(
     //     }
     //     else
     //     {
-    // #ifdef FEAT_TERMINAL
-    //       if (term_use_loop() && oa.op_type == OP_NOP && oa.regname == NUL && !VIsual_active && !skip_term_loop)
     //       {
-    //         /* If terminal_loop() returns OK we got a key that is handled
-    // 		 * in Normal model.  With FAIL we first need to position the
-    // 		 * cursor and the screen needs to be redrawn. */
-    //         if (terminal_loop(TRUE) == OK)
-    //           normal_cmd(&oa, TRUE);
-    //       }
-    //       else
-    // #endif
-    //       {
-    // #ifdef FEAT_TERMINAL
-    //         skip_term_loop = FALSE;
-    // #endif
     //         normal_cmd(&oa, TRUE);
     //       }
     //     }

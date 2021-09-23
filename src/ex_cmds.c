@@ -334,12 +334,14 @@ sort_compare(const void *s1, const void *s2)
       result = l1.st_u.num.is_number - l2.st_u.num.is_number;
     else
       result = l1.st_u.num.value == l2.st_u.num.value ? 0
-                                                      : l1.st_u.num.value > l2.st_u.num.value ? 1 : -1;
+                                                      : l1.st_u.num.value > l2.st_u.num.value ? 1
+                                                                                              : -1;
   }
 #ifdef FEAT_FLOAT
   else if (sort_flt)
     result = l1.st_u.value_flt == l2.st_u.value_flt ? 0
-                                                    : l1.st_u.value_flt > l2.st_u.value_flt ? 1 : -1;
+                                                    : l1.st_u.value_flt > l2.st_u.value_flt ? 1
+                                                                                            : -1;
 #endif
   else
   {
@@ -1516,7 +1518,6 @@ void do_shell(
     char_u *cmd,
     int flags) /* may be SHELL_DOOUT when output is redirected */
 {
-  buf_T *buf;
   int save_nwr;
 #ifdef MSWIN
   int winstart = FALSE;
@@ -1561,13 +1562,8 @@ void do_shell(
     msg_putchar('\n'); // may shift screen one line up
 
   // warning message before calling the shell
-  if (p_warn && !autocmd_busy && msg_silent == 0)
-    FOR_ALL_BUFFERS(buf)
-  if (bufIsChangedNotTerm(buf))
-  {
+  if (p_warn && !autocmd_busy && msg_silent == 0 && anyBufIsChanged())
     msg_puts(_("[No write since last change]\n"));
-    break;
-  }
 
   // This windgoto is required for when the '\n' resulted in a "delete line
   // 1" command to the terminal.
@@ -3375,15 +3371,8 @@ void do_wqall(exarg_T *eap)
 
   FOR_ALL_BUFFERS(buf)
   {
-#ifdef FEAT_TERMINAL
-    if (exiting && term_job_running(buf->b_term))
-    {
-      no_write_message_nobang(buf);
-      ++error;
-    }
-    else
-#endif
-        if (bufIsChanged(buf) && !bt_dontwrite(buf))
+
+    if (bufIsChanged(buf) && !bt_dontwrite(buf))
     {
       /*
 	     * Check if there is a reason the buffer cannot be written:

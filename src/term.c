@@ -3893,7 +3893,7 @@ gui_get_rgb_color_cmn(int r, int g, int b)
 }
 #endif
 
-#if defined(MSWIN) || defined(FEAT_TERMINAL) || defined(PROTO)
+#if defined(MSWIN) || defined(PROTO)
 static int cube_value[] = {
     0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF};
 
@@ -3901,11 +3901,7 @@ static int grey_ramp[] = {
     0x08, 0x12, 0x1C, 0x26, 0x30, 0x3A, 0x44, 0x4E, 0x58, 0x62, 0x6C, 0x76,
     0x80, 0x8A, 0x94, 0x9E, 0xA8, 0xB2, 0xBC, 0xC6, 0xD0, 0xDA, 0xE4, 0xEE};
 
-#ifdef FEAT_TERMINAL
-#include "libvterm/include/vterm.h" // for VTERM_ANSI_INDEX_NONE
-#else
 #define VTERM_ANSI_INDEX_NONE 0
-#endif
 
 static char_u ansi_table[16][4] = {
     //   R    G    B   idx

@@ -5532,10 +5532,6 @@ int garbage_collect(int testing)
   abort = abort || set_ref_in_quickfix(copyID);
 #endif
 
-#ifdef FEAT_TERMINAL
-  abort = abort || set_ref_in_term(copyID);
-#endif
-
   if (!abort)
   {
     /*

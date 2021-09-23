@@ -9601,13 +9601,7 @@ makeopens(
   // ":badd" will have no effect.
   FOR_ALL_BUFFERS(buf)
   {
-    if (!(only_save_windows && buf->b_nwindows == 0) && !(buf->b_help && !(ssop_flags & SSOP_HELP))
-#ifdef FEAT_TERMINAL
-        // Skip terminal buffers: finished ones are not useful, others
-        // will be resurrected and result in a new buffer.
-        && !bt_terminal(buf)
-#endif
-        && buf->b_fname != NULL && buf->b_p_bl)
+    if (!(only_save_windows && buf->b_nwindows == 0) && !(buf->b_help && !(ssop_flags & SSOP_HELP)) && buf->b_fname != NULL && buf->b_p_bl)
     {
       if (fprintf(fd, "badd +%ld ", buf->b_wininfo == NULL ? 1L : buf->b_wininfo->wi_fpos.lnum) < 0 || ses_fname(fd, buf, &ssop_flags, TRUE) == FAIL)
         return FAIL;
@@ -9773,10 +9767,6 @@ ses_do_frame(frame_T *fr)
 static int
 ses_do_win(win_T *wp)
 {
-#ifdef FEAT_TERMINAL
-  if (bt_terminal(wp->w_buffer))
-    return !term_is_finished(wp->w_buffer) && (ssop_flags & SSOP_TERMINAL) && term_should_restore(wp->w_buffer);
-#endif
   if (wp->w_buffer->b_fname == NULL
 #ifdef FEAT_QUICKFIX
       /* When 'buftype' is "nofile" can't restore the window contents. */
@@ -9850,22 +9840,14 @@ put_view(
   /* Edit the file.  Skip this when ":next" already did it. */
   if (add_edit && (!did_next || wp->w_arg_idx_invalid))
   {
-#ifdef FEAT_TERMINAL
-    if (bt_terminal(wp->w_buffer))
-    {
-      if (term_write_session(fd, wp) == FAIL)
-        return FAIL;
-    }
-    else
-#endif
-        /*
+    /*
 	 * Load the file.
 	 */
-        if (wp->w_buffer->b_ffname != NULL
+    if (wp->w_buffer->b_ffname != NULL
 #ifdef FEAT_QUICKFIX
-            && !bt_nofile(wp->w_buffer)
+        && !bt_nofile(wp->w_buffer)
 #endif
-        )
+    )
     {
       /*
 	     * Editing a file in this buffer: use ":edit file".

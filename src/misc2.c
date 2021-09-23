@@ -3813,9 +3813,6 @@ void parse_queued_messages(void)
     if (job_check_ended())
       continue;
 #endif
-#ifdef FEAT_TERMINAL
-    free_unused_terminals();
-#endif
     break;
   }
 

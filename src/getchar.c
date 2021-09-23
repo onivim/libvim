@@ -1746,24 +1746,6 @@ int vpeekc(void)
   return vgetorpeek(FALSE);
 }
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Like vpeekc(), but don't allow mapping.  Do allow checking for terminal
- * codes.
- */
-int vpeekc_nomap(void)
-{
-  int c;
-
-  ++no_mapping;
-  ++allow_keys;
-  c = vpeekc();
-  --no_mapping;
-  --allow_keys;
-  return c;
-}
-#endif
-
 #if defined(FEAT_EVAL) || defined(PROTO)
 /*
  * Check if any character is available, also half an escape sequence.
@@ -2482,10 +2464,6 @@ vgetorpeek(int advance)
 		     * cmdline window. */
           if (p_im && (State & INSERT))
             c = Ctrl_L;
-#ifdef FEAT_TERMINAL
-          else if (terminal_is_active())
-            c = K_CANCEL;
-#endif
           else if ((State & CMDLINE))
             c = Ctrl_C;
           else

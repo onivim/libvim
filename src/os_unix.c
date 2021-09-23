@@ -302,16 +302,6 @@ int mch_char_avail(void)
   return WaitForChar(0L, NULL, FALSE);
 }
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Check for any pending input or messages.
- */
-int mch_check_messages(void)
-{
-  return WaitForChar(0L, NULL, TRUE);
-}
-#endif
-
 #if defined(HAVE_TOTAL_MEM) || defined(PROTO)
 #ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
@@ -2728,44 +2718,6 @@ int mch_get_shellsize(void)
   return OK;
 }
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Report the windows size "rows" and "cols" to tty "fd".
- */
-int mch_report_winsize(int fd, int rows, int cols)
-{
-  int tty_fd;
-  int retval = -1;
-
-  tty_fd = get_tty_fd(fd);
-  if (tty_fd >= 0)
-  {
-#if defined(TIOCSWINSZ)
-    struct winsize ws;
-
-    ws.ws_col = cols;
-    ws.ws_row = rows;
-    ws.ws_xpixel = cols * 5;
-    ws.ws_ypixel = rows * 10;
-    retval = ioctl(tty_fd, TIOCSWINSZ, &ws);
-    ch_log(NULL, "ioctl(TIOCSWINSZ) %s",
-           retval == 0 ? "success" : "failed");
-#elif defined(TIOCSSIZE)
-    struct ttysize ts;
-
-    ts.ts_cols = cols;
-    ts.ts_lines = rows;
-    retval = ioctl(tty_fd, TIOCSSIZE, &ts);
-    ch_log(NULL, "ioctl(TIOCSSIZE) %s",
-           retval == 0 ? "success" : "failed");
-#endif
-    if (tty_fd != fd)
-      close(tty_fd);
-  }
-  return retval == 0 ? OK : FAIL;
-}
-#endif
-
 /*
  * Try to set the window size to Rows and Columns.
  */
@@ -2851,9 +2803,6 @@ set_child_environment(
   static char envbuf_Lines[20];
   static char envbuf_Columns[20];
   static char envbuf_Colors[20];
-#ifdef FEAT_TERMINAL
-  static char envbuf_Version[20];
-#endif
 #endif
   long colors =
       t_colors;
@@ -2868,13 +2817,6 @@ set_child_environment(
   setenv("COLUMNS", (char *)envbuf, 1);
   sprintf((char *)envbuf, "%ld", colors);
   setenv("COLORS", (char *)envbuf, 1);
-#ifdef FEAT_TERMINAL
-  if (is_terminal)
-  {
-    sprintf((char *)envbuf, "%ld", (long)get_vim_var_nr(VV_VERSION));
-    setenv("VIM_TERMINAL", (char *)envbuf, 1);
-  }
-#endif
 #else
   /*
      * Putenv does not copy the string, it has to remain valid.
@@ -2892,14 +2834,6 @@ set_child_environment(
   putenv(envbuf_Columns);
   vim_snprintf(envbuf_Colors, sizeof(envbuf_Colors), "COLORS=%ld", colors);
   putenv(envbuf_Colors);
-#ifdef FEAT_TERMINAL
-  if (is_terminal)
-  {
-    vim_snprintf(envbuf_Version, sizeof(envbuf_Version),
-                 "VIM_TERMINAL=%ld", (long)get_vim_var_nr(VV_VERSION));
-    putenv(envbuf_Version);
-  }
-#endif
 #endif
 }
 
@@ -3965,24 +3899,7 @@ void mch_job_start(char **argv, job_T *job, jobopt_T *options, int is_terminal)
     (void)setsid();
 #endif
 
-#ifdef FEAT_TERMINAL
-    if (options->jo_term_rows > 0)
-    {
-      char *term = (char *)T_NAME;
-
-      /* Use 'term' or $TERM if it starts with "xterm", otherwise fall
-	     * back to "xterm". */
-      if (term == NULL || *term == NUL || STRNCMP(term, "xterm", 5) != 0)
-        term = "xterm";
-      set_child_environment(
-          (long)options->jo_term_rows,
-          (long)options->jo_term_cols,
-          term,
-          is_terminal);
-    }
-    else
-#endif
-      set_default_child_environment(is_terminal);
+    set_default_child_environment(is_terminal);
 
     if (options->jo_env != NULL)
     {
@@ -4331,36 +4248,6 @@ void mch_clear_job(job_T *job)
 #else
   (void)waitpid(job->jv_pid, NULL, WNOHANG);
 #endif
-}
-#endif
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-int mch_create_pty_channel(job_T *job, jobopt_T *options)
-{
-  int pty_master_fd = -1;
-  int pty_slave_fd = -1;
-  channel_T *channel;
-
-  open_pty(&pty_master_fd, &pty_slave_fd, &job->jv_tty_out, &job->jv_tty_in);
-  close(pty_slave_fd);
-
-  channel = add_channel();
-  if (channel == NULL)
-  {
-    close(pty_master_fd);
-    return FAIL;
-  }
-  if (job->jv_tty_out != NULL)
-    ch_log(channel, "using pty %s on fd %d",
-           job->jv_tty_out, pty_master_fd);
-  job->jv_channel = channel; /* ch_refcount was set by add_channel() */
-  channel->ch_keep_open = TRUE;
-
-  /* Only set the pty_master_fd for stdout, do not duplicate it for stderr,
-     * it only needs to be read once. */
-  channel_set_pipes(channel, pty_master_fd, pty_master_fd, INVALID_FD);
-  channel_set_job(channel, job, options);
-  return OK;
 }
 #endif
 
