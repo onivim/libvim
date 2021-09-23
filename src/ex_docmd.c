@@ -5287,9 +5287,9 @@ ex_bunload(exarg_T *eap)
   if (NOT_IN_POPUP_WINDOW)
     return;
   eap->errmsg = do_bufdel(
-      eap->cmdidx == CMD_bdelete    ? DOBUF_DEL
-      : eap->cmdidx == CMD_bwipeout ? DOBUF_WIPE
-                                    : DOBUF_UNLOAD,
+      eap->cmdidx == CMD_bdelete ? DOBUF_DEL
+                                 : eap->cmdidx == CMD_bwipeout ? DOBUF_WIPE
+                                                               : DOBUF_UNLOAD,
       eap->arg,
       eap->addr_count, (int)eap->line1, (int)eap->line2, eap->forceit);
 }
@@ -6459,8 +6459,8 @@ void alist_add(
   [al->al_ga.ga_len].ae_fname = fname;
   if (set_fnum > 0)
     AARGLIST(al)
-  [al->al_ga.ga_len].ae_fnum =
-      buflist_add(fname, BLN_LISTED | (set_fnum == 2 ? BLN_CURBUF : 0));
+    [al->al_ga.ga_len].ae_fnum =
+        buflist_add(fname, BLN_LISTED | (set_fnum == 2 ? BLN_CURBUF : 0));
   ++al->al_ga.ga_len;
 }
 
@@ -6642,9 +6642,9 @@ void ex_splitview(exarg_T *eap)
      */
   if (use_tab)
   {
-    if (win_new_tabpage(cmdmod.tab != 0        ? cmdmod.tab
-                        : eap->addr_count == 0 ? 0
-                                               : (int)eap->line2 + 1) != FAIL)
+    if (win_new_tabpage(cmdmod.tab != 0 ? cmdmod.tab
+                                        : eap->addr_count == 0 ? 0
+                                                               : (int)eap->line2 + 1) != FAIL)
     {
       do_exedit(eap, old_curwin);
 
@@ -8088,8 +8088,7 @@ void ex_redraw(exarg_T *eap)
   p_lz = FALSE;
   validate_cursor();
   update_topline();
-  update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED
-                                                     : 0);
+  update_screen(eap->forceit ? CLEAR : VIsual_active ? INVERTED : 0);
   RedrawingDisabled = r;
   p_lz = p;
 
@@ -8205,8 +8204,7 @@ ex_mkrc(
   {
     browseFile = do_browse(BROWSE_SAVE,
 #ifdef FEAT_SESSION
-                           eap->cmdidx == CMD_mkview ? (char_u *)_("Save View") : eap->cmdidx == CMD_mksession ? (char_u *)_("Save Session")
-                                                                                                               :
+                           eap->cmdidx == CMD_mkview ? (char_u *)_("Save View") : eap->cmdidx == CMD_mksession ? (char_u *)_("Save Session") :
 #endif
                                                                                                                (char_u *)_("Save Setup"),
                            fname, (char_u *)"vim", NULL,
@@ -8941,9 +8939,9 @@ eval_vars(
   if (spec_idx == SPEC_CWORD || spec_idx == SPEC_CCWORD || spec_idx == SPEC_CEXPR)
   {
     resultlen = find_ident_under_cursor(&result,
-                                        spec_idx == SPEC_CWORD   ? (FIND_IDENT | FIND_STRING)
-                                        : spec_idx == SPEC_CEXPR ? (FIND_IDENT | FIND_STRING | FIND_EVAL)
-                                                                 : FIND_STRING);
+                                        spec_idx == SPEC_CWORD ? (FIND_IDENT | FIND_STRING)
+                                                               : spec_idx == SPEC_CEXPR ? (FIND_IDENT | FIND_STRING | FIND_EVAL)
+                                                                                        : FIND_STRING);
     if (resultlen == 0)
     {
       *errormsg = "";

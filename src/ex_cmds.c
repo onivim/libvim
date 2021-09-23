@@ -333,15 +333,15 @@ sort_compare(const void *s1, const void *s2)
     if (l1.st_u.num.is_number != l2.st_u.num.is_number)
       result = l1.st_u.num.is_number - l2.st_u.num.is_number;
     else
-      result = l1.st_u.num.value == l2.st_u.num.value  ? 0
-               : l1.st_u.num.value > l2.st_u.num.value ? 1
-                                                       : -1;
+      result = l1.st_u.num.value == l2.st_u.num.value ? 0
+                                                      : l1.st_u.num.value > l2.st_u.num.value ? 1
+                                                                                              : -1;
   }
 #ifdef FEAT_FLOAT
   else if (sort_flt)
-    result = l1.st_u.value_flt == l2.st_u.value_flt  ? 0
-             : l1.st_u.value_flt > l2.st_u.value_flt ? 1
-                                                     : -1;
+    result = l1.st_u.value_flt == l2.st_u.value_flt ? 0
+                                                    : l1.st_u.value_flt > l2.st_u.value_flt ? 1
+                                                                                            : -1;
 #endif
   else
   {

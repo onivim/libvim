@@ -554,10 +554,9 @@ int readfile(
                                      (errno == EFBIG) ? _("[File too big]") :
 #endif
 #ifdef EOVERFLOW
-                                     (errno == EOVERFLOW) ? _("[File too big]")
-                                                          :
+                                                      (errno == EOVERFLOW) ? _("[File too big]") :
 #endif
-                                                          _("[Permission Denied]")),
+                                                                           _("[Permission Denied]")),
                  0);
         curbuf->b_p_ro = TRUE; /* must use "w!" now */
       }
@@ -3304,7 +3303,8 @@ int buf_write(
 		     * second. */
           {
             int
-                try;
+            try
+              ;
 
             for (try = 0; try < 10; ++try)
             {

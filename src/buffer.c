@@ -1505,8 +1505,7 @@ void set_curbuf(buf_T *buf, int action)
       if (prevbuf == curbuf)
         u_sync(FALSE);
       close_buffer(prevbuf == curwin->w_buffer ? curwin : NULL, prevbuf,
-                   unload ? action : (action == DOBUF_GOTO && !buf_hide(prevbuf) && !bufIsChanged(prevbuf)) ? DOBUF_UNLOAD
-                                                                                                            : 0,
+                   unload ? action : (action == DOBUF_GOTO && !buf_hide(prevbuf) && !bufIsChanged(prevbuf)) ? DOBUF_UNLOAD : 0,
                    FALSE);
       if (curwin != previouswin && win_valid(previouswin))
         /* autocommands changed curwin, Grr! */

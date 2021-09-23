@@ -1520,7 +1520,8 @@ int set_termname(char_u *term)
 #ifdef HAVE_TGETENT
   int builtin_first = p_tbi;
   int
-      try;
+  try
+    ;
   int termcap_cleared = FALSE;
 #endif
   int width = 0, height = 0;
@@ -3486,9 +3487,9 @@ void show_termcodes(void)
     {
       len = show_one_termcode(termcodes[i].name,
                               termcodes[i].code, FALSE);
-      if (len <= INC3 - GAP   ? run == 1
-          : len <= INC2 - GAP ? run == 2
-                              : run == 3)
+      if (len <= INC3 - GAP ? run == 1
+                            : len <= INC2 - GAP ? run == 2
+                                                : run == 3)
         items[item_count++] = i;
     }
 

@@ -2581,9 +2581,9 @@ handler_routine(
     vim_snprintf((char *)IObuff, IOSIZE, _("Vim: Caught %s event\n"),
                  (dwCtrlType == CTRL_CLOSE_EVENT
                       ? _("close")
-                  : dwCtrlType == CTRL_LOGOFF_EVENT
-                      ? _("logoff")
-                      : _("shutdown")));
+                      : dwCtrlType == CTRL_LOGOFF_EVENT
+                            ? _("logoff")
+                            : _("shutdown")));
 #ifdef DEBUG
     OutputDebugString(IObuff);
 #endif
@@ -2632,8 +2632,7 @@ void mch_settmode(int tmode)
   if (fdDump)
   {
     fprintf(fdDump, "mch_settmode(%s, in = %x, out = %x)\n",
-            tmode == TMODE_RAW ? "raw" : tmode == TMODE_COOK ? "cooked"
-                                                             : "normal",
+            tmode == TMODE_RAW ? "raw" : tmode == TMODE_COOK ? "cooked" : "normal",
             cmodein, cmodeout);
     fflush(fdDump);
   }

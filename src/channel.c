@@ -4217,8 +4217,7 @@ void free_job_options(jobopt_T *opt)
 static int
 part_from_char(int c)
 {
-  return c == 'i' ? PART_IN : c == 'o' ? PART_OUT
-                                       : PART_ERR;
+  return c == 'i' ? PART_IN : c == 'o' ? PART_OUT : PART_ERR;
 }
 
 /*

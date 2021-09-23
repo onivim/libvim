@@ -4171,9 +4171,9 @@ static void nv_brackets(cmdarg_T *cap)
           ptr, 0, len, TRUE, cap->count0 == 0 ? !isupper(cap->nchar) : FALSE,
           ((cap->nchar & 0xf) == ('d' & 0xf)) ? FIND_DEFINE : FIND_ANY,
           cap->count1,
-          isupper(cap->nchar)   ? ACTION_SHOW_ALL
-          : islower(cap->nchar) ? ACTION_SHOW
-                                : ACTION_GOTO,
+          isupper(cap->nchar) ? ACTION_SHOW_ALL
+                              : islower(cap->nchar) ? ACTION_SHOW
+                                                    : ACTION_GOTO,
           cap->cmdchar == ']' ? curwin->w_cursor.lnum + 1 : (linenr_T)1,
           (linenr_T)MAXLNUM);
       curwin->w_set_curswant = TRUE;

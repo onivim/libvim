@@ -695,11 +695,11 @@ EXTERN int p_tbidi; /* 'termbidi' */
 #endif
 EXTERN char_u *p_tenc;     /* 'termencoding' */
 EXTERN char_u *p_termfont; /* 'termfont' (Onivim) */
-EXTERN int p_terse;   /* 'terse' */
-EXTERN int p_ta;      /* 'textauto' */
-EXTERN int p_to;      /* 'tildeop' */
-EXTERN int p_timeout; /* 'timeout' */
-EXTERN long p_tm;     /* 'timeoutlen' */
+EXTERN int p_terse;        /* 'terse' */
+EXTERN int p_ta;           /* 'textauto' */
+EXTERN int p_to;           /* 'tildeop' */
+EXTERN int p_timeout;      /* 'timeout' */
+EXTERN long p_tm;          /* 'timeoutlen' */
 #ifdef FEAT_TITLE
 EXTERN int p_title;           /* 'title' */
 EXTERN long p_titlelen;       /* 'titlelen' */
@@ -775,10 +775,10 @@ EXTERN char_u *p_wim; /* 'wildmode' */
 #ifdef FEAT_WILDMENU
 EXTERN int p_wmnu; /* 'wildmenu' */
 #endif
-EXTERN long p_wh;  /* 'winheight' */
-EXTERN long p_wmh; /* 'winminheight' */
-EXTERN long p_wmw; /* 'winminwidth' */
-EXTERN long p_wiw; /* 'winwidth' */
+EXTERN long p_wh;   /* 'winheight' */
+EXTERN long p_wmh;  /* 'winminheight' */
+EXTERN long p_wmw;  /* 'winminwidth' */
+EXTERN long p_wiw;  /* 'winwidth' */
 EXTERN int p_ws;    /* 'wrapscan' */
 EXTERN int p_write; /* 'write' */
 EXTERN int p_wa;    /* 'writeany' */

@@ -8717,13 +8717,13 @@ f_readfile(typval_T *argvars, typval_T *rettv)
       {
         /* Find the two bytes before the 0xbf.	If p is at buf, or buf
 		 * + 1, these may be in the "prev" string. */
-        char_u back1 = p >= buf + 1   ? p[-1]
-                       : prevlen >= 1 ? prev[prevlen - 1]
-                                      : NUL;
-        char_u back2 = p >= buf + 2                   ? p[-2]
-                       : p == buf + 1 && prevlen >= 1 ? prev[prevlen - 1]
-                       : prevlen >= 2                 ? prev[prevlen - 2]
-                                                      : NUL;
+        char_u back1 = p >= buf + 1 ? p[-1]
+                                    : prevlen >= 1 ? prev[prevlen - 1]
+                                                   : NUL;
+        char_u back2 = p >= buf + 2 ? p[-2]
+                                    : p == buf + 1 && prevlen >= 1 ? prev[prevlen - 1]
+                                                                   : prevlen >= 2 ? prev[prevlen - 2]
+                                                                                  : NUL;
 
         if (back2 == 0xef && back1 == 0xbb)
         {
@@ -11328,8 +11328,7 @@ item_compare(const void *s1, const void *s2)
     varnumber_T v1 = tv_get_number(tv1);
     varnumber_T v2 = tv_get_number(tv2);
 
-    return v1 == v2 ? 0 : v1 > v2 ? 1
-                                  : -1;
+    return v1 == v2 ? 0 : v1 > v2 ? 1 : -1;
   }
 
 #ifdef FEAT_FLOAT
@@ -11338,8 +11337,7 @@ item_compare(const void *s1, const void *s2)
     float_T v1 = tv_get_float(tv1);
     float_T v2 = tv_get_float(tv2);
 
-    return v1 == v2 ? 0 : v1 > v2 ? 1
-                                  : -1;
+    return v1 == v2 ? 0 : v1 > v2 ? 1 : -1;
   }
 #endif
 
@@ -11380,8 +11378,7 @@ item_compare(const void *s1, const void *s2)
     double n1, n2;
     n1 = strtod((char *)p1, (char **)&p1);
     n2 = strtod((char *)p2, (char **)&p2);
-    res = n1 == n2 ? 0 : n1 > n2 ? 1
-                                 : -1;
+    res = n1 == n2 ? 0 : n1 > n2 ? 1 : -1;
   }
 
   /* When the result would be zero, compare the item indexes.  Makes the
@@ -11684,10 +11681,7 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
     return;
 
   list_append_string(rettv->vval.v_list, word, len);
-  list_append_string(rettv->vval.v_list, (char_u *)(attr == HLF_SPB ? "bad" : attr == HLF_SPR ? "rare"
-                                                                          : attr == HLF_SPL   ? "local"
-                                                                          : attr == HLF_SPC   ? "caps"
-                                                                                              : ""),
+  list_append_string(rettv->vval.v_list, (char_u *)(attr == HLF_SPB ? "bad" : attr == HLF_SPR ? "rare" : attr == HLF_SPL ? "local" : attr == HLF_SPC ? "caps" : ""),
                      -1);
 }
 

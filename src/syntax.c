@@ -581,7 +581,7 @@ void do_highlight(
       {
         if (!init)
           HL_TABLE()
-        [from_id - 1].sg_set |= SG_LINK;
+          [from_id - 1].sg_set |= SG_LINK;
         HL_TABLE()
         [from_id - 1].sg_link = to_id;
 #ifdef FEAT_EVAL
@@ -653,7 +653,7 @@ void do_highlight(
     highlight_clear(idx);
     if (!doclear)
       HL_TABLE()
-    [idx].sg_set = 0;
+      [idx].sg_set = 0;
   }
 
   if (!doclear)
@@ -688,7 +688,7 @@ void do_highlight(
         {
           if (!init)
             HL_TABLE()
-          [idx].sg_set |= SG_TERM + SG_CTERM + SG_GUI;
+            [idx].sg_set |= SG_TERM + SG_CTERM + SG_GUI;
           highlight_clear(idx);
         }
         continue;
@@ -777,7 +777,7 @@ void do_highlight(
           {
             if (!init)
               HL_TABLE()
-            [idx].sg_set |= SG_TERM;
+              [idx].sg_set |= SG_TERM;
             HL_TABLE()
             [idx].sg_term = attr;
           }
@@ -788,7 +788,7 @@ void do_highlight(
           {
             if (!init)
               HL_TABLE()
-            [idx].sg_set |= SG_CTERM;
+              [idx].sg_set |= SG_CTERM;
             HL_TABLE()
             [idx].sg_cterm = attr;
             HL_TABLE()
@@ -802,7 +802,7 @@ void do_highlight(
           {
             if (!init)
               HL_TABLE()
-            [idx].sg_set |= SG_GUI;
+              [idx].sg_set |= SG_GUI;
             HL_TABLE()
             [idx].sg_gui = attr;
           }
@@ -819,7 +819,7 @@ void do_highlight(
         {
           if (!init)
             HL_TABLE()
-          [idx].sg_set |= SG_CTERM;
+            [idx].sg_set |= SG_CTERM;
 
           /* When setting the foreground color, and previously the "bold"
 	     * flag was set for a light color, reset it now */
@@ -891,7 +891,7 @@ void do_highlight(
             }
             else if (bold == FALSE)
               HL_TABLE()
-            [idx].sg_cterm &= ~HL_BOLD;
+              [idx].sg_cterm &= ~HL_BOLD;
           }
 
           /* Add one to the argument, to avoid zero.  Zero is used for
@@ -953,7 +953,7 @@ void do_highlight(
         {
           if (!init)
             HL_TABLE()
-          [idx].sg_set |= SG_GUI;
+            [idx].sg_set |= SG_GUI;
 
           if (*namep == NULL || STRCMP(*namep, arg) != 0)
           {
@@ -976,7 +976,7 @@ void do_highlight(
         {
           if (!init)
             HL_TABLE()
-          [idx].sg_set |= SG_GUI;
+            [idx].sg_set |= SG_GUI;
 
           if (*namep == NULL || STRCMP(*namep, arg) != 0)
           {
@@ -999,7 +999,7 @@ void do_highlight(
         {
           if (!init)
             HL_TABLE()
-          [idx].sg_set |= SG_GUI;
+            [idx].sg_set |= SG_GUI;
 
           if (*namep == NULL || STRCMP(*namep, arg) != 0)
           {
@@ -1020,7 +1020,7 @@ void do_highlight(
 
         if (!init)
           HL_TABLE()
-        [idx].sg_set |= SG_TERM;
+          [idx].sg_set |= SG_TERM;
 
         /*
 	     * The "start" and "stop"  arguments can be a literal escape
@@ -1113,7 +1113,7 @@ void do_highlight(
 	 */
       if (!init || !(HL_TABLE()[idx].sg_set & SG_LINK))
         HL_TABLE()
-      [idx].sg_link = 0;
+        [idx].sg_link = 0;
 
       /*
 	 * Continue with next argument.
