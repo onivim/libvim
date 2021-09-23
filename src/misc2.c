@@ -3048,9 +3048,9 @@ int call_shell(char_u *cmd, int opt)
         STRCAT(ncmd, ecmd);
         /* When 'shellxquote' is ( append ).
 		 * When 'shellxquote' is "( append )". */
-        STRCAT(ncmd, STRCMP(p_sxq, "(") == 0 ? (char_u *)")"
-                                             : STRCMP(p_sxq, "\"(") == 0 ? (char_u *)")\""
-                                                                         : p_sxq);
+        STRCAT(ncmd, STRCMP(p_sxq, "(") == 0     ? (char_u *)")"
+                     : STRCMP(p_sxq, "\"(") == 0 ? (char_u *)")\""
+                                                 : p_sxq);
         retval = mch_call_shell(ncmd, opt);
         vim_free(ncmd);
       }
@@ -3812,9 +3812,6 @@ void parse_queued_messages(void)
     // changes, e.g. stdin may have been closed.
     if (job_check_ended())
       continue;
-#endif
-#ifdef FEAT_TERMINAL
-    free_unused_terminals();
 #endif
     break;
   }

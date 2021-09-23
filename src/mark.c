@@ -1637,11 +1637,7 @@ void handle_viminfo_mark(garray_T *values, int force)
 static int
 skip_for_viminfo(buf_T *buf)
 {
-  return
-#ifdef FEAT_TERMINAL
-      bt_terminal(buf) ||
-#endif
-      removable(buf->b_ffname);
+  return removable(buf->b_ffname);
 }
 
 void write_viminfo_filemarks(FILE *fp)

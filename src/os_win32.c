@@ -1465,16 +1465,6 @@ int mch_char_avail(void)
   return WaitForChar(0L, FALSE);
 }
 
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Check for any pending input or messages.
- */
-int mch_check_messages(void)
-{
-  return WaitForChar(0L, TRUE);
-}
-#endif
-
 /*
  * Create the console input.  Used when reading stdin doesn't work.
  */
@@ -2591,9 +2581,9 @@ handler_routine(
     vim_snprintf((char *)IObuff, IOSIZE, _("Vim: Caught %s event\n"),
                  (dwCtrlType == CTRL_CLOSE_EVENT
                       ? _("close")
-                      : dwCtrlType == CTRL_LOGOFF_EVENT
-                            ? _("logoff")
-                            : _("shutdown")));
+                  : dwCtrlType == CTRL_LOGOFF_EVENT
+                      ? _("logoff")
+                      : _("shutdown")));
 #ifdef DEBUG
     OutputDebugString(IObuff);
 #endif
@@ -2642,7 +2632,8 @@ void mch_settmode(int tmode)
   if (fdDump)
   {
     fprintf(fdDump, "mch_settmode(%s, in = %x, out = %x)\n",
-            tmode == TMODE_RAW ? "raw" : tmode == TMODE_COOK ? "cooked" : "normal",
+            tmode == TMODE_RAW ? "raw" : tmode == TMODE_COOK ? "cooked"
+                                                             : "normal",
             cmodein, cmodeout);
     fflush(fdDump);
   }

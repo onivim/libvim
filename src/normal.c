@@ -4171,8 +4171,9 @@ static void nv_brackets(cmdarg_T *cap)
           ptr, 0, len, TRUE, cap->count0 == 0 ? !isupper(cap->nchar) : FALSE,
           ((cap->nchar & 0xf) == ('d' & 0xf)) ? FIND_DEFINE : FIND_ANY,
           cap->count1,
-          isupper(cap->nchar) ? ACTION_SHOW_ALL
-                              : islower(cap->nchar) ? ACTION_SHOW : ACTION_GOTO,
+          isupper(cap->nchar)   ? ACTION_SHOW_ALL
+          : islower(cap->nchar) ? ACTION_SHOW
+                                : ACTION_GOTO,
           cap->cmdchar == ']' ? curwin->w_cursor.lnum + 1 : (linenr_T)1,
           (linenr_T)MAXLNUM);
       curwin->w_set_curswant = TRUE;
@@ -4959,11 +4960,6 @@ static void v_visop(cmdarg_T *cap)
  */
 static void nv_subst(cmdarg_T *cap)
 {
-#ifdef FEAT_TERMINAL
-  /* When showing output of term_dumpdiff() swap the top and botom. */
-  if (term_swap_diff() == OK)
-    return;
-#endif
 #ifdef FEAT_JOB_CHANNEL
   if (bt_prompt(curbuf) && !prompt_curpos_editable())
   {
@@ -6402,15 +6398,6 @@ static void nv_edit(cmdarg_T *cap)
   /* in Visual mode "A" and "I" are an operator */
   if (VIsual_active && (cap->cmdchar == 'A' || cap->cmdchar == 'I'))
   {
-#ifdef FEAT_TERMINAL
-    if (term_in_normal_mode())
-    {
-      end_visual_mode();
-      clearop(cap->oap);
-      term_enter_job_mode();
-      return;
-    }
-#endif
     // Block 'I'insert or 'A'ppend - special case to produce multiple cursors
     if (VIsual_mode == Ctrl_V)
     {
@@ -6488,14 +6475,6 @@ static void nv_edit(cmdarg_T *cap)
     clearopbeep(cap->oap);
 #endif
   }
-#ifdef FEAT_TERMINAL
-  else if (term_in_normal_mode())
-  {
-    clearop(cap->oap);
-    term_enter_job_mode();
-    return;
-  }
-#endif
   else if (!curbuf->b_p_ma && !p_im)
   {
     /* Only give this error when 'insertmode' is off. */

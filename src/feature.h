@@ -742,14 +742,6 @@
 #endif
 
 /*
- * +terminal		":terminal" command.  Runs a terminal in a window.
- *			requires +channel
- */
-#if defined(FEAT_TERMINAL) && !defined(FEAT_JOB_CHANNEL)
-#undef FEAT_TERMINAL
-#endif
-
-/*
  * +signs		Allow signs to be displayed to the left of text lines.
  *			Adds the ":sign" command.
  */
@@ -792,7 +784,6 @@
 #undef FEAT_CMDWIN
 #undef FEAT_CONCEAL
 #undef FEAT_SMARTINDENT
-#undef FEAT_TERMINAL
 
 #undef FEAT_WILDMENU
 
@@ -816,7 +807,6 @@
 #undef FEAT_SPELL
 #undef FEAT_STL_OPT
 #undef FEAT_SYN_HL
-#undef FEAT_TERMINAL // Handled by consumer
 #undef FEAT_TERMGUICOLORS
 #undef FEAT_TERMRESPONSE
 #undef FEAT_TITLE

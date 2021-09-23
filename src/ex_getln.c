@@ -5318,8 +5318,7 @@ ExpandFromContext(
       int ic;
       int escaped;
     } tab[] =
-    {
-      {EXPAND_COMMANDS, get_command_name, FALSE, TRUE},
+    { {EXPAND_COMMANDS, get_command_name, FALSE, TRUE},
       {EXPAND_BEHAVE, get_behave_arg, TRUE, TRUE},
       {EXPAND_MAPCLEAR, get_mapclear_arg, TRUE, TRUE},
       {EXPAND_MESSAGES, get_messages_arg, TRUE, TRUE},

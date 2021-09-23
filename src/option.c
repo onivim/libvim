@@ -202,11 +202,6 @@
 #define PV_WFW OPT_WIN(WV_WFW)
 #define PV_WRAP OPT_WIN(WV_WRAP)
 #define PV_CRBIND OPT_WIN(WV_CRBIND)
-#ifdef FEAT_TERMINAL
-#define PV_TWK OPT_WIN(WV_TWK)
-#define PV_TWS OPT_WIN(WV_TWS)
-#define PV_TWSL OPT_BUF(BV_TWSL)
-#endif
 #ifdef FEAT_SIGNS
 #define PV_SCL OPT_WIN(WV_SCL)
 #endif
@@ -298,9 +293,6 @@ static char_u *p_vts;
 #endif
 #ifdef FEAT_KEYMAP
 static char_u *p_keymap;
-#endif
-#ifdef FEAT_TERMINAL
-static long p_twsl; /* 'termwinscroll' */
 #endif
 
 /* Saved values for when 'bin' is set. */
@@ -1888,49 +1880,17 @@ static struct vimoption options[] =
         {"termfont", "tfn", P_STRING | P_VI_DEF | P_RCLR | P_ONECOMMA | P_NODUP, (char_u *)&p_termfont, PV_NONE, {(char_u *)"", (char_u *)0L} SCTX_INIT},
         {"termguicolors", "tgc", P_BOOL | P_VI_DEF | P_VIM | P_RCLR, (char_u *)NULL, PV_NONE, {(char_u *)FALSE, (char_u *)FALSE} SCTX_INIT},
         {"termwinkey", "twk", P_STRING | P_ALLOCED | P_RWIN | P_VI_DEF,
-#ifdef FEAT_TERMINAL
-         (char_u *)VAR_WIN,
-         PV_TWK,
-         {(char_u *)"", (char_u *)NULL}
-#else
+
          (char_u *)NULL,
          PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
+         {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"termwinscroll", "twsl", P_NUM | P_VI_DEF | P_VIM | P_RBUF,
-#ifdef FEAT_TERMINAL
-         (char_u *)&p_twsl,
-         PV_TWSL,
-         {(char_u *)10000L, (char_u *)10000L}
-#else
+
          (char_u *)NULL,
          PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
-        {"termwinsize", "tws", P_STRING | P_ALLOCED | P_RWIN | P_VI_DEF,
-#ifdef FEAT_TERMINAL
-         (char_u *)VAR_WIN,
-         PV_TWS,
-         {(char_u *)"", (char_u *)NULL}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
-        {"termwintype", "twt", P_STRING | P_ALLOCED | P_VI_DEF,
-#if defined(MSWIN) && defined(FEAT_TERMINAL)
-         (char_u *)&p_twt,
-         PV_NONE,
-         {(char_u *)"", (char_u *)NULL}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)NULL, (char_u *)0L}
-#endif
-         SCTX_INIT},
+         {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"termwinsize", "tws", P_STRING | P_ALLOCED | P_RWIN | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
+        {"termwintype", "twt", P_STRING | P_ALLOCED | P_VI_DEF, (char_u *)NULL, PV_NONE, {(char_u *)NULL, (char_u *)0L} SCTX_INIT},
         {"terse", NULL, P_BOOL | P_VI_DEF, (char_u *)&p_terse, PV_NONE, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"textauto", "ta", P_BOOL | P_VIM, (char_u *)&p_ta, PV_NONE, {(char_u *)DFLT_TEXTAUTO, (char_u *)TRUE} SCTX_INIT},
         {"textmode", "tx", P_BOOL | P_VI_DEF | P_NO_MKRC, (char_u *)&p_tx, PV_TX, {
@@ -2130,23 +2090,7 @@ static struct vimoption options[] =
         {"winfixwidth", "wfw", P_BOOL | P_VI_DEF | P_RSTAT, (char_u *)VAR_WIN, PV_WFW, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"winminheight", "wmh", P_NUM | P_VI_DEF, (char_u *)&p_wmh, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
         {"winminwidth", "wmw", P_NUM | P_VI_DEF, (char_u *)&p_wmw, PV_NONE, {(char_u *)1L, (char_u *)0L} SCTX_INIT},
-        {"winptydll", NULL, P_STRING | P_EXPAND | P_VI_DEF | P_SECURE,
-#if defined(MSWIN) && defined(FEAT_TERMINAL)
-         (char_u *)&p_winptydll,
-         PV_NONE,
-         {
-#ifdef _WIN64
-             (char_u *)"winpty64.dll",
-#else
-             (char_u *)"winpty32.dll",
-#endif
-             (char_u *)0L}
-#else
-         (char_u *)NULL,
-         PV_NONE,
-         {(char_u *)0L, (char_u *)0L}
-#endif
-         SCTX_INIT},
+        {"winptydll", NULL, P_STRING | P_EXPAND | P_VI_DEF | P_SECURE, (char_u *)NULL, PV_NONE, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
         {"winwidth", "wiw", P_NUM | P_VI_DEF, (char_u *)&p_wiw, PV_NONE, {(char_u *)20L, (char_u *)0L} SCTX_INIT},
         {"wrap", NULL, P_BOOL | P_VI_DEF | P_RWIN, (char_u *)VAR_WIN, PV_WRAP, {(char_u *)FALSE, (char_u *)0L} SCTX_INIT},
         {"wrapmargin", "wm", P_NUM | P_VI_DEF, (char_u *)&p_wm, PV_WM, {(char_u *)0L, (char_u *)0L} SCTX_INIT},
@@ -2207,9 +2151,6 @@ static char *(p_fcl_values[]) = {"all", NULL};
 #endif
 #ifdef FEAT_SIGNS
 static char *(p_scl_values[]) = {"yes", "no", "auto", NULL};
-#endif
-#if defined(MSWIN) && defined(FEAT_TERMINAL)
-static char *(p_twt_values[]) = {"winpty", "conpty", "", NULL};
 #endif
 
 static void set_options_default(int opt_flags);
@@ -5718,33 +5659,6 @@ did_set_string_option(
     }
   }
 
-#ifdef FEAT_TERMINAL
-  // 'termwinkey'
-  else if (varp == &curwin->w_p_twk)
-  {
-    if (*curwin->w_p_twk != NUL && string_to_key(curwin->w_p_twk, TRUE) == 0)
-      errmsg = e_invarg;
-  }
-  // 'termwinsize'
-  else if (varp == &curwin->w_p_tws)
-  {
-    if (*curwin->w_p_tws != NUL)
-    {
-      p = skipdigits(curwin->w_p_tws);
-      if (p == curwin->w_p_tws || (*p != 'x' && *p != '*') || *skipdigits(p + 1) != NUL)
-        errmsg = e_invarg;
-    }
-  }
-#if defined(MSWIN)
-  // 'termwintype'
-  else if (varp == &p_twt)
-  {
-    if (check_opt_strings(*varp, p_twt_values, FALSE) != OK)
-      errmsg = e_invarg;
-  }
-#endif
-#endif
-
 #ifdef FEAT_VARTABS
   /* 'varsofttabstop' */
   else if (varp == &(curbuf->b_p_vsts))
@@ -6211,14 +6125,6 @@ set_bool_option(
   /* when 'modifiable' is changed, redraw the window title */
   else if ((int *)varp == &curbuf->b_p_ma)
   {
-#ifdef FEAT_TERMINAL
-    /* Cannot set 'modifiable' when in Terminal mode. */
-    if (curbuf->b_p_ma && (term_in_normal_mode() || (bt_terminal(curbuf) && curbuf->b_term != NULL && !term_is_finished(curbuf))))
-    {
-      curbuf->b_p_ma = FALSE;
-      return N_("E946: Cannot make a terminal with running job modifiable");
-    }
-#endif
   }
 
   /* when 'bin' is set also set some other options */
@@ -8435,15 +8341,6 @@ get_varp(struct vimoption *p)
     return (char_u *)&(curwin->w_p_scb);
   case PV_CRBIND:
     return (char_u *)&(curwin->w_p_crb);
-#ifdef FEAT_TERMINAL
-  case PV_TWK:
-    return (char_u *)&(curwin->w_p_twk);
-  case PV_TWS:
-    return (char_u *)&(curwin->w_p_tws);
-  case PV_TWSL:
-    return (char_u *)&(curbuf->b_p_twsl);
-#endif
-
   case PV_AI:
     return (char_u *)&(curbuf->b_p_ai);
   case PV_BIN:
@@ -8638,10 +8535,6 @@ void copy_winopt(winopt_T *from, winopt_T *to)
   to->wo_diff = from->wo_diff;
   to->wo_diff_saved = from->wo_diff_saved;
 #endif
-#ifdef FEAT_TERMINAL
-  to->wo_twk = vim_strsave(from->wo_twk);
-  to->wo_tws = vim_strsave(from->wo_tws);
-#endif
 #ifdef FEAT_FOLDING
   to->wo_fdc = from->wo_fdc;
   to->wo_fdc_save = from->wo_fdc_save;
@@ -8699,10 +8592,6 @@ check_winopt(winopt_T *wop UNUSED)
 #ifdef FEAT_RIGHTLEFT
   check_string_option(&wop->wo_rlc);
 #endif
-#ifdef FEAT_TERMINAL
-  check_string_option(&wop->wo_twk);
-  check_string_option(&wop->wo_tws);
-#endif
 #ifdef FEAT_LINEBREAK
   check_string_option(&wop->wo_briopt);
 #endif
@@ -8733,10 +8622,6 @@ void clear_winopt(winopt_T *wop UNUSED)
   clear_string_option(&wop->wo_wcr);
 #ifdef FEAT_RIGHTLEFT
   clear_string_option(&wop->wo_rlc);
-#endif
-#ifdef FEAT_TERMINAL
-  clear_string_option(&wop->wo_twk);
-  clear_string_option(&wop->wo_tws);
 #endif
 }
 
@@ -8885,9 +8770,6 @@ void buf_copy_options(buf_T *buf, int flags)
 #ifdef FEAT_KEYMAP
       buf->b_p_keymap = vim_strsave(p_keymap);
       buf->b_kmap_state |= KEYMAP_INIT;
-#endif
-#ifdef FEAT_TERMINAL
-      buf->b_p_twsl = p_twsl;
 #endif
       /* This isn't really an option, but copying the langmap and IME
 	     * state from the current buffer is better than resetting it. */

@@ -4761,7 +4761,8 @@ static void ins_insert(int replaceState)
   set_vim_var_string(VV_INSERTMODE,
                      (char_u *)((State & REPLACE_FLAG)
                                     ? "i"
-                                    : replaceState == VREPLACE ? "v" : "r"),
+                                : replaceState == VREPLACE ? "v"
+                                                           : "r"),
                      1);
 #endif
   ins_apply_autocmds(EVENT_INSERTCHANGE);

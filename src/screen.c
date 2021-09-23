@@ -313,10 +313,6 @@ void redrawWinline(
 void after_updating_screen(int may_resize_shell UNUSED)
 {
   updating_screen = FALSE;
-#ifdef FEAT_TERMINAL
-  term_check_channel_closed_recently();
-#endif
-
 #ifdef HAVE_DROP_FILE
   // If handle_drop() was called while updating_screen was TRUE need to
   // handle the drop now.
@@ -366,16 +362,6 @@ void updateWindow(win_T *wp)
     win_redr_status(wp, FALSE);
 
   update_finish();
-}
-#endif
-
-#if defined(FEAT_TERMINAL) || defined(PROTO)
-/*
- * Return the index in ScreenLines[] for the current screen line.
- */
-int screen_get_current_line_off()
-{
-  return (int)(current_ScreenLine - ScreenLines);
 }
 #endif
 
@@ -786,11 +772,7 @@ win_redr_status(win_T *wp, int ignore_pum UNUSED)
       len += (int)STRLEN(p + len);
     }
 #endif
-    if (bufIsChanged(wp->w_buffer)
-#ifdef FEAT_TERMINAL
-        && !bt_terminal(wp->w_buffer)
-#endif
-    )
+    if (bufIsChanged(wp->w_buffer))
     {
       STRCPY(p + len, "[+]");
       len += 3;
@@ -3131,23 +3113,7 @@ fillchar_status(int *attr, win_T *wp)
 {
   int fill;
 
-#ifdef FEAT_TERMINAL
-  if (bt_terminal(wp->w_buffer))
-  {
-    if (wp == curwin)
-    {
-      *attr = HL_ATTR(HLF_ST);
-      fill = fill_stl;
-    }
-    else
-    {
-      *attr = HL_ATTR(HLF_STNC);
-      fill = fill_stlnc;
-    }
-  }
-  else
-#endif
-      if (wp == curwin)
+  if (wp == curwin)
   {
     *attr = HL_ATTR(HLF_S);
     fill = fill_stl;

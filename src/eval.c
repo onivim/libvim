@@ -5532,10 +5532,6 @@ int garbage_collect(int testing)
   abort = abort || set_ref_in_quickfix(copyID);
 #endif
 
-#ifdef FEAT_TERMINAL
-  abort = abort || set_ref_in_term(copyID);
-#endif
-
   if (!abort)
   {
     /*
@@ -6959,9 +6955,9 @@ set_cmdarg(exarg_T *eap, char_u *oldarg)
 
   if (eap->force_ff != 0)
     sprintf((char *)newval + STRLEN(newval), " ++ff=%s",
-            eap->force_ff == 'u' ? "unix"
-                                 : eap->force_ff == 'd' ? "dos"
-                                                        : "mac");
+            eap->force_ff == 'u'   ? "unix"
+            : eap->force_ff == 'd' ? "dos"
+                                   : "mac");
   if (eap->force_enc != 0)
     sprintf((char *)newval + STRLEN(newval), " ++enc=%s",
             eap->cmd + eap->force_enc);
@@ -7482,9 +7478,9 @@ tv_get_string_buf_chk(typval_T *varp, char_u *buf)
 
     if (job == NULL)
       return (char_u *)"no process";
-    status = job->jv_status == JOB_FAILED ? "fail"
-                                          : job->jv_status >= JOB_ENDED ? "dead"
-                                                                        : "run";
+    status = job->jv_status == JOB_FAILED  ? "fail"
+             : job->jv_status >= JOB_ENDED ? "dead"
+                                           : "run";
 #ifdef UNIX
     vim_snprintf((char *)buf, NUMBUFLEN,
                  "process %ld %s", (long)job->jv_pid, status);
@@ -8075,17 +8071,17 @@ int var_check_lock(int lock, char_u *name, int use_gettext)
   if (lock & VAR_LOCKED)
   {
     semsg(_("E741: Value is locked: %s"),
-          name == NULL ? (char_u *)_("Unknown")
-                       : use_gettext ? (char_u *)_(name)
-                                     : name);
+          name == NULL  ? (char_u *)_("Unknown")
+          : use_gettext ? (char_u *)_(name)
+                        : name);
     return TRUE;
   }
   if (lock & VAR_FIXED)
   {
     semsg(_("E742: Cannot change value of %s"),
-          name == NULL ? (char_u *)_("Unknown")
-                       : use_gettext ? (char_u *)_(name)
-                                     : name);
+          name == NULL  ? (char_u *)_("Unknown")
+          : use_gettext ? (char_u *)_(name)
+                        : name);
     return TRUE;
   }
   return FALSE;

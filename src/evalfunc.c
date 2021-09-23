@@ -895,29 +895,6 @@ static struct fst
         {"tanh", 1, 1, f_tanh},
 #endif
         {"tempname", 0, 0, f_tempname},
-#ifdef FEAT_TERMINAL
-        {"term_dumpdiff", 2, 3, f_term_dumpdiff},
-        {"term_dumpload", 1, 2, f_term_dumpload},
-        {"term_dumpwrite", 2, 3, f_term_dumpwrite},
-        {"term_getaltscreen", 1, 1, f_term_getaltscreen},
-        {"term_getattr", 2, 2, f_term_getattr},
-        {"term_getcursor", 1, 1, f_term_getcursor},
-        {"term_getjob", 1, 1, f_term_getjob},
-        {"term_getline", 2, 2, f_term_getline},
-        {"term_getscrolled", 1, 1, f_term_getscrolled},
-        {"term_getsize", 1, 1, f_term_getsize},
-        {"term_getstatus", 1, 1, f_term_getstatus},
-        {"term_gettitle", 1, 1, f_term_gettitle},
-        {"term_gettty", 1, 2, f_term_gettty},
-        {"term_list", 0, 0, f_term_list},
-        {"term_scrape", 2, 2, f_term_scrape},
-        {"term_sendkeys", 2, 2, f_term_sendkeys},
-        {"term_setkill", 2, 2, f_term_setkill},
-        {"term_setrestore", 2, 2, f_term_setrestore},
-        {"term_setsize", 3, 3, f_term_setsize},
-        {"term_start", 1, 2, f_term_start},
-        {"term_wait", 1, 2, f_term_wait},
-#endif
         {"test_alloc_fail", 3, 3, f_test_alloc_fail},
         {"test_autochdir", 0, 0, f_test_autochdir},
         {"test_feedinput", 1, 1, f_test_feedinput},
@@ -5584,9 +5561,6 @@ get_win_info(win_T *wp, short tpnr, short winnr)
   dict_add_number(dict, "wincol", wp->w_wincol + 1);
   dict_add_number(dict, "bufnr", wp->w_buffer->b_fnum);
 
-#ifdef FEAT_TERMINAL
-  dict_add_number(dict, "terminal", bt_terminal(wp->w_buffer));
-#endif
 #ifdef FEAT_QUICKFIX
   dict_add_number(dict, "quickfix", bt_quickfix(wp->w_buffer));
   dict_add_number(dict, "loclist",
@@ -6134,9 +6108,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_TAG_BINS
     "tag_binary",
 #endif
-#if defined(FEAT_TERMINAL) && !defined(MSWIN)
-    "terminal",
-#endif
 #ifdef TERMINFO
     "terminfo",
 #endif
@@ -6281,14 +6252,6 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef DYNAMIC_PERL
     else if (STRICMP(name, "perl") == 0)
       n = perl_enabled(FALSE);
-#endif
-#if defined(FEAT_TERMINAL) && defined(MSWIN)
-    else if (STRICMP(name, "terminal") == 0)
-      n = terminal_enabled();
-#endif
-#if defined(FEAT_TERMINAL) && defined(MSWIN)
-    else if (STRICMP(name, "conpty") == 0)
-      n = use_conpty();
 #endif
   }
 
@@ -8123,10 +8086,6 @@ f_mode(typval_T *argvars, typval_T *rettv)
     buf[0] = 'x';
     buf[1] = '!';
   }
-#ifdef FEAT_TERMINAL
-  else if (term_use_loop())
-    buf[0] = 't';
-#endif
   else if (VIsual_active)
   {
     if (VIsual_select)
@@ -8758,11 +8717,13 @@ f_readfile(typval_T *argvars, typval_T *rettv)
       {
         /* Find the two bytes before the 0xbf.	If p is at buf, or buf
 		 * + 1, these may be in the "prev" string. */
-        char_u back1 = p >= buf + 1 ? p[-1]
-                                    : prevlen >= 1 ? prev[prevlen - 1] : NUL;
-        char_u back2 = p >= buf + 2 ? p[-2]
-                                    : p == buf + 1 && prevlen >= 1 ? prev[prevlen - 1]
-                                                                   : prevlen >= 2 ? prev[prevlen - 2] : NUL;
+        char_u back1 = p >= buf + 1   ? p[-1]
+                       : prevlen >= 1 ? prev[prevlen - 1]
+                                      : NUL;
+        char_u back2 = p >= buf + 2                   ? p[-2]
+                       : p == buf + 1 && prevlen >= 1 ? prev[prevlen - 1]
+                       : prevlen >= 2                 ? prev[prevlen - 2]
+                                                      : NUL;
 
         if (back2 == 0xef && back1 == 0xbb)
         {
@@ -11367,7 +11328,8 @@ item_compare(const void *s1, const void *s2)
     varnumber_T v1 = tv_get_number(tv1);
     varnumber_T v2 = tv_get_number(tv2);
 
-    return v1 == v2 ? 0 : v1 > v2 ? 1 : -1;
+    return v1 == v2 ? 0 : v1 > v2 ? 1
+                                  : -1;
   }
 
 #ifdef FEAT_FLOAT
@@ -11376,7 +11338,8 @@ item_compare(const void *s1, const void *s2)
     float_T v1 = tv_get_float(tv1);
     float_T v2 = tv_get_float(tv2);
 
-    return v1 == v2 ? 0 : v1 > v2 ? 1 : -1;
+    return v1 == v2 ? 0 : v1 > v2 ? 1
+                                  : -1;
   }
 #endif
 
@@ -11417,7 +11380,8 @@ item_compare(const void *s1, const void *s2)
     double n1, n2;
     n1 = strtod((char *)p1, (char **)&p1);
     n2 = strtod((char *)p2, (char **)&p2);
-    res = n1 == n2 ? 0 : n1 > n2 ? 1 : -1;
+    res = n1 == n2 ? 0 : n1 > n2 ? 1
+                                 : -1;
   }
 
   /* When the result would be zero, compare the item indexes.  Makes the
@@ -11720,7 +11684,11 @@ f_spellbadword(typval_T *argvars UNUSED, typval_T *rettv)
     return;
 
   list_append_string(rettv->vval.v_list, word, len);
-  list_append_string(rettv->vval.v_list, (char_u *)(attr == HLF_SPB ? "bad" : attr == HLF_SPR ? "rare" : attr == HLF_SPL ? "local" : attr == HLF_SPC ? "caps" : ""), -1);
+  list_append_string(rettv->vval.v_list, (char_u *)(attr == HLF_SPB ? "bad" : attr == HLF_SPR ? "rare"
+                                                                          : attr == HLF_SPL   ? "local"
+                                                                          : attr == HLF_SPC   ? "caps"
+                                                                                              : ""),
+                     -1);
 }
 
 /*

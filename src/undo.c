@@ -389,11 +389,6 @@ int u_savecommon(
     if (!undo_allowed())
       return FAIL;
 
-#ifdef FEAT_TERMINAL
-    /* A change in a terminal buffer removes the highlighting. */
-    term_change_in_curbuf();
-#endif
-
     /*
 	 * Saving text for undo means we are going to make a change.  Give a
 	 * warning for a read-only file before making the change, so that the
@@ -3158,10 +3153,7 @@ void u_blockfree(buf_T *buf)
  */
 int bufIsChanged(buf_T *buf)
 {
-#ifdef FEAT_TERMINAL
-  if (term_job_running(buf->b_term))
-    return TRUE;
-#endif
+
   return bufIsChangedNotTerm(buf);
 }
 

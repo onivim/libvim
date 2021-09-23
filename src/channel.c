@@ -1270,12 +1270,6 @@ channel_write_in(channel_T *channel)
   in_part->ch_buf_top = lnum;
   if (lnum > buf->b_ml.ml_line_count || lnum > in_part->ch_buf_bot)
   {
-#if defined(FEAT_TERMINAL)
-    /* Send CTRL-D or "eof_chars" to close stdin on MS-Windows. */
-    if (channel->ch_job != NULL)
-      term_send_eof(channel);
-#endif
-
     /* Writing is done, no longer need the buffer. */
     in_part->ch_bufref.br_buf = NULL;
     ch_log(channel, "Finished writing all lines to channel");
@@ -2468,12 +2462,7 @@ may_invoke_callback(channel_T *channel, ch_part_T part)
         msg = json_encode(listtv, ch_mode);
       if (msg != NULL)
       {
-#ifdef FEAT_TERMINAL
-        if (buffer->b_term != NULL)
-          write_to_term(buffer, msg, channel);
-        else
-#endif
-          append_to_buffer(buffer, msg, channel, part);
+        append_to_buffer(buffer, msg, channel, part);
       }
     }
 
@@ -2731,10 +2720,6 @@ void channel_close(channel_T *channel, int invoke_close_cb)
   }
 
   channel->ch_nb_close_cb = NULL;
-
-#ifdef FEAT_TERMINAL
-  term_channel_closed(channel);
-#endif
 }
 
 /*
@@ -4232,7 +4217,8 @@ void free_job_options(jobopt_T *opt)
 static int
 part_from_char(int c)
 {
-  return c == 'i' ? PART_IN : c == 'o' ? PART_OUT : PART_ERR;
+  return c == 'i' ? PART_IN : c == 'o' ? PART_OUT
+                                       : PART_ERR;
 }
 
 /*
@@ -4470,138 +4456,6 @@ int get_job_options(typval_T *tv, jobopt_T *opt, int supported, int supported2)
           return FAIL;
         }
       }
-#ifdef FEAT_TERMINAL
-      else if (STRCMP(hi->hi_key, "term_name") == 0)
-      {
-        if (!(supported2 & JO2_TERM_NAME))
-          break;
-        opt->jo_set2 |= JO2_TERM_NAME;
-        opt->jo_term_name = tv_get_string_chk(item);
-        if (opt->jo_term_name == NULL)
-        {
-          semsg(_(e_invargval), "term_name");
-          return FAIL;
-        }
-      }
-      else if (STRCMP(hi->hi_key, "term_finish") == 0)
-      {
-        if (!(supported2 & JO2_TERM_FINISH))
-          break;
-        val = tv_get_string(item);
-        if (STRCMP(val, "open") != 0 && STRCMP(val, "close") != 0)
-        {
-          semsg(_(e_invargNval), "term_finish", val);
-          return FAIL;
-        }
-        opt->jo_set2 |= JO2_TERM_FINISH;
-        opt->jo_term_finish = *val;
-      }
-      else if (STRCMP(hi->hi_key, "term_opencmd") == 0)
-      {
-        char_u *p;
-
-        if (!(supported2 & JO2_TERM_OPENCMD))
-          break;
-        opt->jo_set2 |= JO2_TERM_OPENCMD;
-        p = opt->jo_term_opencmd = tv_get_string_chk(item);
-        if (p != NULL)
-        {
-          /* Must have %d and no other %. */
-          p = vim_strchr(p, '%');
-          if (p != NULL && (p[1] != 'd' || vim_strchr(p + 2, '%') != NULL))
-            p = NULL;
-        }
-        if (p == NULL)
-        {
-          semsg(_(e_invargval), "term_opencmd");
-          return FAIL;
-        }
-      }
-      else if (STRCMP(hi->hi_key, "eof_chars") == 0)
-      {
-        char_u *p;
-
-        if (!(supported2 & JO2_EOF_CHARS))
-          break;
-        opt->jo_set2 |= JO2_EOF_CHARS;
-        p = opt->jo_eof_chars = tv_get_string_chk(item);
-        if (p == NULL)
-        {
-          semsg(_(e_invargval), "eof_chars");
-          return FAIL;
-        }
-      }
-      else if (STRCMP(hi->hi_key, "term_rows") == 0)
-      {
-        if (!(supported2 & JO2_TERM_ROWS))
-          break;
-        opt->jo_set2 |= JO2_TERM_ROWS;
-        opt->jo_term_rows = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "term_cols") == 0)
-      {
-        if (!(supported2 & JO2_TERM_COLS))
-          break;
-        opt->jo_set2 |= JO2_TERM_COLS;
-        opt->jo_term_cols = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "vertical") == 0)
-      {
-        if (!(supported2 & JO2_VERTICAL))
-          break;
-        opt->jo_set2 |= JO2_VERTICAL;
-        opt->jo_vertical = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "curwin") == 0)
-      {
-        if (!(supported2 & JO2_CURWIN))
-          break;
-        opt->jo_set2 |= JO2_CURWIN;
-        opt->jo_curwin = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "hidden") == 0)
-      {
-        if (!(supported2 & JO2_HIDDEN))
-          break;
-        opt->jo_set2 |= JO2_HIDDEN;
-        opt->jo_hidden = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "norestore") == 0)
-      {
-        if (!(supported2 & JO2_NORESTORE))
-          break;
-        opt->jo_set2 |= JO2_NORESTORE;
-        opt->jo_term_norestore = tv_get_number(item);
-      }
-      else if (STRCMP(hi->hi_key, "term_kill") == 0)
-      {
-        if (!(supported2 & JO2_TERM_KILL))
-          break;
-        opt->jo_set2 |= JO2_TERM_KILL;
-        opt->jo_term_kill = tv_get_string_chk(item);
-      }
-      else if (STRCMP(hi->hi_key, "tty_type") == 0)
-      {
-        char_u *p;
-
-        if (!(supported2 & JO2_TTY_TYPE))
-          break;
-        opt->jo_set2 |= JO2_TTY_TYPE;
-        p = tv_get_string_chk(item);
-        if (p == NULL)
-        {
-          semsg(_(e_invargval), "tty_type");
-          return FAIL;
-        }
-        // Allow empty string, "winpty", "conpty".
-        if (!(*p == NUL || STRCMP(p, "winpty") == 0 || STRCMP(p, "conpty") == 0))
-        {
-          semsg(_(e_invargval), "tty_type");
-          return FAIL;
-        }
-        opt->jo_tty_type = p[0];
-      }
-#endif
       else if (STRCMP(hi->hi_key, "env") == 0)
       {
         if (!(supported2 & JO2_ENV))
@@ -4857,10 +4711,6 @@ void job_free_all(void)
   while (first_job != NULL)
     job_free(first_job);
   free_jobs_to_free_later();
-
-#ifdef FEAT_TERMINAL
-  free_unused_terminals();
-#endif
 }
 #endif
 
